@@ -51,7 +51,7 @@ body {
   background: var(--bg-main);
   color: var(--text-primary);
   font-size: 15px;
-  font-weight: 400;
+  font-weight: 500;
   line-height: 1.6;
   overflow-x: hidden;
 }
@@ -326,9 +326,9 @@ button {
 }
 .service-bar__item:last-child { border-right: none; }
 .service-bar__icon {
-  font-size: 22px;
   color: var(--text-secondary);
   flex-shrink: 0;
+  opacity: 0.6;
 }
 .service-bar__title {
   font-size: 13px;
@@ -403,23 +403,23 @@ button {
   transform: scale(1.04);
 }
 .product-card__brand {
-  font-size: 11px;
-  font-weight: 500;
+  font-size: 12px;
+  font-weight: 600;
   letter-spacing: 0.08em;
-  color: var(--text-muted);
+  color: var(--text-secondary);
   margin-bottom: 4px;
   text-transform: uppercase;
 }
 .product-card__name {
   font-size: 14px;
-  font-weight: 400;
+  font-weight: 500;
   color: var(--text-primary);
   margin-bottom: 6px;
   line-height: 1.4;
 }
 .product-card__price {
   font-size: 14px;
-  font-weight: 500;
+  font-weight: 600;
   color: var(--text-primary);
   letter-spacing: 0.02em;
 }
@@ -581,11 +581,11 @@ button {
   transform: scale(1.03);
 }
 .journal-card__category {
-  font-size: 10px;
-  font-weight: 500;
+  font-size: 11px;
+  font-weight: 600;
   letter-spacing: 0.2em;
   text-transform: uppercase;
-  color: var(--text-muted);
+  color: var(--text-secondary);
   margin-bottom: 8px;
 }
 .journal-card__title {
