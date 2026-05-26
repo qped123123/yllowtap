@@ -268,17 +268,19 @@ async function socialLogin(provider) {
   };
 
   if (provider === 'naver') {
-    // 네이버는 custom provider
     const { error } = await sb.auth.signInWithOAuth({
       provider: 'custom:naver',
       options
     });
     if (error) { showError('loginError', error.message); }
   } else {
-    // 카카오
+    // 카카오 — 이메일/프로필사진 제외, 닉네임만 요청
     const { error } = await sb.auth.signInWithOAuth({
       provider: 'kakao',
-      options
+      options: {
+        ...options,
+        scopes: 'profile_nickname'
+      }
     });
     if (error) { showError('loginError', error.message); }
   }
