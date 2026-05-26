@@ -3,115 +3,30 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>YLLOWTAP — Collection</title>
+<title>Yllowtap — Collection</title>
+<link rel="stylesheet" href="./css/style.css">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,opsz,wght@0,6..96,400;0,6..96,700;1,6..96,400&family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet">
 <style>
-/* ===== CSS VARIABLES ===== */
+/* ===== CATEGORY PAGE ONLY ===== */
 :root {
-  --bg: #F7F5F2;
-  --bg-white: #FFFFFF;
-  --text-primary: #111111;
-  --text-secondary: #666666;
-  --text-tertiary: #999999;
-  --accent: #F4D84E;
-  --border: #E5E1DC;
-  --border-light: #F0EDE8;
-  --font-display: 'Bodoni Moda', serif;
-  --font-body: 'Noto Sans KR', sans-serif;
+  --cat-bg: #F7F5F2;
+  --cat-text: #111111;
+  --cat-text2: #666666;
+  --cat-text3: #999999;
+  --cat-accent: #F4D84E;
+  --cat-border: #E5E1DC;
+  --cat-font-display: 'Bodoni Moda', serif;
+  --cat-font-body: 'Noto Sans KR', 'Pretendard', sans-serif;
 }
 
-* { margin: 0; padding: 0; box-sizing: border-box; }
-
-body {
-  font-family: var(--font-body);
-  background: var(--bg);
-  color: var(--text-primary);
-  -webkit-font-smoothing: antialiased;
-}
-
-/* ===== HEADER ===== */
-.header {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  z-index: 100;
-  background: rgba(247, 245, 242, 0.95);
-  backdrop-filter: blur(20px);
-  border-bottom: 1px solid var(--border-light);
-}
-
-.header-inner {
-  max-width: 1400px;
-  margin: 0 auto;
-  padding: 0 40px;
-  height: 64px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
-
-.logo {
-  font-family: var(--font-display);
-  font-size: 22px;
-  font-weight: 700;
-  letter-spacing: 3px;
-  color: var(--text-primary);
-  text-decoration: none;
-}
-.logo span { color: var(--accent); }
-
-.header-nav {
-  display: flex;
-  gap: 32px;
-}
-.header-nav a {
-  font-size: 11px;
-  font-weight: 500;
-  letter-spacing: 2px;
-  text-transform: uppercase;
-  color: var(--text-secondary);
-  text-decoration: none;
-  transition: color 0.3s;
-  position: relative;
-}
-.header-nav a:hover,
-.header-nav a.active {
-  color: var(--text-primary);
-}
-.header-nav a.active::after {
-  content: '';
-  position: absolute;
-  bottom: -4px;
-  left: 0;
-  right: 0;
-  height: 1px;
-  background: var(--text-primary);
-}
-
-.header-icons {
-  display: flex;
-  gap: 20px;
-  align-items: center;
-}
-.header-icons a {
-  color: var(--text-secondary);
-  text-decoration: none;
-  font-size: 13px;
-  letter-spacing: 1px;
-  transition: color 0.3s;
-}
-.header-icons a:hover { color: var(--text-primary); }
-
-/* ===== CATEGORY NAV ===== */
+/* CATEGORY NAV */
 .category-nav {
-  margin-top: 64px;
-  border-bottom: 1px solid var(--border);
-  background: var(--bg);
+  border-bottom: 1px solid var(--cat-border);
+  background: var(--cat-bg);
   position: sticky;
-  top: 64px;
+  top: 60px;
   z-index: 90;
 }
 .category-nav-inner {
@@ -124,106 +39,100 @@ body {
   scrollbar-width: none;
 }
 .category-nav-inner::-webkit-scrollbar { display: none; }
-
 .cat-tab {
-  padding: 16px 20px;
+  padding: 14px 18px;
   font-size: 11px;
   font-weight: 500;
-  letter-spacing: 2px;
+  letter-spacing: 1.5px;
   text-transform: uppercase;
-  color: var(--text-tertiary);
+  color: var(--cat-text3);
   text-decoration: none;
   white-space: nowrap;
   border-bottom: 2px solid transparent;
   transition: all 0.3s;
   cursor: pointer;
+  font-family: var(--cat-font-body);
 }
-.cat-tab:hover { color: var(--text-primary); }
-.cat-tab.active {
-  color: var(--text-primary);
-  border-bottom-color: var(--text-primary);
-}
+.cat-tab:hover { color: var(--cat-text); }
+.cat-tab.active { color: var(--cat-text); border-bottom-color: var(--cat-text); }
 
-/* ===== CATEGORY HERO ===== */
+/* CATEGORY HERO */
 .category-hero {
   max-width: 1400px;
   margin: 0 auto;
-  padding: 60px 40px 40px;
+  padding: 50px 40px 32px;
   text-align: center;
 }
 .category-hero h1 {
-  font-family: var(--font-display);
-  font-size: 42px;
+  font-family: var(--cat-font-display);
+  font-size: 38px;
   font-weight: 400;
-  letter-spacing: 6px;
+  letter-spacing: 5px;
   text-transform: uppercase;
-  margin-bottom: 12px;
+  margin-bottom: 10px;
   opacity: 0;
-  animation: fadeUp 0.8s ease forwards;
+  animation: catFadeUp 0.8s ease forwards;
 }
 .category-hero p {
   font-size: 13px;
-  color: var(--text-secondary);
+  color: var(--cat-text2);
   letter-spacing: 1px;
   opacity: 0;
-  animation: fadeUp 0.8s ease 0.2s forwards;
+  animation: catFadeUp 0.8s ease 0.2s forwards;
 }
 .category-count {
-  margin-top: 8px;
+  margin-top: 6px;
   font-size: 11px;
-  color: var(--text-tertiary);
+  color: var(--cat-text3);
   letter-spacing: 2px;
   opacity: 0;
-  animation: fadeUp 0.8s ease 0.3s forwards;
+  animation: catFadeUp 0.8s ease 0.3s forwards;
 }
 
-/* ===== FILTER BAR ===== */
+/* FILTER BAR */
 .filter-bar {
   max-width: 1400px;
   margin: 0 auto;
-  padding: 0 40px 32px;
+  padding: 0 40px 28px;
   display: flex;
   justify-content: space-between;
   align-items: center;
 }
-.filter-left {
-  display: flex;
-  gap: 12px;
-}
+.filter-left { display: flex; gap: 10px; }
 .filter-btn {
-  padding: 8px 20px;
+  padding: 7px 18px;
   font-size: 11px;
   font-weight: 400;
   letter-spacing: 1.5px;
-  color: var(--text-secondary);
+  color: var(--cat-text2);
   background: transparent;
-  border: 1px solid var(--border);
+  border: 1px solid var(--cat-border);
   cursor: pointer;
   transition: all 0.3s;
+  font-family: var(--cat-font-body);
 }
-.filter-btn:hover,
-.filter-btn.active {
-  background: var(--text-primary);
-  color: var(--bg);
-  border-color: var(--text-primary);
+.filter-btn:hover, .filter-btn.active {
+  background: var(--cat-text);
+  color: var(--cat-bg);
+  border-color: var(--cat-text);
 }
 .filter-right select {
-  padding: 8px 32px 8px 16px;
+  padding: 7px 30px 7px 14px;
   font-size: 11px;
   letter-spacing: 1px;
-  color: var(--text-secondary);
+  color: var(--cat-text2);
   background: transparent;
-  border: 1px solid var(--border);
-  font-family: var(--font-body);
+  border: 1px solid var(--cat-border);
+  font-family: var(--cat-font-body);
   cursor: pointer;
   appearance: none;
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%23999'/%3E%3C/svg%3E");
   background-repeat: no-repeat;
-  background-position: right 12px center;
+  background-position: right 10px center;
 }
 
-/* ===== PRODUCT GRID ===== */
-.product-grid {
+/* PRODUCT GRID */
+.cat-product-grid {
   max-width: 1400px;
   margin: 0 auto;
   padding: 0 40px 80px;
@@ -232,308 +141,161 @@ body {
   gap: 24px 20px;
 }
 
-.product-card {
+.cat-product-card {
   cursor: pointer;
   text-decoration: none;
   color: inherit;
   display: block;
   opacity: 0;
-  animation: fadeUp 0.6s ease forwards;
+  animation: catFadeUp 0.6s ease forwards;
 }
-.product-card:nth-child(1) { animation-delay: 0.1s; }
-.product-card:nth-child(2) { animation-delay: 0.15s; }
-.product-card:nth-child(3) { animation-delay: 0.2s; }
-.product-card:nth-child(4) { animation-delay: 0.25s; }
-.product-card:nth-child(5) { animation-delay: 0.3s; }
-.product-card:nth-child(6) { animation-delay: 0.35s; }
-.product-card:nth-child(7) { animation-delay: 0.4s; }
-.product-card:nth-child(8) { animation-delay: 0.45s; }
+.cat-product-card:nth-child(1) { animation-delay: 0.1s; }
+.cat-product-card:nth-child(2) { animation-delay: 0.15s; }
+.cat-product-card:nth-child(3) { animation-delay: 0.2s; }
+.cat-product-card:nth-child(4) { animation-delay: 0.25s; }
+.cat-product-card:nth-child(5) { animation-delay: 0.3s; }
+.cat-product-card:nth-child(6) { animation-delay: 0.35s; }
+.cat-product-card:nth-child(7) { animation-delay: 0.4s; }
+.cat-product-card:nth-child(8) { animation-delay: 0.45s; }
 
-.product-card-img {
+.cat-card-img {
   position: relative;
   width: 100%;
   aspect-ratio: 3/4;
   overflow: hidden;
   background: #EAE7E2;
-  margin-bottom: 14px;
+  margin-bottom: 12px;
 }
-.product-card-img img {
+.cat-card-img img {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  transition: transform 0.8s cubic-bezier(0.25, 0, 0.15, 1);
+  transition: transform 0.8s cubic-bezier(0.25,0,0.15,1);
 }
-.product-card:hover .product-card-img img {
-  transform: scale(1.05);
+.cat-product-card:hover .cat-card-img img { transform: scale(1.05); }
+.cat-card-img .hover-img {
+  position: absolute; top:0; left:0; width:100%; height:100%;
+  object-fit: cover; opacity: 0; transition: opacity 0.6s ease;
+}
+.cat-product-card:hover .cat-card-img .hover-img { opacity: 1; }
+
+.cat-badge {
+  position: absolute; top: 10px; left: 10px;
+  font-size: 9px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase;
+  padding: 3px 9px; z-index: 2;
+}
+.cat-badge-new { background: var(--cat-text); color: var(--cat-bg); }
+.cat-badge-sale { background: #C4453C; color: #fff; }
+.cat-badge-made { background: var(--cat-accent); color: var(--cat-text); }
+
+.cat-wishlist-btn {
+  position: absolute; top: 10px; right: 10px;
+  width: 30px; height: 30px;
+  background: rgba(255,255,255,0.85); border: none; border-radius: 50%;
+  cursor: pointer; display: flex; align-items: center; justify-content: center;
+  opacity: 0; transition: opacity 0.3s; z-index: 2;
+}
+.cat-product-card:hover .cat-wishlist-btn { opacity: 1; }
+.cat-wishlist-btn svg { width: 15px; height: 15px; stroke: var(--cat-text); fill: none; stroke-width: 1.5; }
+
+.cat-card-brand {
+  font-size: 10px; font-weight: 500; letter-spacing: 1.5px;
+  text-transform: uppercase; color: var(--cat-text3); margin-bottom: 3px;
+}
+.cat-card-name {
+  font-size: 13px; font-weight: 400; color: var(--cat-text);
+  line-height: 1.5; margin-bottom: 7px;
+  display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
+}
+.cat-card-price { display: flex; align-items: center; gap: 8px; }
+.cat-price-original { font-size: 12px; color: var(--cat-text3); text-decoration: line-through; }
+.cat-price-current { font-size: 14px; font-weight: 700; color: var(--cat-text); }
+.cat-price-discount { font-size: 12px; font-weight: 700; color: #C4453C; }
+
+/* LOAD MORE */
+.cat-load-more { text-align: center; padding: 0 40px 80px; }
+.cat-load-more-btn {
+  padding: 13px 56px;
+  font-size: 11px; font-weight: 500; letter-spacing: 3px; text-transform: uppercase;
+  color: var(--cat-text); background: transparent;
+  border: 1px solid var(--cat-text); cursor: pointer;
+  transition: all 0.3s; font-family: var(--cat-font-body);
+}
+.cat-load-more-btn:hover { background: var(--cat-text); color: var(--cat-bg); }
+
+/* EMPTY / LOADING */
+.cat-empty { grid-column: 1/-1; text-align: center; padding: 80px 0; }
+.cat-empty p { font-size: 14px; color: var(--cat-text3); letter-spacing: 1px; }
+.cat-loading { grid-column: 1/-1; text-align: center; padding: 80px 0; }
+.cat-spinner {
+  width: 24px; height: 24px;
+  border: 2px solid var(--cat-border); border-top-color: var(--cat-text);
+  border-radius: 50%; animation: catSpin 0.8s linear infinite;
+  margin: 0 auto 14px;
 }
 
-/* hover시 두번째 이미지 */
-.product-card-img .hover-img {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  opacity: 0;
-  transition: opacity 0.6s ease;
-}
-.product-card:hover .product-card-img .hover-img {
-  opacity: 1;
-}
+@keyframes catFadeUp { from{opacity:0;transform:translateY(20px)} to{opacity:1;transform:translateY(0)} }
+@keyframes catSpin { to{transform:rotate(360deg)} }
 
-/* 배지 */
-.badge {
-  position: absolute;
-  top: 12px;
-  left: 12px;
-  font-size: 9px;
-  font-weight: 700;
-  letter-spacing: 1.5px;
-  text-transform: uppercase;
-  padding: 4px 10px;
-  z-index: 2;
-}
-.badge-new {
-  background: var(--text-primary);
-  color: var(--bg);
-}
-.badge-sale {
-  background: #C4453C;
-  color: #fff;
-}
-.badge-made {
-  background: var(--accent);
-  color: var(--text-primary);
-}
-
-/* 위시리스트 아이콘 */
-.wishlist-btn {
-  position: absolute;
-  top: 12px;
-  right: 12px;
-  width: 32px;
-  height: 32px;
-  background: rgba(255,255,255,0.85);
-  border: none;
-  border-radius: 50%;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  opacity: 0;
-  transition: opacity 0.3s;
-  z-index: 2;
-}
-.product-card:hover .wishlist-btn { opacity: 1; }
-.wishlist-btn svg {
-  width: 16px;
-  height: 16px;
-  stroke: var(--text-primary);
-  fill: none;
-  stroke-width: 1.5;
-}
-
-.product-card-info { padding: 0 2px; }
-
-.product-brand {
-  font-size: 10px;
-  font-weight: 500;
-  letter-spacing: 1.5px;
-  text-transform: uppercase;
-  color: var(--text-tertiary);
-  margin-bottom: 4px;
-}
-.product-name {
-  font-size: 13px;
-  font-weight: 400;
-  color: var(--text-primary);
-  line-height: 1.5;
-  margin-bottom: 8px;
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-}
-.product-price {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-.price-original {
-  font-size: 12px;
-  color: var(--text-tertiary);
-  text-decoration: line-through;
-}
-.price-current {
-  font-size: 14px;
-  font-weight: 700;
-  color: var(--text-primary);
-}
-.price-discount {
-  font-size: 12px;
-  font-weight: 700;
-  color: #C4453C;
-}
-
-/* ===== LOAD MORE ===== */
-.load-more {
-  text-align: center;
-  padding: 0 40px 80px;
-}
-.load-more-btn {
-  padding: 14px 60px;
-  font-size: 11px;
-  font-weight: 500;
-  letter-spacing: 3px;
-  text-transform: uppercase;
-  color: var(--text-primary);
-  background: transparent;
-  border: 1px solid var(--text-primary);
-  cursor: pointer;
-  transition: all 0.3s;
-  font-family: var(--font-body);
-}
-.load-more-btn:hover {
-  background: var(--text-primary);
-  color: var(--bg);
-}
-
-/* ===== FOOTER ===== */
-.footer {
-  background: var(--text-primary);
-  color: rgba(255,255,255,0.5);
-  padding: 60px 40px;
-}
-.footer-inner {
-  max-width: 1400px;
-  margin: 0 auto;
-  display: grid;
-  grid-template-columns: 1fr 1fr 1fr 1fr;
-  gap: 40px;
-}
-.footer-logo {
-  font-family: var(--font-display);
-  font-size: 20px;
-  font-weight: 700;
-  letter-spacing: 3px;
-  color: #fff;
-  margin-bottom: 16px;
-}
-.footer-logo span { color: var(--accent); }
-.footer p {
-  font-size: 12px;
-  line-height: 1.8;
-}
-.footer h4 {
-  font-size: 11px;
-  font-weight: 500;
-  letter-spacing: 2px;
-  text-transform: uppercase;
-  color: rgba(255,255,255,0.7);
-  margin-bottom: 16px;
-}
-.footer a {
-  display: block;
-  font-size: 12px;
-  color: rgba(255,255,255,0.5);
-  text-decoration: none;
-  line-height: 2;
-  transition: color 0.3s;
-}
-.footer a:hover { color: #fff; }
-.footer-bottom {
-  max-width: 1400px;
-  margin: 40px auto 0;
-  padding-top: 24px;
-  border-top: 1px solid rgba(255,255,255,0.1);
-  font-size: 11px;
-  text-align: center;
-}
-
-/* ===== ANIMATIONS ===== */
-@keyframes fadeUp {
-  from { opacity: 0; transform: translateY(20px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-
-/* ===== EMPTY STATE ===== */
-.empty-state {
-  grid-column: 1 / -1;
-  text-align: center;
-  padding: 80px 0;
-}
-.empty-state p {
-  font-size: 14px;
-  color: var(--text-tertiary);
-  letter-spacing: 1px;
-}
-
-/* ===== LOADING ===== */
-.loading {
-  grid-column: 1 / -1;
-  text-align: center;
-  padding: 80px 0;
-}
-.loading-spinner {
-  width: 24px;
-  height: 24px;
-  border: 2px solid var(--border);
-  border-top-color: var(--text-primary);
-  border-radius: 50%;
-  animation: spin 0.8s linear infinite;
-  margin: 0 auto 16px;
-}
-@keyframes spin { to { transform: rotate(360deg); } }
-
-/* ===== RESPONSIVE ===== */
-@media (max-width: 1024px) {
-  .product-grid { grid-template-columns: repeat(3, 1fr); }
-  .header-nav { gap: 20px; }
-}
-@media (max-width: 768px) {
-  .product-grid {
-    grid-template-columns: repeat(2, 1fr);
-    padding: 0 20px 60px;
-    gap: 16px 12px;
-  }
-  .header-inner { padding: 0 20px; }
-  .header-nav { display: none; }
+/* RESPONSIVE */
+@media (max-width:1024px) { .cat-product-grid { grid-template-columns: repeat(3,1fr); } }
+@media (max-width:768px) {
+  .cat-product-grid { grid-template-columns: repeat(2,1fr); padding: 0 20px 60px; gap: 14px 10px; }
   .category-nav-inner { padding: 0 20px; }
-  .category-hero { padding: 40px 20px 24px; }
-  .category-hero h1 { font-size: 28px; letter-spacing: 4px; }
-  .filter-bar { padding: 0 20px 20px; flex-direction: column; gap: 12px; align-items: flex-start; }
-  .footer-inner { grid-template-columns: 1fr 1fr; }
-}
-@media (max-width: 480px) {
-  .category-hero h1 { font-size: 22px; }
+  .category-hero { padding: 32px 20px 20px; }
+  .category-hero h1 { font-size: 26px; letter-spacing: 3px; }
+  .filter-bar { padding: 0 20px 16px; flex-direction: column; gap: 10px; align-items: flex-start; }
 }
 </style>
 </head>
 <body>
 
-<!-- ===== HEADER ===== -->
+<!-- ===== HEADER (index.html과 동일) ===== -->
 <header class="header">
-  <div class="header-inner">
-    <a href="/" class="logo">YLLOW<span>T</span>AP</a>
-    <nav class="header-nav">
-      <a href="/">HOME</a>
-      <a href="/category.html" class="active">SHOP</a>
-      <a href="#">JOURNAL</a>
-      <a href="#">ABOUT</a>
-    </nav>
-    <div class="header-icons">
-      <a href="#">SEARCH</a>
-      <a href="#">CART(0)</a>
-    </div>
+  <div class="header__logo">
+    <a href="/" style="text-decoration:none;color:inherit;">
+      <span class="header__logo-highlight">Yllowtap</span>
+    </a>
+  </div>
+  <nav class="header__nav">
+    <a href="/category.html?cat=best">Best</a>
+    <a href="/category.html?cat=new">New In</a>
+    <a href="/category.html?cat=bags">Bags</a>
+    <a href="/category.html?cat=jewelry">Jewelry</a>
+    <a href="/category.html?cat=accessories">Accessories</a>
+    <a href="/category.html?cat=keyring">Keyring</a>
+    <a href="/category.html?cat=seasonal">Seasonal</a>
+    <a href="/category.html?cat=sale">Sale</a>
+  </nav>
+  <div class="header__actions">
+    <a href="#">Login</a>
+    <a href="#">Wishlist</a>
+    <a href="#">Bag (0)</a>
+    <button class="header__hamburger" aria-label="메뉴 열기">
+      <span></span><span></span><span></span>
+    </button>
   </div>
 </header>
+
+<!-- Mobile Menu -->
+<div class="mobile-menu">
+  <button class="mobile-menu__close" aria-label="메뉴 닫기">✕</button>
+  <a href="/category.html?cat=best">Best</a>
+  <a href="/category.html?cat=new">New In</a>
+  <a href="/category.html?cat=bags">Bags</a>
+  <a href="/category.html?cat=jewelry">Jewelry</a>
+  <a href="/category.html?cat=accessories">Accessories</a>
+  <a href="/category.html?cat=keyring">Keyring</a>
+  <a href="/category.html?cat=seasonal">Seasonal</a>
+  <a href="/category.html?cat=sale">Sale</a>
+  <a href="#">Login</a>
+  <a href="#">Wishlist</a>
+</div>
 
 <!-- ===== CATEGORY NAV ===== -->
 <nav class="category-nav">
   <div class="category-nav-inner" id="categoryNav">
-    <!-- JS가 Supabase에서 카테고리 로드 -->
-    <div class="loading" style="padding:16px;grid-column:auto;"><div class="loading-spinner" style="width:16px;height:16px;margin:0 auto;"></div></div>
+    <div class="cat-loading" style="padding:14px;"><div class="cat-spinner" style="width:14px;height:14px;margin:0 auto;"></div></div>
   </div>
 </nav>
 
@@ -562,60 +324,70 @@ body {
 </div>
 
 <!-- ===== PRODUCT GRID ===== -->
-<div class="product-grid" id="productGrid">
-  <div class="loading">
-    <div class="loading-spinner"></div>
-    <p style="font-size:12px;color:var(--text-tertiary);letter-spacing:1px;">Loading...</p>
+<div class="cat-product-grid" id="productGrid">
+  <div class="cat-loading">
+    <div class="cat-spinner"></div>
+    <p style="font-size:12px;color:var(--cat-text3);letter-spacing:1px;">Loading...</p>
   </div>
 </div>
 
 <!-- ===== LOAD MORE ===== -->
-<div class="load-more" id="loadMore" style="display:none;">
-  <button class="load-more-btn" id="loadMoreBtn">VIEW MORE</button>
+<div class="cat-load-more" id="loadMore" style="display:none;">
+  <button class="cat-load-more-btn" id="loadMoreBtn">VIEW MORE</button>
 </div>
 
-<!-- ===== FOOTER ===== -->
+<!-- ===== FOOTER (index.html과 동일) ===== -->
 <footer class="footer">
-  <div class="footer-inner">
+  <div class="footer__grid">
     <div>
-      <div class="footer-logo">YLLOW<span>T</span>AP</div>
-      <p>Where fashion meets<br>quiet confidence.</p>
+      <div class="footer__brand">Yllowtap</div>
+      <p class="footer__brand-desc">Curated luxury fashion for the modern woman.</p>
     </div>
-    <div>
-      <h4>SHOP</h4>
-      <a href="/category.html?cat=new">New Arrivals</a>
-      <a href="/category.html?cat=best">Best Sellers</a>
-      <a href="/category.html?cat=outer">Outer</a>
-      <a href="/category.html?cat=top">Top</a>
+    <div class="footer__col">
+      <div class="footer__col-title">Shop</div>
+      <a href="/category.html?cat=best">Best</a>
+      <a href="/category.html?cat=new">New In</a>
+      <a href="/category.html?cat=bags">Bags</a>
+      <a href="/category.html?cat=jewelry">Jewelry</a>
     </div>
-    <div>
-      <h4>SUPPORT</h4>
-      <a href="#">Shipping & Returns</a>
-      <a href="#">Size Guide</a>
+    <div class="footer__col">
+      <div class="footer__col-title">Customer Care</div>
+      <a href="#">주문 조회</a>
+      <a href="#">배송 안내</a>
+      <a href="#">교환 · 반품</a>
       <a href="#">FAQ</a>
-      <a href="#">Contact</a>
     </div>
-    <div>
-      <h4>FOLLOW</h4>
-      <a href="#">Instagram</a>
-      <a href="#">YouTube</a>
-      <a href="#">Newsletter</a>
+    <div class="footer__col">
+      <div class="footer__col-title">About</div>
+      <a href="#">브랜드 소개</a>
+      <a href="#">이용약관</a>
+      <a href="#">개인정보처리방침</a>
+    </div>
+    <div class="footer__col">
+      <div class="footer__col-title">Account</div>
+      <a href="#">로그인</a>
+      <a href="#">회원가입</a>
+      <a href="#">위시리스트</a>
     </div>
   </div>
-  <div class="footer-bottom">
-    © 2026 YLLOWTAP. All rights reserved.
+  <div class="footer__bottom">
+    <div class="footer__copy">© 2026 Yllowtap. All rights reserved.</div>
+    <div class="footer__social">
+      <a href="#">Instagram</a>
+      <a href="#">YouTube</a>
+      <a href="#">Pinterest</a>
+    </div>
   </div>
 </footer>
 
-<!-- ===== SUPABASE SDK ===== -->
+<script src="./js/main.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <script>
-// ─── 설정 ───
+// ─── Supabase 설정 ───
 const SUPABASE_URL = 'https://ppihvvpplqikclftrwdb.supabase.co';
-const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBwaWh2dnBwbHFpa2NsZnRyd2RiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk3MzE0NTEsImV4cCI6MjA5NTMwNzQ1MX0.shGVcFTQiuYc4u6tdU50x18YMgJdgFUljf8c7QlQU-U'; // ← Supabase anon key
-const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON);
+const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBwaWh2dnBwbHFpa2NsZnRyd2RiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk3MzE0NTEsImV4cCI6MjA5NTMwNzQ1MX0.shGVcFTQiuYc4u6tdU50x18YMgJdgFUljf8c7QlQU-U';
+const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON);
 
-// ─── 상태 ───
 let currentCategory = 'all';
 let currentFilter = 'all';
 let currentSort = 'newest';
@@ -624,34 +396,17 @@ let categories = [];
 const PAGE_SIZE = 20;
 let currentPage = 1;
 
-// ─── URL 파라미터에서 카테고리 읽기 ───
 function getCategoryFromURL() {
-  const params = new URLSearchParams(window.location.search);
-  return params.get('cat') || 'all';
+  return new URLSearchParams(window.location.search).get('cat') || 'all';
 }
 
-// ─── 카테고리 탭 로드 ───
 async function loadCategories() {
-  const { data, error } = await supabase
-    .from('categories')
-    .select('*')
-    .eq('is_active', true)
-    .order('display_order');
-
-  if (error) {
-    console.error('카테고리 로드 실패:', error);
-    return;
-  }
-
-  categories = data;
+  const { data } = await sb.from('categories').select('*').eq('is_active', true).order('display_order');
+  categories = data || [];
   const nav = document.getElementById('categoryNav');
-  nav.innerHTML = data.map(cat =>
-    `<a class="cat-tab${cat.slug === currentCategory ? ' active' : ''}" 
-        href="/category.html?cat=${cat.slug}" 
-        data-slug="${cat.slug}">${cat.name}</a>`
+  nav.innerHTML = categories.map(cat =>
+    `<a class="cat-tab${cat.slug === currentCategory ? ' active' : ''}" href="/category.html?cat=${cat.slug}" data-slug="${cat.slug}">${cat.name}</a>`
   ).join('');
-
-  // 클릭 이벤트 (페이지 이동 대신 SPA 방식)
   nav.querySelectorAll('.cat-tab').forEach(tab => {
     tab.addEventListener('click', (e) => {
       e.preventDefault();
@@ -664,143 +419,85 @@ async function loadCategories() {
   });
 }
 
-// ─── 카테고리 UI 업데이트 ───
 function updateCategoryUI() {
-  // 탭 active 상태
-  document.querySelectorAll('.cat-tab').forEach(tab => {
-    tab.classList.toggle('active', tab.dataset.slug === currentCategory);
-  });
-
-  // 제목
+  document.querySelectorAll('.cat-tab').forEach(tab => tab.classList.toggle('active', tab.dataset.slug === currentCategory));
   const cat = categories.find(c => c.slug === currentCategory);
   document.getElementById('categoryTitle').textContent = cat ? cat.name : 'ALL';
   document.getElementById('categoryDesc').textContent = cat?.description || 'Curated selection of quiet luxury essentials';
 }
 
-// ─── 상품 로드 ───
 async function loadProducts() {
-  let query = supabase
-    .from('products')
-    .select('*, product_media(media_url, role, display_order)')
-    .eq('is_active', true);
-
-  const { data, error } = await query.order('display_order');
-
-  if (error) {
-    console.error('상품 로드 실패:', error);
-    return;
-  }
-
-  allProducts = data;
+  const { data } = await sb.from('products').select('*, product_media(media_url, role, display_order)').eq('is_active', true).order('display_order');
+  allProducts = data || [];
   renderProducts();
 }
 
-// ─── 상품 필터 & 렌더링 ───
 function renderProducts() {
   let filtered = [...allProducts];
-
-  // 카테고리 필터
   if (currentCategory !== 'all') {
-    if (currentCategory === 'best') {
-      filtered = filtered.filter(p => p.section === 'best' || p.tags?.includes('best'));
-    } else if (currentCategory === 'new') {
-      filtered = filtered.filter(p => p.section === 'new' || p.tags?.includes('new'));
-    } else if (currentCategory === 'sale') {
-      filtered = filtered.filter(p => p.original_price && p.original_price > p.price);
-    } else {
-      filtered = filtered.filter(p => p.category?.toLowerCase() === currentCategory);
-    }
+    if (currentCategory === 'best') filtered = filtered.filter(p => p.tags?.includes('best'));
+    else if (currentCategory === 'new') filtered = filtered.filter(p => p.tags?.includes('new'));
+    else if (currentCategory === 'sale') filtered = filtered.filter(p => p.original_price && p.original_price > p.price);
+    else filtered = filtered.filter(p => p.category?.toLowerCase() === currentCategory);
   }
+  if (currentFilter === 'made') filtered = filtered.filter(p => p.tags?.includes('made'));
+  else if (currentFilter === 'sale') filtered = filtered.filter(p => p.original_price && p.original_price > p.price);
 
-  // 서브 필터
-  if (currentFilter === 'made') {
-    filtered = filtered.filter(p => p.name?.includes('MADE') || p.tags?.includes('made'));
-  } else if (currentFilter === 'sale') {
-    filtered = filtered.filter(p => p.original_price && p.original_price > p.price);
-  }
-
-  // 정렬
   switch (currentSort) {
-    case 'price-low':
-      filtered.sort((a, b) => a.price - b.price);
-      break;
-    case 'price-high':
-      filtered.sort((a, b) => b.price - a.price);
-      break;
-    case 'name':
-      filtered.sort((a, b) => a.name.localeCompare(b.name));
-      break;
-    default: // newest
-      filtered.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+    case 'price-low': filtered.sort((a,b) => a.price - b.price); break;
+    case 'price-high': filtered.sort((a,b) => b.price - a.price); break;
+    case 'name': filtered.sort((a,b) => a.name.localeCompare(b.name)); break;
+    default: filtered.sort((a,b) => new Date(b.created_at) - new Date(a.created_at));
   }
 
-  // 개수 표시
   document.getElementById('categoryCount').textContent = `${filtered.length} items`;
-
-  // 페이징
   const paged = filtered.slice(0, currentPage * PAGE_SIZE);
-  const hasMore = paged.length < filtered.length;
-
   const grid = document.getElementById('productGrid');
 
-  if (filtered.length === 0) {
-    grid.innerHTML = '<div class="empty-state"><p>No items found</p></div>';
+  if (!filtered.length) {
+    grid.innerHTML = '<div class="cat-empty"><p>No items found</p></div>';
     document.getElementById('loadMore').style.display = 'none';
     return;
   }
 
   grid.innerHTML = paged.map((p, i) => {
-    const mainImg = getProductImage(p, 'main');
-    const hoverImg = getProductImage(p, 'editorial') || getProductImage(p, 'detail');
+    const mainImg = getImg(p, 'main');
+    const hoverImg = getImg(p, 'editorial') || getImg(p, 'detail');
     const isSale = p.original_price && p.original_price > p.price;
     const discount = isSale ? Math.round((1 - p.price / p.original_price) * 100) : 0;
-    const isMade = p.name?.includes('MADE');
     const isNew = p.tags?.includes('new');
+    const isMade = p.tags?.includes('made');
     const slug = p.slug || p.id;
-
-    return `
-      <a class="product-card" href="/product.html?slug=${slug}" style="animation-delay:${0.05 * (i % 8)}s">
-        <div class="product-card-img">
-          ${mainImg ? `<img src="${mainImg}" alt="${p.name}" loading="lazy">` : '<div style="width:100%;height:100%;background:#EAE7E2;"></div>'}
-          ${hoverImg ? `<img class="hover-img" src="${hoverImg}" alt="${p.name}" loading="lazy">` : ''}
-          ${isNew ? '<span class="badge badge-new">NEW</span>' : ''}
-          ${isSale ? '<span class="badge badge-sale">SALE</span>' : ''}
-          ${isMade && !isNew && !isSale ? '<span class="badge badge-made">MADE</span>' : ''}
-          <button class="wishlist-btn" onclick="event.preventDefault();event.stopPropagation();">
-            <svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
-          </button>
-        </div>
-        <div class="product-card-info">
-          <div class="product-brand">${p.brand || 'YLLOWTAP'}</div>
-          <div class="product-name">${p.name}</div>
-          <div class="product-price">
-            ${isSale ? `<span class="price-original">${p.original_price.toLocaleString()}원</span>` : ''}
-            <span class="price-current">${p.price.toLocaleString()}원</span>
-            ${isSale ? `<span class="price-discount">${discount}%</span>` : ''}
-          </div>
-        </div>
-      </a>
-    `;
+    return `<a class="cat-product-card" href="/product.html?slug=${slug}" style="animation-delay:${0.05*(i%8)}s">
+      <div class="cat-card-img">
+        ${mainImg ? `<img src="${mainImg}" alt="${p.name}" loading="lazy">` : '<div style="width:100%;height:100%;background:#EAE7E2;"></div>'}
+        ${hoverImg ? `<img class="hover-img" src="${hoverImg}" alt="${p.name}" loading="lazy">` : ''}
+        ${isNew ? '<span class="cat-badge cat-badge-new">NEW</span>' : ''}
+        ${isSale ? '<span class="cat-badge cat-badge-sale">SALE</span>' : ''}
+        ${isMade && !isNew && !isSale ? '<span class="cat-badge cat-badge-made">MADE</span>' : ''}
+        <button class="cat-wishlist-btn" onclick="event.preventDefault();event.stopPropagation();">
+          <svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+        </button>
+      </div>
+      <div class="cat-card-brand">${p.brand || 'YLLOWTAP'}</div>
+      <div class="cat-card-name">${p.name}</div>
+      <div class="cat-card-price">
+        ${isSale ? `<span class="cat-price-original">${p.original_price.toLocaleString()}원</span>` : ''}
+        <span class="cat-price-current">${p.price.toLocaleString()}원</span>
+        ${isSale ? `<span class="cat-price-discount">${discount}%</span>` : ''}
+      </div>
+    </a>`;
   }).join('');
-
-  // 더보기 버튼
-  document.getElementById('loadMore').style.display = hasMore ? 'block' : 'none';
+  document.getElementById('loadMore').style.display = paged.length < filtered.length ? 'block' : 'none';
 }
 
-// ─── 이미지 헬퍼 ───
-function getProductImage(product, role) {
-  if (!product.product_media || product.product_media.length === 0) {
-    return role === 'main' ? product.image_url : null;
-  }
-  const media = product.product_media
-    .filter(m => m.role === role)
-    .sort((a, b) => a.display_order - b.display_order);
-  return media.length > 0 ? media[0].media_url : (role === 'main' ? product.image_url : null);
+function getImg(product, role) {
+  if (!product.product_media?.length) return role === 'main' ? product.image_url : null;
+  const media = product.product_media.filter(m => m.role === role).sort((a,b) => a.display_order - b.display_order);
+  return media.length ? media[0].media_url : (role === 'main' ? product.image_url : null);
 }
 
-// ─── 이벤트 바인딩 ───
 function bindEvents() {
-  // 필터 버튼
   document.querySelectorAll('.filter-btn').forEach(btn => {
     btn.addEventListener('click', () => {
       document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
@@ -810,22 +507,10 @@ function bindEvents() {
       renderProducts();
     });
   });
-
-  // 정렬
-  document.getElementById('sortSelect').addEventListener('change', (e) => {
-    currentSort = e.target.value;
-    currentPage = 1;
-    renderProducts();
-  });
-
-  // 더보기
-  document.getElementById('loadMoreBtn').addEventListener('click', () => {
-    currentPage++;
-    renderProducts();
-  });
+  document.getElementById('sortSelect').addEventListener('change', (e) => { currentSort = e.target.value; currentPage = 1; renderProducts(); });
+  document.getElementById('loadMoreBtn').addEventListener('click', () => { currentPage++; renderProducts(); });
 }
 
-// ─── 초기화 ───
 async function init() {
   currentCategory = getCategoryFromURL();
   await loadCategories();
@@ -833,7 +518,6 @@ async function init() {
   await loadProducts();
   bindEvents();
 }
-
 init();
 </script>
 </body>
