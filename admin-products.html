@@ -1,0 +1,929 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>YLLOWTAP — Product Admin</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0F0F0F;
+  --bg-card: #1A1A1A;
+  --bg-input: #222222;
+  --bg-hover: #2A2A2A;
+  --text: #E8E8E8;
+  --text-dim: #888888;
+  --text-muted: #555555;
+  --accent: #F4D84E;
+  --accent-dark: #D4B83E;
+  --border: #333333;
+  --red: #E05545;
+  --green: #4CAF50;
+  --blue: #5B9BD5;
+  --font: 'Noto Sans KR', sans-serif;
+  --radius: 6px;
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+body { font-family:var(--font); background:var(--bg); color:var(--text); font-size:13px; }
+
+/* ===== LAYOUT ===== */
+.admin-layout { display:flex; min-height:100vh; }
+
+/* SIDEBAR */
+.sidebar {
+  width:220px;
+  background:var(--bg-card);
+  border-right:1px solid var(--border);
+  padding:24px 0;
+  position:fixed;
+  top:0;bottom:0;left:0;
+  overflow-y:auto;
+  z-index:50;
+}
+.sidebar-logo {
+  font-size:18px; font-weight:700; letter-spacing:2px;
+  padding:0 20px 24px;
+  border-bottom:1px solid var(--border);
+  color:var(--accent);
+}
+.sidebar-logo small { display:block; font-size:10px; font-weight:400; color:var(--text-dim); letter-spacing:1px; margin-top:4px; }
+.sidebar-nav { padding:16px 0; }
+.sidebar-nav a {
+  display:flex; align-items:center; gap:10px;
+  padding:10px 20px;
+  font-size:12px; font-weight:400; letter-spacing:0.5px;
+  color:var(--text-dim); text-decoration:none; transition:all 0.2s;
+}
+.sidebar-nav a:hover { color:var(--text); background:var(--bg-hover); }
+.sidebar-nav a.active { color:var(--accent); background:rgba(244,216,78,0.08); border-right:2px solid var(--accent); }
+.sidebar-nav a .icon { font-size:16px; width:20px; text-align:center; }
+
+/* MAIN */
+.main { margin-left:220px; flex:1; padding:24px 32px; }
+
+/* TOP BAR */
+.top-bar { display:flex; justify-content:space-between; align-items:center; margin-bottom:24px; }
+.top-bar h1 { font-size:20px; font-weight:700; letter-spacing:1px; }
+
+/* BUTTONS */
+.btn {
+  padding:9px 20px; font-size:12px; font-weight:500; letter-spacing:0.5px;
+  border:none; border-radius:var(--radius); cursor:pointer; font-family:var(--font); transition:all 0.2s;
+}
+.btn-primary { background:var(--accent); color:#111; }
+.btn-primary:hover { background:var(--accent-dark); }
+.btn-secondary { background:var(--bg-input); color:var(--text); border:1px solid var(--border); }
+.btn-secondary:hover { background:var(--bg-hover); }
+.btn-danger { background:var(--red); color:#fff; }
+.btn-danger:hover { background:#c0392b; }
+.btn-small { padding:6px 14px; font-size:11px; }
+
+/* ===== PRODUCT LIST ===== */
+.product-list-header {
+  display:grid;
+  grid-template-columns:48px 1fr 100px 100px 80px 100px;
+  gap:12px; padding:10px 16px;
+  font-size:10px; font-weight:500; letter-spacing:1px; text-transform:uppercase;
+  color:var(--text-muted); border-bottom:1px solid var(--border);
+}
+.product-row {
+  display:grid;
+  grid-template-columns:48px 1fr 100px 100px 80px 100px;
+  gap:12px; padding:12px 16px; align-items:center;
+  border-bottom:1px solid rgba(255,255,255,0.04);
+  transition:background 0.15s; cursor:pointer;
+}
+.product-row:hover { background:var(--bg-hover); }
+.product-row-img { width:48px; height:48px; object-fit:cover; border-radius:4px; background:var(--bg-input); }
+.product-row-name { font-weight:500; }
+.product-row-sub { font-size:10px; color:var(--text-dim); margin-top:2px; }
+.product-row-category { font-size:11px; color:var(--text-dim); }
+.product-row-price { font-weight:500; }
+.status-badge { display:inline-block; padding:3px 8px; font-size:10px; font-weight:500; letter-spacing:0.5px; border-radius:10px; }
+.status-active { background:rgba(76,175,80,0.15); color:var(--green); }
+.status-inactive { background:rgba(224,85,69,0.15); color:var(--red); }
+.tag-badge { display:inline-block; padding:2px 6px; font-size:9px; font-weight:500; border-radius:3px; background:rgba(244,216,78,0.12); color:var(--accent); margin-right:3px; }
+
+.empty-list { text-align:center; padding:80px 0; color:var(--text-muted); }
+.empty-list p { margin-bottom:16px; }
+
+/* ===== MODAL ===== */
+.modal-overlay {
+  position:fixed; inset:0; background:rgba(0,0,0,0.7);
+  z-index:100; display:none; overflow-y:auto;
+}
+.modal-overlay.show { display:block; }
+.modal {
+  max-width:900px; margin:40px auto;
+  background:var(--bg-card); border:1px solid var(--border); border-radius:8px; overflow:hidden;
+}
+.modal-header {
+  display:flex; justify-content:space-between; align-items:center;
+  padding:16px 24px; border-bottom:1px solid var(--border);
+}
+.modal-header h2 { font-size:16px; font-weight:600; }
+.modal-close {
+  width:32px; height:32px; background:none; border:none;
+  color:var(--text-dim); font-size:20px; cursor:pointer; border-radius:var(--radius); transition:all 0.2s;
+}
+.modal-close:hover { background:var(--bg-hover); color:var(--text); }
+.modal-body { padding:24px; }
+.modal-footer {
+  display:flex; justify-content:flex-end; gap:8px;
+  padding:16px 24px; border-top:1px solid var(--border);
+}
+
+/* FORM */
+.form-section { margin-bottom:28px; }
+.form-section-title {
+  font-size:12px; font-weight:600; letter-spacing:1px; text-transform:uppercase;
+  color:var(--accent); margin-bottom:16px; padding-bottom:8px; border-bottom:1px solid var(--border);
+}
+.form-row { display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-bottom:14px; }
+.form-row.full { grid-template-columns:1fr; }
+.form-row.triple { grid-template-columns:1fr 1fr 1fr; }
+.form-group { display:flex; flex-direction:column; gap:6px; }
+.form-label { font-size:11px; font-weight:500; letter-spacing:0.5px; color:var(--text-dim); }
+.form-label .required { color:var(--red); margin-left:2px; }
+.form-input, .form-select, .form-textarea {
+  padding:10px 12px; font-size:13px; font-family:var(--font);
+  background:var(--bg-input); border:1px solid var(--border); border-radius:var(--radius);
+  color:var(--text); transition:border-color 0.2s;
+}
+.form-input:focus, .form-select:focus, .form-textarea:focus { outline:none; border-color:var(--accent); }
+.form-textarea { resize:vertical; min-height:80px; line-height:1.6; }
+.form-textarea.tall { min-height:160px; }
+.form-hint { font-size:10px; color:var(--text-muted); margin-top:2px; }
+
+/* CHECKBOX GROUP */
+.checkbox-group { display:flex; flex-wrap:wrap; gap:8px; }
+.checkbox-item {
+  display:flex; align-items:center; gap:6px;
+  padding:6px 14px; background:var(--bg-input); border:1px solid var(--border);
+  border-radius:20px; cursor:pointer; transition:all 0.2s; font-size:12px; color:var(--text-dim);
+}
+.checkbox-item:hover { border-color:var(--text-dim); }
+.checkbox-item.checked { background:rgba(244,216,78,0.15); border-color:var(--accent); color:var(--accent); }
+.checkbox-item input { display:none; }
+
+/* TAGS INPUT (커스텀 태그) */
+.tags-input {
+  display:flex; flex-wrap:wrap; gap:6px;
+  padding:8px 10px; background:var(--bg-input); border:1px solid var(--border);
+  border-radius:var(--radius); min-height:40px; cursor:text;
+}
+.tags-input:focus-within { border-color:var(--accent); }
+.tag-item {
+  display:flex; align-items:center; gap:4px;
+  padding:3px 8px; background:rgba(91,155,213,0.15); color:var(--blue);
+  border-radius:4px; font-size:11px; font-weight:500;
+}
+.tag-remove { cursor:pointer; font-size:14px; line-height:1; opacity:0.6; }
+.tag-remove:hover { opacity:1; }
+.tags-input input {
+  flex:1; min-width:80px; background:none; border:none; color:var(--text);
+  font-size:12px; font-family:var(--font); outline:none;
+}
+
+/* OPTIONS BUILDER */
+.option-item {
+  display:grid; grid-template-columns:120px 1fr 32px;
+  gap:8px; margin-bottom:8px; align-items:center;
+}
+.option-remove {
+  width:32px; height:32px; background:none; border:1px solid var(--border);
+  border-radius:var(--radius); color:var(--red); font-size:16px;
+  cursor:pointer; transition:all 0.2s; display:flex; align-items:center; justify-content:center;
+}
+.option-remove:hover { background:rgba(224,85,69,0.15); }
+
+/* IMAGE UPLOAD */
+.image-upload-area { display:grid; grid-template-columns:repeat(auto-fill, minmax(140px, 1fr)); gap:12px; }
+.image-card {
+  position:relative; aspect-ratio:3/4;
+  background:var(--bg-input); border:1px solid var(--border); border-radius:var(--radius); overflow:hidden;
+}
+.image-card img, .image-card video {
+  width:100%; height:100%; object-fit:cover;
+}
+.image-card-overlay {
+  position:absolute; bottom:0; left:0; right:0;
+  padding:6px 8px; background:rgba(0,0,0,0.75);
+  display:flex; justify-content:space-between; align-items:center;
+}
+.image-card-role-label {
+  font-size:10px; font-weight:500; letter-spacing:0.5px; color:var(--accent);
+}
+.image-card-actions { display:flex; gap:4px; }
+.image-card-actions button {
+  width:22px; height:22px; border:none; border-radius:4px;
+  font-size:11px; cursor:pointer; display:flex; align-items:center; justify-content:center;
+  transition:all 0.15s;
+}
+.img-btn-move { background:var(--bg-hover); color:var(--text-dim); }
+.img-btn-move:hover { background:var(--border); color:var(--text); }
+.img-btn-delete { background:var(--red); color:#fff; }
+.img-btn-delete:hover { background:#c0392b; }
+
+.image-add-btn {
+  aspect-ratio:3/4; background:var(--bg-input); border:2px dashed var(--border);
+  border-radius:var(--radius); display:flex; flex-direction:column;
+  align-items:center; justify-content:center; gap:8px;
+  cursor:pointer; transition:all 0.2s; color:var(--text-muted);
+}
+.image-add-btn:hover { border-color:var(--accent); color:var(--accent); }
+.image-add-btn .plus { font-size:28px; line-height:1; }
+.image-add-btn span { font-size:10px; letter-spacing:0.5px; }
+
+/* RECOMMEND */
+.recommend-list { display:flex; flex-wrap:wrap; gap:8px; margin-bottom:12px; }
+.recommend-chip {
+  display:flex; align-items:center; gap:6px;
+  padding:6px 12px; background:var(--bg-input); border:1px solid var(--border);
+  border-radius:20px; font-size:11px;
+}
+.recommend-chip img { width:24px; height:24px; object-fit:cover; border-radius:4px; }
+
+/* TOAST */
+.toast {
+  position:fixed; bottom:32px; right:32px;
+  padding:14px 24px; background:var(--green); color:#fff;
+  border-radius:var(--radius); font-size:13px; font-weight:500;
+  z-index:200; opacity:0; transform:translateY(20px); transition:all 0.3s;
+}
+.toast.show { opacity:1; transform:translateY(0); }
+.toast.error { background:var(--red); }
+
+/* RESPONSIVE */
+@media (max-width:768px) {
+  .sidebar { display:none; }
+  .main { margin-left:0; padding:16px; }
+  .product-list-header, .product-row { grid-template-columns:40px 1fr 80px 60px; }
+  .product-list-header > *:nth-child(4),
+  .product-list-header > *:nth-child(5),
+  .product-row > *:nth-child(4),
+  .product-row > *:nth-child(5) { display:none; }
+  .form-row, .form-row.triple { grid-template-columns:1fr; }
+  .modal { margin:16px; }
+}
+</style>
+</head>
+<body>
+
+<div class="admin-layout">
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="sidebar-logo">
+      YLLOWTAP
+      <small>ADMIN</small>
+    </div>
+    <nav class="sidebar-nav">
+      <a href="admin.html"><span class="icon">🏠</span> 대시보드</a>
+      <a href="admin-products.html" class="active"><span class="icon">🛍️</span> 상품 관리</a>
+      <a href="#"><span class="icon">📂</span> 컬렉션</a>
+      <a href="#"><span class="icon">🎨</span> 무드</a>
+      <a href="#"><span class="icon">📸</span> 미디어</a>
+      <a href="/" target="_blank"><span class="icon">🌐</span> 사이트 보기</a>
+    </nav>
+  </aside>
+
+  <!-- MAIN -->
+  <div class="main">
+    <div class="top-bar">
+      <h1>상품 관리</h1>
+      <button class="btn btn-primary" onclick="openForm()">+ 새 상품 등록</button>
+    </div>
+
+    <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);">
+      <div class="product-list-header">
+        <div></div>
+        <div>상품명</div>
+        <div>카테고리</div>
+        <div>가격</div>
+        <div>상태</div>
+        <div>관리</div>
+      </div>
+      <div id="productList">
+        <div class="empty-list">
+          <p>등록된 상품이 없습니다</p>
+          <button class="btn btn-primary" onclick="openForm()">첫 상품 등록하기</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== PRODUCT FORM MODAL ===== -->
+<div class="modal-overlay" id="formModal">
+  <div class="modal">
+    <div class="modal-header">
+      <h2 id="formTitle">새 상품 등록</h2>
+      <button class="modal-close" onclick="closeForm()">×</button>
+    </div>
+    <div class="modal-body">
+
+      <!-- 1. 기본 정보 -->
+      <div class="form-section">
+        <div class="form-section-title">기본 정보</div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">상품명<span class="required">*</span></label>
+            <input class="form-input" id="fName" placeholder="Light Classic Jacket">
+          </div>
+          <div class="form-group">
+            <label class="form-label">슬러그 (URL)<span class="required">*</span></label>
+            <input class="form-input" id="fSlug" placeholder="light-classic-jacket">
+            <span class="form-hint">영문, 숫자, 하이픈만. 상품명 입력 시 자동 생성</span>
+          </div>
+        </div>
+        <div class="form-row full">
+          <div class="form-group">
+            <label class="form-label">부제목 (에디토리얼 한줄)</label>
+            <input class="form-input" id="fSubtitle" placeholder="도시적인 실루엣의 가벼운 재킷">
+          </div>
+        </div>
+        <div class="form-row triple">
+          <div class="form-group">
+            <label class="form-label">카테고리<span class="required">*</span></label>
+            <select class="form-select" id="fCategory"><option value="">선택</option></select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">판매가<span class="required">*</span></label>
+            <input class="form-input" id="fPrice" type="number" placeholder="189000">
+          </div>
+          <div class="form-group">
+            <label class="form-label">할인 전 가격</label>
+            <input class="form-input" id="fOriginalPrice" type="number" placeholder="비워두면 할인 없음">
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">컬렉션</label>
+            <select class="form-select" id="fCollection"><option value="">없음</option></select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">노출 순서</label>
+            <input class="form-input" id="fOrder" type="number" value="0">
+            <span class="form-hint">숫자가 작을수록 앞에 표시</span>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">활성 상태</label>
+            <select class="form-select" id="fActive">
+              <option value="true">ON — 노출 중</option>
+              <option value="false">OFF — 숨김</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <!-- 2. 노출 태그 (체크박스) -->
+      <div class="form-section">
+        <div class="form-section-title">노출 태그</div>
+        <p style="font-size:11px;color:var(--text-muted);margin-bottom:12px;">체크하면 해당 메뉴에서도 노출됩니다. SALE은 할인 전 가격 입력 시 자동 적용.</p>
+        <div class="checkbox-group" id="tagCheckboxes">
+          <label class="checkbox-item" data-tag="best"><input type="checkbox"> BEST</label>
+          <label class="checkbox-item" data-tag="new"><input type="checkbox"> NEW IN</label>
+          <label class="checkbox-item" data-tag="made"><input type="checkbox"> MADE</label>
+          <label class="checkbox-item" data-tag="seasonal"><input type="checkbox"> SEASONAL</label>
+        </div>
+        <div style="margin-top:12px;">
+          <label class="form-label">커스텀 태그 (검색/필터용)</label>
+          <div class="tags-input" id="customTagsInput" style="margin-top:6px;">
+            <input type="text" placeholder="Enter로 추가 (예: linen, oversized)">
+          </div>
+        </div>
+      </div>
+
+      <!-- 3. 이미지/영상 -->
+      <div class="form-section">
+        <div class="form-section-title">이미지 / 영상</div>
+        <p style="font-size:11px;color:var(--text-muted);margin-bottom:4px;">PNG, JPG, GIF, MP4 업로드 가능. ↑↓ 버튼으로 순서 변경.</p>
+        <p style="font-size:11px;color:var(--text-muted);margin-bottom:12px;">
+          <strong style="color:var(--accent)">대표</strong>=목록 썸네일 &nbsp;
+          <strong style="color:var(--accent)">감성</strong>=스타일컷 &nbsp;
+          <strong style="color:var(--accent)">디테일</strong>=클로즈업 &nbsp;
+          <strong style="color:var(--accent)">소재</strong>=원단확대 &nbsp;
+          <strong style="color:var(--accent)">무드</strong>=무드섹션용
+        </p>
+        <div class="image-upload-area" id="imageArea"></div>
+        <div style="margin-top:12px;display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+          <label class="btn btn-secondary btn-small" style="display:inline-flex;align-items:center;gap:6px;cursor:pointer;">
+            📎 파일 업로드
+            <input type="file" id="imageFileInput" accept="image/png,image/jpeg,image/gif,image/webp,video/mp4" multiple style="display:none;">
+          </label>
+          <select id="imageRoleSelect" class="form-select" style="display:inline-block;width:auto;padding:6px 10px;font-size:11px;">
+            <option value="main">대표 이미지</option>
+            <option value="editorial">감성 컷</option>
+            <option value="detail">디테일</option>
+            <option value="fabric">소재 확대</option>
+            <option value="mood">무드 섹션</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- 4. 에디토리얼 설명 -->
+      <div class="form-section">
+        <div class="form-section-title">에디토리얼 설명</div>
+        <div class="form-row full">
+          <div class="form-group">
+            <label class="form-label">에디토리얼 카피</label>
+            <textarea class="form-textarea" id="fEditorial" placeholder="도시적인 실루엣과 부드러운 텍스처를 담은 가벼운 재킷. 어깨 라인의 자연스러운 드롭이 편안한 무드를 만듭니다."></textarea>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">무드 섹션 타이틀</label>
+            <input class="form-input" id="fMoodTitle" placeholder="The Mood">
+          </div>
+          <div class="form-group">
+            <label class="form-label">무드 섹션 설명</label>
+            <input class="form-input" id="fMoodDesc" placeholder="절제된 도시의 오후, 가벼운 바람이 만드는 실루엣">
+          </div>
+        </div>
+      </div>
+
+      <!-- 5. 상세 정보 HTML -->
+      <div class="form-section">
+        <div class="form-section-title">상세 정보 (HTML)</div>
+        <div class="form-row full">
+          <div class="form-group">
+            <label class="form-label">상세 정보 — 소재, 사이즈 등</label>
+            <textarea class="form-textarea tall" id="fDetail" placeholder="<h3>소재 정보</h3>&#10;<table>&#10;  <tr><th>소재</th><td>폴리에스터 100%</td></tr>&#10;  <tr><th>총장</th><td>52cm</td></tr>&#10;</table>"></textarea>
+            <span class="form-hint">HTML 태그 사용 가능. 상세페이지 "상세정보" 탭에 표시됩니다.</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- 6. 옵션 -->
+      <div class="form-section">
+        <div class="form-section-title">옵션</div>
+        <div id="optionBuilder"></div>
+        <button class="btn btn-secondary btn-small" onclick="addOption()">+ 옵션 추가</button>
+      </div>
+
+      <!-- 7. 추천 상품 -->
+      <div class="form-section">
+        <div class="form-section-title">추천 상품</div>
+        <p style="font-size:11px;color:var(--text-muted);margin-bottom:12px;">비워두면 같은 카테고리 상품이 자동 추천됩니다.</p>
+        <div class="recommend-list" id="recommendList"></div>
+        <div style="display:flex;gap:8px;align-items:center;">
+          <select class="form-select" id="recommendSelect" style="flex:1;"><option value="">추천할 상품 선택</option></select>
+          <button class="btn btn-secondary btn-small" onclick="addRecommend()">추가</button>
+        </div>
+      </div>
+
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeForm()">취소</button>
+      <button class="btn btn-danger" id="deleteBtn" style="display:none;" onclick="deleteProduct()">삭제</button>
+      <button class="btn btn-primary" onclick="saveProduct()">저장</button>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<!-- SUPABASE -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<script>
+// ─── 설정 ───
+const SUPABASE_URL = 'https://ppihvvpplqikclftrwdb.supabase.co';
+const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBwaWh2dnBwbHFpa2NsZnRyd2RiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk3MzE0NTEsImV4cCI6MjA5NTMwNzQ1MX0.shGVcFTQiuYc4u6tdU50x18YMgJdgFUljf8c7QlQU-U';
+const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON);
+
+// ─── 역할 라벨 맵 ───
+const ROLE_LABELS = { main:'대표', editorial:'감성', detail:'디테일', fabric:'소재', mood:'무드' };
+
+// ─── 상태 ───
+let allProducts = [];
+let categories = [];
+let collections = [];
+let editingId = null;
+let formImages = [];       // [{file?, url, role, id?, isNew, mediaType}]
+let formPresetTags = [];   // ['best','new','made','seasonal']
+let formCustomTags = [];   // ['linen','oversized']
+let formOptions = [];      // [{name, values:[]}]
+let formRecommends = [];   // [productId]
+
+// ──────────────────────────────────────────
+// 초기화
+// ──────────────────────────────────────────
+async function init() {
+  await Promise.all([loadCategories(), loadCollections(), loadProducts()]);
+  bindTagCheckboxes();
+  bindCustomTagInput();
+  bindImageUpload();
+}
+
+async function loadCategories() {
+  const { data } = await sb.from('categories').select('*').eq('is_active', true).order('display_order');
+  categories = data || [];
+  const sel = document.getElementById('fCategory');
+  sel.innerHTML = '<option value="">선택</option>' +
+    categories.filter(c => c.slug !== 'all' && c.slug !== 'best' && c.slug !== 'new' && c.slug !== 'sale')
+    .map(c => `<option value="${c.slug}">${c.name}</option>`).join('');
+}
+
+async function loadCollections() {
+  const { data } = await sb.from('collections').select('*').eq('is_active', true).order('display_order');
+  collections = data || [];
+  const sel = document.getElementById('fCollection');
+  sel.innerHTML = '<option value="">없음</option>' + collections.map(c => `<option value="${c.id}">${c.name}</option>`).join('');
+}
+
+async function loadProducts() {
+  const { data } = await sb
+    .from('products')
+    .select('*, product_media(id, media_url, media_type, role, display_order)')
+    .order('display_order').order('created_at', { ascending: false });
+  allProducts = data || [];
+  renderProductList();
+  updateRecommendSelect();
+}
+
+// ──────────────────────────────────────────
+// 상품 목록
+// ──────────────────────────────────────────
+function renderProductList() {
+  const el = document.getElementById('productList');
+  if (allProducts.length === 0) {
+    el.innerHTML = '<div class="empty-list"><p>등록된 상품이 없습니다</p><button class="btn btn-primary" onclick="openForm()">첫 상품 등록하기</button></div>';
+    return;
+  }
+  el.innerHTML = allProducts.map(p => {
+    const img = getMainImg(p);
+    const tags = (p.tags || []).map(t => `<span class="tag-badge">${t.toUpperCase()}</span>`).join('');
+    return `
+      <div class="product-row" onclick="editProduct('${p.id}')">
+        <div>${img ? `<img class="product-row-img" src="${img}">` : '<div class="product-row-img"></div>'}</div>
+        <div>
+          <div class="product-row-name">${p.name}</div>
+          <div class="product-row-sub">${tags}</div>
+        </div>
+        <div class="product-row-category">${p.category || '-'}</div>
+        <div class="product-row-price">${p.price?.toLocaleString() || 0}원</div>
+        <div><span class="status-badge ${p.is_active?'status-active':'status-inactive'}">${p.is_active?'ON':'OFF'}</span></div>
+        <div><button class="btn btn-secondary btn-small" onclick="event.stopPropagation();editProduct('${p.id}')">편집</button></div>
+      </div>`;
+  }).join('');
+}
+
+function getMainImg(p) {
+  if (p.product_media?.length > 0) {
+    const m = p.product_media.filter(x => x.role === 'main').sort((a,b) => a.display_order - b.display_order);
+    return m.length ? m[0].media_url : p.product_media[0].media_url;
+  }
+  return p.image_url;
+}
+
+// ──────────────────────────────────────────
+// FORM 열기/닫기/리셋
+// ──────────────────────────────────────────
+function openForm() {
+  editingId = null;
+  document.getElementById('formTitle').textContent = '새 상품 등록';
+  document.getElementById('deleteBtn').style.display = 'none';
+  resetForm();
+  document.getElementById('formModal').classList.add('show');
+}
+
+function closeForm() { document.getElementById('formModal').classList.remove('show'); }
+
+function resetForm() {
+  ['fName','fSubtitle','fSlug','fPrice','fOriginalPrice','fEditorial','fMoodTitle','fMoodDesc','fDetail'].forEach(id => document.getElementById(id).value = '');
+  document.getElementById('fCategory').value = '';
+  document.getElementById('fCollection').value = '';
+  document.getElementById('fOrder').value = '0';
+  document.getElementById('fActive').value = 'true';
+  formImages = []; formPresetTags = []; formCustomTags = []; formOptions = []; formRecommends = [];
+  renderAll();
+}
+
+function renderAll() {
+  renderImages(); renderPresetTags(); renderCustomTags(); renderOptions(); renderRecommends();
+}
+
+// ──────────────────────────────────────────
+// FORM 수정 모드
+// ──────────────────────────────────────────
+async function editProduct(id) {
+  const p = allProducts.find(x => x.id === id);
+  if (!p) return;
+  editingId = id;
+  document.getElementById('formTitle').textContent = '상품 편집';
+  document.getElementById('deleteBtn').style.display = '';
+
+  document.getElementById('fName').value = p.name || '';
+  document.getElementById('fSubtitle').value = p.subtitle || '';
+  document.getElementById('fSlug').value = p.slug || '';
+  document.getElementById('fCategory').value = p.category || '';
+  document.getElementById('fPrice').value = p.price || '';
+  document.getElementById('fOriginalPrice').value = p.original_price || '';
+  document.getElementById('fOrder').value = p.display_order || 0;
+  document.getElementById('fCollection').value = p.collection_id || '';
+  document.getElementById('fActive').value = String(p.is_active);
+  document.getElementById('fEditorial').value = p.description_editorial || '';
+  document.getElementById('fMoodTitle').value = p.mood_title || '';
+  document.getElementById('fMoodDesc').value = p.mood_description || '';
+  document.getElementById('fDetail').value = p.description_detail || '';
+
+  // 이미지
+  formImages = (p.product_media || []).map(m => ({
+    id: m.id, url: m.media_url, role: m.role, isNew: false,
+    display_order: m.display_order,
+    mediaType: m.media_type || 'image'
+  })).sort((a,b) => a.display_order - b.display_order);
+
+  // 태그 분리 (preset vs custom)
+  const presetKeys = ['best','new','made','seasonal'];
+  const allTags = p.tags || [];
+  formPresetTags = allTags.filter(t => presetKeys.includes(t));
+  formCustomTags = allTags.filter(t => !presetKeys.includes(t));
+
+  formOptions = JSON.parse(JSON.stringify(p.options || []));
+
+  const { data: recs } = await sb.from('recommended_products').select('recommended_product_id').eq('source_product_id', id).order('display_order');
+  formRecommends = (recs || []).map(r => r.recommended_product_id);
+
+  renderAll();
+  document.getElementById('formModal').classList.add('show');
+}
+
+// ──────────────────────────────────────────
+// PRESET TAGS (체크박스)
+// ──────────────────────────────────────────
+function bindTagCheckboxes() {
+  document.querySelectorAll('#tagCheckboxes .checkbox-item').forEach(item => {
+    item.addEventListener('click', () => {
+      const tag = item.dataset.tag;
+      const cb = item.querySelector('input');
+      cb.checked = !cb.checked;
+      item.classList.toggle('checked', cb.checked);
+      if (cb.checked) {
+        if (!formPresetTags.includes(tag)) formPresetTags.push(tag);
+      } else {
+        formPresetTags = formPresetTags.filter(t => t !== tag);
+      }
+    });
+  });
+}
+
+function renderPresetTags() {
+  document.querySelectorAll('#tagCheckboxes .checkbox-item').forEach(item => {
+    const tag = item.dataset.tag;
+    const cb = item.querySelector('input');
+    const checked = formPresetTags.includes(tag);
+    cb.checked = checked;
+    item.classList.toggle('checked', checked);
+  });
+}
+
+// ──────────────────────────────────────────
+// CUSTOM TAGS
+// ──────────────────────────────────────────
+function bindCustomTagInput() {
+  document.querySelector('#customTagsInput input').addEventListener('keydown', function(e) {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      const val = this.value.trim().toLowerCase();
+      if (val && !formCustomTags.includes(val)) { formCustomTags.push(val); renderCustomTags(); }
+      this.value = '';
+    }
+  });
+}
+
+function renderCustomTags() {
+  const container = document.getElementById('customTagsInput');
+  const input = container.querySelector('input');
+  container.querySelectorAll('.tag-item').forEach(el => el.remove());
+  formCustomTags.forEach((tag, i) => {
+    const el = document.createElement('div');
+    el.className = 'tag-item';
+    el.innerHTML = `${tag}<span class="tag-remove" onclick="removeCustomTag(${i})">×</span>`;
+    container.insertBefore(el, input);
+  });
+}
+function removeCustomTag(idx) { formCustomTags.splice(idx, 1); renderCustomTags(); }
+
+// ──────────────────────────────────────────
+// IMAGES
+// ──────────────────────────────────────────
+function renderImages() {
+  const area = document.getElementById('imageArea');
+  area.innerHTML = formImages.map((img, i) => {
+    const label = ROLE_LABELS[img.role] || img.role;
+    const isVideo = img.mediaType === 'video' || img.url?.endsWith('.mp4');
+    return `
+      <div class="image-card">
+        ${isVideo
+          ? `<video src="${img.url}" muted loop playsinline onmouseenter="this.play()" onmouseleave="this.pause();this.currentTime=0;"></video>`
+          : `<img src="${img.url}" alt="">`
+        }
+        <div class="image-card-overlay">
+          <span class="image-card-role-label">${label}</span>
+          <div class="image-card-actions">
+            ${i > 0 ? `<button class="img-btn-move" onclick="moveImage(${i},-1)" title="위로">↑</button>` : ''}
+            ${i < formImages.length - 1 ? `<button class="img-btn-move" onclick="moveImage(${i},1)" title="아래로">↓</button>` : ''}
+            <button class="img-btn-delete" onclick="removeImage(${i})" title="삭제">×</button>
+          </div>
+        </div>
+      </div>`;
+  }).join('');
+}
+
+function moveImage(idx, dir) {
+  const target = idx + dir;
+  if (target < 0 || target >= formImages.length) return;
+  [formImages[idx], formImages[target]] = [formImages[target], formImages[idx]];
+  renderImages();
+}
+
+function removeImage(idx) { formImages.splice(idx, 1); renderImages(); }
+
+function bindImageUpload() {
+  document.getElementById('imageFileInput').addEventListener('change', async function(e) {
+    const files = Array.from(e.target.files);
+    const role = document.getElementById('imageRoleSelect').value;
+    for (const file of files) {
+      const isVideo = file.type.startsWith('video/');
+      const ext = file.name.split('.').pop();
+      const fileName = `products/${Date.now()}_${Math.random().toString(36).slice(2,8)}.${ext}`;
+      const { data, error } = await sb.storage.from('media').upload(fileName, file, {
+        upsert: true,
+        contentType: file.type
+      });
+      if (error) { showToast('업로드 실패: ' + error.message, true); continue; }
+      const { data: urlData } = sb.storage.from('media').getPublicUrl(fileName);
+      formImages.push({
+        url: urlData.publicUrl, role, isNew: true,
+        display_order: formImages.length,
+        mediaType: isVideo ? 'video' : 'image'
+      });
+    }
+    renderImages();
+    e.target.value = '';
+  });
+}
+
+// ──────────────────────────────────────────
+// OPTIONS
+// ──────────────────────────────────────────
+function renderOptions() {
+  document.getElementById('optionBuilder').innerHTML = formOptions.map((opt, i) => `
+    <div class="option-item">
+      <input class="form-input" value="${opt.name}" placeholder="옵션명 (예: 색상)" onchange="formOptions[${i}].name=this.value">
+      <input class="form-input" value="${(opt.values||[]).join(', ')}" placeholder="값 (쉼표 구분: Black, Ivory)" onchange="formOptions[${i}].values=this.value.split(',').map(s=>s.trim()).filter(Boolean)">
+      <button class="option-remove" onclick="removeOption(${i})">×</button>
+    </div>`).join('');
+}
+function addOption() { formOptions.push({ name:'', values:[] }); renderOptions(); }
+function removeOption(idx) { formOptions.splice(idx, 1); renderOptions(); }
+
+// ──────────────────────────────────────────
+// RECOMMEND
+// ──────────────────────────────────────────
+function updateRecommendSelect() {
+  document.getElementById('recommendSelect').innerHTML = '<option value="">추천할 상품 선택</option>' +
+    allProducts.map(p => `<option value="${p.id}">${p.name}</option>`).join('');
+}
+function renderRecommends() {
+  document.getElementById('recommendList').innerHTML = formRecommends.map((rid, i) => {
+    const p = allProducts.find(x => x.id === rid);
+    if (!p) return '';
+    const img = getMainImg(p);
+    return `<div class="recommend-chip">${img ? `<img src="${img}">` : ''}${p.name}<span class="tag-remove" onclick="removeRecommend(${i})">×</span></div>`;
+  }).join('');
+}
+function addRecommend() {
+  const id = document.getElementById('recommendSelect').value;
+  if (!id || formRecommends.includes(id)) return;
+  if (id === editingId) { showToast('자기 자신은 추천 불가', true); return; }
+  formRecommends.push(id);
+  renderRecommends();
+  document.getElementById('recommendSelect').value = '';
+}
+function removeRecommend(idx) { formRecommends.splice(idx, 1); renderRecommends(); }
+
+// ──────────────────────────────────────────
+// SLUG 자동 생성
+// ──────────────────────────────────────────
+document.getElementById('fName').addEventListener('input', function() {
+  if (!editingId) {
+    document.getElementById('fSlug').value = this.value
+      .toLowerCase().replace(/[^a-z0-9가-힣\s-]/g, '').replace(/\s+/g, '-').replace(/--+/g, '-').replace(/^-|-$/g, '');
+  }
+});
+
+// ──────────────────────────────────────────
+// SAVE
+// ──────────────────────────────────────────
+async function saveProduct() {
+  const name = document.getElementById('fName').value.trim();
+  const slug = document.getElementById('fSlug').value.trim();
+  const category = document.getElementById('fCategory').value;
+  const price = parseInt(document.getElementById('fPrice').value) || 0;
+
+  if (!name) { showToast('상품명을 입력해주세요', true); return; }
+  if (!slug) { showToast('슬러그를 입력해주세요', true); return; }
+  if (!category) { showToast('카테고리를 선택해주세요', true); return; }
+  if (!price) { showToast('가격을 입력해주세요', true); return; }
+
+  const allTags = [...formPresetTags, ...formCustomTags];
+
+  const productData = {
+    brand: 'YLLOWTAP',
+    name,
+    subtitle: document.getElementById('fSubtitle').value.trim() || null,
+    slug,
+    category,
+    section: 'curated',
+    price,
+    original_price: parseInt(document.getElementById('fOriginalPrice').value) || null,
+    display_order: parseInt(document.getElementById('fOrder').value) || 0,
+    collection_id: document.getElementById('fCollection').value || null,
+    is_active: document.getElementById('fActive').value === 'true',
+    description_editorial: document.getElementById('fEditorial').value.trim() || null,
+    mood_title: document.getElementById('fMoodTitle').value.trim() || null,
+    mood_description: document.getElementById('fMoodDesc').value.trim() || null,
+    description_detail: document.getElementById('fDetail').value.trim() || null,
+    tags: allTags,
+    options: formOptions.filter(o => o.name),
+    image_url: formImages.length > 0 ? (formImages.find(m => m.role === 'main')?.url || formImages[0].url) : null
+  };
+
+  let productId;
+  try {
+    if (editingId) {
+      const { error } = await sb.from('products').update(productData).eq('id', editingId);
+      if (error) throw error;
+      productId = editingId;
+    } else {
+      const { data, error } = await sb.from('products').insert(productData).select().single();
+      if (error) throw error;
+      productId = data.id;
+    }
+
+    // 이미지 저장
+    await sb.from('product_media').delete().eq('product_id', productId);
+    if (formImages.length > 0) {
+      const rows = formImages.map((img, i) => ({
+        product_id: productId, media_url: img.url,
+        media_type: img.mediaType || 'image', role: img.role, display_order: i
+      }));
+      await sb.from('product_media').insert(rows);
+    }
+
+    // 추천 저장
+    await sb.from('recommended_products').delete().eq('source_product_id', productId);
+    if (formRecommends.length > 0) {
+      const rows = formRecommends.map((rid, i) => ({
+        source_product_id: productId, recommended_product_id: rid, display_order: i
+      }));
+      await sb.from('recommended_products').insert(rows);
+    }
+
+    showToast(editingId ? '상품이 수정되었습니다' : '상품이 등록되었습니다');
+    closeForm();
+    await loadProducts();
+  } catch (err) {
+    if (err.message?.includes('duplicate') && err.message?.includes('slug')) {
+      showToast('이미 사용 중인 슬러그입니다', true);
+    } else {
+      showToast('저장 실패: ' + err.message, true);
+    }
+  }
+}
+
+// ──────────────────────────────────────────
+// DELETE
+// ──────────────────────────────────────────
+async function deleteProduct() {
+  if (!editingId || !confirm('이 상품을 삭제하시겠습니까?')) return;
+  try {
+    const { error } = await sb.from('products').delete().eq('id', editingId);
+    if (error) throw error;
+    showToast('상품이 삭제되었습니다');
+    closeForm(); await loadProducts();
+  } catch (err) { showToast('삭제 실패: ' + err.message, true); }
+}
+
+// ──────────────────────────────────────────
+// TOAST
+// ──────────────────────────────────────────
+function showToast(msg, isError = false) {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.className = 'toast' + (isError ? ' error' : '');
+  setTimeout(() => el.classList.add('show'), 10);
+  setTimeout(() => el.classList.remove('show'), 3000);
+}
+
+// ─── GO ───
+init();
+</script>
+</body>
+</html>
