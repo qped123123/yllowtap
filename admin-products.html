@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>YLLOWTAP — Product Admin</title>
+<title>YLLOWTAP — Admin</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet">
 <style>
@@ -32,39 +32,25 @@ body { font-family:var(--font); background:var(--bg); color:var(--text); font-si
 
 /* SIDEBAR */
 .sidebar {
-  width:220px;
-  background:var(--bg-card);
-  border-right:1px solid var(--border);
-  padding:24px 0;
-  position:fixed;
-  top:0;bottom:0;left:0;
-  overflow-y:auto;
-  z-index:50;
+  width:220px; background:var(--bg-card); border-right:1px solid var(--border);
+  padding:24px 0; position:fixed; top:0;bottom:0;left:0; overflow-y:auto; z-index:50;
 }
 .sidebar-logo {
   font-size:18px; font-weight:700; letter-spacing:2px;
-  padding:0 20px 24px;
-  border-bottom:1px solid var(--border);
-  color:var(--accent);
+  padding:0 20px 24px; border-bottom:1px solid var(--border); color:var(--accent);
 }
 .sidebar-logo small { display:block; font-size:10px; font-weight:400; color:var(--text-dim); letter-spacing:1px; margin-top:4px; }
 .sidebar-nav { padding:16px 0; }
 .sidebar-nav a {
-  display:flex; align-items:center; gap:10px;
-  padding:10px 20px;
+  display:flex; align-items:center; gap:10px; padding:10px 20px;
   font-size:12px; font-weight:400; letter-spacing:0.5px;
-  color:var(--text-dim); text-decoration:none; transition:all 0.2s;
+  color:var(--text-dim); text-decoration:none; transition:all 0.2s; cursor:pointer;
 }
 .sidebar-nav a:hover { color:var(--text); background:var(--bg-hover); }
 .sidebar-nav a.active { color:var(--accent); background:rgba(244,216,78,0.08); border-right:2px solid var(--accent); }
-.sidebar-nav a .icon { font-size:16px; width:20px; text-align:center; }
 
 /* MAIN */
 .main { margin-left:220px; flex:1; padding:24px 32px; }
-
-/* TOP BAR */
-.top-bar { display:flex; justify-content:space-between; align-items:center; margin-bottom:24px; }
-.top-bar h1 { font-size:20px; font-weight:700; letter-spacing:1px; }
 
 /* BUTTONS */
 .btn {
@@ -79,34 +65,57 @@ body { font-family:var(--font); background:var(--bg); color:var(--text); font-si
 .btn-danger:hover { background:#c0392b; }
 .btn-small { padding:6px 14px; font-size:11px; }
 
+/* PAGE SECTIONS */
+.page-section { display:none; }
+.page-section.active { display:block; }
+
+/* TOP BAR */
+.top-bar { display:flex; justify-content:space-between; align-items:center; margin-bottom:24px; }
+.top-bar h1 { font-size:20px; font-weight:700; letter-spacing:1px; }
+
 /* ===== PRODUCT LIST ===== */
 .product-list-header {
-  display:grid;
-  grid-template-columns:48px 1fr 100px 100px 80px 100px;
+  display:grid; grid-template-columns:48px 1fr 100px 100px 80px 100px;
   gap:12px; padding:10px 16px;
   font-size:10px; font-weight:500; letter-spacing:1px; text-transform:uppercase;
   color:var(--text-muted); border-bottom:1px solid var(--border);
 }
 .product-row {
-  display:grid;
-  grid-template-columns:48px 1fr 100px 100px 80px 100px;
+  display:grid; grid-template-columns:48px 1fr 100px 100px 80px 100px;
   gap:12px; padding:12px 16px; align-items:center;
-  border-bottom:1px solid rgba(255,255,255,0.04);
-  transition:background 0.15s; cursor:pointer;
+  border-bottom:1px solid rgba(255,255,255,0.04); transition:background 0.15s; cursor:pointer;
 }
 .product-row:hover { background:var(--bg-hover); }
 .product-row-img { width:48px; height:48px; object-fit:cover; border-radius:4px; background:var(--bg-input); }
 .product-row-name { font-weight:500; }
 .product-row-sub { font-size:10px; color:var(--text-dim); margin-top:2px; }
-.product-row-category { font-size:11px; color:var(--text-dim); }
-.product-row-price { font-weight:500; }
+.tag-badge { display:inline-block; padding:2px 6px; font-size:9px; font-weight:500; border-radius:3px; background:rgba(244,216,78,0.12); color:var(--accent); margin-right:3px; }
 .status-badge { display:inline-block; padding:3px 8px; font-size:10px; font-weight:500; letter-spacing:0.5px; border-radius:10px; }
 .status-active { background:rgba(76,175,80,0.15); color:var(--green); }
 .status-inactive { background:rgba(224,85,69,0.15); color:var(--red); }
-.tag-badge { display:inline-block; padding:2px 6px; font-size:9px; font-weight:500; border-radius:3px; background:rgba(244,216,78,0.12); color:var(--accent); margin-right:3px; }
-
 .empty-list { text-align:center; padding:80px 0; color:var(--text-muted); }
 .empty-list p { margin-bottom:16px; }
+
+/* ===== HERO LIST ===== */
+.hero-row {
+  display:grid; grid-template-columns:120px 1fr 80px 100px;
+  gap:12px; padding:12px 16px; align-items:center;
+  border-bottom:1px solid rgba(255,255,255,0.04); transition:background 0.15s;
+}
+.hero-row:hover { background:var(--bg-hover); }
+.hero-row-img {
+  width:120px; height:60px; object-fit:cover; border-radius:4px; background:var(--bg-input);
+}
+.hero-row-title { font-weight:500; font-size:14px; }
+.hero-row-sub { font-size:11px; color:var(--text-dim); margin-top:2px; }
+
+/* ===== SETTINGS ===== */
+.setting-row {
+  display:grid; grid-template-columns:160px 1fr;
+  gap:16px; padding:14px 0; align-items:center;
+  border-bottom:1px solid rgba(255,255,255,0.04);
+}
+.setting-label { font-size:12px; font-weight:500; color:var(--text-dim); letter-spacing:0.5px; }
 
 /* ===== MODAL ===== */
 .modal-overlay {
@@ -167,7 +176,7 @@ body { font-family:var(--font); background:var(--bg); color:var(--text); font-si
 .checkbox-item.checked { background:rgba(244,216,78,0.15); border-color:var(--accent); color:var(--accent); }
 .checkbox-item input { display:none; }
 
-/* TAGS INPUT (커스텀 태그) */
+/* TAGS INPUT */
 .tags-input {
   display:flex; flex-wrap:wrap; gap:6px;
   padding:8px 10px; background:var(--bg-input); border:1px solid var(--border);
@@ -204,37 +213,22 @@ body { font-family:var(--font); background:var(--bg); color:var(--text); font-si
   position:relative; aspect-ratio:3/4;
   background:var(--bg-input); border:1px solid var(--border); border-radius:var(--radius); overflow:hidden;
 }
-.image-card img, .image-card video {
-  width:100%; height:100%; object-fit:cover;
-}
+.image-card img, .image-card video { width:100%; height:100%; object-fit:cover; }
 .image-card-overlay {
   position:absolute; bottom:0; left:0; right:0;
   padding:6px 8px; background:rgba(0,0,0,0.75);
   display:flex; justify-content:space-between; align-items:center;
 }
-.image-card-role-label {
-  font-size:10px; font-weight:500; letter-spacing:0.5px; color:var(--accent);
-}
+.image-card-role-label { font-size:10px; font-weight:500; letter-spacing:0.5px; color:var(--accent); }
 .image-card-actions { display:flex; gap:4px; }
 .image-card-actions button {
   width:22px; height:22px; border:none; border-radius:4px;
-  font-size:11px; cursor:pointer; display:flex; align-items:center; justify-content:center;
-  transition:all 0.15s;
+  font-size:11px; cursor:pointer; display:flex; align-items:center; justify-content:center; transition:all 0.15s;
 }
 .img-btn-move { background:var(--bg-hover); color:var(--text-dim); }
 .img-btn-move:hover { background:var(--border); color:var(--text); }
 .img-btn-delete { background:var(--red); color:#fff; }
 .img-btn-delete:hover { background:#c0392b; }
-
-.image-add-btn {
-  aspect-ratio:3/4; background:var(--bg-input); border:2px dashed var(--border);
-  border-radius:var(--radius); display:flex; flex-direction:column;
-  align-items:center; justify-content:center; gap:8px;
-  cursor:pointer; transition:all 0.2s; color:var(--text-muted);
-}
-.image-add-btn:hover { border-color:var(--accent); color:var(--accent); }
-.image-add-btn .plus { font-size:28px; line-height:1; }
-.image-add-btn span { font-size:10px; letter-spacing:0.5px; }
 
 /* RECOMMEND */
 .recommend-list { display:flex; flex-wrap:wrap; gap:8px; margin-bottom:12px; }
@@ -260,12 +254,13 @@ body { font-family:var(--font); background:var(--bg); color:var(--text); font-si
   .sidebar { display:none; }
   .main { margin-left:0; padding:16px; }
   .product-list-header, .product-row { grid-template-columns:40px 1fr 80px 60px; }
-  .product-list-header > *:nth-child(4),
-  .product-list-header > *:nth-child(5),
-  .product-row > *:nth-child(4),
-  .product-row > *:nth-child(5) { display:none; }
+  .product-list-header > *:nth-child(4), .product-list-header > *:nth-child(5),
+  .product-row > *:nth-child(4), .product-row > *:nth-child(5) { display:none; }
+  .hero-row { grid-template-columns:80px 1fr 60px; }
+  .hero-row > *:nth-child(3) { display:none; }
   .form-row, .form-row.triple { grid-template-columns:1fr; }
   .modal { margin:16px; }
+  .setting-row { grid-template-columns:1fr; }
 }
 </style>
 </head>
@@ -274,55 +269,99 @@ body { font-family:var(--font); background:var(--bg); color:var(--text); font-si
 <div class="admin-layout">
   <!-- SIDEBAR -->
   <aside class="sidebar">
-    <div class="sidebar-logo">
-      YLLOWTAP
-      <small>ADMIN</small>
-    </div>
+    <div class="sidebar-logo">YLLOWTAP<small>ADMIN</small></div>
     <nav class="sidebar-nav">
-      <a href="admin.html"><span class="icon">🏠</span> 대시보드</a>
-      <a href="admin-products.html" class="active"><span class="icon">🛍️</span> 상품 관리</a>
-      <a href="#"><span class="icon">📂</span> 컬렉션</a>
-      <a href="#"><span class="icon">🎨</span> 무드</a>
-      <a href="#"><span class="icon">📸</span> 미디어</a>
+      <a onclick="switchPage('products')" id="nav-products" class="active"><span class="icon">🛍️</span> 상품 관리</a>
+      <a onclick="switchPage('hero')" id="nav-hero"><span class="icon">🖼️</span> 히어로 슬라이드</a>
+      <a onclick="switchPage('settings')" id="nav-settings"><span class="icon">⚙️</span> 사이트 설정</a>
       <a href="/" target="_blank"><span class="icon">🌐</span> 사이트 보기</a>
     </nav>
   </aside>
 
-  <!-- MAIN -->
   <div class="main">
-    <div class="top-bar">
-      <h1>상품 관리</h1>
-      <button class="btn btn-primary" onclick="openForm()">+ 새 상품 등록</button>
-    </div>
 
-    <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);">
-      <div class="product-list-header">
-        <div></div>
-        <div>상품명</div>
-        <div>카테고리</div>
-        <div>가격</div>
-        <div>상태</div>
-        <div>관리</div>
+    <!-- ============================================ -->
+    <!-- PAGE 1: 상품 관리 -->
+    <!-- ============================================ -->
+    <div class="page-section active" id="page-products">
+      <div class="top-bar">
+        <h1>상품 관리</h1>
+        <button class="btn btn-primary" onclick="openProductForm()">+ 새 상품 등록</button>
       </div>
-      <div id="productList">
-        <div class="empty-list">
-          <p>등록된 상품이 없습니다</p>
-          <button class="btn btn-primary" onclick="openForm()">첫 상품 등록하기</button>
+      <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);">
+        <div class="product-list-header">
+          <div></div><div>상품명</div><div>카테고리</div><div>가격</div><div>상태</div><div>관리</div>
+        </div>
+        <div id="productList">
+          <div class="empty-list"><p>등록된 상품이 없습니다</p><button class="btn btn-primary" onclick="openProductForm()">첫 상품 등록하기</button></div>
         </div>
       </div>
     </div>
+
+    <!-- ============================================ -->
+    <!-- PAGE 2: 히어로 슬라이드 -->
+    <!-- ============================================ -->
+    <div class="page-section" id="page-hero">
+      <div class="top-bar">
+        <h1>히어로 슬라이드</h1>
+        <button class="btn btn-primary" onclick="openHeroForm()">+ 슬라이드 추가</button>
+      </div>
+      <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:4px 0;">
+        <div id="heroList">
+          <div class="empty-list"><p>등록된 슬라이드가 없습니다</p></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============================================ -->
+    <!-- PAGE 3: 사이트 설정 -->
+    <!-- ============================================ -->
+    <div class="page-section" id="page-settings">
+      <div class="top-bar">
+        <h1>사이트 설정</h1>
+        <button class="btn btn-primary" onclick="saveSettings()">저장</button>
+      </div>
+      <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:16px 24px;">
+        <div class="setting-row">
+          <div class="setting-label">BGM 사용</div>
+          <select class="form-select" id="sBgmEnabled" style="width:120px;"><option value="false">OFF</option><option value="true">ON</option></select>
+        </div>
+        <div class="setting-row">
+          <div class="setting-label">BGM URL</div>
+          <input class="form-input" id="sBgmUrl" placeholder="mp3 파일 URL">
+        </div>
+        <div class="setting-row">
+          <div class="setting-label">BGM 볼륨</div>
+          <input class="form-input" id="sBgmVolume" type="number" step="0.1" min="0" max="1" value="0.3" style="width:100px;">
+        </div>
+        <div class="setting-row">
+          <div class="setting-label">무드 섹션 이미지</div>
+          <div style="display:flex;gap:8px;align-items:center;">
+            <input class="form-input" id="sMoodImage" placeholder="이미지 URL" style="flex:1;">
+            <label class="btn btn-secondary btn-small" style="cursor:pointer;">
+              📎 업로드
+              <input type="file" id="sMoodImageFile" accept="image/*" style="display:none;">
+            </label>
+          </div>
+        </div>
+        <div class="setting-row">
+          <div class="setting-label">무드 섹션 타이틀</div>
+          <input class="form-input" id="sMoodTitle" placeholder="About the Mood">
+        </div>
+      </div>
+    </div>
+
   </div>
 </div>
 
 <!-- ===== PRODUCT FORM MODAL ===== -->
-<div class="modal-overlay" id="formModal">
+<div class="modal-overlay" id="productModal">
   <div class="modal">
     <div class="modal-header">
-      <h2 id="formTitle">새 상품 등록</h2>
-      <button class="modal-close" onclick="closeForm()">×</button>
+      <h2 id="productFormTitle">새 상품 등록</h2>
+      <button class="modal-close" onclick="closeProductForm()">×</button>
     </div>
     <div class="modal-body">
-
       <!-- 1. 기본 정보 -->
       <div class="form-section">
         <div class="form-section-title">기본 정보</div>
@@ -379,10 +418,10 @@ body { font-family:var(--font); background:var(--bg); color:var(--text); font-si
         </div>
       </div>
 
-      <!-- 2. 노출 태그 (체크박스) -->
+      <!-- 2. 노출 태그 -->
       <div class="form-section">
         <div class="form-section-title">노출 태그</div>
-        <p style="font-size:11px;color:var(--text-muted);margin-bottom:12px;">체크하면 해당 메뉴에서도 노출됩니다. SALE은 할인 전 가격 입력 시 자동 적용.</p>
+        <p style="font-size:11px;color:var(--text-muted);margin-bottom:12px;">체크하면 해당 메뉴에서도 노출. SALE은 할인 전 가격 입력 시 자동.</p>
         <div class="checkbox-group" id="tagCheckboxes">
           <label class="checkbox-item" data-tag="best"><input type="checkbox"> BEST</label>
           <label class="checkbox-item" data-tag="new"><input type="checkbox"> NEW IN</label>
@@ -390,7 +429,7 @@ body { font-family:var(--font); background:var(--bg); color:var(--text); font-si
           <label class="checkbox-item" data-tag="seasonal"><input type="checkbox"> SEASONAL</label>
         </div>
         <div style="margin-top:12px;">
-          <label class="form-label">커스텀 태그 (검색/필터용)</label>
+          <label class="form-label">커스텀 태그</label>
           <div class="tags-input" id="customTagsInput" style="margin-top:6px;">
             <input type="text" placeholder="Enter로 추가 (예: linen, oversized)">
           </div>
@@ -400,13 +439,13 @@ body { font-family:var(--font); background:var(--bg); color:var(--text); font-si
       <!-- 3. 이미지/영상 -->
       <div class="form-section">
         <div class="form-section-title">이미지 / 영상</div>
-        <p style="font-size:11px;color:var(--text-muted);margin-bottom:4px;">PNG, JPG, GIF, MP4 업로드 가능. ↑↓ 버튼으로 순서 변경.</p>
+        <p style="font-size:11px;color:var(--text-muted);margin-bottom:4px;">PNG, JPG, GIF, MP4 업로드 가능. ↑↓로 순서 변경.</p>
         <p style="font-size:11px;color:var(--text-muted);margin-bottom:12px;">
-          <strong style="color:var(--accent)">대표</strong>=목록 썸네일 &nbsp;
+          <strong style="color:var(--accent)">대표</strong>=썸네일 &nbsp;
           <strong style="color:var(--accent)">감성</strong>=스타일컷 &nbsp;
           <strong style="color:var(--accent)">디테일</strong>=클로즈업 &nbsp;
-          <strong style="color:var(--accent)">소재</strong>=원단확대 &nbsp;
-          <strong style="color:var(--accent)">무드</strong>=무드섹션용
+          <strong style="color:var(--accent)">소재</strong>=원단 &nbsp;
+          <strong style="color:var(--accent)">무드</strong>=무드섹션
         </p>
         <div class="image-upload-area" id="imageArea"></div>
         <div style="margin-top:12px;display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
@@ -430,7 +469,7 @@ body { font-family:var(--font); background:var(--bg); color:var(--text); font-si
         <div class="form-row full">
           <div class="form-group">
             <label class="form-label">에디토리얼 카피</label>
-            <textarea class="form-textarea" id="fEditorial" placeholder="도시적인 실루엣과 부드러운 텍스처를 담은 가벼운 재킷. 어깨 라인의 자연스러운 드롭이 편안한 무드를 만듭니다."></textarea>
+            <textarea class="form-textarea" id="fEditorial" placeholder="도시적인 실루엣과 부드러운 텍스처를 담은 가벼운 재킷."></textarea>
           </div>
         </div>
         <div class="form-row">
@@ -440,7 +479,7 @@ body { font-family:var(--font); background:var(--bg); color:var(--text); font-si
           </div>
           <div class="form-group">
             <label class="form-label">무드 섹션 설명</label>
-            <input class="form-input" id="fMoodDesc" placeholder="절제된 도시의 오후, 가벼운 바람이 만드는 실루엣">
+            <input class="form-input" id="fMoodDesc" placeholder="절제된 도시의 오후">
           </div>
         </div>
       </div>
@@ -450,9 +489,9 @@ body { font-family:var(--font); background:var(--bg); color:var(--text); font-si
         <div class="form-section-title">상세 정보 (HTML)</div>
         <div class="form-row full">
           <div class="form-group">
-            <label class="form-label">상세 정보 — 소재, 사이즈 등</label>
-            <textarea class="form-textarea tall" id="fDetail" placeholder="<h3>소재 정보</h3>&#10;<table>&#10;  <tr><th>소재</th><td>폴리에스터 100%</td></tr>&#10;  <tr><th>총장</th><td>52cm</td></tr>&#10;</table>"></textarea>
-            <span class="form-hint">HTML 태그 사용 가능. 상세페이지 "상세정보" 탭에 표시됩니다.</span>
+            <label class="form-label">소재, 사이즈 등</label>
+            <textarea class="form-textarea tall" id="fDetail" placeholder="<h3>소재</h3>&#10;<table>&#10;  <tr><th>소재</th><td>폴리 100%</td></tr>&#10;</table>"></textarea>
+            <span class="form-hint">HTML 태그 사용 가능</span>
           </div>
         </div>
       </div>
@@ -467,19 +506,97 @@ body { font-family:var(--font); background:var(--bg); color:var(--text); font-si
       <!-- 7. 추천 상품 -->
       <div class="form-section">
         <div class="form-section-title">추천 상품</div>
-        <p style="font-size:11px;color:var(--text-muted);margin-bottom:12px;">비워두면 같은 카테고리 상품이 자동 추천됩니다.</p>
+        <p style="font-size:11px;color:var(--text-muted);margin-bottom:12px;">비워두면 같은 카테고리 자동 추천</p>
         <div class="recommend-list" id="recommendList"></div>
         <div style="display:flex;gap:8px;align-items:center;">
           <select class="form-select" id="recommendSelect" style="flex:1;"><option value="">추천할 상품 선택</option></select>
           <button class="btn btn-secondary btn-small" onclick="addRecommend()">추가</button>
         </div>
       </div>
-
     </div>
     <div class="modal-footer">
-      <button class="btn btn-secondary" onclick="closeForm()">취소</button>
-      <button class="btn btn-danger" id="deleteBtn" style="display:none;" onclick="deleteProduct()">삭제</button>
+      <button class="btn btn-secondary" onclick="closeProductForm()">취소</button>
+      <button class="btn btn-danger" id="productDeleteBtn" style="display:none;" onclick="deleteProduct()">삭제</button>
       <button class="btn btn-primary" onclick="saveProduct()">저장</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== HERO FORM MODAL ===== -->
+<div class="modal-overlay" id="heroModal">
+  <div class="modal" style="max-width:640px;">
+    <div class="modal-header">
+      <h2 id="heroFormTitle">슬라이드 추가</h2>
+      <button class="modal-close" onclick="closeHeroForm()">×</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-row full">
+        <div class="form-group">
+          <label class="form-label">미디어 (이미지/영상 URL)</label>
+          <div style="display:flex;gap:8px;">
+            <input class="form-input" id="hMediaUrl" placeholder="URL 직접 입력 또는 업로드" style="flex:1;">
+            <label class="btn btn-secondary btn-small" style="cursor:pointer;white-space:nowrap;">
+              📎 업로드
+              <input type="file" id="hMediaFile" accept="image/*,video/mp4" style="display:none;">
+            </label>
+          </div>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">미디어 타입</label>
+          <select class="form-select" id="hMediaType">
+            <option value="image">이미지</option>
+            <option value="video">영상</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">슬라이드 순서</label>
+          <input class="form-input" id="hOrder" type="number" value="1">
+        </div>
+      </div>
+      <div class="form-row full">
+        <div class="form-group">
+          <label class="form-label">서브타이틀</label>
+          <input class="form-input" id="hSubtitle" placeholder="2026 Summer Collection">
+        </div>
+      </div>
+      <div class="form-row full">
+        <div class="form-group">
+          <label class="form-label">타이틀</label>
+          <textarea class="form-textarea" id="hTitle" placeholder="New Season,&#10;New Chapter" style="min-height:60px;"></textarea>
+        </div>
+      </div>
+      <div class="form-row full">
+        <div class="form-group">
+          <label class="form-label">설명</label>
+          <input class="form-input" id="hDesc" placeholder="새로운 계절, 당신의 이야기를 시작합니다.">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">버튼 텍스트</label>
+          <input class="form-input" id="hCtaText" value="Shop Collection">
+        </div>
+        <div class="form-group">
+          <label class="form-label">버튼 링크</label>
+          <input class="form-input" id="hCtaLink" value="/category.html">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">활성 상태</label>
+          <select class="form-select" id="hActive">
+            <option value="true">ON</option>
+            <option value="false">OFF</option>
+          </select>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeHeroForm()">취소</button>
+      <button class="btn btn-danger" id="heroDeleteBtn" style="display:none;" onclick="deleteHero()">삭제</button>
+      <button class="btn btn-primary" onclick="saveHero()">저장</button>
     </div>
   </div>
 </div>
@@ -490,439 +607,425 @@ body { font-family:var(--font); background:var(--bg); color:var(--text); font-si
 <!-- SUPABASE -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <script>
-// ─── 설정 ───
 const SUPABASE_URL = 'https://ppihvvpplqikclftrwdb.supabase.co';
 const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBwaWh2dnBwbHFpa2NsZnRyd2RiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk3MzE0NTEsImV4cCI6MjA5NTMwNzQ1MX0.shGVcFTQiuYc4u6tdU50x18YMgJdgFUljf8c7QlQU-U';
 const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON);
 
-// ─── 역할 라벨 맵 ───
 const ROLE_LABELS = { main:'대표', editorial:'감성', detail:'디테일', fabric:'소재', mood:'무드' };
 
-// ─── 상태 ───
-let allProducts = [];
-let categories = [];
-let collections = [];
-let editingId = null;
-let formImages = [];       // [{file?, url, role, id?, isNew, mediaType}]
-let formPresetTags = [];   // ['best','new','made','seasonal']
-let formCustomTags = [];   // ['linen','oversized']
-let formOptions = [];      // [{name, values:[]}]
-let formRecommends = [];   // [productId]
+// ─── 공통 상태 ───
+let allProducts = [], categories = [], collections = [];
+let heroSlides = [], siteSettings = {};
 
-// ──────────────────────────────────────────
-// 초기화
-// ──────────────────────────────────────────
-async function init() {
-  await Promise.all([loadCategories(), loadCollections(), loadProducts()]);
-  bindTagCheckboxes();
-  bindCustomTagInput();
-  bindImageUpload();
+// ─── 상품 폼 상태 ───
+let editingProductId = null;
+let formImages = [], formPresetTags = [], formCustomTags = [], formOptions = [], formRecommends = [];
+
+// ─── 히어로 폼 상태 ───
+let editingHeroId = null;
+
+// ══════════════════════════════════════════
+// 페이지 전환
+// ══════════════════════════════════════════
+function switchPage(page) {
+  document.querySelectorAll('.page-section').forEach(el => el.classList.remove('active'));
+  document.querySelectorAll('.sidebar-nav a').forEach(el => el.classList.remove('active'));
+  document.getElementById('page-' + page).classList.add('active');
+  const nav = document.getElementById('nav-' + page);
+  if (nav) nav.classList.add('active');
 }
 
+// ══════════════════════════════════════════
+// 초기화
+// ══════════════════════════════════════════
+async function init() {
+  await Promise.all([loadCategories(), loadCollections(), loadProducts(), loadHeroSlides(), loadSettings()]);
+  bindTagCheckboxes(); bindCustomTagInput(); bindImageUpload(); bindHeroMediaUpload(); bindSettingsImageUpload();
+}
+
+// ── 카테고리/컬렉션 ──
 async function loadCategories() {
   const { data } = await sb.from('categories').select('*').eq('is_active', true).order('display_order');
   categories = data || [];
-  const sel = document.getElementById('fCategory');
-  sel.innerHTML = '<option value="">선택</option>' +
-    categories.filter(c => c.slug !== 'all' && c.slug !== 'best' && c.slug !== 'new' && c.slug !== 'sale')
+  document.getElementById('fCategory').innerHTML = '<option value="">선택</option>' +
+    categories.filter(c => !['all','best','new','sale'].includes(c.slug))
     .map(c => `<option value="${c.slug}">${c.name}</option>`).join('');
 }
-
 async function loadCollections() {
   const { data } = await sb.from('collections').select('*').eq('is_active', true).order('display_order');
   collections = data || [];
-  const sel = document.getElementById('fCollection');
-  sel.innerHTML = '<option value="">없음</option>' + collections.map(c => `<option value="${c.id}">${c.name}</option>`).join('');
+  document.getElementById('fCollection').innerHTML = '<option value="">없음</option>' +
+    collections.map(c => `<option value="${c.id}">${c.name}</option>`).join('');
 }
 
+// ══════════════════════════════════════════
+// 상품 관리
+// ══════════════════════════════════════════
 async function loadProducts() {
-  const { data } = await sb
-    .from('products')
-    .select('*, product_media(id, media_url, media_type, role, display_order)')
+  const { data } = await sb.from('products').select('*, product_media(id, media_url, media_type, role, display_order)')
     .order('display_order').order('created_at', { ascending: false });
   allProducts = data || [];
-  renderProductList();
-  updateRecommendSelect();
+  renderProductList(); updateRecommendSelect();
 }
 
-// ──────────────────────────────────────────
-// 상품 목록
-// ──────────────────────────────────────────
 function renderProductList() {
   const el = document.getElementById('productList');
-  if (allProducts.length === 0) {
-    el.innerHTML = '<div class="empty-list"><p>등록된 상품이 없습니다</p><button class="btn btn-primary" onclick="openForm()">첫 상품 등록하기</button></div>';
+  if (!allProducts.length) {
+    el.innerHTML = '<div class="empty-list"><p>등록된 상품이 없습니다</p><button class="btn btn-primary" onclick="openProductForm()">첫 상품 등록하기</button></div>';
     return;
   }
   el.innerHTML = allProducts.map(p => {
     const img = getMainImg(p);
-    const tags = (p.tags || []).map(t => `<span class="tag-badge">${t.toUpperCase()}</span>`).join('');
-    return `
-      <div class="product-row" onclick="editProduct('${p.id}')">
-        <div>${img ? `<img class="product-row-img" src="${img}">` : '<div class="product-row-img"></div>'}</div>
-        <div>
-          <div class="product-row-name">${p.name}</div>
-          <div class="product-row-sub">${tags}</div>
-        </div>
-        <div class="product-row-category">${p.category || '-'}</div>
-        <div class="product-row-price">${p.price?.toLocaleString() || 0}원</div>
-        <div><span class="status-badge ${p.is_active?'status-active':'status-inactive'}">${p.is_active?'ON':'OFF'}</span></div>
-        <div><button class="btn btn-secondary btn-small" onclick="event.stopPropagation();editProduct('${p.id}')">편집</button></div>
-      </div>`;
+    const tags = (p.tags||[]).map(t => `<span class="tag-badge">${t.toUpperCase()}</span>`).join('');
+    return `<div class="product-row" onclick="editProduct('${p.id}')">
+      <div>${img?`<img class="product-row-img" src="${img}">`:'<div class="product-row-img"></div>'}</div>
+      <div><div class="product-row-name">${p.name}</div><div class="product-row-sub">${tags}</div></div>
+      <div style="font-size:11px;color:var(--text-dim)">${p.category||'-'}</div>
+      <div style="font-weight:500">${p.price?.toLocaleString()||0}원</div>
+      <div><span class="status-badge ${p.is_active?'status-active':'status-inactive'}">${p.is_active?'ON':'OFF'}</span></div>
+      <div><button class="btn btn-secondary btn-small" onclick="event.stopPropagation();editProduct('${p.id}')">편집</button></div>
+    </div>`;
   }).join('');
 }
 
 function getMainImg(p) {
-  if (p.product_media?.length > 0) {
-    const m = p.product_media.filter(x => x.role === 'main').sort((a,b) => a.display_order - b.display_order);
+  if (p.product_media?.length) {
+    const m = p.product_media.filter(x=>x.role==='main').sort((a,b)=>a.display_order-b.display_order);
     return m.length ? m[0].media_url : p.product_media[0].media_url;
   }
   return p.image_url;
 }
 
-// ──────────────────────────────────────────
-// FORM 열기/닫기/리셋
-// ──────────────────────────────────────────
-function openForm() {
-  editingId = null;
-  document.getElementById('formTitle').textContent = '새 상품 등록';
-  document.getElementById('deleteBtn').style.display = 'none';
-  resetForm();
-  document.getElementById('formModal').classList.add('show');
+// ── 상품 폼 ──
+function openProductForm() {
+  editingProductId = null;
+  document.getElementById('productFormTitle').textContent = '새 상품 등록';
+  document.getElementById('productDeleteBtn').style.display = 'none';
+  resetProductForm();
+  document.getElementById('productModal').classList.add('show');
 }
+function closeProductForm() { document.getElementById('productModal').classList.remove('show'); }
 
-function closeForm() { document.getElementById('formModal').classList.remove('show'); }
-
-function resetForm() {
+function resetProductForm() {
   ['fName','fSubtitle','fSlug','fPrice','fOriginalPrice','fEditorial','fMoodTitle','fMoodDesc','fDetail'].forEach(id => document.getElementById(id).value = '');
   document.getElementById('fCategory').value = '';
   document.getElementById('fCollection').value = '';
   document.getElementById('fOrder').value = '0';
   document.getElementById('fActive').value = 'true';
-  formImages = []; formPresetTags = []; formCustomTags = []; formOptions = []; formRecommends = [];
-  renderAll();
+  formImages=[]; formPresetTags=[]; formCustomTags=[]; formOptions=[]; formRecommends=[];
+  renderProductFormAll();
 }
 
-function renderAll() {
-  renderImages(); renderPresetTags(); renderCustomTags(); renderOptions(); renderRecommends();
-}
+function renderProductFormAll() { renderImages(); renderPresetTags(); renderCustomTags(); renderOptions(); renderRecommends(); }
 
-// ──────────────────────────────────────────
-// FORM 수정 모드
-// ──────────────────────────────────────────
 async function editProduct(id) {
-  const p = allProducts.find(x => x.id === id);
+  const p = allProducts.find(x=>x.id===id);
   if (!p) return;
-  editingId = id;
-  document.getElementById('formTitle').textContent = '상품 편집';
-  document.getElementById('deleteBtn').style.display = '';
-
-  document.getElementById('fName').value = p.name || '';
-  document.getElementById('fSubtitle').value = p.subtitle || '';
-  document.getElementById('fSlug').value = p.slug || '';
-  document.getElementById('fCategory').value = p.category || '';
-  document.getElementById('fPrice').value = p.price || '';
-  document.getElementById('fOriginalPrice').value = p.original_price || '';
-  document.getElementById('fOrder').value = p.display_order || 0;
-  document.getElementById('fCollection').value = p.collection_id || '';
+  editingProductId = id;
+  document.getElementById('productFormTitle').textContent = '상품 편집';
+  document.getElementById('productDeleteBtn').style.display = '';
+  document.getElementById('fName').value = p.name||'';
+  document.getElementById('fSubtitle').value = p.subtitle||'';
+  document.getElementById('fSlug').value = p.slug||'';
+  document.getElementById('fCategory').value = p.category||'';
+  document.getElementById('fPrice').value = p.price||'';
+  document.getElementById('fOriginalPrice').value = p.original_price||'';
+  document.getElementById('fOrder').value = p.display_order||0;
+  document.getElementById('fCollection').value = p.collection_id||'';
   document.getElementById('fActive').value = String(p.is_active);
-  document.getElementById('fEditorial').value = p.description_editorial || '';
-  document.getElementById('fMoodTitle').value = p.mood_title || '';
-  document.getElementById('fMoodDesc').value = p.mood_description || '';
-  document.getElementById('fDetail').value = p.description_detail || '';
-
-  // 이미지
-  formImages = (p.product_media || []).map(m => ({
-    id: m.id, url: m.media_url, role: m.role, isNew: false,
-    display_order: m.display_order,
-    mediaType: m.media_type || 'image'
-  })).sort((a,b) => a.display_order - b.display_order);
-
-  // 태그 분리 (preset vs custom)
-  const presetKeys = ['best','new','made','seasonal'];
-  const allTags = p.tags || [];
-  formPresetTags = allTags.filter(t => presetKeys.includes(t));
-  formCustomTags = allTags.filter(t => !presetKeys.includes(t));
-
-  formOptions = JSON.parse(JSON.stringify(p.options || []));
-
-  const { data: recs } = await sb.from('recommended_products').select('recommended_product_id').eq('source_product_id', id).order('display_order');
-  formRecommends = (recs || []).map(r => r.recommended_product_id);
-
-  renderAll();
-  document.getElementById('formModal').classList.add('show');
+  document.getElementById('fEditorial').value = p.description_editorial||'';
+  document.getElementById('fMoodTitle').value = p.mood_title||'';
+  document.getElementById('fMoodDesc').value = p.mood_description||'';
+  document.getElementById('fDetail').value = p.description_detail||'';
+  formImages = (p.product_media||[]).map(m=>({id:m.id,url:m.media_url,role:m.role,isNew:false,display_order:m.display_order,mediaType:m.media_type||'image'})).sort((a,b)=>a.display_order-b.display_order);
+  const pk = ['best','new','made','seasonal'];
+  formPresetTags = (p.tags||[]).filter(t=>pk.includes(t));
+  formCustomTags = (p.tags||[]).filter(t=>!pk.includes(t));
+  formOptions = JSON.parse(JSON.stringify(p.options||[]));
+  const { data:recs } = await sb.from('recommended_products').select('recommended_product_id').eq('source_product_id',id).order('display_order');
+  formRecommends = (recs||[]).map(r=>r.recommended_product_id);
+  renderProductFormAll();
+  document.getElementById('productModal').classList.add('show');
 }
 
-// ──────────────────────────────────────────
-// PRESET TAGS (체크박스)
-// ──────────────────────────────────────────
+// ── 태그 체크박스 ──
 function bindTagCheckboxes() {
   document.querySelectorAll('#tagCheckboxes .checkbox-item').forEach(item => {
     item.addEventListener('click', () => {
-      const tag = item.dataset.tag;
-      const cb = item.querySelector('input');
-      cb.checked = !cb.checked;
-      item.classList.toggle('checked', cb.checked);
-      if (cb.checked) {
-        if (!formPresetTags.includes(tag)) formPresetTags.push(tag);
-      } else {
-        formPresetTags = formPresetTags.filter(t => t !== tag);
-      }
+      const tag = item.dataset.tag, cb = item.querySelector('input');
+      cb.checked = !cb.checked; item.classList.toggle('checked', cb.checked);
+      if (cb.checked) { if (!formPresetTags.includes(tag)) formPresetTags.push(tag); }
+      else { formPresetTags = formPresetTags.filter(t=>t!==tag); }
     });
   });
 }
-
 function renderPresetTags() {
   document.querySelectorAll('#tagCheckboxes .checkbox-item').forEach(item => {
-    const tag = item.dataset.tag;
-    const cb = item.querySelector('input');
-    const checked = formPresetTags.includes(tag);
-    cb.checked = checked;
+    const checked = formPresetTags.includes(item.dataset.tag);
+    item.querySelector('input').checked = checked;
     item.classList.toggle('checked', checked);
   });
 }
 
-// ──────────────────────────────────────────
-// CUSTOM TAGS
-// ──────────────────────────────────────────
+// ── 커스텀 태그 ──
 function bindCustomTagInput() {
   document.querySelector('#customTagsInput input').addEventListener('keydown', function(e) {
-    if (e.key === 'Enter') {
-      e.preventDefault();
-      const val = this.value.trim().toLowerCase();
-      if (val && !formCustomTags.includes(val)) { formCustomTags.push(val); renderCustomTags(); }
-      this.value = '';
-    }
+    if (e.key==='Enter') { e.preventDefault(); const v=this.value.trim().toLowerCase();
+      if (v&&!formCustomTags.includes(v)){formCustomTags.push(v);renderCustomTags();} this.value=''; }
   });
 }
-
 function renderCustomTags() {
-  const container = document.getElementById('customTagsInput');
-  const input = container.querySelector('input');
-  container.querySelectorAll('.tag-item').forEach(el => el.remove());
-  formCustomTags.forEach((tag, i) => {
-    const el = document.createElement('div');
-    el.className = 'tag-item';
-    el.innerHTML = `${tag}<span class="tag-remove" onclick="removeCustomTag(${i})">×</span>`;
-    container.insertBefore(el, input);
-  });
+  const c=document.getElementById('customTagsInput'), inp=c.querySelector('input');
+  c.querySelectorAll('.tag-item').forEach(el=>el.remove());
+  formCustomTags.forEach((tag,i)=>{const el=document.createElement('div');el.className='tag-item';
+    el.innerHTML=`${tag}<span class="tag-remove" onclick="removeCustomTag(${i})">×</span>`;c.insertBefore(el,inp);});
 }
-function removeCustomTag(idx) { formCustomTags.splice(idx, 1); renderCustomTags(); }
+function removeCustomTag(i){formCustomTags.splice(i,1);renderCustomTags();}
 
-// ──────────────────────────────────────────
-// IMAGES
-// ──────────────────────────────────────────
+// ── 이미지 ──
 function renderImages() {
-  const area = document.getElementById('imageArea');
-  area.innerHTML = formImages.map((img, i) => {
-    const label = ROLE_LABELS[img.role] || img.role;
-    const isVideo = img.mediaType === 'video' || img.url?.endsWith('.mp4');
-    return `
-      <div class="image-card">
-        ${isVideo
-          ? `<video src="${img.url}" muted loop playsinline onmouseenter="this.play()" onmouseleave="this.pause();this.currentTime=0;"></video>`
-          : `<img src="${img.url}" alt="">`
-        }
-        <div class="image-card-overlay">
-          <span class="image-card-role-label">${label}</span>
-          <div class="image-card-actions">
-            ${i > 0 ? `<button class="img-btn-move" onclick="moveImage(${i},-1)" title="위로">↑</button>` : ''}
-            ${i < formImages.length - 1 ? `<button class="img-btn-move" onclick="moveImage(${i},1)" title="아래로">↓</button>` : ''}
-            <button class="img-btn-delete" onclick="removeImage(${i})" title="삭제">×</button>
-          </div>
-        </div>
-      </div>`;
+  document.getElementById('imageArea').innerHTML = formImages.map((img,i) => {
+    const label = ROLE_LABELS[img.role]||img.role;
+    const isV = img.mediaType==='video'||img.url?.endsWith('.mp4');
+    return `<div class="image-card">
+      ${isV?`<video src="${img.url}" muted loop playsinline onmouseenter="this.play()" onmouseleave="this.pause();this.currentTime=0;"></video>`
+        :`<img src="${img.url}">`}
+      <div class="image-card-overlay">
+        <span class="image-card-role-label">${label}</span>
+        <div class="image-card-actions">
+          ${i>0?`<button class="img-btn-move" onclick="moveImage(${i},-1)">↑</button>`:''}
+          ${i<formImages.length-1?`<button class="img-btn-move" onclick="moveImage(${i},1)">↓</button>`:''}
+          <button class="img-btn-delete" onclick="removeImage(${i})">×</button>
+        </div></div></div>`;
   }).join('');
 }
-
-function moveImage(idx, dir) {
-  const target = idx + dir;
-  if (target < 0 || target >= formImages.length) return;
-  [formImages[idx], formImages[target]] = [formImages[target], formImages[idx]];
-  renderImages();
-}
-
-function removeImage(idx) { formImages.splice(idx, 1); renderImages(); }
-
-function bindImageUpload() {
-  document.getElementById('imageFileInput').addEventListener('change', async function(e) {
-    const files = Array.from(e.target.files);
-    const role = document.getElementById('imageRoleSelect').value;
-    for (const file of files) {
-      const isVideo = file.type.startsWith('video/');
-      const ext = file.name.split('.').pop();
-      const fileName = `products/${Date.now()}_${Math.random().toString(36).slice(2,8)}.${ext}`;
-      const { data, error } = await sb.storage.from('media').upload(fileName, file, {
-        upsert: true,
-        contentType: file.type
-      });
-      if (error) { showToast('업로드 실패: ' + error.message, true); continue; }
-      const { data: urlData } = sb.storage.from('media').getPublicUrl(fileName);
-      formImages.push({
-        url: urlData.publicUrl, role, isNew: true,
-        display_order: formImages.length,
-        mediaType: isVideo ? 'video' : 'image'
-      });
-    }
-    renderImages();
-    e.target.value = '';
+function moveImage(i,d){const t=i+d;if(t<0||t>=formImages.length)return;[formImages[i],formImages[t]]=[formImages[t],formImages[i]];renderImages();}
+function removeImage(i){formImages.splice(i,1);renderImages();}
+function bindImageUpload(){
+  document.getElementById('imageFileInput').addEventListener('change',async function(e){
+    const files=Array.from(e.target.files), role=document.getElementById('imageRoleSelect').value;
+    for(const file of files){
+      const isV=file.type.startsWith('video/'), ext=file.name.split('.').pop();
+      const fn=`products/${Date.now()}_${Math.random().toString(36).slice(2,8)}.${ext}`;
+      const{error}=await sb.storage.from('media').upload(fn,file,{upsert:true,contentType:file.type});
+      if(error){showToast('업로드 실패: '+error.message,true);continue;}
+      const{data:u}=sb.storage.from('media').getPublicUrl(fn);
+      formImages.push({url:u.publicUrl,role,isNew:true,display_order:formImages.length,mediaType:isV?'video':'image'});
+    } renderImages(); e.target.value='';
   });
 }
 
-// ──────────────────────────────────────────
-// OPTIONS
-// ──────────────────────────────────────────
-function renderOptions() {
-  document.getElementById('optionBuilder').innerHTML = formOptions.map((opt, i) => `
-    <div class="option-item">
-      <input class="form-input" value="${opt.name}" placeholder="옵션명 (예: 색상)" onchange="formOptions[${i}].name=this.value">
-      <input class="form-input" value="${(opt.values||[]).join(', ')}" placeholder="값 (쉼표 구분: Black, Ivory)" onchange="formOptions[${i}].values=this.value.split(',').map(s=>s.trim()).filter(Boolean)">
-      <button class="option-remove" onclick="removeOption(${i})">×</button>
-    </div>`).join('');
+// ── 옵션 ──
+function renderOptions(){
+  document.getElementById('optionBuilder').innerHTML=formOptions.map((o,i)=>`<div class="option-item">
+    <input class="form-input" value="${o.name}" placeholder="옵션명" onchange="formOptions[${i}].name=this.value">
+    <input class="form-input" value="${(o.values||[]).join(', ')}" placeholder="값 (쉼표: Black, Ivory)" onchange="formOptions[${i}].values=this.value.split(',').map(s=>s.trim()).filter(Boolean)">
+    <button class="option-remove" onclick="removeOption(${i})">×</button></div>`).join('');
 }
-function addOption() { formOptions.push({ name:'', values:[] }); renderOptions(); }
-function removeOption(idx) { formOptions.splice(idx, 1); renderOptions(); }
+function addOption(){formOptions.push({name:'',values:[]});renderOptions();}
+function removeOption(i){formOptions.splice(i,1);renderOptions();}
 
-// ──────────────────────────────────────────
-// RECOMMEND
-// ──────────────────────────────────────────
-function updateRecommendSelect() {
-  document.getElementById('recommendSelect').innerHTML = '<option value="">추천할 상품 선택</option>' +
-    allProducts.map(p => `<option value="${p.id}">${p.name}</option>`).join('');
+// ── 추천 ──
+function updateRecommendSelect(){
+  document.getElementById('recommendSelect').innerHTML='<option value="">추천할 상품 선택</option>'+allProducts.map(p=>`<option value="${p.id}">${p.name}</option>`).join('');
 }
-function renderRecommends() {
-  document.getElementById('recommendList').innerHTML = formRecommends.map((rid, i) => {
-    const p = allProducts.find(x => x.id === rid);
-    if (!p) return '';
-    const img = getMainImg(p);
-    return `<div class="recommend-chip">${img ? `<img src="${img}">` : ''}${p.name}<span class="tag-remove" onclick="removeRecommend(${i})">×</span></div>`;
+function renderRecommends(){
+  document.getElementById('recommendList').innerHTML=formRecommends.map((rid,i)=>{
+    const p=allProducts.find(x=>x.id===rid);if(!p)return'';const img=getMainImg(p);
+    return`<div class="recommend-chip">${img?`<img src="${img}">`:''}${p.name}<span class="tag-remove" onclick="removeRecommend(${i})">×</span></div>`;
   }).join('');
 }
-function addRecommend() {
-  const id = document.getElementById('recommendSelect').value;
-  if (!id || formRecommends.includes(id)) return;
-  if (id === editingId) { showToast('자기 자신은 추천 불가', true); return; }
-  formRecommends.push(id);
-  renderRecommends();
-  document.getElementById('recommendSelect').value = '';
-}
-function removeRecommend(idx) { formRecommends.splice(idx, 1); renderRecommends(); }
+function addRecommend(){const id=document.getElementById('recommendSelect').value;
+  if(!id||formRecommends.includes(id))return;if(id===editingProductId){showToast('자기 자신 불가',true);return;}
+  formRecommends.push(id);renderRecommends();document.getElementById('recommendSelect').value='';}
+function removeRecommend(i){formRecommends.splice(i,1);renderRecommends();}
 
-// ──────────────────────────────────────────
-// SLUG 자동 생성
-// ──────────────────────────────────────────
-document.getElementById('fName').addEventListener('input', function() {
-  if (!editingId) {
-    document.getElementById('fSlug').value = this.value
-      .toLowerCase().replace(/[^a-z0-9가-힣\s-]/g, '').replace(/\s+/g, '-').replace(/--+/g, '-').replace(/^-|-$/g, '');
-  }
+// ── 슬러그 자동 ──
+document.getElementById('fName').addEventListener('input',function(){
+  if(!editingProductId) document.getElementById('fSlug').value=this.value.toLowerCase().replace(/[^a-z0-9가-힣\s-]/g,'').replace(/\s+/g,'-').replace(/--+/g,'-').replace(/^-|-$/g,'');
 });
 
-// ──────────────────────────────────────────
-// SAVE
-// ──────────────────────────────────────────
-async function saveProduct() {
-  const name = document.getElementById('fName').value.trim();
-  const slug = document.getElementById('fSlug').value.trim();
-  const category = document.getElementById('fCategory').value;
-  const price = parseInt(document.getElementById('fPrice').value) || 0;
-
-  if (!name) { showToast('상품명을 입력해주세요', true); return; }
-  if (!slug) { showToast('슬러그를 입력해주세요', true); return; }
-  if (!category) { showToast('카테고리를 선택해주세요', true); return; }
-  if (!price) { showToast('가격을 입력해주세요', true); return; }
-
-  const allTags = [...formPresetTags, ...formCustomTags];
-
-  const productData = {
-    brand: 'YLLOWTAP',
-    name,
-    subtitle: document.getElementById('fSubtitle').value.trim() || null,
-    slug,
-    category,
-    section: 'curated',
-    price,
-    original_price: parseInt(document.getElementById('fOriginalPrice').value) || null,
-    display_order: parseInt(document.getElementById('fOrder').value) || 0,
-    collection_id: document.getElementById('fCollection').value || null,
-    is_active: document.getElementById('fActive').value === 'true',
-    description_editorial: document.getElementById('fEditorial').value.trim() || null,
-    mood_title: document.getElementById('fMoodTitle').value.trim() || null,
-    mood_description: document.getElementById('fMoodDesc').value.trim() || null,
-    description_detail: document.getElementById('fDetail').value.trim() || null,
-    tags: allTags,
-    options: formOptions.filter(o => o.name),
-    image_url: formImages.length > 0 ? (formImages.find(m => m.role === 'main')?.url || formImages[0].url) : null
-  };
-
-  let productId;
-  try {
-    if (editingId) {
-      const { error } = await sb.from('products').update(productData).eq('id', editingId);
-      if (error) throw error;
-      productId = editingId;
-    } else {
-      const { data, error } = await sb.from('products').insert(productData).select().single();
-      if (error) throw error;
-      productId = data.id;
-    }
-
-    // 이미지 저장
-    await sb.from('product_media').delete().eq('product_id', productId);
-    if (formImages.length > 0) {
-      const rows = formImages.map((img, i) => ({
-        product_id: productId, media_url: img.url,
-        media_type: img.mediaType || 'image', role: img.role, display_order: i
-      }));
-      await sb.from('product_media').insert(rows);
-    }
-
-    // 추천 저장
-    await sb.from('recommended_products').delete().eq('source_product_id', productId);
-    if (formRecommends.length > 0) {
-      const rows = formRecommends.map((rid, i) => ({
-        source_product_id: productId, recommended_product_id: rid, display_order: i
-      }));
-      await sb.from('recommended_products').insert(rows);
-    }
-
-    showToast(editingId ? '상품이 수정되었습니다' : '상품이 등록되었습니다');
-    closeForm();
-    await loadProducts();
-  } catch (err) {
-    if (err.message?.includes('duplicate') && err.message?.includes('slug')) {
-      showToast('이미 사용 중인 슬러그입니다', true);
-    } else {
-      showToast('저장 실패: ' + err.message, true);
-    }
+// ── 저장 ──
+async function saveProduct(){
+  const name=document.getElementById('fName').value.trim(),slug=document.getElementById('fSlug').value.trim(),
+    category=document.getElementById('fCategory').value,price=parseInt(document.getElementById('fPrice').value)||0;
+  if(!name){showToast('상품명 입력',true);return;} if(!slug){showToast('슬러그 입력',true);return;}
+  if(!category){showToast('카테고리 선택',true);return;} if(!price){showToast('가격 입력',true);return;}
+  const d={brand:'YLLOWTAP',name,subtitle:document.getElementById('fSubtitle').value.trim()||null,slug,category,section:'curated',price,
+    original_price:parseInt(document.getElementById('fOriginalPrice').value)||null,
+    display_order:parseInt(document.getElementById('fOrder').value)||0,
+    collection_id:document.getElementById('fCollection').value||null,
+    is_active:document.getElementById('fActive').value==='true',
+    description_editorial:document.getElementById('fEditorial').value.trim()||null,
+    mood_title:document.getElementById('fMoodTitle').value.trim()||null,
+    mood_description:document.getElementById('fMoodDesc').value.trim()||null,
+    description_detail:document.getElementById('fDetail').value.trim()||null,
+    tags:[...formPresetTags,...formCustomTags],
+    options:formOptions.filter(o=>o.name),
+    image_url:formImages.length?(formImages.find(m=>m.role==='main')?.url||formImages[0].url):null};
+  let pid;
+  try{
+    if(editingProductId){const{error}=await sb.from('products').update(d).eq('id',editingProductId);if(error)throw error;pid=editingProductId;}
+    else{const{data,error}=await sb.from('products').insert(d).select().single();if(error)throw error;pid=data.id;}
+    await sb.from('product_media').delete().eq('product_id',pid);
+    if(formImages.length){await sb.from('product_media').insert(formImages.map((img,i)=>({product_id:pid,media_url:img.url,media_type:img.mediaType||'image',role:img.role,display_order:i})));}
+    await sb.from('recommended_products').delete().eq('source_product_id',pid);
+    if(formRecommends.length){await sb.from('recommended_products').insert(formRecommends.map((rid,i)=>({source_product_id:pid,recommended_product_id:rid,display_order:i})));}
+    showToast(editingProductId?'수정 완료':'등록 완료');closeProductForm();await loadProducts();
+  }catch(err){
+    if(err.message?.includes('duplicate')&&err.message?.includes('slug'))showToast('중복된 슬러그',true);
+    else showToast('저장 실패: '+err.message,true);
   }
 }
 
-// ──────────────────────────────────────────
-// DELETE
-// ──────────────────────────────────────────
-async function deleteProduct() {
-  if (!editingId || !confirm('이 상품을 삭제하시겠습니까?')) return;
-  try {
-    const { error } = await sb.from('products').delete().eq('id', editingId);
-    if (error) throw error;
-    showToast('상품이 삭제되었습니다');
-    closeForm(); await loadProducts();
-  } catch (err) { showToast('삭제 실패: ' + err.message, true); }
+async function deleteProduct(){
+  if(!editingProductId||!confirm('이 상품을 삭제하시겠습니까?'))return;
+  try{const{error}=await sb.from('products').delete().eq('id',editingProductId);if(error)throw error;
+    showToast('삭제 완료');closeProductForm();await loadProducts();}
+  catch(err){showToast('삭제 실패: '+err.message,true);}
 }
 
-// ──────────────────────────────────────────
+// ══════════════════════════════════════════
+// 히어로 슬라이드
+// ══════════════════════════════════════════
+async function loadHeroSlides(){
+  const{data}=await sb.from('hero_slides').select('*').order('slide_order');
+  heroSlides=data||[];renderHeroList();
+}
+
+function renderHeroList(){
+  const el=document.getElementById('heroList');
+  if(!heroSlides.length){el.innerHTML='<div class="empty-list"><p>슬라이드가 없습니다</p></div>';return;}
+  el.innerHTML=heroSlides.map(h=>`<div class="hero-row" onclick="editHero('${h.id}')" style="cursor:pointer;">
+    <div>${h.media_url?`<img class="hero-row-img" src="${h.media_url}">`:'<div class="hero-row-img"></div>'}</div>
+    <div><div class="hero-row-title">${h.title||'(제목 없음)'}</div><div class="hero-row-sub">${h.subtitle||''}</div></div>
+    <div><span class="status-badge ${h.is_active?'status-active':'status-inactive'}">${h.is_active?'ON':'OFF'}</span></div>
+    <div><button class="btn btn-secondary btn-small" onclick="event.stopPropagation();editHero('${h.id}')">편집</button></div>
+  </div>`).join('');
+}
+
+function openHeroForm(){
+  editingHeroId=null;
+  document.getElementById('heroFormTitle').textContent='슬라이드 추가';
+  document.getElementById('heroDeleteBtn').style.display='none';
+  ['hMediaUrl','hSubtitle','hTitle','hDesc'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('hMediaType').value='image';
+  document.getElementById('hOrder').value=heroSlides.length+1;
+  document.getElementById('hCtaText').value='Shop Collection';
+  document.getElementById('hCtaLink').value='/category.html';
+  document.getElementById('hActive').value='true';
+  document.getElementById('heroModal').classList.add('show');
+}
+function closeHeroForm(){document.getElementById('heroModal').classList.remove('show');}
+
+function editHero(id){
+  const h=heroSlides.find(x=>x.id===id);if(!h)return;
+  editingHeroId=id;
+  document.getElementById('heroFormTitle').textContent='슬라이드 편집';
+  document.getElementById('heroDeleteBtn').style.display='';
+  document.getElementById('hMediaUrl').value=h.media_url||'';
+  document.getElementById('hMediaType').value=h.media_type||'image';
+  document.getElementById('hOrder').value=h.slide_order||1;
+  document.getElementById('hSubtitle').value=h.subtitle||'';
+  document.getElementById('hTitle').value=h.title||'';
+  document.getElementById('hDesc').value=h.description||'';
+  document.getElementById('hCtaText').value=h.cta_text||'Shop Collection';
+  document.getElementById('hCtaLink').value=h.cta_link||'#';
+  document.getElementById('hActive').value=String(h.is_active);
+  document.getElementById('heroModal').classList.add('show');
+}
+
+function bindHeroMediaUpload(){
+  document.getElementById('hMediaFile').addEventListener('change',async function(e){
+    const file=e.target.files[0];if(!file)return;
+    const ext=file.name.split('.').pop();
+    const fn=`hero/${Date.now()}_${Math.random().toString(36).slice(2,8)}.${ext}`;
+    const{error}=await sb.storage.from('media').upload(fn,file,{upsert:true,contentType:file.type});
+    if(error){showToast('업로드 실패',true);return;}
+    const{data:u}=sb.storage.from('media').getPublicUrl(fn);
+    document.getElementById('hMediaUrl').value=u.publicUrl;
+    document.getElementById('hMediaType').value=file.type.startsWith('video/')?'video':'image';
+    e.target.value='';
+  });
+}
+
+async function saveHero(){
+  const d={
+    media_url:document.getElementById('hMediaUrl').value.trim(),
+    media_type:document.getElementById('hMediaType').value,
+    slide_order:parseInt(document.getElementById('hOrder').value)||1,
+    subtitle:document.getElementById('hSubtitle').value.trim()||null,
+    title:document.getElementById('hTitle').value.trim()||null,
+    description:document.getElementById('hDesc').value.trim()||null,
+    cta_text:document.getElementById('hCtaText').value.trim()||'Shop Collection',
+    cta_link:document.getElementById('hCtaLink').value.trim()||'#',
+    is_active:document.getElementById('hActive').value==='true'
+  };
+  try{
+    if(editingHeroId){const{error}=await sb.from('hero_slides').update(d).eq('id',editingHeroId);if(error)throw error;}
+    else{const{error}=await sb.from('hero_slides').insert(d);if(error)throw error;}
+    showToast(editingHeroId?'수정 완료':'추가 완료');closeHeroForm();await loadHeroSlides();
+  }catch(err){showToast('저장 실패: '+err.message,true);}
+}
+
+async function deleteHero(){
+  if(!editingHeroId||!confirm('이 슬라이드를 삭제하시겠습니까?'))return;
+  try{const{error}=await sb.from('hero_slides').delete().eq('id',editingHeroId);if(error)throw error;
+    showToast('삭제 완료');closeHeroForm();await loadHeroSlides();}
+  catch(err){showToast('삭제 실패: '+err.message,true);}
+}
+
+// ══════════════════════════════════════════
+// 사이트 설정
+// ══════════════════════════════════════════
+async function loadSettings(){
+  const{data}=await sb.from('site_settings').select('*');
+  siteSettings={};(data||[]).forEach(r=>siteSettings[r.key]=r.value);
+  document.getElementById('sBgmEnabled').value=siteSettings.bgm_enabled||'false';
+  document.getElementById('sBgmUrl').value=siteSettings.bgm_url||'';
+  document.getElementById('sBgmVolume').value=siteSettings.bgm_volume||'0.3';
+  document.getElementById('sMoodImage').value=siteSettings.mood_image_url||'';
+  document.getElementById('sMoodTitle').value=siteSettings.mood_title||'About the Mood';
+}
+
+function bindSettingsImageUpload(){
+  document.getElementById('sMoodImageFile').addEventListener('change',async function(e){
+    const file=e.target.files[0];if(!file)return;
+    const fn=`settings/${Date.now()}.${file.name.split('.').pop()}`;
+    const{error}=await sb.storage.from('media').upload(fn,file,{upsert:true,contentType:file.type});
+    if(error){showToast('업로드 실패',true);return;}
+    const{data:u}=sb.storage.from('media').getPublicUrl(fn);
+    document.getElementById('sMoodImage').value=u.publicUrl;
+    e.target.value='';
+  });
+}
+
+async function saveSettings(){
+  const items=[
+    {key:'bgm_enabled',value:document.getElementById('sBgmEnabled').value},
+    {key:'bgm_url',value:document.getElementById('sBgmUrl').value},
+    {key:'bgm_volume',value:document.getElementById('sBgmVolume').value},
+    {key:'mood_image_url',value:document.getElementById('sMoodImage').value},
+    {key:'mood_title',value:document.getElementById('sMoodTitle').value}
+  ];
+  try{
+    for(const item of items){
+      await sb.from('site_settings').upsert({key:item.key,value:item.value,updated_at:new Date().toISOString()},{onConflict:'key'});
+    }
+    showToast('설정 저장 완료');
+  }catch(err){showToast('저장 실패: '+err.message,true);}
+}
+
+// ══════════════════════════════════════════
 // TOAST
-// ──────────────────────────────────────────
-function showToast(msg, isError = false) {
-  const el = document.getElementById('toast');
-  el.textContent = msg;
-  el.className = 'toast' + (isError ? ' error' : '');
-  setTimeout(() => el.classList.add('show'), 10);
-  setTimeout(() => el.classList.remove('show'), 3000);
+// ══════════════════════════════════════════
+function showToast(msg,isError=false){
+  const el=document.getElementById('toast');el.textContent=msg;
+  el.className='toast'+(isError?' error':'');
+  setTimeout(()=>el.classList.add('show'),10);
+  setTimeout(()=>el.classList.remove('show'),3000);
 }
 
-// ─── GO ───
 init();
 </script>
 </body>
