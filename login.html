@@ -248,7 +248,7 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <script>
 const SUPABASE_URL = 'https://ppihvvpplqikclftrwdb.supabase.co';
-const SUPABASE_ANON = '여기에_ANON_KEY_입력';
+const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBwaWh2dnBwbHFpa2NsZnRyd2RiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk3MzE0NTEsImV4cCI6MjA5NTMwNzQ1MX0.shGVcFTQiuYc4u6tdU50x18YMgJdgFUljf8c7QlQU-U';
 const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON);
 
 // ── 탭 전환 ──
@@ -328,7 +328,7 @@ async function emailSignup() {
 // ── 로그아웃 ──
 async function doLogout() {
   await sb.auth.signOut();
-  checkAuth();
+  window.location.reload();
 }
 
 // ── 인증 상태 체크 ──
