@@ -308,6 +308,36 @@ button {
   color: var(--white);
 }
 
+/* Hero Controls (Audio + Video) */
+.hero__controls {
+  position: absolute;
+  bottom: 36px;
+  right: var(--side-padding);
+  z-index: 3;
+  display: flex;
+  gap: 10px;
+}
+.hero__control-btn {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: 1px solid rgba(255,255,255,0.25);
+  background: rgba(255,255,255,0.08);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: rgba(255,255,255,0.7);
+  transition: all var(--duration) var(--ease);
+}
+.hero__control-btn:hover {
+  background: rgba(255,255,255,0.15);
+  color: rgba(255,255,255,0.95);
+  border-color: rgba(255,255,255,0.4);
+}
+
 /* =====================================================
    SERVICE INFO BAR
    ===================================================== */
@@ -701,6 +731,8 @@ button {
   .hero__cta { height: 46px; line-height: 46px; padding: 0 24px; font-size: 10px; }
   .hero__content { left: var(--side-padding); bottom: 12%; max-width: 85%; }
   .hero__pagination { left: var(--side-padding); bottom: 24px; }
+  .hero__controls { bottom: 24px; right: var(--side-padding); }
+  .hero__control-btn { width: 36px; height: 36px; }
   .product-grid { grid-template-columns: repeat(2, 1fr); gap: 14px; }
   .service-bar { grid-template-columns: 1fr; }
   .service-bar__item { border-right: none; border-bottom: 1px solid var(--divider); }

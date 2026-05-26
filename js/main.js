@@ -108,4 +108,58 @@ document.addEventListener('DOMContentLoaded', () => {
     }, { passive: true });
   }
 
+
+  /* ── Audio Toggle ── */
+  const bgm = document.getElementById('heroBgm');
+  const audioToggle = document.getElementById('audioToggleBtn');
+  const audioOffIcon = document.getElementById('audioOffIcon');
+  const audioOnIcon = document.getElementById('audioOnIcon');
+  let audioPlaying = false;
+
+  if (bgm && audioToggle) {
+    bgm.volume = 0.3;
+
+    audioToggle.addEventListener('click', () => {
+      if (audioPlaying) {
+        bgm.pause();
+        audioOffIcon.style.display = '';
+        audioOnIcon.style.display = 'none';
+      } else {
+        bgm.play().catch(() => {});
+        audioOffIcon.style.display = 'none';
+        audioOnIcon.style.display = '';
+      }
+      audioPlaying = !audioPlaying;
+    });
+  }
+
+
+  /* ── Video Pause/Play ── */
+  const videoPauseBtn = document.getElementById('videoPauseBtn');
+  const videoPauseIcon = document.getElementById('videoPauseIcon');
+  const videoPlayIcon = document.getElementById('videoPlayIcon');
+  let videoPaused = false;
+
+  if (videoPauseBtn) {
+    videoPauseBtn.addEventListener('click', () => {
+      const activeSlide = document.querySelector('.hero__slide.active');
+      const video = activeSlide ? activeSlide.querySelector('video') : null;
+
+      if (videoPaused) {
+        // Resume auto slide
+        startAutoSlide();
+        videoPauseIcon.style.display = '';
+        videoPlayIcon.style.display = 'none';
+        if (video) video.play();
+      } else {
+        // Pause auto slide
+        clearInterval(autoSlideTimer);
+        videoPauseIcon.style.display = 'none';
+        videoPlayIcon.style.display = '';
+        if (video) video.pause();
+      }
+      videoPaused = !videoPaused;
+    });
+  }
+
 });
