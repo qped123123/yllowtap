@@ -10,258 +10,235 @@
 <link href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,opsz,wght@0,6..96,400;0,6..96,700;1,6..96,400&family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet">
 <style>
 :root {
-  --pd-bg: #F7F5F2;
-  --pd-white: #FFFFFF;
-  --pd-text: #111111;
-  --pd-text2: #666666;
-  --pd-text3: #999999;
-  --pd-accent: #F4D84E;
-  --pd-accent-dk: #D4B83E;
-  --pd-border: #E5E1DC;
-  --pd-border-lt: #F0EDE8;
-  --pd-red: #C4453C;
-  --pd-fd: 'Bodoni Moda', serif;
-  --pd-fb: 'Noto Sans KR', 'Pretendard', sans-serif;
+  --pd-bg:#F7F5F2;--pd-white:#FFFFFF;--pd-text:#111111;--pd-text2:#666666;--pd-text3:#999999;
+  --pd-accent:#F4D84E;--pd-accent-dk:#D4B83E;--pd-border:#E5E1DC;--pd-border-lt:#F0EDE8;--pd-red:#C4453C;
+  --pd-fd:'Bodoni Moda',serif;--pd-fb:'Noto Sans KR','Pretendard',sans-serif;
 }
 
 /* BREADCRUMB */
-.pd-breadcrumb {
-  max-width:1400px; margin:0 auto; padding:76px 40px 14px;
-  font-size:11px; color:var(--pd-text3); letter-spacing:1px;
-}
-.pd-breadcrumb a { color:var(--pd-text3); text-decoration:none; transition:color 0.3s; }
-.pd-breadcrumb a:hover { color:var(--pd-text); }
-.pd-breadcrumb span { margin:0 7px; }
+.pd-breadcrumb{max-width:1400px;margin:0 auto;padding:76px 40px 14px;font-size:11px;color:var(--pd-text3);letter-spacing:1px}
+.pd-breadcrumb a{color:var(--pd-text3);text-decoration:none;transition:color .3s}.pd-breadcrumb a:hover{color:var(--pd-text)}
+.pd-breadcrumb span{margin:0 7px}
 
 /* PRODUCT TOP */
-.pd-top {
-  max-width:1400px; margin:0 auto; padding:6px 40px 0;
-  display:grid; grid-template-columns:1fr 420px; gap:56px; align-items:start;
-}
+.pd-top{max-width:1400px;margin:0 auto;padding:6px 40px 0;display:grid;grid-template-columns:1fr 420px;gap:56px;align-items:start}
 
-/* GALLERY */
-.pd-gallery { display:grid; grid-template-columns:76px 1fr; gap:10px; position:sticky; top:76px; }
-.pd-thumbs { display:flex; flex-direction:column; gap:7px; max-height:600px; overflow-y:auto; scrollbar-width:none; }
-.pd-thumbs::-webkit-scrollbar { display:none; }
-.pd-thumb {
-  width:76px; height:95px; object-fit:cover; cursor:pointer;
-  border:2px solid transparent; transition:border-color 0.3s, opacity 0.3s; opacity:0.5;
-}
-.pd-thumb.active, .pd-thumb:hover { border-color:var(--pd-text); opacity:1; }
-.pd-main { position:relative; aspect-ratio:3/4; overflow:hidden; background:#EAE7E2; cursor:zoom-in; }
-.pd-main img { width:100%; height:100%; object-fit:cover; transition:opacity 0.4s; }
+/* GALLERY — 개선: 스크롤 가능 + 카운터 */
+.pd-gallery{display:grid;grid-template-columns:76px 1fr;gap:10px;position:sticky;top:76px}
+.pd-thumbs-wrap{position:relative;height:600px}
+.pd-thumbs{display:flex;flex-direction:column;gap:7px;height:100%;overflow-y:auto;scrollbar-width:thin;scrollbar-color:var(--pd-border) transparent;padding-right:4px}
+.pd-thumbs::-webkit-scrollbar{width:3px}.pd-thumbs::-webkit-scrollbar-thumb{background:var(--pd-border);border-radius:3px}
+.pd-thumb{width:76px;min-height:95px;height:95px;object-fit:cover;cursor:pointer;border:2px solid transparent;transition:border-color .3s,opacity .3s;opacity:.5;flex-shrink:0}
+.pd-thumb.active,.pd-thumb:hover{border-color:var(--pd-text);opacity:1}
+.pd-main{position:relative;aspect-ratio:3/4;overflow:hidden;background:#EAE7E2;cursor:zoom-in}
+.pd-main img{width:100%;height:100%;object-fit:cover;transition:opacity .4s}
+.pd-img-counter{position:absolute;bottom:12px;right:12px;background:rgba(0,0,0,.5);color:#fff;font-size:11px;padding:4px 10px;border-radius:3px;letter-spacing:1px}
 
 /* PRODUCT INFO */
-.pd-info { padding:6px 0 60px; }
-.pd-info-brand { font-size:11px; font-weight:500; letter-spacing:2px; text-transform:uppercase; color:var(--pd-text3); margin-bottom:7px; }
-.pd-info-name { font-family:var(--pd-fd); font-size:26px; font-weight:400; line-height:1.3; margin-bottom:4px; }
-.pd-info-subtitle { font-size:13px; color:var(--pd-text2); line-height:1.6; margin-bottom:22px; }
-.pd-info-price { display:flex; align-items:baseline; gap:10px; margin-bottom:28px; padding-bottom:22px; border-bottom:1px solid var(--pd-border); }
-.pd-price-now { font-size:24px; font-weight:700; }
-.pd-price-old { font-size:15px; color:var(--pd-text3); text-decoration:line-through; }
-.pd-price-off { font-size:15px; font-weight:700; color:var(--pd-red); }
+.pd-info{padding:6px 0 60px}
+.pd-info-brand{font-size:11px;font-weight:500;letter-spacing:2px;text-transform:uppercase;color:var(--pd-text3);margin-bottom:7px}
+.pd-info-name{font-family:var(--pd-fd);font-size:26px;font-weight:400;line-height:1.3;margin-bottom:4px}
+.pd-info-subtitle{font-size:13px;color:var(--pd-text2);line-height:1.6;margin-bottom:22px}
+.pd-info-price{display:flex;align-items:baseline;gap:10px;margin-bottom:28px;padding-bottom:22px;border-bottom:1px solid var(--pd-border)}
+.pd-price-now{font-size:24px;font-weight:700}.pd-price-old{font-size:15px;color:var(--pd-text3);text-decoration:line-through}.pd-price-off{font-size:15px;font-weight:700;color:var(--pd-red)}
 
 /* OPTIONS */
-.pd-opt-group { margin-bottom:18px; }
-.pd-opt-label { font-size:11px; font-weight:500; letter-spacing:1.5px; text-transform:uppercase; color:var(--pd-text2); margin-bottom:8px; }
-.pd-opt-select {
-  width:100%; padding:12px 14px; font-size:13px; font-family:var(--pd-fb);
-  border:1px solid var(--pd-border); background:var(--pd-white); color:var(--pd-text);
-  cursor:pointer; appearance:none;
-  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%23999'/%3E%3C/svg%3E");
-  background-repeat:no-repeat; background-position:right 14px center;
-}
+.pd-opt-group{margin-bottom:18px}
+.pd-opt-label{font-size:11px;font-weight:500;letter-spacing:1.5px;text-transform:uppercase;color:var(--pd-text2);margin-bottom:8px}
+.pd-opt-select{width:100%;padding:12px 14px;font-size:13px;font-family:var(--pd-fb);border:1px solid var(--pd-border);background:var(--pd-white);color:var(--pd-text);cursor:pointer;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%23999'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 14px center}
+
+/* COLOR PREVIEW — 컬러별 이미지 표시 */
+.pd-colors{margin-bottom:24px}
+.pd-colors-title{font-size:14px;font-weight:600;text-align:center;margin-bottom:16px}
+.pd-colors-grid{display:flex;gap:20px;justify-content:center;flex-wrap:wrap}
+.pd-color-item{text-align:center;cursor:pointer;transition:opacity .3s;opacity:.7}
+.pd-color-item:hover,.pd-color-item.active{opacity:1}
+.pd-color-item img{width:140px;height:175px;object-fit:cover;border:2px solid transparent;transition:border-color .3s}
+.pd-color-item.active img{border-color:var(--pd-text)}
+.pd-color-label{font-size:11px;font-weight:500;letter-spacing:1px;text-transform:uppercase;color:var(--pd-text2);margin-top:8px}
 
 /* QUANTITY */
-.pd-qty-row { display:flex; align-items:center; gap:14px; margin-bottom:22px; }
-.pd-qty-box { display:flex; align-items:center; border:1px solid var(--pd-border); }
-.pd-qty-btn {
-  width:38px; height:38px; background:none; border:none; font-size:17px;
-  cursor:pointer; color:var(--pd-text2); display:flex; align-items:center; justify-content:center; transition:color 0.3s;
-}
-.pd-qty-btn:hover { color:var(--pd-text); }
-.pd-qty-num { width:44px; text-align:center; font-size:14px; font-weight:500; border-left:1px solid var(--pd-border); border-right:1px solid var(--pd-border); line-height:38px; }
+.pd-qty-row{display:flex;align-items:center;gap:14px;margin-bottom:22px}
+.pd-qty-box{display:flex;align-items:center;border:1px solid var(--pd-border)}
+.pd-qty-btn{width:38px;height:38px;background:none;border:none;font-size:17px;cursor:pointer;color:var(--pd-text2);display:flex;align-items:center;justify-content:center;transition:color .3s}
+.pd-qty-btn:hover{color:var(--pd-text)}
+.pd-qty-num{width:44px;text-align:center;font-size:14px;font-weight:500;border-left:1px solid var(--pd-border);border-right:1px solid var(--pd-border);line-height:38px}
 
 /* TOTAL */
-.pd-total { display:flex; justify-content:space-between; align-items:center; padding:18px 0; border-top:1px solid var(--pd-border); border-bottom:1px solid var(--pd-border); margin-bottom:22px; }
-.pd-total-label { font-size:12px; font-weight:500; letter-spacing:1px; color:var(--pd-text2); }
-.pd-total-price { font-size:20px; font-weight:700; }
+.pd-total{display:flex;justify-content:space-between;align-items:center;padding:18px 0;border-top:1px solid var(--pd-border);border-bottom:1px solid var(--pd-border);margin-bottom:22px}
+.pd-total-label{font-size:12px;font-weight:500;letter-spacing:1px;color:var(--pd-text2)}.pd-total-price{font-size:20px;font-weight:700}
 
 /* BUTTONS */
-.pd-btn-group { display:flex; gap:7px; margin-bottom:14px; }
-.pd-btn-buy {
-  flex:2; padding:15px; font-size:13px; font-weight:700; letter-spacing:2px; text-transform:uppercase;
-  color:var(--pd-text); background:var(--pd-accent); border:none; cursor:pointer; font-family:var(--pd-fb); transition:background 0.3s;
-}
-.pd-btn-buy:hover { background:var(--pd-accent-dk); }
-.pd-btn-cart {
-  flex:1; padding:15px; font-size:12px; font-weight:500; letter-spacing:1.5px; text-transform:uppercase;
-  color:var(--pd-text); background:none; border:1px solid var(--pd-text); cursor:pointer; font-family:var(--pd-fb); transition:all 0.3s;
-}
-.pd-btn-cart:hover { background:var(--pd-text); color:var(--pd-bg); }
-.pd-btn-wish {
-  width:50px; height:50px; background:none; border:1px solid var(--pd-border);
-  cursor:pointer; display:flex; align-items:center; justify-content:center; transition:border-color 0.3s;
-}
-.pd-btn-wish:hover { border-color:var(--pd-text); }
-.pd-btn-wish svg { width:19px; height:19px; stroke:var(--pd-text2); fill:none; stroke-width:1.5; }
+.pd-btn-group{display:flex;gap:7px;margin-bottom:14px}
+.pd-btn-buy{flex:2;padding:15px;font-size:13px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--pd-text);background:var(--pd-accent);border:none;cursor:pointer;font-family:var(--pd-fb);transition:background .3s}
+.pd-btn-buy:hover{background:var(--pd-accent-dk)}
+.pd-btn-cart{flex:1;padding:15px;font-size:12px;font-weight:500;letter-spacing:1.5px;text-transform:uppercase;color:var(--pd-text);background:none;border:1px solid var(--pd-text);cursor:pointer;font-family:var(--pd-fb);transition:all .3s}
+.pd-btn-cart:hover{background:var(--pd-text);color:var(--pd-bg)}
+.pd-btn-wish{width:50px;height:50px;background:none;border:1px solid var(--pd-border);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:border-color .3s}
+.pd-btn-wish:hover{border-color:var(--pd-text)}
+.pd-btn-wish svg{width:19px;height:19px;stroke:var(--pd-text2);fill:none;stroke-width:1.5}
 
 /* NOTICES */
-.pd-notices { margin-top:18px; padding:14px; background:var(--pd-white); border:1px solid var(--pd-border-lt); }
-.pd-notice { font-size:12px; color:var(--pd-text2); line-height:1.8; display:flex; align-items:center; gap:7px; }
-.pd-notice-dot { width:4px; height:4px; border-radius:50%; background:var(--pd-accent); flex-shrink:0; }
+.pd-notices{margin-top:18px;padding:14px;background:var(--pd-white);border:1px solid var(--pd-border-lt)}
+.pd-notice{font-size:12px;color:var(--pd-text2);line-height:1.8;display:flex;align-items:center;gap:7px}
+.pd-notice-dot{width:4px;height:4px;border-radius:50%;background:var(--pd-accent);flex-shrink:0}
 
 /* EDITORIAL MOOD */
-.pd-editorial { max-width:1400px; margin:0 auto; padding:90px 40px; }
-.pd-editorial-head { text-align:center; margin-bottom:44px; }
-.pd-editorial-over { font-size:10px; font-weight:500; letter-spacing:4px; text-transform:uppercase; color:var(--pd-text3); margin-bottom:10px; }
-.pd-editorial-title { font-family:var(--pd-fd); font-size:34px; font-weight:400; font-style:italic; letter-spacing:2px; margin-bottom:14px; }
-.pd-editorial-desc { font-size:14px; color:var(--pd-text2); line-height:1.8; max-width:540px; margin:0 auto; }
-.pd-editorial-grid { display:grid; grid-template-columns:1fr 1fr; gap:14px; }
-.pd-editorial-img {
-  width:100%; aspect-ratio:3/4; object-fit:cover;
-  opacity:0; transform:translateY(28px); transition:all 0.8s cubic-bezier(0.25,0,0.15,1);
-}
-.pd-editorial-img.visible { opacity:1; transform:translateY(0); }
-.pd-editorial-img.wide { grid-column:1/-1; aspect-ratio:21/9; }
+.pd-editorial{max-width:1400px;margin:0 auto;padding:90px 40px}
+.pd-editorial-head{text-align:center;margin-bottom:44px}
+.pd-editorial-over{font-size:10px;font-weight:500;letter-spacing:4px;text-transform:uppercase;color:var(--pd-text3);margin-bottom:10px}
+.pd-editorial-title{font-family:var(--pd-fd);font-size:34px;font-weight:400;font-style:italic;letter-spacing:2px;margin-bottom:14px}
+.pd-editorial-desc{font-size:14px;color:var(--pd-text2);line-height:1.8;max-width:540px;margin:0 auto}
+.pd-editorial-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.pd-editorial-img{width:100%;aspect-ratio:3/4;object-fit:cover;opacity:0;transform:translateY(28px);transition:all .8s cubic-bezier(.25,0,.15,1)}
+.pd-editorial-img.visible{opacity:1;transform:translateY(0)}.pd-editorial-img.wide{grid-column:1/-1;aspect-ratio:21/9}
 
 /* DETAIL TABS */
-.pd-detail { max-width:1400px; margin:0 auto; padding:0 40px 70px; }
-.pd-tabs { display:flex; border-bottom:1px solid var(--pd-border); margin-bottom:36px; }
-.pd-tab {
-  padding:14px 22px; font-size:12px; font-weight:500; letter-spacing:1.5px;
-  color:var(--pd-text3); cursor:pointer; border-bottom:2px solid transparent;
-  transition:all 0.3s; background:none; border-top:none; border-left:none; border-right:none; font-family:var(--pd-fb);
-}
-.pd-tab:hover { color:var(--pd-text); }
-.pd-tab.active { color:var(--pd-text); border-bottom-color:var(--pd-text); }
-.pd-panel { display:none; max-width:800px; margin:0 auto; }
-.pd-panel.active { display:block; }
-.pd-content { font-size:14px; line-height:1.9; color:var(--pd-text2); }
-.pd-content h3 { font-size:13px; font-weight:600; letter-spacing:1px; color:var(--pd-text); margin:28px 0 10px; }
-.pd-content h3:first-child { margin-top:0; }
-.pd-content table { width:100%; border-collapse:collapse; margin:14px 0; }
-.pd-content table th, .pd-content table td { padding:10px 14px; text-align:left; font-size:13px; border-bottom:1px solid var(--pd-border-lt); }
-.pd-content table th { font-weight:500; color:var(--pd-text); width:110px; background:rgba(0,0,0,0.02); }
+.pd-detail{max-width:1400px;margin:0 auto;padding:0 40px 70px}
+.pd-tabs{display:flex;border-bottom:1px solid var(--pd-border);margin-bottom:36px}
+.pd-tab{padding:14px 22px;font-size:12px;font-weight:500;letter-spacing:1.5px;color:var(--pd-text3);cursor:pointer;border-bottom:2px solid transparent;transition:all .3s;background:none;border-top:none;border-left:none;border-right:none;font-family:var(--pd-fb)}
+.pd-tab:hover{color:var(--pd-text)}.pd-tab.active{color:var(--pd-text);border-bottom-color:var(--pd-text)}
+.pd-panel{display:none;max-width:800px;margin:0 auto}.pd-panel.active{display:block}
+.pd-content{font-size:14px;line-height:1.9;color:var(--pd-text2)}
+.pd-content h3{font-size:13px;font-weight:600;letter-spacing:1px;color:var(--pd-text);margin:28px 0 10px}.pd-content h3:first-child{margin-top:0}
+.pd-content table{width:100%;border-collapse:collapse;margin:14px 0}
+.pd-content table th,.pd-content table td{padding:10px 14px;text-align:left;font-size:13px;border-bottom:1px solid var(--pd-border-lt)}
+.pd-content table th{font-weight:500;color:var(--pd-text);width:110px;background:rgba(0,0,0,.02)}
+
+/* ===== REVIEW SYSTEM ===== */
+.pd-review-summary{display:flex;align-items:center;gap:24px;margin-bottom:32px;padding-bottom:24px;border-bottom:1px solid var(--pd-border-lt)}
+.pd-review-avg{text-align:center}
+.pd-review-avg-num{font-size:36px;font-weight:700;line-height:1}
+.pd-review-avg-stars{color:var(--pd-accent);font-size:18px;margin-top:4px}
+.pd-review-avg-count{font-size:11px;color:var(--pd-text3);margin-top:4px}
+.pd-review-bars{flex:1}
+.pd-review-bar-row{display:flex;align-items:center;gap:8px;margin-bottom:3px}
+.pd-review-bar-label{font-size:11px;color:var(--pd-text3);width:30px;text-align:right}
+.pd-review-bar{flex:1;height:6px;background:var(--pd-border-lt);border-radius:3px;overflow:hidden}
+.pd-review-bar-fill{height:100%;background:var(--pd-accent);border-radius:3px;transition:width .5s}
+.pd-review-bar-count{font-size:10px;color:var(--pd-text3);width:20px}
+
+.pd-review-write-btn{display:block;width:100%;padding:14px;font-size:12px;font-weight:500;letter-spacing:1.5px;text-transform:uppercase;background:none;border:1px solid var(--pd-border);cursor:pointer;font-family:var(--pd-fb);transition:all .3s;margin-bottom:28px;color:var(--pd-text)}
+.pd-review-write-btn:hover{background:var(--pd-text);color:var(--pd-bg)}
+
+/* REVIEW FORM */
+.pd-review-form{background:var(--pd-white);border:1px solid var(--pd-border-lt);padding:24px;margin-bottom:28px;display:none}
+.pd-review-form.show{display:block}
+.pd-review-form-title{font-size:14px;font-weight:600;margin-bottom:16px}
+.pd-rf-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px}
+.pd-rf-row.full{grid-template-columns:1fr}
+.pd-rf-label{font-size:11px;font-weight:500;color:var(--pd-text2);margin-bottom:4px}
+.pd-rf-input{padding:10px 12px;font-size:13px;font-family:var(--pd-fb);border:1px solid var(--pd-border);background:var(--pd-bg);color:var(--pd-text);width:100%}
+.pd-rf-textarea{padding:10px 12px;font-size:13px;font-family:var(--pd-fb);border:1px solid var(--pd-border);background:var(--pd-bg);color:var(--pd-text);width:100%;min-height:100px;resize:vertical;line-height:1.6}
+.pd-rf-stars{display:flex;gap:4px;margin-bottom:12px}
+.pd-rf-star{font-size:24px;cursor:pointer;color:var(--pd-border);transition:color .2s}
+.pd-rf-star.on{color:var(--pd-accent)}
+.pd-rf-actions{display:flex;gap:8px;justify-content:flex-end;margin-top:16px}
+.pd-rf-img-preview{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
+.pd-rf-img-preview img{width:60px;height:60px;object-fit:cover;border-radius:4px;border:1px solid var(--pd-border)}
+
+/* REVIEW ITEM */
+.pd-review-item{padding:24px 0;border-bottom:1px solid var(--pd-border-lt)}
+.pd-review-item-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
+.pd-review-item-stars{color:var(--pd-accent);font-size:14px}
+.pd-review-item-author{font-size:11px;color:var(--pd-text3)}
+.pd-review-item-date{font-size:10px;color:var(--pd-text3)}
+.pd-review-item-images{display:flex;gap:8px;margin:12px 0;flex-wrap:wrap}
+.pd-review-item-images img{width:100px;height:100px;object-fit:cover;border-radius:4px;cursor:pointer;transition:transform .2s}
+.pd-review-item-images img:hover{transform:scale(1.05)}
+.pd-review-item-text{font-size:13px;line-height:1.7;color:var(--pd-text2)}
+.pd-review-more{text-align:center;margin-top:20px}
+.pd-review-empty{text-align:center;padding:40px 0;color:var(--pd-text3);font-size:13px}
 
 /* RECOMMEND */
-.pd-recommend { max-width:1400px; margin:0 auto; padding:50px 40px 90px; border-top:1px solid var(--pd-border); }
-.pd-rec-head { text-align:center; margin-bottom:36px; }
-.pd-rec-over { font-size:10px; font-weight:500; letter-spacing:4px; text-transform:uppercase; color:var(--pd-text3); margin-bottom:7px; }
-.pd-rec-title { font-family:var(--pd-fd); font-size:26px; font-weight:400; letter-spacing:2px; }
-.pd-rec-sub { font-size:13px; color:var(--pd-text2); margin-top:7px; }
-.pd-rec-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:18px; }
-.pd-rec-card { text-decoration:none; color:inherit; }
-.pd-rec-card-img { position:relative; aspect-ratio:3/4; overflow:hidden; background:#EAE7E2; margin-bottom:10px; }
-.pd-rec-card-img img { width:100%; height:100%; object-fit:cover; transition:transform 0.8s cubic-bezier(0.25,0,0.15,1); }
-.pd-rec-card:hover .pd-rec-card-img img { transform:scale(1.05); }
-.pd-rec-brand { font-size:10px; font-weight:500; letter-spacing:1.5px; text-transform:uppercase; color:var(--pd-text3); margin-bottom:3px; }
-.pd-rec-name { font-size:13px; line-height:1.4; margin-bottom:5px; display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden; }
-.pd-rec-price { font-size:14px; font-weight:700; }
+.pd-recommend{max-width:1400px;margin:0 auto;padding:50px 40px 90px;border-top:1px solid var(--pd-border)}
+.pd-rec-head{text-align:center;margin-bottom:36px}
+.pd-rec-over{font-size:10px;font-weight:500;letter-spacing:4px;text-transform:uppercase;color:var(--pd-text3);margin-bottom:7px}
+.pd-rec-title{font-family:var(--pd-fd);font-size:26px;font-weight:400;letter-spacing:2px}
+.pd-rec-sub{font-size:13px;color:var(--pd-text2);margin-top:7px}
+.pd-rec-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:18px}
+.pd-rec-card{text-decoration:none;color:inherit}
+.pd-rec-card-img{position:relative;aspect-ratio:3/4;overflow:hidden;background:#EAE7E2;margin-bottom:10px}
+.pd-rec-card-img img{width:100%;height:100%;object-fit:cover;transition:transform .8s cubic-bezier(.25,0,.15,1)}
+.pd-rec-card:hover .pd-rec-card-img img{transform:scale(1.05)}
+.pd-rec-brand{font-size:10px;font-weight:500;letter-spacing:1.5px;text-transform:uppercase;color:var(--pd-text3);margin-bottom:3px}
+.pd-rec-name{font-size:13px;line-height:1.4;margin-bottom:5px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.pd-rec-price{font-size:14px;font-weight:700}
 
 /* JOURNAL LINK */
-.pd-journal { background:var(--pd-text); padding:70px 40px; text-align:center; }
-.pd-journal-over { font-size:10px; letter-spacing:4px; text-transform:uppercase; color:rgba(255,255,255,0.4); margin-bottom:14px; }
-.pd-journal-title { font-family:var(--pd-fd); font-size:30px; font-weight:400; font-style:italic; color:#fff; letter-spacing:2px; margin-bottom:22px; }
-.pd-journal-btn {
-  display:inline-block; padding:13px 44px; font-size:11px; font-weight:500; letter-spacing:3px; text-transform:uppercase;
-  color:var(--pd-text); background:var(--pd-accent); text-decoration:none; transition:background 0.3s;
-}
-.pd-journal-btn:hover { background:var(--pd-accent-dk); }
+.pd-journal{background:var(--pd-text);padding:70px 40px;text-align:center}
+.pd-journal-over{font-size:10px;letter-spacing:4px;text-transform:uppercase;color:rgba(255,255,255,.4);margin-bottom:14px}
+.pd-journal-title{font-family:var(--pd-fd);font-size:30px;font-weight:400;font-style:italic;color:#fff;letter-spacing:2px;margin-bottom:22px}
+.pd-journal-btn{display:inline-block;padding:13px 44px;font-size:11px;font-weight:500;letter-spacing:3px;text-transform:uppercase;color:var(--pd-text);background:var(--pd-accent);text-decoration:none;transition:background .3s}
+.pd-journal-btn:hover{background:var(--pd-accent-dk)}
 
 /* LOADING */
-.pd-loading {
-  position:fixed; inset:0; background:var(--pd-bg);
-  display:flex; align-items:center; justify-content:center; z-index:999; transition:opacity 0.5s;
-}
-.pd-loading.hide { opacity:0; pointer-events:none; }
-.pd-spinner { width:24px; height:24px; border:2px solid var(--pd-border); border-top-color:var(--pd-text); border-radius:50%; animation:pdSpin 0.8s linear infinite; }
-@keyframes pdSpin { to{transform:rotate(360deg)} }
-@keyframes pdFadeUp { from{opacity:0;transform:translateY(18px)} to{opacity:1;transform:translateY(0)} }
-.pd-fade { opacity:0; animation:pdFadeUp 0.6s ease forwards; }
+.pd-loading{position:fixed;inset:0;background:var(--pd-bg);display:flex;align-items:center;justify-content:center;z-index:999;transition:opacity .5s}
+.pd-loading.hide{opacity:0;pointer-events:none}
+.pd-spinner{width:24px;height:24px;border:2px solid var(--pd-border);border-top-color:var(--pd-text);border-radius:50%;animation:pdSpin .8s linear infinite}
+@keyframes pdSpin{to{transform:rotate(360deg)}}
+@keyframes pdFadeUp{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:translateY(0)}}
+.pd-fade{opacity:0;animation:pdFadeUp .6s ease forwards}
 
 /* RESPONSIVE */
-@media (max-width:1024px) {
-  .pd-top { grid-template-columns:1fr; gap:28px; }
-  .pd-gallery { position:static; grid-template-columns:1fr; }
-  .pd-thumbs { flex-direction:row; max-height:none; overflow-x:auto; order:2; }
-  .pd-thumb { width:56px; height:70px; }
-  .pd-main { order:1; }
-  .pd-rec-grid { grid-template-columns:repeat(3,1fr); }
+@media(max-width:1024px){
+  .pd-top{grid-template-columns:1fr;gap:28px}
+  .pd-gallery{position:static;grid-template-columns:1fr}
+  .pd-thumbs-wrap{height:auto}
+  .pd-thumbs{flex-direction:row;overflow-x:auto;overflow-y:hidden;order:2;height:auto}
+  .pd-thumb{width:56px;min-height:70px;height:70px}
+  .pd-main{order:1}
+  .pd-rec-grid{grid-template-columns:repeat(3,1fr)}
 }
-@media (max-width:768px) {
-  .pd-top { padding:6px 20px 0; }
-  .pd-breadcrumb { padding:76px 20px 10px; }
-  .pd-editorial { padding:50px 20px; }
-  .pd-detail { padding:0 20px 50px; }
-  .pd-recommend { padding:36px 20px 50px; }
-  .pd-editorial-grid { grid-template-columns:1fr; }
-  .pd-rec-grid { grid-template-columns:repeat(2,1fr); }
-  .pd-info-name { font-size:20px; }
-  .pd-editorial-title { font-size:24px; }
-  .pd-tabs { overflow-x:auto; scrollbar-width:none; }
-  .pd-tab { white-space:nowrap; padding:12px 14px; font-size:11px; }
-  .pd-journal { padding:50px 20px; }
-  .pd-journal-title { font-size:22px; }
+@media(max-width:768px){
+  .pd-top{padding:6px 20px 0}.pd-breadcrumb{padding:76px 20px 10px}
+  .pd-editorial{padding:50px 20px}.pd-detail{padding:0 20px 50px}
+  .pd-recommend{padding:36px 20px 50px}.pd-editorial-grid{grid-template-columns:1fr}
+  .pd-rec-grid{grid-template-columns:repeat(2,1fr)}.pd-info-name{font-size:20px}
+  .pd-editorial-title{font-size:24px}
+  .pd-tabs{overflow-x:auto;scrollbar-width:none}.pd-tab{white-space:nowrap;padding:12px 14px;font-size:11px}
+  .pd-journal{padding:50px 20px}.pd-journal-title{font-size:22px}
+  .pd-color-item img{width:100px;height:125px}
+  .pd-review-summary{flex-direction:column;gap:16px}
+  .pd-rf-row{grid-template-columns:1fr}
 }
 </style>
 </head>
 <body>
-
 <div class="pd-loading" id="pageLoading"><div class="pd-spinner"></div></div>
 
-<!-- ===== HEADER (index.html과 동일) ===== -->
+<!-- HEADER -->
 <header class="header">
-  <div class="header__logo">
-    <a href="/" style="text-decoration:none;color:inherit;">
-      <span class="header__logo-highlight">Yllowtap</span>
-    </a>
-  </div>
+  <div class="header__logo"><a href="/" style="text-decoration:none;color:inherit;"><span class="header__logo-highlight">Yllowtap</span></a></div>
   <nav class="header__nav">
-    <a href="/category.html?cat=best">Best</a>
-    <a href="/category.html?cat=new">New In</a>
-    <a href="/category.html?cat=bags">Bags</a>
-    <a href="/category.html?cat=jewelry">Jewelry</a>
-    <a href="/category.html?cat=accessories">Accessories</a>
-    <a href="/category.html?cat=keyring">Keyring</a>
-    <a href="/category.html?cat=seasonal">Seasonal</a>
-    <a href="/category.html?cat=sale">Sale</a>
+    <a href="/category.html?cat=best">Best</a><a href="/category.html?cat=new">New In</a>
+    <a href="/category.html?cat=bags">Bags</a><a href="/category.html?cat=jewelry">Jewelry</a>
+    <a href="/category.html?cat=accessories">Accessories</a><a href="/category.html?cat=keyring">Keyring</a>
+    <a href="/category.html?cat=seasonal">Seasonal</a><a href="/category.html?cat=sale">Sale</a>
   </nav>
-  <div class="header__actions">
-    <a href="#">Login</a>
-    <a href="#">Wishlist</a>
-    <a href="#">Bag (0)</a>
-    <button class="header__hamburger" aria-label="메뉴 열기">
-      <span></span><span></span><span></span>
-    </button>
-  </div>
+  <div class="header__actions"><a href="#">Login</a><a href="#">Wishlist</a><a href="#">Bag (0)</a>
+    <button class="header__hamburger" aria-label="메뉴 열기"><span></span><span></span><span></span></button></div>
 </header>
-
 <div class="mobile-menu">
   <button class="mobile-menu__close" aria-label="메뉴 닫기">✕</button>
-  <a href="/category.html?cat=best">Best</a>
-  <a href="/category.html?cat=new">New In</a>
-  <a href="/category.html?cat=bags">Bags</a>
-  <a href="/category.html?cat=jewelry">Jewelry</a>
-  <a href="/category.html?cat=accessories">Accessories</a>
-  <a href="/category.html?cat=keyring">Keyring</a>
-  <a href="/category.html?cat=seasonal">Seasonal</a>
-  <a href="/category.html?cat=sale">Sale</a>
+  <a href="/category.html?cat=best">Best</a><a href="/category.html?cat=new">New In</a>
+  <a href="/category.html?cat=bags">Bags</a><a href="/category.html?cat=jewelry">Jewelry</a>
+  <a href="/category.html?cat=accessories">Accessories</a><a href="/category.html?cat=keyring">Keyring</a>
+  <a href="/category.html?cat=seasonal">Seasonal</a><a href="/category.html?cat=sale">Sale</a>
   <a href="#">Login</a><a href="#">Wishlist</a>
 </div>
 
 <!-- BREADCRUMB -->
-<nav class="pd-breadcrumb">
-  <a href="/">HOME</a><span>›</span>
-  <a href="/category.html">SHOP</a><span>›</span>
-  <span id="breadcrumbCat">BAGS</span>
-</nav>
+<nav class="pd-breadcrumb"><a href="/">HOME</a><span>›</span><a href="/category.html">SHOP</a><span>›</span><span id="breadcrumbCat">BAGS</span></nav>
 
 <!-- PRODUCT TOP -->
 <section class="pd-top pd-fade">
   <div class="pd-gallery" id="gallery">
-    <div class="pd-thumbs" id="thumbs"></div>
-    <div class="pd-main" id="mainWrap"><img id="mainImg" src="" alt=""></div>
+    <div class="pd-thumbs-wrap"><div class="pd-thumbs" id="thumbs"></div></div>
+    <div class="pd-main" id="mainWrap">
+      <img id="mainImg" src="" alt="">
+      <div class="pd-img-counter" id="imgCounter"></div>
+    </div>
   </div>
   <div class="pd-info">
     <div class="pd-info-brand" id="pBrand">YLLOWTAP</div>
@@ -269,10 +246,15 @@
     <p class="pd-info-subtitle" id="pSub"></p>
     <div class="pd-info-price">
       <span class="pd-price-now" id="pPrice"></span>
-      <span class="pd-price-old" id="pOrig" style="display:none;"></span>
-      <span class="pd-price-off" id="pDisc" style="display:none;"></span>
+      <span class="pd-price-old" id="pOrig" style="display:none"></span>
+      <span class="pd-price-off" id="pDisc" style="display:none"></span>
     </div>
     <div id="optsArea"></div>
+    <!-- COLOR PREVIEW -->
+    <div class="pd-colors" id="colorSec" style="display:none">
+      <div class="pd-colors-title">Colors</div>
+      <div class="pd-colors-grid" id="colorGrid"></div>
+    </div>
     <div class="pd-qty-row">
       <div class="pd-opt-label">QUANTITY</div>
       <div class="pd-qty-box">
@@ -281,10 +263,7 @@
         <button class="pd-qty-btn" id="qtyP">+</button>
       </div>
     </div>
-    <div class="pd-total">
-      <span class="pd-total-label">TOTAL PRICE</span>
-      <span class="pd-total-price" id="totalP">0원</span>
-    </div>
+    <div class="pd-total"><span class="pd-total-label">TOTAL PRICE</span><span class="pd-total-price" id="totalP">0원</span></div>
     <div class="pd-btn-group">
       <button class="pd-btn-buy">BUY IT NOW</button>
       <button class="pd-btn-cart">CART</button>
@@ -299,7 +278,7 @@
 </section>
 
 <!-- EDITORIAL MOOD -->
-<section class="pd-editorial" id="editSec" style="display:none;">
+<section class="pd-editorial" id="editSec" style="display:none">
   <div class="pd-editorial-head">
     <div class="pd-editorial-over">THE MOOD</div>
     <h2 class="pd-editorial-title" id="editTitle"></h2>
@@ -324,17 +303,47 @@
       <h3>사이즈 안내</h3><p>상세 사이즈는 상품별 상세정보 참고. 1~2cm 오차 가능.</p>
     </div>
   </div>
-  <div class="pd-panel" id="panel-review"><div class="pd-content" style="text-align:center;padding:50px 0;"><p style="color:var(--pd-text3);">아직 작성된 후기가 없습니다.</p></div></div>
+  <!-- REVIEW PANEL -->
+  <div class="pd-panel" id="panel-review">
+    <div id="reviewSummary"></div>
+    <button class="pd-review-write-btn" onclick="toggleReviewForm()">후기 작성하기</button>
+    <div class="pd-review-form" id="reviewForm">
+      <div class="pd-review-form-title">후기 작성</div>
+      <div class="pd-rf-stars" id="rfStars">
+        <span class="pd-rf-star" data-v="1">★</span><span class="pd-rf-star" data-v="2">★</span>
+        <span class="pd-rf-star" data-v="3">★</span><span class="pd-rf-star" data-v="4">★</span>
+        <span class="pd-rf-star" data-v="5">★</span>
+      </div>
+      <div class="pd-rf-row">
+        <div><div class="pd-rf-label">작성자명</div><input class="pd-rf-input" id="rfName" placeholder="홍길동"></div>
+        <div><div class="pd-rf-label">비밀번호 (삭제 시 필요)</div><input class="pd-rf-input" id="rfPw" type="password" placeholder="****"></div>
+      </div>
+      <div class="pd-rf-row full">
+        <div><div class="pd-rf-label">후기 내용</div><textarea class="pd-rf-textarea" id="rfContent" placeholder="상품 후기를 작성해주세요."></textarea></div>
+      </div>
+      <div class="pd-rf-row full">
+        <div>
+          <div class="pd-rf-label">사진/GIF 첨부 (선택)</div>
+          <label class="btn btn-secondary btn-small" style="display:inline-flex;align-items:center;gap:6px;cursor:pointer;padding:8px 16px;font-size:11px;border:1px solid var(--pd-border);background:var(--pd-bg);border-radius:4px;">
+            📎 이미지 첨부
+            <input type="file" id="rfFiles" accept="image/png,image/jpeg,image/gif" multiple style="display:none;">
+          </label>
+          <div class="pd-rf-img-preview" id="rfImgPreview"></div>
+        </div>
+      </div>
+      <div class="pd-rf-actions">
+        <button style="padding:10px 24px;font-size:12px;border:1px solid var(--pd-border);background:none;cursor:pointer;font-family:var(--pd-fb);color:var(--pd-text2)" onclick="toggleReviewForm()">취소</button>
+        <button style="padding:10px 24px;font-size:12px;border:none;background:var(--pd-accent);cursor:pointer;font-family:var(--pd-fb);color:var(--pd-text);font-weight:600" onclick="submitReview()">등록</button>
+      </div>
+    </div>
+    <div id="reviewList"></div>
+  </div>
   <div class="pd-panel" id="panel-qna"><div class="pd-content" style="text-align:center;padding:50px 0;"><p style="color:var(--pd-text3);">문의 내역이 없습니다.</p></div></div>
 </section>
 
 <!-- RECOMMEND -->
-<section class="pd-recommend" id="recSec" style="display:none;">
-  <div class="pd-rec-head">
-    <div class="pd-rec-over">YOU MAY ALSO LIKE</div>
-    <h2 class="pd-rec-title">Recommend Items</h2>
-    <p class="pd-rec-sub">이 상품과 함께 구매하는 아이템</p>
-  </div>
+<section class="pd-recommend" id="recSec" style="display:none">
+  <div class="pd-rec-head"><div class="pd-rec-over">YOU MAY ALSO LIKE</div><h2 class="pd-rec-title">Recommend Items</h2><p class="pd-rec-sub">이 상품과 함께 구매하는 아이템</p></div>
   <div class="pd-rec-grid" id="recGrid"></div>
 </section>
 
@@ -360,132 +369,298 @@
 <script src="./js/main.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <script>
-const SUPABASE_URL = 'https://ppihvvpplqikclftrwdb.supabase.co';
-const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBwaWh2dnBwbHFpa2NsZnRyd2RiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk3MzE0NTEsImV4cCI6MjA5NTMwNzQ1MX0.shGVcFTQiuYc4u6tdU50x18YMgJdgFUljf8c7QlQU-U';
-const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON);
+const SUPABASE_URL='https://ppihvvpplqikclftrwdb.supabase.co';
+const SUPABASE_ANON='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBwaWh2dnBwbHFpa2NsZnRyd2RiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk3MzE0NTEsImV4cCI6MjA5NTMwNzQ1MX0.shGVcFTQiuYc4u6tdU50x18YMgJdgFUljf8c7QlQU-U';
+const sb=window.supabase.createClient(SUPABASE_URL,SUPABASE_ANON);
 
-let product = null, qty = 1;
+let product=null,qty=1,allGalleryImgs=[],currentImgIdx=0,rfRating=5,rfImageUrls=[];
+let colorImages=[];
 
-function getSlug() { return new URLSearchParams(window.location.search).get('slug'); }
+function getSlug(){return new URLSearchParams(window.location.search).get('slug')}
 
-async function loadProduct() {
-  const slug = getSlug();
-  if (!slug) { alert('상품을 찾을 수 없습니다.'); return; }
-  let { data, error } = await sb.from('products').select('*, product_media(id,media_url,media_type,role,alt_text,display_order)').eq('slug', slug).single();
-  if (error || !data) {
-    const r = await sb.from('products').select('*, product_media(id,media_url,media_type,role,alt_text,display_order)').eq('id', slug).single();
-    data = r.data; error = r.error;
-  }
-  if (error || !data) { alert('상품을 찾을 수 없습니다.'); return; }
-  product = data;
+// ══════════════════════════════════════════
+// LOAD PRODUCT
+// ══════════════════════════════════════════
+async function loadProduct(){
+  const slug=getSlug();
+  if(!slug){alert('상품을 찾을 수 없습니다.');return}
+  let{data,error}=await sb.from('products').select('*,product_media(id,media_url,media_type,role,alt_text,display_order)').eq('slug',slug).single();
+  if(error||!data){const r=await sb.from('products').select('*,product_media(id,media_url,media_type,role,alt_text,display_order)').eq('id',slug).single();data=r.data;error=r.error}
+  if(error||!data){alert('상품을 찾을 수 없습니다.');return}
+  product=data;
   render();
-  await loadRecs();
+  await Promise.all([loadColorImages(),loadRecs(),loadReviews()]);
   hideLoading();
 }
 
-function render() {
-  const p = product;
-  document.title = `Yllowtap — ${p.name}`;
-  document.getElementById('pBrand').textContent = p.brand || 'YLLOWTAP';
-  document.getElementById('pName').textContent = p.name;
-  document.getElementById('pSub').textContent = p.subtitle || '';
-  document.getElementById('breadcrumbCat').textContent = p.category?.toUpperCase() || 'SHOP';
-  document.getElementById('pPrice').textContent = p.price.toLocaleString() + '원';
-  if (p.original_price && p.original_price > p.price) {
-    document.getElementById('pOrig').textContent = p.original_price.toLocaleString() + '원';
-    document.getElementById('pOrig').style.display = '';
-    document.getElementById('pDisc').textContent = Math.round((1 - p.price / p.original_price) * 100) + '%';
-    document.getElementById('pDisc').style.display = '';
+function render(){
+  const p=product;
+  document.title=`Yllowtap — ${p.name}`;
+  document.getElementById('pBrand').textContent=p.brand||'YLLOWTAP';
+  document.getElementById('pName').textContent=p.name;
+  document.getElementById('pSub').textContent=p.subtitle||'';
+  document.getElementById('breadcrumbCat').textContent=p.category?.toUpperCase()||'SHOP';
+  document.getElementById('pPrice').textContent=p.price.toLocaleString()+'원';
+  if(p.original_price&&p.original_price>p.price){
+    document.getElementById('pOrig').textContent=p.original_price.toLocaleString()+'원';document.getElementById('pOrig').style.display='';
+    document.getElementById('pDisc').textContent=Math.round((1-p.price/p.original_price)*100)+'%';document.getElementById('pDisc').style.display='';
   }
-  updateTotal();
-  renderGallery();
-  renderOpts();
-  renderEditorial();
-  document.getElementById('detailHTML').innerHTML = p.description_detail || '<p style="color:var(--pd-text3);text-align:center;padding:36px 0;">상세 정보가 등록되지 않았습니다.</p>';
+  updateTotal();renderGallery();renderOpts();renderEditorial();
+  document.getElementById('detailHTML').innerHTML=p.description_detail||'<p style="color:var(--pd-text3);text-align:center;padding:36px 0;">상세 정보가 등록되지 않았습니다.</p>';
 }
 
-function renderGallery() {
-  const media = (product.product_media || []).sort((a,b) => a.display_order - b.display_order);
-  const imgs = media.filter(m => (m.media_type||'image') === 'image' && m.role !== 'mood');
-  if (!imgs.length && product.image_url) imgs.push({ media_url: product.image_url, role: 'main', alt_text: product.name });
-  if (!imgs.length) return;
-  document.getElementById('mainImg').src = imgs[0].media_url;
-  document.getElementById('mainImg').alt = imgs[0].alt_text || product.name;
-  const th = document.getElementById('thumbs');
-  th.innerHTML = imgs.map((img,i) => `<img class="pd-thumb${i===0?' active':''}" src="${img.media_url}" alt="${img.alt_text||''}" data-i="${i}">`).join('');
-  th.querySelectorAll('.pd-thumb').forEach(t => {
-    t.addEventListener('click', () => {
-      document.getElementById('mainImg').src = imgs[parseInt(t.dataset.i)].media_url;
-      th.querySelectorAll('.pd-thumb').forEach(x => x.classList.remove('active'));
-      t.classList.add('active');
-    });
+// ══════════════════════════════════════════
+// GALLERY — 스크롤 가능 + 카운터
+// ══════════════════════════════════════════
+function renderGallery(){
+  const media=(product.product_media||[]).sort((a,b)=>a.display_order-b.display_order);
+  allGalleryImgs=media.filter(m=>(m.media_type||'image')==='image'&&m.role!=='mood');
+  if(!allGalleryImgs.length&&product.image_url) allGalleryImgs.push({media_url:product.image_url,role:'main',alt_text:product.name});
+  if(!allGalleryImgs.length) return;
+  currentImgIdx=0;
+  setMainImage(0);
+  const th=document.getElementById('thumbs');
+  th.innerHTML=allGalleryImgs.map((img,i)=>`<img class="pd-thumb${i===0?' active':''}" src="${img.media_url}" alt="${img.alt_text||''}" data-i="${i}">`).join('');
+  th.querySelectorAll('.pd-thumb').forEach(t=>{
+    t.addEventListener('click',()=>{setMainImage(parseInt(t.dataset.i))});
   });
 }
 
-function renderOpts() {
-  const opts = product.options || [];
-  document.getElementById('optsArea').innerHTML = opts.map((o,i) =>
+function setMainImage(idx){
+  currentImgIdx=idx;
+  document.getElementById('mainImg').src=allGalleryImgs[idx].media_url;
+  document.getElementById('mainImg').alt=allGalleryImgs[idx].alt_text||product.name;
+  document.getElementById('imgCounter').textContent=`${idx+1} / ${allGalleryImgs.length}`;
+  document.querySelectorAll('.pd-thumb').forEach((t,i)=>t.classList.toggle('active',i===idx));
+  // 썸네일 스크롤 위치 조정
+  const thumb=document.querySelectorAll('.pd-thumb')[idx];
+  if(thumb) thumb.scrollIntoView({behavior:'smooth',block:'nearest'});
+}
+
+// ══════════════════════════════════════════
+// OPTIONS + COLOR IMAGES
+// ══════════════════════════════════════════
+function renderOpts(){
+  const opts=product.options||[];
+  document.getElementById('optsArea').innerHTML=opts.map((o,i)=>
     `<div class="pd-opt-group"><div class="pd-opt-label">${o.name}</div>
-     <select class="pd-opt-select"><option value="">- [필수] 옵션을 선택해 주세요 -</option>
-     ${(o.values||[]).map(v => `<option value="${v}">${v}</option>`).join('')}</select></div>`
+     <select class="pd-opt-select" data-opt="${o.name}" onchange="onOptionChange(this)"><option value="">- [필수] 옵션을 선택해 주세요 -</option>
+     ${(o.values||[]).map(v=>`<option value="${v}">${v}</option>`).join('')}</select></div>`
   ).join('');
 }
 
-function renderEditorial() {
-  const p = product;
-  const moodImgs = (p.product_media || []).filter(m => m.role === 'mood' || m.role === 'editorial').sort((a,b) => a.display_order - b.display_order);
-  if (!moodImgs.length && !p.mood_title) return;
-  document.getElementById('editSec').style.display = '';
-  document.getElementById('editTitle').textContent = p.mood_title || 'The Mood';
-  document.getElementById('editDesc').textContent = p.mood_description || p.description_editorial || '';
-  document.getElementById('editGrid').innerHTML = moodImgs.map((img,i) =>
+async function loadColorImages(){
+  const{data}=await sb.from('product_option_images').select('*').eq('product_id',product.id).order('display_order');
+  colorImages=data||[];
+  if(!colorImages.length) return;
+  document.getElementById('colorSec').style.display='';
+  const grid=document.getElementById('colorGrid');
+  grid.innerHTML=colorImages.map((ci,i)=>
+    `<div class="pd-color-item${i===0?' active':''}" data-value="${ci.option_value}" onclick="selectColor(this,'${ci.option_value}')">
+      <img src="${ci.image_url}" alt="${ci.option_value}">
+      <div class="pd-color-label">${ci.option_value}</div>
+    </div>`
+  ).join('');
+}
+
+function selectColor(el,value){
+  document.querySelectorAll('.pd-color-item').forEach(c=>c.classList.remove('active'));
+  el.classList.add('active');
+  // 옵션 셀렉트도 동기화
+  const sel=document.querySelector(`select[data-opt="컬러"],select[data-opt="색상"],select[data-opt="Color"],select[data-opt="color"]`);
+  if(sel) sel.value=value;
+  // 메인 이미지 교체
+  const ci=colorImages.find(c=>c.option_value===value);
+  if(ci){
+    document.getElementById('mainImg').src=ci.image_url;
+    document.getElementById('mainImg').alt=value;
+  }
+}
+
+function onOptionChange(sel){
+  const optName=sel.dataset.opt;
+  const val=sel.value;
+  if(!val) return;
+  if(['컬러','색상','Color','color'].includes(optName)){
+    const ci=colorImages.find(c=>c.option_value===val);
+    if(ci){
+      document.getElementById('mainImg').src=ci.image_url;
+      document.querySelectorAll('.pd-color-item').forEach(c=>c.classList.toggle('active',c.dataset.value===val));
+    }
+  }
+}
+
+// ══════════════════════════════════════════
+// EDITORIAL
+// ══════════════════════════════════════════
+function renderEditorial(){
+  const p=product;
+  const moodImgs=(p.product_media||[]).filter(m=>m.role==='mood'||m.role==='editorial').sort((a,b)=>a.display_order-b.display_order);
+  if(!moodImgs.length&&!p.mood_title) return;
+  document.getElementById('editSec').style.display='';
+  document.getElementById('editTitle').textContent=p.mood_title||'The Mood';
+  document.getElementById('editDesc').textContent=p.mood_description||p.description_editorial||'';
+  document.getElementById('editGrid').innerHTML=moodImgs.map((img,i)=>
     `<img class="pd-editorial-img${i===0&&moodImgs.length>2?' wide':''}" src="${img.media_url}" alt="${img.alt_text||''}" loading="lazy">`
   ).join('');
-  const obs = new IntersectionObserver(entries => {
-    entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); obs.unobserve(e.target); } });
-  }, { threshold: 0.15 });
-  document.querySelectorAll('.pd-editorial-img').forEach(img => obs.observe(img));
+  const obs=new IntersectionObserver(entries=>{entries.forEach(e=>{if(e.isIntersecting){e.target.classList.add('visible');obs.unobserve(e.target)}})},{threshold:.15});
+  document.querySelectorAll('.pd-editorial-img').forEach(img=>obs.observe(img));
 }
 
-async function loadRecs() {
-  let { data: recs } = await sb.from('recommended_products').select('recommended_product_id').eq('source_product_id', product.id).order('display_order');
-  let items = [];
-  if (recs?.length) {
-    const { data } = await sb.from('products').select('*, product_media(media_url,role,display_order)').in('id', recs.map(r => r.recommended_product_id)).eq('is_active', true);
-    items = data || [];
-  } else {
-    const { data } = await sb.from('products').select('*, product_media(media_url,role,display_order)').eq('category', product.category).eq('is_active', true).neq('id', product.id).limit(4).order('display_order');
-    items = data || [];
+// ══════════════════════════════════════════
+// REVIEWS
+// ══════════════════════════════════════════
+let allReviews=[];
+
+async function loadReviews(){
+  const{data}=await sb.from('reviews').select('*').eq('product_id',product.id).eq('is_visible',true).order('created_at',{ascending:false});
+  allReviews=data||[];
+  document.getElementById('revCnt').textContent=`(${allReviews.length})`;
+  renderReviewSummary();
+  renderReviewList();
+}
+
+function renderReviewSummary(){
+  if(!allReviews.length){
+    document.getElementById('reviewSummary').innerHTML='';
+    return;
   }
-  if (!items.length) return;
-  document.getElementById('recSec').style.display = '';
-  document.getElementById('recGrid').innerHTML = items.map(p => {
-    const img = getMainImg(p);
-    return `<a class="pd-rec-card" href="/product.html?slug=${p.slug||p.id}">
-      <div class="pd-rec-card-img">${img?`<img src="${img}" alt="${p.name}" loading="lazy">`:'<div style="width:100%;height:100%;background:#EAE7E2;"></div>'}</div>
-      <div class="pd-rec-brand">${p.brand||'YLLOWTAP'}</div>
-      <div class="pd-rec-name">${p.name}</div>
-      <div class="pd-rec-price">${p.price.toLocaleString()}원</div>
-    </a>`;
+  const avg=(allReviews.reduce((s,r)=>s+r.rating,0)/allReviews.length).toFixed(1);
+  const counts=[0,0,0,0,0];
+  allReviews.forEach(r=>counts[r.rating-1]++);
+  const max=Math.max(...counts,1);
+  document.getElementById('reviewSummary').innerHTML=`
+    <div class="pd-review-summary">
+      <div class="pd-review-avg">
+        <div class="pd-review-avg-num">${avg}</div>
+        <div class="pd-review-avg-stars">${'★'.repeat(Math.round(avg))}${'☆'.repeat(5-Math.round(avg))}</div>
+        <div class="pd-review-avg-count">${allReviews.length}개의 후기</div>
+      </div>
+      <div class="pd-review-bars">
+        ${[5,4,3,2,1].map(n=>`<div class="pd-review-bar-row">
+          <div class="pd-review-bar-label">${n}점</div>
+          <div class="pd-review-bar"><div class="pd-review-bar-fill" style="width:${(counts[n-1]/max*100)}%"></div></div>
+          <div class="pd-review-bar-count">${counts[n-1]}</div>
+        </div>`).join('')}
+      </div>
+    </div>`;
+}
+
+function renderReviewList(){
+  const el=document.getElementById('reviewList');
+  if(!allReviews.length){el.innerHTML='<div class="pd-review-empty">아직 작성된 후기가 없습니다.</div>';return}
+  el.innerHTML=allReviews.map(r=>{
+    const stars='★'.repeat(r.rating)+'☆'.repeat(5-r.rating);
+    const name=maskName(r.author_name);
+    const date=new Date(r.created_at).toLocaleDateString('ko-KR');
+    const imgs=(r.images||[]).map(url=>`<img src="${url}" alt="후기 이미지" onclick="window.open('${url}','_blank')">`).join('');
+    return `<div class="pd-review-item">
+      <div class="pd-review-item-top">
+        <div><span class="pd-review-item-stars">${stars}</span> <span class="pd-review-item-author">${name}</span></div>
+        <div class="pd-review-item-date">${date}</div>
+      </div>
+      ${imgs?`<div class="pd-review-item-images">${imgs}</div>`:''}
+      <div class="pd-review-item-text">${r.content.replace(/\n/g,'<br>')}</div>
+    </div>`;
   }).join('');
 }
 
-function getMainImg(p) {
-  if (p.product_media?.length) { const m=p.product_media.filter(x=>x.role==='main').sort((a,b)=>a.display_order-b.display_order); return m.length?m[0].media_url:p.product_media[0].media_url; }
+function maskName(name){
+  if(!name) return '***';
+  if(name.length<=2) return name[0]+'*';
+  return name[0]+'*'.repeat(name.length-2)+name[name.length-1];
+}
+
+// ── REVIEW FORM ──
+function toggleReviewForm(){
+  document.getElementById('reviewForm').classList.toggle('show');
+}
+
+// Star rating
+document.querySelectorAll('.pd-rf-star').forEach(star=>{
+  star.addEventListener('click',()=>{
+    rfRating=parseInt(star.dataset.v);
+    document.querySelectorAll('.pd-rf-star').forEach((s,i)=>s.classList.toggle('on',i<rfRating));
+  });
+  star.addEventListener('mouseenter',()=>{
+    const v=parseInt(star.dataset.v);
+    document.querySelectorAll('.pd-rf-star').forEach((s,i)=>s.classList.toggle('on',i<v));
+  });
+});
+document.getElementById('rfStars').addEventListener('mouseleave',()=>{
+  document.querySelectorAll('.pd-rf-star').forEach((s,i)=>s.classList.toggle('on',i<rfRating));
+});
+// 초기 별 5개
+document.querySelectorAll('.pd-rf-star').forEach(s=>s.classList.add('on'));
+
+// Image upload
+document.getElementById('rfFiles').addEventListener('change',async function(e){
+  const files=Array.from(e.target.files);
+  for(const file of files){
+    const ext=file.name.split('.').pop();
+    const fn=`reviews/${Date.now()}_${Math.random().toString(36).slice(2,8)}.${ext}`;
+    const{error}=await sb.storage.from('media').upload(fn,file,{upsert:true,contentType:file.type});
+    if(error){alert('이미지 업로드 실패');continue}
+    const{data:u}=sb.storage.from('media').getPublicUrl(fn);
+    rfImageUrls.push(u.publicUrl);
+  }
+  renderRfImgPreview();
+  e.target.value='';
+});
+
+function renderRfImgPreview(){
+  document.getElementById('rfImgPreview').innerHTML=rfImageUrls.map(url=>`<img src="${url}">`).join('');
+}
+
+async function submitReview(){
+  const name=document.getElementById('rfName').value.trim();
+  const content=document.getElementById('rfContent').value.trim();
+  if(!name){alert('작성자명을 입력해주세요.');return}
+  if(!content){alert('후기 내용을 입력해주세요.');return}
+  const{error}=await sb.from('reviews').insert({
+    product_id:product.id,author_name:name,rating:rfRating,content,images:rfImageUrls
+  });
+  if(error){alert('등록 실패: '+error.message);return}
+  // 리셋
+  document.getElementById('rfName').value='';document.getElementById('rfContent').value='';
+  rfRating=5;rfImageUrls=[];
+  document.querySelectorAll('.pd-rf-star').forEach(s=>s.classList.add('on'));
+  renderRfImgPreview();
+  toggleReviewForm();
+  await loadReviews();
+}
+
+// ══════════════════════════════════════════
+// RECOMMEND
+// ══════════════════════════════════════════
+async function loadRecs(){
+  let{data:recs}=await sb.from('recommended_products').select('recommended_product_id').eq('source_product_id',product.id).order('display_order');
+  let items=[];
+  if(recs?.length){const{data}=await sb.from('products').select('*,product_media(media_url,role,display_order)').in('id',recs.map(r=>r.recommended_product_id)).eq('is_active',true);items=data||[]}
+  else{const{data}=await sb.from('products').select('*,product_media(media_url,role,display_order)').eq('category',product.category).eq('is_active',true).neq('id',product.id).limit(4).order('display_order');items=data||[]}
+  if(!items.length) return;
+  document.getElementById('recSec').style.display='';
+  document.getElementById('recGrid').innerHTML=items.map(p=>{
+    const img=getMainImg(p);
+    return`<a class="pd-rec-card" href="/product.html?slug=${p.slug||p.id}"><div class="pd-rec-card-img">${img?`<img src="${img}" alt="${p.name}" loading="lazy">`:'<div style="width:100%;height:100%;background:#EAE7E2"></div>'}</div><div class="pd-rec-brand">${p.brand||'YLLOWTAP'}</div><div class="pd-rec-name">${p.name}</div><div class="pd-rec-price">${p.price.toLocaleString()}원</div></a>`;
+  }).join('');
+}
+
+function getMainImg(p){
+  if(p.product_media?.length){const m=p.product_media.filter(x=>x.role==='main').sort((a,b)=>a.display_order-b.display_order);return m.length?m[0].media_url:p.product_media[0].media_url}
   return p.image_url;
 }
 
-function updateTotal() { if(product) document.getElementById('totalP').textContent = (product.price*qty).toLocaleString()+'원'; }
-function hideLoading() { const l=document.getElementById('pageLoading'); l.classList.add('hide'); setTimeout(()=>l.remove(),500); }
+function updateTotal(){if(product) document.getElementById('totalP').textContent=(product.price*qty).toLocaleString()+'원'}
+function hideLoading(){const l=document.getElementById('pageLoading');l.classList.add('hide');setTimeout(()=>l.remove(),500)}
 
-document.getElementById('qtyM').addEventListener('click', () => { if(qty>1){qty--;document.getElementById('qtyN').textContent=qty;updateTotal();} });
-document.getElementById('qtyP').addEventListener('click', () => { qty++;document.getElementById('qtyN').textContent=qty;updateTotal(); });
-document.querySelectorAll('.pd-tab').forEach(tab => {
-  tab.addEventListener('click', () => {
+document.getElementById('qtyM').addEventListener('click',()=>{if(qty>1){qty--;document.getElementById('qtyN').textContent=qty;updateTotal()}});
+document.getElementById('qtyP').addEventListener('click',()=>{qty++;document.getElementById('qtyN').textContent=qty;updateTotal()});
+document.querySelectorAll('.pd-tab').forEach(tab=>{
+  tab.addEventListener('click',()=>{
     document.querySelectorAll('.pd-tab').forEach(t=>t.classList.remove('active'));
     document.querySelectorAll('.pd-panel').forEach(p=>p.classList.remove('active'));
-    tab.classList.add('active');
-    document.getElementById('panel-'+tab.dataset.tab).classList.add('active');
+    tab.classList.add('active');document.getElementById('panel-'+tab.dataset.tab).classList.add('active');
   });
 });
 
