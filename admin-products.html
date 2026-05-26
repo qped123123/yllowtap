@@ -262,11 +262,47 @@ body { font-family:var(--font); background:var(--bg); color:var(--text); font-si
   .modal { margin:16px; }
   .setting-row { grid-template-columns:1fr; }
 }
+
+/* ===== LOGIN SCREEN ===== */
+.login-screen {
+  position:fixed; inset:0; z-index:9999;
+  background:var(--bg);
+  display:flex; align-items:center; justify-content:center;
+}
+.login-box {
+  width:360px; padding:40px;
+  background:var(--bg-card); border:1px solid var(--border); border-radius:8px;
+  text-align:center;
+}
+.login-logo { font-size:20px; font-weight:700; letter-spacing:2px; color:var(--accent); margin-bottom:6px; }
+.login-logo small { display:block; font-size:10px; font-weight:400; color:var(--text-dim); letter-spacing:1px; margin-top:4px; }
+.login-box .form-group { margin-top:20px; text-align:left; }
+.login-box .form-label { margin-bottom:6px; }
+.login-box .btn-primary { width:100%; margin-top:20px; padding:12px; font-size:13px; }
+.login-error { color:var(--red); font-size:11px; margin-top:12px; display:none; }
 </style>
 </head>
 <body>
 
-<div class="admin-layout">
+<!-- LOGIN SCREEN -->
+<div class="login-screen" id="loginScreen">
+  <div class="login-box">
+    <div class="login-logo">YLLOWTAP<small>ADMIN</small></div>
+    <div class="form-group">
+      <label class="form-label">이메일</label>
+      <input class="form-input" id="loginEmail" type="email" placeholder="admin@yllowtap.com">
+    </div>
+    <div class="form-group">
+      <label class="form-label">비밀번호</label>
+      <input class="form-input" id="loginPw" type="password" placeholder="••••••••" onkeydown="if(event.key==='Enter')doLogin()">
+    </div>
+    <button class="btn btn-primary" onclick="doLogin()">로그인</button>
+    <div class="login-error" id="loginError">이메일 또는 비밀번호가 올바르지 않습니다.</div>
+  </div>
+</div>
+
+<!-- ADMIN (로그인 전 숨김) -->
+<div class="admin-layout" id="adminLayout" style="display:none;">
   <!-- SIDEBAR -->
   <aside class="sidebar">
     <div class="sidebar-logo">YLLOWTAP<small>ADMIN</small></div>
@@ -275,6 +311,7 @@ body { font-family:var(--font); background:var(--bg); color:var(--text); font-si
       <a onclick="switchPage('hero')" id="nav-hero"><span class="icon">🖼️</span> 히어로 슬라이드</a>
       <a onclick="switchPage('settings')" id="nav-settings"><span class="icon">⚙️</span> 사이트 설정</a>
       <a href="/" target="_blank"><span class="icon">🌐</span> 사이트 보기</a>
+      <a onclick="doLogout()" style="margin-top:16px;border-top:1px solid var(--border);padding-top:16px;"><span class="icon">🚪</span> 로그아웃</a>
     </nav>
   </aside>
 
@@ -1118,7 +1155,47 @@ function showToast(msg,isError=false){
   setTimeout(()=>el.classList.remove('show'),3000);
 }
 
-init();
+// ══════════════════════════════════════════
+// AUTH — 로그인 / 로그아웃 / 세션 체크
+// ══════════════════════════════════════════
+async function checkAuth() {
+  const { data: { session } } = await sb.auth.getSession();
+  if (session) {
+    showAdmin();
+  } else {
+    document.getElementById('loginScreen').style.display = 'flex';
+    document.getElementById('adminLayout').style.display = 'none';
+  }
+}
+
+async function doLogin() {
+  const email = document.getElementById('loginEmail').value.trim();
+  const pw = document.getElementById('loginPw').value;
+  if (!email || !pw) return;
+
+  const { error } = await sb.auth.signInWithPassword({ email, password: pw });
+  if (error) {
+    document.getElementById('loginError').style.display = 'block';
+    return;
+  }
+  document.getElementById('loginError').style.display = 'none';
+  showAdmin();
+}
+
+async function doLogout() {
+  await sb.auth.signOut();
+  document.getElementById('loginScreen').style.display = 'flex';
+  document.getElementById('adminLayout').style.display = 'none';
+}
+
+function showAdmin() {
+  document.getElementById('loginScreen').style.display = 'none';
+  document.getElementById('adminLayout').style.display = 'flex';
+  init();
+}
+
+// ─── 시작: 인증 체크 ───
+checkAuth();
 </script>
 </body>
 </html>
