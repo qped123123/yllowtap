@@ -362,6 +362,19 @@ body { font-family:var(--font); background:var(--bg); color:var(--text); font-si
       <button class="modal-close" onclick="closeProductForm()">×</button>
     </div>
     <div class="modal-body">
+      <!-- 사용 가이드 -->
+      <div style="background:rgba(244,216,78,0.08);border:1px solid rgba(244,216,78,0.2);border-radius:var(--radius);padding:16px 20px;margin-bottom:24px;">
+        <div style="font-size:12px;font-weight:600;color:var(--accent);margin-bottom:8px;">📋 상품 등록 가이드</div>
+        <div style="font-size:11px;color:var(--text-dim);line-height:1.8;">
+          <strong style="color:var(--text)">① 기본 정보</strong> → 상품명, 카테고리, 가격 입력 (필수)<br>
+          <strong style="color:var(--text)">② 노출 태그</strong> → BEST, NEW IN 등 체크하면 해당 메뉴에 노출<br>
+          <strong style="color:var(--text)">③ 이미지 업로드</strong> → "파일 업로드" 클릭 → 역할 선택(대표/감성/디테일/소재/무드) → 파일 선택. 올리면 위에 카드로 표시됨. ↑↓로 순서 변경<br>
+          <strong style="color:var(--text)">④ 컬러별 이미지</strong> → 옵션에서 이름을 "컬러"로 입력 → 값에 색상명 입력 → 아래 컬러별 이미지 업로드 영역이 자동 생성<br>
+          <strong style="color:var(--text)">⑤ 에디토리얼</strong> → 감성 카피 + 무드 타이틀. 상세페이지 중간 THE MOOD 섹션에 표시<br>
+          <strong style="color:var(--text)">⑥ 저장</strong> → 저장 누르면 상세페이지에 바로 반영
+        </div>
+      </div>
+
       <!-- 1. 기본 정보 -->
       <div class="form-section">
         <div class="form-section-title">기본 정보</div>
@@ -503,7 +516,14 @@ body { font-family:var(--font); background:var(--bg); color:var(--text); font-si
         <button class="btn btn-secondary btn-small" onclick="addOption()">+ 옵션 추가</button>
       </div>
 
-      <!-- 7. 추천 상품 -->
+      <!-- 7. 컬러별 이미지 -->
+      <div class="form-section">
+        <div class="form-section-title">컬러별 이미지</div>
+        <p style="font-size:11px;color:var(--text-muted);margin-bottom:12px;">옵션에 "컬러" 항목이 있으면 각 컬러별 대표 이미지를 등록하세요. 상세페이지 Colors 섹션에 표시됩니다.</p>
+        <div id="colorImageArea"></div>
+      </div>
+
+      <!-- 8. 추천 상품 -->
       <div class="form-section">
         <div class="form-section-title">추천 상품</div>
         <p style="font-size:11px;color:var(--text-muted);margin-bottom:12px;">비워두면 같은 카테고리 자동 추천</p>
@@ -620,6 +640,7 @@ let heroSlides = [], siteSettings = {};
 // ─── 상품 폼 상태 ───
 let editingProductId = null;
 let formImages = [], formPresetTags = [], formCustomTags = [], formOptions = [], formRecommends = [];
+let formColorImages = []; // [{option_value, image_url, id?}]
 
 // ─── 히어로 폼 상태 ───
 let editingHeroId = null;
@@ -712,11 +733,11 @@ function resetProductForm() {
   document.getElementById('fCollection').value = '';
   document.getElementById('fOrder').value = '0';
   document.getElementById('fActive').value = 'true';
-  formImages=[]; formPresetTags=[]; formCustomTags=[]; formOptions=[]; formRecommends=[];
+  formImages=[]; formPresetTags=[]; formCustomTags=[]; formOptions=[]; formRecommends=[]; formColorImages=[];
   renderProductFormAll();
 }
 
-function renderProductFormAll() { renderImages(); renderPresetTags(); renderCustomTags(); renderOptions(); renderRecommends(); }
+function renderProductFormAll() { renderImages(); renderPresetTags(); renderCustomTags(); renderOptions(); renderRecommends(); renderColorImages(); }
 
 async function editProduct(id) {
   const p = allProducts.find(x=>x.id===id);
@@ -744,6 +765,10 @@ async function editProduct(id) {
   formOptions = JSON.parse(JSON.stringify(p.options||[]));
   const { data:recs } = await sb.from('recommended_products').select('recommended_product_id').eq('source_product_id',id).order('display_order');
   formRecommends = (recs||[]).map(r=>r.recommended_product_id);
+
+  // 컬러 이미지 로드
+  const { data:ci } = await sb.from('product_option_images').select('*').eq('product_id',id).order('display_order');
+  formColorImages = (ci||[]).map(c=>({id:c.id, option_value:c.option_value, image_url:c.image_url}));
   renderProductFormAll();
   document.getElementById('productModal').classList.add('show');
 }
@@ -784,7 +809,16 @@ function removeCustomTag(i){formCustomTags.splice(i,1);renderCustomTags();}
 
 // ── 이미지 ──
 function renderImages() {
-  document.getElementById('imageArea').innerHTML = formImages.map((img,i) => {
+  const area = document.getElementById('imageArea');
+  if (!formImages.length) {
+    area.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:32px;border:2px dashed var(--border);border-radius:var(--radius);color:var(--text-muted);">'
+      + '<div style="font-size:24px;margin-bottom:8px;">📷</div>'
+      + '<div style="font-size:12px;">아래 "파일 업로드" 버튼으로 이미지를 올려주세요</div>'
+      + '<div style="font-size:10px;margin-top:4px;">올린 이미지가 여기에 카드로 표시됩니다</div>'
+      + '</div>';
+    return;
+  }
+  area.innerHTML = formImages.map((img,i) => {
     const label = ROLE_LABELS[img.role]||img.role;
     const isV = img.mediaType==='video'||img.url?.endsWith('.mp4');
     return `<div class="image-card">
@@ -818,8 +852,8 @@ function bindImageUpload(){
 // ── 옵션 ──
 function renderOptions(){
   document.getElementById('optionBuilder').innerHTML=formOptions.map((o,i)=>`<div class="option-item">
-    <input class="form-input" value="${o.name}" placeholder="옵션명" onchange="formOptions[${i}].name=this.value">
-    <input class="form-input" value="${(o.values||[]).join(', ')}" placeholder="값 (쉼표: Black, Ivory)" onchange="formOptions[${i}].values=this.value.split(',').map(s=>s.trim()).filter(Boolean)">
+    <input class="form-input" value="${o.name}" placeholder="옵션명" onchange="formOptions[${i}].name=this.value;renderColorImages()">
+    <input class="form-input" value="${(o.values||[]).join(', ')}" placeholder="값 (쉼표: Black, Ivory)" onchange="formOptions[${i}].values=this.value.split(',').map(s=>s.trim()).filter(Boolean);renderColorImages()">
     <button class="option-remove" onclick="removeOption(${i})">×</button></div>`).join('');
 }
 function addOption(){formOptions.push({name:'',values:[]});renderOptions();}
@@ -839,6 +873,54 @@ function addRecommend(){const id=document.getElementById('recommendSelect').valu
   if(!id||formRecommends.includes(id))return;if(id===editingProductId){showToast('자기 자신 불가',true);return;}
   formRecommends.push(id);renderRecommends();document.getElementById('recommendSelect').value='';}
 function removeRecommend(i){formRecommends.splice(i,1);renderRecommends();}
+
+// ──────────────────────────────────────────
+// COLOR IMAGES
+// ──────────────────────────────────────────
+function renderColorImages(){
+  const area=document.getElementById('colorImageArea');
+  // 옵션에서 컬러 관련 옵션 찾기
+  const colorOpt=formOptions.find(o=>['컬러','색상','Color','color'].includes(o.name));
+  if(!colorOpt||!colorOpt.values||!colorOpt.values.length){
+    area.innerHTML='<p style="font-size:11px;color:var(--text-muted);">옵션에 "컬러" 또는 "색상" 항목을 먼저 추가하세요.</p>';
+    return;
+  }
+  area.innerHTML=colorOpt.values.map(val=>{
+    const existing=formColorImages.find(c=>c.option_value===val);
+    return `<div style="display:flex;align-items:center;gap:12px;margin-bottom:10px;padding:10px;background:var(--bg-input);border:1px solid var(--border);border-radius:var(--radius);">
+      ${existing?`<img src="${existing.image_url}" style="width:60px;height:75px;object-fit:cover;border-radius:4px;">`
+        :'<div style="width:60px;height:75px;background:var(--bg-hover);border-radius:4px;display:flex;align-items:center;justify-content:center;color:var(--text-muted);font-size:10px;">없음</div>'}
+      <div style="flex:1;">
+        <div style="font-size:12px;font-weight:500;color:var(--text);margin-bottom:4px;">${val}</div>
+        ${existing?`<span style="font-size:10px;color:var(--green);">등록됨</span>`:'<span style="font-size:10px;color:var(--text-muted);">이미지 없음</span>'}
+      </div>
+      <label class="btn btn-secondary btn-small" style="cursor:pointer;white-space:nowrap;">
+        📎 ${existing?'변경':'업로드'}
+        <input type="file" accept="image/*" style="display:none;" onchange="uploadColorImage(this,'${val}')">
+      </label>
+      ${existing?`<button class="btn btn-small" style="background:var(--red);color:#fff;border:none;" onclick="removeColorImage('${val}')">×</button>`:''}
+    </div>`;
+  }).join('');
+}
+
+async function uploadColorImage(input,colorValue){
+  const file=input.files[0];if(!file)return;
+  const ext=file.name.split('.').pop();
+  const fn=`colors/${Date.now()}_${Math.random().toString(36).slice(2,8)}.${ext}`;
+  const{error}=await sb.storage.from('media').upload(fn,file,{upsert:true,contentType:file.type});
+  if(error){showToast('업로드 실패',true);return;}
+  const{data:u}=sb.storage.from('media').getPublicUrl(fn);
+  const idx=formColorImages.findIndex(c=>c.option_value===colorValue);
+  if(idx>=0) formColorImages[idx].image_url=u.publicUrl;
+  else formColorImages.push({option_value:colorValue,image_url:u.publicUrl});
+  renderColorImages();
+  input.value='';
+}
+
+function removeColorImage(colorValue){
+  formColorImages=formColorImages.filter(c=>c.option_value!==colorValue);
+  renderColorImages();
+}
 
 // ── 슬러그 자동 ──
 document.getElementById('fName').addEventListener('input',function(){
@@ -871,6 +953,16 @@ async function saveProduct(){
     if(formImages.length){await sb.from('product_media').insert(formImages.map((img,i)=>({product_id:pid,media_url:img.url,media_type:img.mediaType||'image',role:img.role,display_order:i})));}
     await sb.from('recommended_products').delete().eq('source_product_id',pid);
     if(formRecommends.length){await sb.from('recommended_products').insert(formRecommends.map((rid,i)=>({source_product_id:pid,recommended_product_id:rid,display_order:i})));}
+    // 컬러 이미지 저장
+    await sb.from('product_option_images').delete().eq('product_id',pid);
+    if(formColorImages.length){
+      const colorOpt=formOptions.find(o=>['컬러','색상','Color','color'].includes(o.name));
+      if(colorOpt){
+        await sb.from('product_option_images').insert(formColorImages.map((ci,i)=>({
+          product_id:pid,option_name:colorOpt.name,option_value:ci.option_value,image_url:ci.image_url,display_order:i
+        })));
+      }
+    }
     showToast(editingProductId?'수정 완료':'등록 완료');closeProductForm();await loadProducts();
   }catch(err){
     if(err.message?.includes('duplicate')&&err.message?.includes('slug'))showToast('중복된 슬러그',true);
