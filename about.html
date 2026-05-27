@@ -6,10 +6,9 @@
 <title>Yllowtap — About</title>
 <link rel="stylesheet" href="./css/style.css">
 <style>
-/* ── ABOUT PAGE ── */
 .about-page { min-height:100vh; }
 
-/* Hero Banner */
+/* Hero */
 .about-hero {
   position:relative; height:60vh; overflow:hidden;
   margin-top:var(--header-height,88px);
@@ -17,7 +16,7 @@
 }
 .about-hero__img {
   width:100%; height:100%; object-fit:cover;
-  filter:brightness(0.5);
+  filter:brightness(0.45);
 }
 .about-hero__overlay {
   position:absolute; inset:0;
@@ -29,21 +28,14 @@
   color:#fff; letter-spacing:0.04em; margin-bottom:16px;
 }
 .about-hero__sub {
-  font-size:14px; font-weight:400; color:rgba(255,255,255,0.8);
+  font-size:14px; font-weight:400; color:rgba(255,255,255,0.75);
   letter-spacing:0.15em; text-transform:uppercase;
 }
 
-/* Content Sections */
-.about-section {
-  max-width:900px; margin:0 auto;
-  padding:80px 40px;
-}
-.about-section--wide {
-  max-width:100%; padding:80px var(--side-padding,80px);
-}
-
+/* Intro */
 .about-intro {
-  text-align:center; max-width:700px; margin:0 auto;
+  text-align:center; max-width:640px; margin:0 auto;
+  padding:80px 40px;
 }
 .about-intro__label {
   font-size:11px; font-weight:500; letter-spacing:0.25em;
@@ -51,16 +43,14 @@
 }
 .about-intro__title {
   font-family:'Bodoni Moda',serif; font-size:32px; font-weight:400;
-  color:#111; line-height:1.3; margin-bottom:28px; letter-spacing:-0.01em;
+  color:#111; line-height:1.4; margin-bottom:28px;
 }
 .about-intro__text {
-  font-size:15px; color:#555; line-height:2; font-weight:400;
+  font-size:15px; color:#555; line-height:2; text-align:left;
 }
 
 /* Divider */
-.about-divider {
-  width:60px; height:1px; background:#D8D3CB; margin:0 auto;
-}
+.about-divider { width:60px; height:1px; background:#D8D3CB; margin:0 auto; }
 
 /* Two Column */
 .about-two-col {
@@ -70,68 +60,63 @@
 }
 .about-two-col--reverse { direction:rtl; }
 .about-two-col--reverse > * { direction:ltr; }
-.about-two-col__img {
-  width:100%; aspect-ratio:4/5; object-fit:cover;
-}
-.about-two-col__content {}
+.about-two-col__img { width:100%; aspect-ratio:4/5; object-fit:cover; }
 .about-two-col__label {
   font-size:10px; font-weight:500; letter-spacing:0.25em;
   text-transform:uppercase; color:#888; margin-bottom:16px;
 }
 .about-two-col__title {
   font-family:'Bodoni Moda',serif; font-size:28px; font-weight:400;
-  color:#111; margin-bottom:20px; line-height:1.3;
+  color:#111; margin-bottom:20px; line-height:1.4;
 }
 .about-two-col__text {
-  font-size:14px; color:#555; line-height:1.9; font-weight:400;
+  font-size:14px; color:#555; line-height:1.9; text-align:left;
 }
 
-/* Values Grid */
+/* Values */
+.about-values-wrap {
+  padding:80px 40px; text-align:center;
+}
+.about-values-label {
+  font-size:11px; font-weight:500; letter-spacing:0.25em;
+  text-transform:uppercase; color:#888; margin-bottom:20px;
+}
+.about-values-title {
+  font-family:'Bodoni Moda',serif; font-size:32px; font-weight:400;
+  color:#111; margin-bottom:48px;
+}
 .about-values {
   display:grid; grid-template-columns:repeat(3,1fr); gap:40px;
-  max-width:1000px; margin:0 auto;
+  max-width:1000px; margin:0 auto; text-align:left;
 }
-.about-value {
-  text-align:left; padding:40px 24px;
-}
-.about-value__icon {
-  font-size:28px; margin-bottom:20px; color:#888;
-}
+.about-value { padding:24px; }
+.about-value__icon { font-size:24px; margin-bottom:16px; color:#888; }
 .about-value__title {
   font-family:'Bodoni Moda',serif; font-size:20px; font-weight:400;
-  color:#111; margin-bottom:12px;
+  color:#111; margin-bottom:10px;
 }
-.about-value__text {
-  font-size:13px; color:#666; line-height:1.8;
-}
+.about-value__text { font-size:13px; color:#666; line-height:1.8; }
 
-/* Full Width Image */
-.about-full-img {
-  width:100%; height:45vh; object-fit:cover;
-}
+/* Full Image */
+.about-full-img { width:100%; height:45vh; object-fit:cover; }
 
 /* Quote */
-.about-quote {
-  text-align:center; max-width:700px; margin:0 auto;
-  padding:80px 40px;
-}
-.about-quote__text {
+.about-quote-wrap { background:#EFECE6; padding:80px 40px; text-align:center; }
+.about-quote__en {
   font-family:'Bodoni Moda',serif; font-size:26px; font-weight:400;
-  color:#111; line-height:1.5; font-style:italic; margin-bottom:20px;
+  color:#111; line-height:1.5; font-style:italic; margin-bottom:16px;
+  max-width:600px; margin-left:auto; margin-right:auto;
+}
+.about-quote__kr {
+  font-size:15px; color:#555; margin-bottom:20px;
 }
 .about-quote__author {
   font-size:12px; font-weight:500; letter-spacing:0.15em;
   text-transform:uppercase; color:#888;
 }
-.about-quote__kr {
-  font-size:15px; color:#555; font-weight:400;
-  letter-spacing:0.02em; margin-bottom:20px;
-}
 
 /* CTA */
-.about-cta {
-  text-align:center; padding:60px 40px 80px;
-}
+.about-cta { text-align:center; padding:60px 40px 80px; }
 .about-cta__title {
   font-family:'Bodoni Moda',serif; font-size:28px; font-weight:400;
   color:#111; margin-bottom:24px;
@@ -143,25 +128,21 @@
 }
 .about-cta__btn:hover { background:#111; color:#fff; opacity:1; }
 
-/* ── Responsive ── */
+/* Responsive */
 @media(max-width:768px) {
   .about-hero { height:45vh; }
   .about-hero__title { font-size:32px; }
-  .about-hero__sub { font-size:11px; }
-  .about-section { padding:48px 16px; }
+  .about-intro { padding:48px 20px; }
   .about-intro__title { font-size:24px; }
-  .about-intro__text { font-size:14px; }
-  .about-two-col { grid-template-columns:1fr; gap:32px; padding:48px 16px; }
+  .about-two-col { grid-template-columns:1fr; gap:32px; padding:48px 20px; }
   .about-two-col--reverse { direction:ltr; }
   .about-two-col__img { aspect-ratio:3/2; }
-  .about-two-col__title { font-size:22px; }
-  .about-values { grid-template-columns:1fr; gap:24px; }
-  .about-value { padding:24px 16px; }
+  .about-values-wrap { padding:48px 20px; }
+  .about-values { grid-template-columns:1fr; gap:20px; }
   .about-full-img { height:30vh; }
-  .about-quote { padding:48px 16px; }
-  .about-quote__text { font-size:20px; }
-  .about-cta { padding:40px 16px 60px; }
-  .about-cta__title { font-size:22px; }
+  .about-quote-wrap { padding:48px 20px; }
+  .about-quote__en { font-size:20px; }
+  .about-cta { padding:40px 20px 60px; }
 }
 </style>
 </head>
@@ -201,13 +182,13 @@
   </div>
 
   <!-- Intro -->
-  <div class="about-section about-intro">
+  <div class="about-intro">
     <div class="about-intro__label">About Yllowtap</div>
-    <h2 class="about-intro__title">조용한 럭셔리,<br>감각적인 큐레이션</h2>
+    <h2 class="about-intro__title">감각을 큐레이션하다</h2>
     <p class="about-intro__text">
-      Yllowtap은 Quiet Luxury를 추구하는 큐레이티드 패션 플랫폼입니다.<br><br>
-      과시보다 소재의 질감과 실루엣에 집중합니다. 진짜 가치 있는 것만 엄선하여 당신의 일상에 자연스러운 아름다움을 더합니다.<br><br>
-      패션은 자기 표현의 수단이자 삶의 태도입니다.
+      Yllowtap은 가방, 쥬얼리, 악세서리, 키링 등 패션 소품을 큐레이션하는 플랫폼입니다.
+      과시보다 감각, 유행보다 완성도에 집중합니다.
+      당신의 스타일을 완성하는 마지막 한 조각을 제안합니다.
     </p>
   </div>
 
@@ -215,13 +196,13 @@
 
   <!-- Philosophy 1 -->
   <div class="about-two-col">
-    <img class="about-two-col__img" src="https://images.unsplash.com/photo-1490481651871-ab68de25d43d?w=800&q=80" alt="Curation">
+    <img class="about-two-col__img" src="https://images.unsplash.com/photo-1606760227091-3dd870d97f1d?w=800&q=80" alt="Curation">
     <div class="about-two-col__content">
       <div class="about-two-col__label">Our Philosophy</div>
-      <h3 class="about-two-col__title">엄격한 큐레이션,<br>타협 없는 품질</h3>
+      <h3 class="about-two-col__title">엄선된 큐레이션,<br>타협 없는 퀄리티</h3>
       <p class="about-two-col__text">
-        소재, 봉제, 핏, 디자인 — 네 가지 기준을 모두 통과해야 Yllowtap에 입점됩니다. 트렌드가 아닌 오래 사랑받을 아름다움을 추구합니다.<br><br>
-        직접 착용하고, 세탁하고, 검증한 뒤에야 소개합니다. 느리지만 확신 있는 추천을 드립니다.
+        소재, 마감, 디자인 완성도를 꼼꼼히 검증한 아이템만 소개합니다.
+        수백 개 중에서 진짜 가치 있는 소수만 남깁니다.
       </p>
     </div>
   </div>
@@ -231,13 +212,13 @@
 
   <!-- Philosophy 2 -->
   <div class="about-two-col about-two-col--reverse">
-    <img class="about-two-col__img" src="https://images.unsplash.com/photo-1469334031218-e382a71b716b?w=800&q=80" alt="Styling">
+    <img class="about-two-col__img" src="https://images.unsplash.com/photo-1611085583191-a3b181a88401?w=800&q=80" alt="Accessories">
     <div class="about-two-col__content">
       <div class="about-two-col__label">Our Approach</div>
-      <h3 class="about-two-col__title">스타일은 발견하는 것,<br>강요하는 것이 아닙니다</h3>
+      <h3 class="about-two-col__title">스타일은 발견하는 것</h3>
       <p class="about-two-col__text">
-        특정 스타일을 강요하지 않습니다. 다양한 무드에 맞는 선택지를 제안하여 나만의 스타일을 발견하도록 돕습니다.<br><br>
-        룩북, 스타일 가이드, 코디 제안을 통해 아이템이 서로 어우러지는 방법을 함께 고민합니다.
+        특정 취향을 강요하지 않습니다.
+        다양한 무드에 맞는 선택지를 제안하여 나만의 스타일을 찾도록 돕습니다.
       </p>
     </div>
   </div>
@@ -245,43 +226,33 @@
   <div class="about-divider"></div>
 
   <!-- Values -->
-  <div class="about-section">
-    <div class="about-intro" style="margin-bottom:48px;">
-      <div class="about-intro__label">Our Values</div>
-      <h2 class="about-intro__title">우리가 중요하게 여기는 것</h2>
-    </div>
+  <div class="about-values-wrap">
+    <div class="about-values-label">Our Values</div>
+    <h2 class="about-values-title">우리가 중요하게 여기는 것</h2>
     <div class="about-values">
       <div class="about-value">
         <div class="about-value__icon">✦</div>
         <h4 class="about-value__title">Quality First</h4>
-        <p class="about-value__text">
-          가격이 아닌 품질이 가치를 증명합니다. 좋은 소재, 정교한 마감, 편안한 핏. 세 가지 모두 충족해야 선택합니다.
-        </p>
+        <p class="about-value__text">가격이 아닌 품질로 가치를 증명합니다.</p>
       </div>
       <div class="about-value">
         <div class="about-value__icon">◇</div>
         <h4 class="about-value__title">Timeless Design</h4>
-        <p class="about-value__text">
-          유행은 지나가도 스타일은 남습니다. 5년 뒤에도 꺼내 입고 싶은 옷이 Yllowtap의 기준입니다.
-        </p>
+        <p class="about-value__text">유행이 지나도 꺼내 쓰고 싶은 것이 기준입니다.</p>
       </div>
       <div class="about-value">
         <div class="about-value__icon">○</div>
         <h4 class="about-value__title">Mindful Choice</h4>
-        <p class="about-value__text">
-          더 적게, 더 좋은 것을 고릅니다. 신중한 선택이 가장 현명한 패션이라 믿습니다.
-        </p>
+        <p class="about-value__text">더 적게, 더 좋은 것을 고릅니다.</p>
       </div>
     </div>
   </div>
 
   <!-- Quote -->
-  <div style="background:#EFECE6;">
-    <div class="about-quote">
-      <p class="about-quote__text">"The presence that cannot be replaced —<br>it begins within you."</p>
-      <p class="about-quote__kr">대체되지 않는 분위기는 결국 자신에게서 나온다.</p>
-      <p class="about-quote__author">— Yllowtap</p>
-    </div>
+  <div class="about-quote-wrap">
+    <p class="about-quote__en">"The presence that cannot be replaced —<br>it begins within you."</p>
+    <p class="about-quote__kr">대체되지 않는 분위기는 결국 자신에게서 나온다.</p>
+    <p class="about-quote__author">— Yllowtap</p>
   </div>
 
   <!-- CTA -->
