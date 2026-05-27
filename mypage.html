@@ -190,7 +190,7 @@
       <div class="pf-row"><label class="pf-label">배송지 이름</label><input class="pf-input" id="afLabel" placeholder="집, 회사 등" value="기본 배송지"></div>
       <div class="pf-row"><label class="pf-label">수령인</label><input class="pf-input" id="afName" placeholder="홍길동"></div>
       <div class="pf-row"><label class="pf-label">연락처</label><input class="pf-input" id="afPhone" placeholder="010-0000-0000"></div>
-      <div class="pf-row"><label class="pf-label">우편번호</label><input class="pf-input" id="afZip" placeholder="12345"></div>
+      <div class="pf-row"><label class="pf-label">우편번호</label><div style="display:flex;gap:8px;"><input class="pf-input" id="afZip" placeholder="12345" readonly style="flex:1;cursor:pointer;" onclick="searchMyAddr()"><button type="button" onclick="searchMyAddr()" style="padding:10px 16px;font-size:11px;font-weight:500;background:#111;color:#fff;border:none;cursor:pointer;font-family:inherit;white-space:nowrap;">주소 검색</button></div></div>
       <div class="pf-row"><label class="pf-label">기본 주소</label><input class="pf-input" id="afAddr1" placeholder="서울시 강남구 테헤란로 123"></div>
       <div class="pf-row"><label class="pf-label">상세 주소</label><input class="pf-input" id="afAddr2" placeholder="101동 202호"></div>
       <div class="pf-row"><label class="pf-label">배송 메모</label><input class="pf-input" id="afMemo" placeholder="부재 시 경비실에 맡겨주세요"></div>
@@ -252,6 +252,7 @@
 </footer>
 
 <script src="./js/main.js"></script>
+<script src="https://t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <script>
 const SUPABASE_URL='https://ppihvvpplqikclftrwdb.supabase.co';
@@ -524,6 +525,16 @@ async function submitInquiry(){
 function getMainImg(p){
   if(p.product_media?.length){const m=p.product_media.filter(x=>x.role==='main').sort((a,b)=>a.display_order-b.display_order);return m.length?m[0].media_url:p.product_media[0].media_url;}
   return p.image_url;
+}
+
+function searchMyAddr(){
+  new daum.Postcode({
+    oncomplete:function(data){
+      document.getElementById('afZip').value=data.zonecode;
+      document.getElementById('afAddr1').value=data.roadAddress||data.jibunAddress;
+      document.getElementById('afAddr2').focus();
+    }
+  }).open();
 }
 
 async function doLogout(){await sb.auth.signOut();window.location.href='/login.html';}
