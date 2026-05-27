@@ -74,9 +74,12 @@
 .pd-btn-buy:hover{background:var(--pd-accent-dk)}
 .pd-btn-cart{flex:1;padding:15px;font-size:12px;font-weight:500;letter-spacing:1.5px;text-transform:uppercase;color:var(--pd-text);background:none;border:1px solid var(--pd-text);cursor:pointer;font-family:var(--pd-fb);transition:all .3s}
 .pd-btn-cart:hover{background:var(--pd-text);color:var(--pd-bg)}
-.pd-btn-wish{width:50px;height:50px;background:none;border:1px solid var(--pd-border);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:border-color .3s}
+.pd-btn-wish{width:auto;min-width:50px;height:50px;padding:0 14px;background:none;border:1px solid var(--pd-border);cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;transition:all .3s}
 .pd-btn-wish:hover{border-color:var(--pd-text)}
-.pd-btn-wish svg{width:19px;height:19px;stroke:var(--pd-text2);fill:none;stroke-width:1.5}
+.pd-btn-wish svg{width:19px;height:19px;stroke:var(--pd-text2);fill:none;stroke-width:1.5;transition:all .3s}
+.pd-btn-wish.active{border-color:#E8837C}
+.pd-btn-wish.active svg{stroke:#E8837C;fill:#E8837C}
+.pd-wish-count{font-size:12px;font-weight:500;color:var(--pd-text2)}
 
 /* NOTICES */
 .pd-notices{margin-top:18px;padding:14px;background:var(--pd-white);border:1px solid var(--pd-border-lt)}
@@ -267,7 +270,7 @@
     <div class="pd-btn-group">
       <button class="pd-btn-buy" onclick="buyNow()">BUY IT NOW</button>
       <button class="pd-btn-cart" onclick="addToCart()">CART</button>
-      <button class="pd-btn-wish" onclick="toggleWishlist()"><svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg></button>
+      <button class="pd-btn-wish" id="wishBtn" onclick="toggleWishlist()"><svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg><span class="pd-wish-count" id="wishCount"></span></button>
     </div>
     <div class="pd-notices">
       <div class="pd-notice"><span class="pd-notice-dot"></span>무료 배송 · 5만원 이상 구매 시</div>
@@ -751,16 +754,41 @@ async function addToCart(){
 // ══════════════════════════════════════════
 async function toggleWishlist(){
   const{data:{session}}=await sb.auth.getSession();
-  if(!session){alert('로그인이 필요합니다.');window.location.href='/login.html';return;}
+  if(!session){
+    if(confirm('로그인 후 이용할 수 있습니다.\n로그인 페이지로 이동하시겠습니까?')){
+      window.location.href='/login.html';
+    }
+    return;
+  }
   if(!product)return;
 
+  const btn=document.getElementById('wishBtn');
   const{data:existing}=await sb.from('wishlists').select('id').eq('user_id',session.user.id).eq('product_id',product.id).single();
   if(existing){
     await sb.from('wishlists').delete().eq('id',existing.id);
-    alert('위시리스트에서 제거되었습니다.');
+    btn.classList.remove('active');
   }else{
     await sb.from('wishlists').insert({user_id:session.user.id,product_id:product.id});
-    alert('위시리스트에 추가되었습니다!');
+    btn.classList.add('active');
+  }
+  await loadWishCount();
+}
+
+// 찜 개수 로드 + 내가 찜했는지 체크
+async function loadWishCount(){
+  if(!product)return;
+  const{data:all}=await sb.from('wishlists').select('id,user_id').eq('product_id',product.id);
+  const count=all?.length||0;
+  const el=document.getElementById('wishCount');
+  if(el) el.textContent=count>0?count:'';
+
+  // 내가 찜했는지 체크
+  const{data:{session}}=await sb.auth.getSession();
+  if(session&&all){
+    const mine=all.find(w=>w.user_id===session.user.id);
+    const btn=document.getElementById('wishBtn');
+    if(mine) btn.classList.add('active');
+    else btn.classList.remove('active');
   }
 }
 
@@ -781,7 +809,7 @@ async function recordView(){
   }catch(e){}
 }
 
-loadProduct().then(()=>recordView());
+loadProduct().then(()=>{recordView();loadWishCount();});
 </script>
 <script src="./js/common-header.js"></script>
 </body>
