@@ -311,6 +311,7 @@ body { font-family:var(--font); background:var(--bg); color:var(--text); font-si
       <a onclick="switchPage('hero')" id="nav-hero"><span class="icon">🖼️</span> 히어로 슬라이드</a>
       <a onclick="switchPage('settings')" id="nav-settings"><span class="icon">⚙️</span> 사이트 설정</a>
       <a onclick="switchPage('inquiries')" id="nav-inquiries"><span class="icon">💬</span> 문의 관리</a>
+      <a onclick="switchPage('members')" id="nav-members"><span class="icon">👥</span> 회원 관리</a>
       <a href="/" target="_blank"><span class="icon">🌐</span> 사이트 보기</a>
       <a onclick="doLogout()" style="margin-top:16px;border-top:1px solid var(--border);padding-top:16px;"><span class="icon">🚪</span> 로그아웃</a>
     </nav>
@@ -410,10 +411,100 @@ body { font-family:var(--font); background:var(--bg); color:var(--text); font-si
       </div>
     </div>
 
+    <!-- ============================================ -->
+    <!-- PAGE 5: 회원 관리 -->
+    <!-- ============================================ -->
+    <div class="page-section" id="page-members">
+      <div class="top-bar">
+        <h1>회원 관리</h1>
+        <div style="display:flex;gap:8px;align-items:center;">
+          <input class="form-input" id="memberSearch" placeholder="이름 또는 이메일 검색" style="padding:8px 12px;font-size:11px;width:200px;" onkeyup="filterMembers()">
+          <select class="form-select" id="memberGradeFilter" style="padding:8px 12px;font-size:11px;" onchange="filterMembers()">
+            <option value="all">전체 등급</option>
+            <option value="basic">Basic</option>
+            <option value="silver">Silver</option>
+            <option value="gold">Gold</option>
+            <option value="vip">VIP</option>
+          </select>
+        </div>
+      </div>
+      <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);">
+        <div style="display:grid;grid-template-columns:1fr 160px 80px 80px 100px 80px 80px;gap:12px;padding:10px 16px;font-size:10px;font-weight:500;letter-spacing:1px;text-transform:uppercase;color:var(--text-muted);border-bottom:1px solid var(--border);">
+          <div>회원정보</div><div>이메일</div><div>등급</div><div>포인트</div><div>가입일</div><div>주문수</div><div>관리</div>
+        </div>
+        <div id="memberList">
+          <div class="empty-list"><p>회원이 없습니다</p></div>
+        </div>
+      </div>
+      <div style="margin-top:12px;font-size:11px;color:var(--text-muted);" id="memberCount"></div>
+    </div>
+
   </div>
 </div>
 
-<!-- ===== INQUIRY ANSWER MODAL ===== -->
+<!-- ===== MEMBER DETAIL MODAL ===== -->
+<div class="modal-overlay" id="memberModal">
+  <div class="modal" style="max-width:600px;">
+    <div class="modal-header">
+      <h2>회원 상세</h2>
+      <button class="modal-close" onclick="closeMemberModal()">×</button>
+    </div>
+    <div class="modal-body">
+      <div style="display:flex;align-items:center;gap:16px;margin-bottom:24px;padding-bottom:16px;border-bottom:1px solid var(--border);">
+        <div style="width:48px;height:48px;border-radius:50%;background:var(--bg-input);display:flex;align-items:center;justify-content:center;font-size:20px;color:var(--text-muted);">👤</div>
+        <div>
+          <div style="font-size:16px;font-weight:600;" id="mmName"></div>
+          <div style="font-size:12px;color:var(--text-dim);" id="mmEmail"></div>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">등급</label>
+          <select class="form-select" id="mmGrade">
+            <option value="basic">Basic</option>
+            <option value="silver">Silver</option>
+            <option value="gold">Gold</option>
+            <option value="vip">VIP</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">포인트</label>
+          <input class="form-input" id="mmPoint" type="number" value="0">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">연락처</label>
+          <input class="form-input" id="mmPhone" disabled style="color:var(--text-dim);">
+        </div>
+        <div class="form-group">
+          <label class="form-label">가입일</label>
+          <input class="form-input" id="mmCreated" disabled style="color:var(--text-dim);">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">총 주문</label>
+          <input class="form-input" id="mmOrders" disabled style="color:var(--text-dim);">
+        </div>
+        <div class="form-group">
+          <label class="form-label">총 구매액</label>
+          <input class="form-input" id="mmSpent" disabled style="color:var(--text-dim);">
+        </div>
+      </div>
+      <div class="form-row full" style="margin-top:8px;">
+        <div class="form-group">
+          <label class="form-label">마케팅 동의</label>
+          <div style="font-size:12px;color:var(--text-dim);" id="mmMarketing"></div>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeMemberModal()">닫기</button>
+      <button class="btn btn-primary" onclick="saveMember()">저장</button>
+    </div>
+  </div>
+</div>
 <div class="modal-overlay" id="inquiryModal">
   <div class="modal" style="max-width:640px;">
     <div class="modal-header">
@@ -746,7 +837,7 @@ function switchPage(page) {
 // 초기화
 // ══════════════════════════════════════════
 async function init() {
-  await Promise.all([loadCategories(), loadCollections(), loadProducts(), loadHeroSlides(), loadSettings(), loadInquiries()]);
+  await Promise.all([loadCategories(), loadCollections(), loadProducts(), loadHeroSlides(), loadSettings(), loadInquiries(), loadMembers()]);
   bindTagCheckboxes(); bindCustomTagInput(); bindImageUpload(); bindHeroMediaUpload(); bindSettingsImageUpload();
 }
 
@@ -1241,6 +1332,80 @@ function showAdmin() {
   document.getElementById('loginScreen').style.display = 'none';
   document.getElementById('adminLayout').style.display = 'flex';
   init();
+}
+
+// ══════════════════════════════════════════
+// 회원 관리
+// ══════════════════════════════════════════
+let allMembers=[];
+let editingMemberId=null;
+
+async function loadMembers(){
+  const{data}=await sb.from('user_profiles').select('*').order('created_at',{ascending:false});
+  allMembers=data||[];
+  renderMemberList(allMembers);
+}
+
+function filterMembers(){
+  const search=(document.getElementById('memberSearch')?.value||'').toLowerCase();
+  const grade=document.getElementById('memberGradeFilter')?.value||'all';
+  let filtered=allMembers;
+  if(search) filtered=filtered.filter(m=>(m.display_name||'').toLowerCase().includes(search)||(m.id||'').toLowerCase().includes(search));
+  if(grade!=='all') filtered=filtered.filter(m=>m.grade===grade);
+  renderMemberList(filtered);
+}
+
+function renderMemberList(members){
+  const el=document.getElementById('memberList');
+  document.getElementById('memberCount').textContent=`총 ${members.length}명`;
+  if(!members.length){el.innerHTML='<div class="empty-list"><p>회원이 없습니다</p></div>';return;}
+  const gradeColors={basic:'var(--text-dim)',silver:'#8B8B8B',gold:'#D4A843',vip:'#9B59B6'};
+  el.innerHTML=members.map(m=>{
+    const date=m.created_at?new Date(m.created_at).toLocaleDateString('ko-KR'):'';
+    return`<div style="display:grid;grid-template-columns:1fr 160px 80px 80px 100px 80px 80px;gap:12px;padding:12px 16px;align-items:center;border-bottom:1px solid rgba(255,255,255,0.04);cursor:pointer;transition:background 0.15s;" onmouseover="this.style.background='var(--bg-hover)'" onmouseout="this.style.background=''" onclick="openMemberModal('${m.id}')">
+      <div>
+        <div style="font-weight:500;font-size:13px;">${m.display_name||'이름없음'}</div>
+        <div style="font-size:10px;color:var(--text-dim);margin-top:2px;">${m.phone||''}</div>
+      </div>
+      <div style="font-size:11px;color:var(--text-dim);overflow:hidden;text-overflow:ellipsis;">${m.id?.substring(0,12)}...</div>
+      <div><span style="font-size:10px;font-weight:600;letter-spacing:0.5px;text-transform:uppercase;color:${gradeColors[m.grade]||gradeColors.basic}">${m.grade||'basic'}</span></div>
+      <div style="font-size:12px;">${(m.point||0).toLocaleString()}</div>
+      <div style="font-size:11px;color:var(--text-dim);">${date}</div>
+      <div style="font-size:12px;">${m.order_count||0}건</div>
+      <div><button class="btn btn-secondary btn-small" onclick="event.stopPropagation();openMemberModal('${m.id}')">상세</button></div>
+    </div>`;
+  }).join('');
+}
+
+function openMemberModal(id){
+  const m=allMembers.find(x=>x.id===id);
+  if(!m)return;
+  editingMemberId=id;
+  document.getElementById('mmName').textContent=m.display_name||'이름없음';
+  document.getElementById('mmEmail').textContent='ID: '+m.id?.substring(0,20)+'...';
+  document.getElementById('mmGrade').value=m.grade||'basic';
+  document.getElementById('mmPoint').value=m.point||0;
+  document.getElementById('mmPhone').value=m.phone||'없음';
+  document.getElementById('mmCreated').value=m.created_at?new Date(m.created_at).toLocaleDateString('ko-KR'):'';
+  document.getElementById('mmOrders').value=(m.order_count||0)+'건';
+  document.getElementById('mmSpent').value=(m.total_spent||0).toLocaleString()+'원';
+  document.getElementById('mmMarketing').textContent=m.agreed_marketing?'동의':'미동의';
+  document.getElementById('memberModal').classList.add('show');
+}
+
+function closeMemberModal(){document.getElementById('memberModal').classList.remove('show');}
+
+async function saveMember(){
+  if(!editingMemberId)return;
+  const{error}=await sb.from('user_profiles').update({
+    grade:document.getElementById('mmGrade').value,
+    point:parseInt(document.getElementById('mmPoint').value)||0,
+    updated_at:new Date().toISOString()
+  }).eq('id',editingMemberId);
+  if(error){showToast('저장 실패: '+error.message,true);return;}
+  showToast('회원 정보 저장 완료');
+  closeMemberModal();
+  await loadMembers();
 }
 
 // ══════════════════════════════════════════
