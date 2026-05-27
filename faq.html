@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Yllowtap — FAQ</title>
+<link rel="stylesheet" href="./css/style.css">
+<style>
+.faq-page{max-width:800px;margin:0 auto;padding:calc(var(--header-height,88px) + 60px) 40px 80px;min-height:100vh}
+.faq-header{text-align:center;margin-bottom:48px}
+.faq-header h1{font-family:'Bodoni Moda',serif;font-size:36px;font-weight:400;letter-spacing:2px;margin-bottom:8px}
+.faq-header p{font-size:13px;color:#888}
+
+.faq-cats{display:flex;justify-content:center;gap:8px;margin-bottom:36px;flex-wrap:wrap}
+.faq-cat{padding:8px 20px;font-size:12px;font-weight:500;letter-spacing:1px;border:1px solid #E5E1DC;background:none;cursor:pointer;font-family:inherit;transition:all .2s}
+.faq-cat:hover{border-color:#111}
+.faq-cat.active{background:#111;color:#fff;border-color:#111}
+
+.faq-list{border-top:1px solid #E5E1DC}
+.faq-item{border-bottom:1px solid #E5E1DC}
+.faq-question{display:flex;justify-content:space-between;align-items:center;padding:20px 0;cursor:pointer;gap:16px}
+.faq-question:hover{opacity:.7}
+.faq-q-cat{font-size:10px;font-weight:600;letter-spacing:1px;color:#888;text-transform:uppercase;margin-bottom:4px}
+.faq-q-text{font-size:15px;font-weight:500;color:#111;line-height:1.5}
+.faq-arrow{font-size:18px;color:#888;flex-shrink:0;transition:transform .3s}
+.faq-item.open .faq-arrow{transform:rotate(180deg)}
+.faq-answer{max-height:0;overflow:hidden;transition:max-height .4s ease}
+.faq-item.open .faq-answer{max-height:500px}
+.faq-a-text{padding:0 0 24px;font-size:14px;color:#555;line-height:1.8}
+
+.faq-empty{text-align:center;padding:60px 0;color:#888;font-size:14px}
+
+.faq-contact{text-align:center;margin-top:48px;padding:32px;background:#fff;border:1px solid #E5E1DC}
+.faq-contact p{font-size:14px;color:#444;margin-bottom:12px}
+.faq-contact a{display:inline-block;padding:12px 32px;font-size:12px;font-weight:500;letter-spacing:1.5px;text-transform:uppercase;border:1px solid #111;color:#111;text-decoration:none;transition:all .2s}
+.faq-contact a:hover{background:#111;color:#fff;opacity:1}
+
+@media(max-width:768px){
+  .faq-page{padding:calc(var(--header-height,60px) + 30px) 16px 60px}
+  .faq-header h1{font-size:28px}
+  .faq-cat{padding:6px 14px;font-size:11px}
+  .faq-q-text{font-size:14px}
+}
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header class="header">
+  <div class="header__logo"><a href="/" style="text-decoration:none;color:inherit;"><span class="header__logo-highlight">Yllowtap</span></a></div>
+  <nav class="header__nav">
+    <a href="/category.html?cat=best">Best</a><a href="/category.html?cat=new">New In</a>
+    <a href="/category.html?cat=bags">Bags</a><a href="/category.html?cat=jewelry">Jewelry</a>
+    <a href="/category.html?cat=accessories">Accessories</a><a href="/category.html?cat=keyring">Keyring</a>
+    <a href="/category.html?cat=seasonal">Seasonal</a><a href="/category.html?cat=sale">Sale</a>
+  </nav>
+  <div class="header__actions"><a href="/login.html">Login</a><a href="/mypage.html?tab=wishlist">Wishlist</a><a href="/cart.html">Bag (0)</a>
+    <button class="header__hamburger" aria-label="메뉴 열기"><span></span><span></span><span></span></button></div>
+</header>
+<div class="mobile-menu">
+  <button class="mobile-menu__close" aria-label="메뉴 닫기">✕</button>
+  <a href="/category.html?cat=best">Best</a><a href="/category.html?cat=new">New In</a>
+  <a href="/category.html?cat=bags">Bags</a><a href="/category.html?cat=jewelry">Jewelry</a>
+  <a href="/category.html?cat=accessories">Accessories</a><a href="/category.html?cat=keyring">Keyring</a>
+  <a href="/category.html?cat=seasonal">Seasonal</a><a href="/category.html?cat=sale">Sale</a>
+  <a href="/login.html">Login</a><a href="/mypage.html?tab=wishlist">Wishlist</a>
+</div>
+
+<!-- FAQ PAGE -->
+<div class="faq-page">
+  <div class="faq-header">
+    <h1>FAQ</h1>
+    <p>자주 묻는 질문을 확인해보세요</p>
+  </div>
+
+  <div class="faq-cats" id="faqCats">
+    <button class="faq-cat active" onclick="filterFaq('all')">전체</button>
+    <button class="faq-cat" onclick="filterFaq('order')">주문/결제</button>
+    <button class="faq-cat" onclick="filterFaq('shipping')">배송</button>
+    <button class="faq-cat" onclick="filterFaq('exchange')">교환</button>
+    <button class="faq-cat" onclick="filterFaq('return')">반품/환불</button>
+    <button class="faq-cat" onclick="filterFaq('membership')">멤버십</button>
+    <button class="faq-cat" onclick="filterFaq('general')">일반</button>
+  </div>
+
+  <div class="faq-list" id="faqList"></div>
+
+  <div class="faq-contact">
+    <p>원하는 답변을 찾지 못하셨나요?</p>
+    <a href="/mypage.html?tab=inquiry">1:1 문의하기</a>
+  </div>
+</div>
+
+<!-- FOOTER -->
+<footer class="footer">
+  <div class="footer__grid">
+    <div><div class="footer__brand">Yllowtap</div><p class="footer__brand-desc">Curated luxury fashion for the modern woman.</p></div>
+    <div class="footer__col"><div class="footer__col-title">Shop</div><a href="/category.html?cat=best">Best</a><a href="/category.html?cat=new">New In</a><a href="/category.html?cat=bags">Bags</a><a href="/category.html?cat=jewelry">Jewelry</a></div>
+    <div class="footer__col"><div class="footer__col-title">Customer Care</div><a href="/mypage.html?tab=inquiry">1:1 문의하기</a><a href="/faq.html">FAQ 자주 묻는 질문</a><a href="#">배송 안내</a><a href="#">교환 · 반품</a></div>
+    <div class="footer__col"><div class="footer__col-title">About</div><a href="#">브랜드 소개</a><a href="#">이용약관</a><a href="#">개인정보처리방침</a></div>
+    <div class="footer__col"><div class="footer__col-title">Account</div><a href="/login.html">로그인</a><a href="/login.html">회원가입</a><a href="/mypage.html">마이페이지</a></div>
+  </div>
+  <div style="max-width:1400px;margin:0 auto;padding:0 0 24px;font-size:12px;color:#888;line-height:1.8;">
+    고객센터 1544-0000<br>운영시간 : 평일 09:00 - 18:00 (점심시간 12:00 - 13:00 제외)<br>이메일 : cs@yllowtap.com
+  </div>
+  <div class="footer__bottom"><div class="footer__copy">© 2026 Yllowtap. All rights reserved.</div><div class="footer__social"><a href="#">Instagram</a><a href="#">YouTube</a><a href="#">Pinterest</a></div></div>
+</footer>
+
+<script src="./js/main.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<script>
+const SUPABASE_URL='https://ppihvvpplqikclftrwdb.supabase.co';
+const SUPABASE_ANON='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBwaWh2dnBwbHFpa2NsZnRyd2RiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk3MzE0NTEsImV4cCI6MjA5NTMwNzQ1MX0.shGVcFTQiuYc4u6tdU50x18YMgJdgFUljf8c7QlQU-U';
+const sb=window.supabase.createClient(SUPABASE_URL,SUPABASE_ANON);
+
+const CAT_MAP={general:'일반',order:'주문/결제',shipping:'배송',exchange:'교환','return':'반품/환불',membership:'멤버십'};
+let allFaqs=[];
+let currentFilter='all';
+
+async function loadFaqs(){
+  const{data}=await sb.from('faqs').select('*').eq('is_active',true).order('display_order').order('created_at');
+  allFaqs=data||[];
+  renderFaqs();
+}
+
+function filterFaq(cat){
+  currentFilter=cat;
+  document.querySelectorAll('.faq-cat').forEach(b=>b.classList.remove('active'));
+  event.target.classList.add('active');
+  renderFaqs();
+}
+
+function renderFaqs(){
+  const filtered=currentFilter==='all'?allFaqs:allFaqs.filter(f=>f.category===currentFilter);
+  const el=document.getElementById('faqList');
+  if(!filtered.length){el.innerHTML='<div class="faq-empty">등록된 FAQ가 없습니다</div>';return;}
+  el.innerHTML=filtered.map((f,i)=>`
+    <div class="faq-item" id="faq-${i}">
+      <div class="faq-question" onclick="toggleFaq(${i})">
+        <div>
+          <div class="faq-q-cat">${CAT_MAP[f.category]||f.category}</div>
+          <div class="faq-q-text">${f.question}</div>
+        </div>
+        <span class="faq-arrow">▾</span>
+      </div>
+      <div class="faq-answer">
+        <div class="faq-a-text">${f.answer.replace(/\n/g,'<br>')}</div>
+      </div>
+    </div>
+  `).join('');
+}
+
+function toggleFaq(i){
+  const item=document.getElementById('faq-'+i);
+  item.classList.toggle('open');
+}
+
+loadFaqs();
+</script>
+<script src="./js/common-header.js"></script>
+</body>
+</html>
