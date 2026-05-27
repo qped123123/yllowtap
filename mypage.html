@@ -123,7 +123,7 @@
     <a href="/category.html?cat=accessories">Accessories</a><a href="/category.html?cat=keyring">Keyring</a>
     <a href="/category.html?cat=seasonal">Seasonal</a><a href="/category.html?cat=sale">Sale</a>
   </nav>
-  <div class="header__actions"><a href="/login.html">Login</a><a href="#">Wishlist</a><a href="#">Bag (0)</a>
+  <div class="header__actions"><a href="/login.html">Login</a><a href="/mypage.html?tab=wishlist">Wishlist</a><a href="/cart.html">Bag (0)</a>
     <button class="header__hamburger" aria-label="메뉴 열기"><span></span><span></span><span></span></button></div>
 </header>
 <div class="mobile-menu">
@@ -526,7 +526,27 @@ function getMainImg(p){
 
 async function doLogout(){await sb.auth.signOut();window.location.href='/login.html';}
 
+// URL 파라미터로 탭 전환 (?tab=wishlist 등)
+function checkTabParam(){
+  const tab=new URLSearchParams(window.location.search).get('tab');
+  if(tab){
+    document.querySelectorAll('.my-tab').forEach(t=>t.classList.remove('active'));
+    document.querySelectorAll('.my-panel').forEach(p=>p.classList.remove('active'));
+    const panel=document.getElementById('panel-'+tab);
+    if(panel){
+      panel.classList.add('active');
+      document.querySelectorAll('.my-tab').forEach(t=>{if(t.textContent.includes(getTabLabel(tab)))t.classList.add('active');});
+    }
+  }
+}
+function getTabLabel(tab){
+  const m={orders:'주문내역',wishlist:'위시리스트',recent:'최근',address:'배송지',inquiry:'문의',profile:'회원정보'};
+  return m[tab]||'';
+}
+
 checkAuth();
+// 탭 파라미터 확인은 loadAll 후 실행
+setTimeout(checkTabParam,500);
 </script>
 </body>
 </html>
