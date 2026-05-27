@@ -310,6 +310,7 @@ body { font-family:var(--font); background:var(--bg); color:var(--text); font-si
       <a onclick="switchPage('products')" id="nav-products" class="active"><span class="icon">🛍️</span> 상품 관리</a>
       <a onclick="switchPage('hero')" id="nav-hero"><span class="icon">🖼️</span> 히어로 슬라이드</a>
       <a onclick="switchPage('settings')" id="nav-settings"><span class="icon">⚙️</span> 사이트 설정</a>
+      <a onclick="switchPage('inquiries')" id="nav-inquiries"><span class="icon">💬</span> 문의 관리</a>
       <a href="/" target="_blank"><span class="icon">🌐</span> 사이트 보기</a>
       <a onclick="doLogout()" style="margin-top:16px;border-top:1px solid var(--border);padding-top:16px;"><span class="icon">🚪</span> 로그아웃</a>
     </nav>
@@ -388,10 +389,58 @@ body { font-family:var(--font); background:var(--bg); color:var(--text); font-si
       </div>
     </div>
 
+    <!-- ============================================ -->
+    <!-- PAGE 4: 문의 관리 -->
+    <!-- ============================================ -->
+    <div class="page-section" id="page-inquiries">
+      <div class="top-bar">
+        <h1>문의 관리</h1>
+        <div style="display:flex;gap:8px;">
+          <select class="form-select" id="inquiryFilter" style="padding:8px 12px;font-size:11px;" onchange="loadInquiries()">
+            <option value="all">전체</option>
+            <option value="pending">답변 대기</option>
+            <option value="answered">답변 완료</option>
+          </select>
+        </div>
+      </div>
+      <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);">
+        <div id="inquiryAdminList">
+          <div class="empty-list"><p>문의가 없습니다</p></div>
+        </div>
+      </div>
+    </div>
+
   </div>
 </div>
 
-<!-- ===== PRODUCT FORM MODAL ===== -->
+<!-- ===== INQUIRY ANSWER MODAL ===== -->
+<div class="modal-overlay" id="inquiryModal">
+  <div class="modal" style="max-width:640px;">
+    <div class="modal-header">
+      <h2>문의 답변</h2>
+      <button class="modal-close" onclick="closeInquiryModal()">×</button>
+    </div>
+    <div class="modal-body">
+      <div style="margin-bottom:16px;">
+        <div style="display:flex;gap:8px;align-items:center;margin-bottom:8px;">
+          <span style="font-size:11px;padding:3px 8px;background:rgba(244,216,78,0.15);color:var(--accent);border-radius:3px;" id="iqmCategory"></span>
+          <span style="font-size:11px;color:var(--text-muted);" id="iqmDate"></span>
+        </div>
+        <div style="font-size:14px;font-weight:600;margin-bottom:8px;" id="iqmTitle"></div>
+        <div style="font-size:13px;color:var(--text-dim);line-height:1.7;" id="iqmContent"></div>
+        <div style="font-size:11px;color:var(--text-muted);margin-top:8px;" id="iqmUser"></div>
+      </div>
+      <div class="form-group" style="margin-top:20px;">
+        <label class="form-label">답변 작성</label>
+        <textarea class="form-textarea" id="iqmAnswer" style="min-height:120px;" placeholder="답변을 입력하세요"></textarea>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeInquiryModal()">취소</button>
+      <button class="btn btn-primary" onclick="saveInquiryAnswer()">답변 저장</button>
+    </div>
+  </div>
+</div>
 <div class="modal-overlay" id="productModal">
   <div class="modal">
     <div class="modal-header">
@@ -697,7 +746,7 @@ function switchPage(page) {
 // 초기화
 // ══════════════════════════════════════════
 async function init() {
-  await Promise.all([loadCategories(), loadCollections(), loadProducts(), loadHeroSlides(), loadSettings()]);
+  await Promise.all([loadCategories(), loadCollections(), loadProducts(), loadHeroSlides(), loadSettings(), loadInquiries()]);
   bindTagCheckboxes(); bindCustomTagInput(); bindImageUpload(); bindHeroMediaUpload(); bindSettingsImageUpload();
 }
 
@@ -1192,6 +1241,70 @@ function showAdmin() {
   document.getElementById('loginScreen').style.display = 'none';
   document.getElementById('adminLayout').style.display = 'flex';
   init();
+}
+
+// ══════════════════════════════════════════
+// 문의 관리
+// ══════════════════════════════════════════
+let allInquiries=[];
+let editingInquiryId=null;
+
+async function loadInquiries(){
+  const filter=document.getElementById('inquiryFilter')?.value||'all';
+  let query=sb.from('inquiries').select('*').order('created_at',{ascending:false});
+  if(filter!=='all') query=query.eq('status',filter);
+  const{data}=await query;
+  allInquiries=data||[];
+  renderInquiryList();
+}
+
+function renderInquiryList(){
+  const el=document.getElementById('inquiryAdminList');
+  if(!allInquiries.length){el.innerHTML='<div class="empty-list"><p>문의가 없습니다</p></div>';return;}
+  const catMap={general:'일반',order:'주문/결제',shipping:'배송',exchange:'교환',return:'반품/환불',product:'상품'};
+  el.innerHTML=allInquiries.map(q=>{
+    const statusColor=q.status==='answered'?'status-active':'status-inactive';
+    const statusText=q.status==='answered'?'답변완료':q.status==='closed'?'종료':'대기중';
+    return`<div class="hero-row" style="cursor:pointer;grid-template-columns:80px 1fr 100px 80px 100px;" onclick="openInquiryModal('${q.id}')">
+      <div style="font-size:10px;color:var(--accent);font-weight:500;">${catMap[q.category]||q.category}</div>
+      <div>
+        <div style="font-weight:500;font-size:13px;">${q.title}</div>
+        <div style="font-size:11px;color:var(--text-dim);margin-top:2px;">${q.content?.substring(0,50)}${q.content?.length>50?'...':''}</div>
+      </div>
+      <div style="font-size:11px;color:var(--text-dim);">${new Date(q.created_at).toLocaleDateString('ko-KR')}</div>
+      <div><span class="status-badge ${statusColor}">${statusText}</span></div>
+      <div><button class="btn btn-secondary btn-small" onclick="event.stopPropagation();openInquiryModal('${q.id}')">${q.status==='answered'?'수정':'답변'}</button></div>
+    </div>`;
+  }).join('');
+}
+
+function openInquiryModal(id){
+  const q=allInquiries.find(x=>x.id===id);
+  if(!q)return;
+  editingInquiryId=id;
+  const catMap={general:'일반',order:'주문/결제',shipping:'배송',exchange:'교환',return:'반품/환불',product:'상품'};
+  document.getElementById('iqmCategory').textContent=catMap[q.category]||q.category;
+  document.getElementById('iqmDate').textContent=new Date(q.created_at).toLocaleDateString('ko-KR');
+  document.getElementById('iqmTitle').textContent=q.title;
+  document.getElementById('iqmContent').innerHTML=q.content?.replace(/\n/g,'<br>')||'';
+  document.getElementById('iqmUser').textContent='작성자 ID: '+q.user_id;
+  document.getElementById('iqmAnswer').value=q.answer||'';
+  document.getElementById('inquiryModal').classList.add('show');
+}
+
+function closeInquiryModal(){document.getElementById('inquiryModal').classList.remove('show');}
+
+async function saveInquiryAnswer(){
+  if(!editingInquiryId)return;
+  const answer=document.getElementById('iqmAnswer').value.trim();
+  if(!answer){showToast('답변을 입력해주세요',true);return;}
+  const{error}=await sb.from('inquiries').update({
+    answer,status:'answered',answered_at:new Date().toISOString()
+  }).eq('id',editingInquiryId);
+  if(error){showToast('저장 실패: '+error.message,true);return;}
+  showToast('답변 저장 완료');
+  closeInquiryModal();
+  await loadInquiries();
 }
 
 // ─── 시작: 인증 체크 ───
