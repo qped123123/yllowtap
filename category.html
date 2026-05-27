@@ -196,7 +196,9 @@
   opacity: 0; transition: opacity 0.3s; z-index: 2;
 }
 .cat-product-card:hover .cat-wishlist-btn { opacity: 1; }
-.cat-wishlist-btn svg { width: 15px; height: 15px; stroke: var(--cat-text); fill: none; stroke-width: 1.5; }
+.cat-wishlist-btn svg { width: 15px; height: 15px; stroke: var(--cat-text); fill: none; stroke-width: 1.5; transition: all .3s; }
+.cat-wishlist-btn.active { opacity: 1; }
+.cat-wishlist-btn.active svg { stroke: #E8837C; fill: #E8837C; }
 
 .cat-card-brand {
   font-size: 10px; font-weight: 500; letter-spacing: 1.5px;
@@ -480,7 +482,7 @@ function renderProducts() {
         ${isNew ? '<span class="cat-badge cat-badge-new">NEW</span>' : ''}
         ${isSale ? '<span class="cat-badge cat-badge-sale">SALE</span>' : ''}
         ${isMade && !isNew && !isSale ? '<span class="cat-badge cat-badge-made">MADE</span>' : ''}
-        <button class="cat-wishlist-btn" onclick="event.preventDefault();event.stopPropagation();">
+        <button class="cat-wishlist-btn" id="wish-${p.id}" onclick="event.preventDefault();event.stopPropagation();toggleCatWish('${p.id}',this);">
           <svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
         </button>
       </div>
@@ -522,6 +524,46 @@ async function init() {
   updateCategoryUI();
   await loadProducts();
   bindEvents();
+  await loadMyWishlists();
+}
+
+// ══════════════════════════════════════════
+// WISHLIST
+// ══════════════════════════════════════════
+let myWishSet=new Set();
+
+async function loadMyWishlists(){
+  const{data:{session}}=await sb.auth.getSession();
+  if(!session)return;
+  const{data}=await sb.from('wishlists').select('product_id').eq('user_id',session.user.id);
+  myWishSet=new Set((data||[]).map(w=>w.product_id));
+  // 하트 색상 업데이트
+  myWishSet.forEach(pid=>{
+    const btn=document.getElementById('wish-'+pid);
+    if(btn) btn.classList.add('active');
+  });
+}
+
+async function toggleCatWish(productId,btn){
+  const{data:{session}}=await sb.auth.getSession();
+  if(!session){
+    if(confirm('로그인 후 이용할 수 있습니다.\n로그인 페이지로 이동하시겠습니까?')){
+      window.location.href='/login.html';
+    }
+    return;
+  }
+
+  if(myWishSet.has(productId)){
+    // 해제
+    await sb.from('wishlists').delete().eq('user_id',session.user.id).eq('product_id',productId);
+    myWishSet.delete(productId);
+    btn.classList.remove('active');
+  }else{
+    // 추가
+    await sb.from('wishlists').insert({user_id:session.user.id,product_id:productId});
+    myWishSet.add(productId);
+    btn.classList.add('active');
+  }
 }
 init();
 </script>
