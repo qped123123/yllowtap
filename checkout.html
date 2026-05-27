@@ -137,11 +137,16 @@
           <div><label class="co-label">연락처<span class="req">*</span></label><input class="co-input" id="coPhone" placeholder="010-0000-0000"></div>
         </div>
         <div class="co-row">
-          <div><label class="co-label">우편번호<span class="req">*</span></label><input class="co-input" id="coZip" placeholder="12345"></div>
+          <div><label class="co-label">우편번호<span class="req">*</span></label>
+            <div style="display:flex;gap:8px;">
+              <input class="co-input" id="coZip" placeholder="12345" readonly style="flex:1;cursor:pointer;" onclick="searchAddress()">
+              <button type="button" onclick="searchAddress()" style="padding:12px 20px;font-size:12px;font-weight:500;background:#111;color:#fff;border:none;cursor:pointer;font-family:inherit;white-space:nowrap;">주소 검색</button>
+            </div>
+          </div>
           <div></div>
         </div>
         <div class="co-row full">
-          <div><label class="co-label">기본 주소<span class="req">*</span></label><input class="co-input" id="coAddr1" placeholder="서울시 강남구 테헤란로 123"></div>
+          <div><label class="co-label">기본 주소<span class="req">*</span></label><input class="co-input" id="coAddr1" placeholder="주소 검색을 클릭해주세요" readonly></div>
         </div>
         <div class="co-row full">
           <div><label class="co-label">상세 주소</label><input class="co-input" id="coAddr2" placeholder="101동 202호"></div>
@@ -211,11 +216,23 @@
 </footer>
 
 <script src="./js/main.js"></script>
+<script src="https://t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <script>
 const SUPABASE_URL='https://ppihvvpplqikclftrwdb.supabase.co';
 const SUPABASE_ANON='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBwaWh2dnBwbHFpa2NsZnRyd2RiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk3MzE0NTEsImV4cCI6MjA5NTMwNzQ1MX0.shGVcFTQiuYc4u6tdU50x18YMgJdgFUljf8c7QlQU-U';
 const sb=window.supabase.createClient(SUPABASE_URL,SUPABASE_ANON);
+
+// 다음 우편번호 검색
+function searchAddress(){
+  new daum.Postcode({
+    oncomplete:function(data){
+      document.getElementById('coZip').value=data.zonecode;
+      document.getElementById('coAddr1').value=data.roadAddress||data.jibunAddress;
+      document.getElementById('coAddr2').focus();
+    }
+  }).open();
+}
 
 let currentUser=null;
 let cartItems=[];
