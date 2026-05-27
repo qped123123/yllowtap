@@ -323,8 +323,11 @@ async function saveProfile(){
 function switchMyTab(tab){
   document.querySelectorAll('.my-tab').forEach(t=>t.classList.remove('active'));
   document.querySelectorAll('.my-panel').forEach(p=>p.classList.remove('active'));
-  event.target.classList.add('active');
   document.getElementById('panel-'+tab).classList.add('active');
+  // 해당 탭 버튼 active
+  document.querySelectorAll('.my-tab').forEach(t=>{
+    if(t.getAttribute('onclick')?.includes("'"+tab+"'")) t.classList.add('active');
+  });
 }
 
 // ══════════════════════════════════════════

@@ -672,5 +672,18 @@ document.querySelectorAll('.pd-tab').forEach(tab=>{
 
 loadProduct();
 </script>
+<script>
+(async function(){
+  if(typeof sb==="undefined")return;
+  try{
+    const{data:{session}}=await sb.auth.getSession();
+    if(session){
+      document.querySelectorAll('.header__actions a, .mobile-menu a').forEach(a=>{
+        if(a.textContent.trim()==='Login'){a.textContent='My Page';a.href='/mypage.html';}
+      });
+    }
+  }catch(e){}
+})();
+</script>
 </body>
 </html>
