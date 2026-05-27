@@ -311,6 +311,7 @@ body { font-family:var(--font); background:var(--bg); color:var(--text); font-si
       <a onclick="switchPage('hero')" id="nav-hero"><span class="icon">🖼️</span> 히어로 슬라이드</a>
       <a onclick="switchPage('settings')" id="nav-settings"><span class="icon">⚙️</span> 사이트 설정</a>
       <a onclick="switchPage('inquiries')" id="nav-inquiries"><span class="icon">💬</span> 문의 관리</a>
+      <a onclick="switchPage('orders')" id="nav-orders"><span class="icon">📦</span> 주문 관리</a>
       <a onclick="switchPage('members')" id="nav-members"><span class="icon">👥</span> 회원 관리</a>
       <a href="/" target="_blank"><span class="icon">🌐</span> 사이트 보기</a>
       <a onclick="doLogout()" style="margin-top:16px;border-top:1px solid var(--border);padding-top:16px;"><span class="icon">🚪</span> 로그아웃</a>
@@ -412,7 +413,38 @@ body { font-family:var(--font); background:var(--bg); color:var(--text); font-si
     </div>
 
     <!-- ============================================ -->
-    <!-- PAGE 5: 회원 관리 -->
+    <!-- PAGE 5: 주문 관리 -->
+    <!-- ============================================ -->
+    <div class="page-section" id="page-orders">
+      <div class="top-bar">
+        <h1>주문 관리</h1>
+        <div style="display:flex;gap:8px;align-items:center;">
+          <input class="form-input" id="orderSearch" placeholder="주문번호 / 수령인 검색" style="padding:8px 12px;font-size:11px;width:200px;" onkeyup="filterOrders()">
+          <select class="form-select" id="orderStatusFilter" style="padding:8px 12px;font-size:11px;" onchange="filterOrders()">
+            <option value="all">전체 상태</option>
+            <option value="pending">주문접수</option>
+            <option value="paid">결제완료</option>
+            <option value="preparing">상품준비중</option>
+            <option value="shipped">배송중</option>
+            <option value="delivered">배송완료</option>
+            <option value="cancel_requested">취소요청</option>
+            <option value="cancelled">취소완료</option>
+            <option value="return_requested">반품요청</option>
+            <option value="refunded">환불완료</option>
+          </select>
+        </div>
+      </div>
+      <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);">
+        <div style="display:grid;grid-template-columns:130px 1fr 100px 100px 80px 100px;gap:12px;padding:10px 16px;font-size:10px;font-weight:500;letter-spacing:1px;text-transform:uppercase;color:var(--text-muted);border-bottom:1px solid var(--border);">
+          <div>주문번호</div><div>수령인 / 상품</div><div>결제금액</div><div>주문일</div><div>상태</div><div>관리</div>
+        </div>
+        <div id="orderAdminList"><div class="empty-list"><p>주문이 없습니다</p></div></div>
+      </div>
+      <div style="margin-top:12px;font-size:11px;color:var(--text-muted);" id="orderCount"></div>
+    </div>
+
+    <!-- ============================================ -->
+    <!-- PAGE 6: 회원 관리 -->
     <!-- ============================================ -->
     <div class="page-section" id="page-members">
       <div class="top-bar">
@@ -497,6 +529,11 @@ body { font-family:var(--font); background:var(--bg); color:var(--text); font-si
           <label class="form-label">마케팅 동의</label>
           <div style="font-size:12px;color:var(--text-dim);" id="mmMarketing"></div>
         </div>
+      </div>
+      <!-- 회원 주문 내역 -->
+      <div class="form-section" style="margin-top:20px;">
+        <div class="form-section-title">최근 주문 내역</div>
+        <div id="mmOrders2" style="max-height:200px;overflow-y:auto;"></div>
       </div>
     </div>
     <div class="modal-footer">
@@ -798,6 +835,95 @@ body { font-family:var(--font); background:var(--bg); color:var(--text); font-si
   </div>
 </div>
 
+<!-- ===== ORDER DETAIL MODAL ===== -->
+<div class="modal-overlay" id="orderModal">
+  <div class="modal" style="max-width:700px;">
+    <div class="modal-header">
+      <h2>주문 상세</h2>
+      <button class="modal-close" onclick="closeOrderModal()">×</button>
+    </div>
+    <div class="modal-body">
+      <!-- 주문 기본 정보 -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:20px;padding-bottom:16px;border-bottom:1px solid var(--border);">
+        <div><span style="font-size:11px;color:var(--text-muted);">주문번호</span><div style="font-size:14px;font-weight:600;" id="omNumber"></div></div>
+        <div><span style="font-size:11px;color:var(--text-muted);">주문일</span><div style="font-size:13px;" id="omDate"></div></div>
+      </div>
+
+      <!-- 배송 정보 -->
+      <div class="form-section">
+        <div class="form-section-title">배송 정보</div>
+        <div style="font-size:13px;line-height:1.8;color:var(--text-dim);" id="omShippingInfo"></div>
+      </div>
+
+      <!-- 주문 상품 -->
+      <div class="form-section">
+        <div class="form-section-title">주문 상품</div>
+        <div id="omItems"></div>
+      </div>
+
+      <!-- 금액 -->
+      <div class="form-section">
+        <div class="form-section-title">결제 정보</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:12px;font-size:13px;">
+          <div><span style="color:var(--text-muted);font-size:11px;">상품금액</span><div id="omSubtotal"></div></div>
+          <div><span style="color:var(--text-muted);font-size:11px;">할인</span><div id="omDiscount" style="color:var(--red);"></div></div>
+          <div><span style="color:var(--text-muted);font-size:11px;">배송비</span><div id="omShipFee"></div></div>
+          <div><span style="color:var(--text-muted);font-size:11px;">총 결제</span><div style="font-weight:700;font-size:16px;" id="omTotal"></div></div>
+        </div>
+      </div>
+
+      <!-- 상태 변경 -->
+      <div class="form-section">
+        <div class="form-section-title">상태 변경</div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">주문 상태</label>
+            <select class="form-select" id="omStatus">
+              <option value="pending">주문접수</option>
+              <option value="paid">결제완료</option>
+              <option value="preparing">상품준비중</option>
+              <option value="shipped">배송중</option>
+              <option value="delivered">배송완료</option>
+              <option value="cancel_requested">취소요청</option>
+              <option value="cancelled">취소완료</option>
+              <option value="return_requested">반품요청</option>
+              <option value="returned">반품완료</option>
+              <option value="refunded">환불완료</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">택배사</label>
+            <select class="form-select" id="omTrackingCo">
+              <option value="">선택</option>
+              <option value="CJ대한통운">CJ대한통운</option>
+              <option value="한진택배">한진택배</option>
+              <option value="롯데택배">롯데택배</option>
+              <option value="우체국택배">우체국택배</option>
+              <option value="로젠택배">로젠택배</option>
+              <option value="GS편의점택배">GS편의점택배</option>
+              <option value="CU편의점택배">CU편의점택배</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">운송장 번호</label>
+            <input class="form-input" id="omTrackingNum" placeholder="운송장 번호 입력">
+          </div>
+          <div class="form-group">
+            <label class="form-label">관리자 메모</label>
+            <input class="form-input" id="omMemo" placeholder="내부 메모 (고객에게 안 보임)">
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeOrderModal()">닫기</button>
+      <button class="btn btn-primary" onclick="saveOrder()">저장</button>
+    </div>
+  </div>
+</div>
+
 <!-- TOAST -->
 <div class="toast" id="toast"></div>
 
@@ -837,7 +963,7 @@ function switchPage(page) {
 // 초기화
 // ══════════════════════════════════════════
 async function init() {
-  await Promise.all([loadCategories(), loadCollections(), loadProducts(), loadHeroSlides(), loadSettings(), loadInquiries(), loadMembers()]);
+  await Promise.all([loadCategories(), loadCollections(), loadProducts(), loadHeroSlides(), loadSettings(), loadInquiries(), loadMembers(), loadOrders()]);
   bindTagCheckboxes(); bindCustomTagInput(); bindImageUpload(); bindHeroMediaUpload(); bindSettingsImageUpload();
 }
 
@@ -1335,6 +1461,110 @@ function showAdmin() {
 }
 
 // ══════════════════════════════════════════
+// 주문 관리
+// ══════════════════════════════════════════
+let allOrders=[];
+let editingOrderId=null;
+const STATUS_MAP={pending:'주문접수',paid:'결제완료',preparing:'상품준비중',shipped:'배송중',delivered:'배송완료',cancel_requested:'취소요청',cancelled:'취소완료',exchange_requested:'교환요청',return_requested:'반품요청',returned:'반품완료',refunded:'환불완료'};
+const STATUS_COLOR={pending:'#856404',paid:'#155724',preparing:'#004085',shipped:'#004085',delivered:'#155724',cancel_requested:'#721C24',cancelled:'#721C24',refunded:'#721C24'};
+
+async function loadOrders(){
+  const{data}=await sb.from('orders').select('*,order_items(*)').order('created_at',{ascending:false});
+  allOrders=data||[];
+  renderOrderList(allOrders);
+}
+
+function filterOrders(){
+  const search=(document.getElementById('orderSearch')?.value||'').toLowerCase();
+  const status=document.getElementById('orderStatusFilter')?.value||'all';
+  let filtered=allOrders;
+  if(search) filtered=filtered.filter(o=>(o.order_number||'').toLowerCase().includes(search)||(o.recipient_name||'').toLowerCase().includes(search));
+  if(status!=='all') filtered=filtered.filter(o=>o.status===status);
+  renderOrderList(filtered);
+}
+
+function renderOrderList(orders){
+  const el=document.getElementById('orderAdminList');
+  document.getElementById('orderCount').textContent=`총 ${orders.length}건`;
+  if(!orders.length){el.innerHTML='<div class="empty-list"><p>주문이 없습니다</p></div>';return;}
+
+  el.innerHTML=orders.map(o=>{
+    const itemCount=o.order_items?.length||0;
+    const firstName=o.order_items?.[0]?.product_name_snapshot||'';
+    const itemText=itemCount>1?`${firstName} 외 ${itemCount-1}건`:firstName;
+    const statusText=STATUS_MAP[o.status]||o.status;
+    const statusCol=STATUS_COLOR[o.status]||'#888';
+    return`<div style="display:grid;grid-template-columns:130px 1fr 100px 100px 80px 100px;gap:12px;padding:12px 16px;align-items:center;border-bottom:1px solid rgba(255,255,255,0.04);cursor:pointer;transition:background 0.15s;" onmouseover="this.style.background='var(--bg-hover)'" onmouseout="this.style.background=''" onclick="openOrderModal('${o.id}')">
+      <div style="font-size:12px;font-weight:500;color:var(--accent);">${o.order_number}</div>
+      <div>
+        <div style="font-size:13px;font-weight:500;">${o.recipient_name||'이름없음'}</div>
+        <div style="font-size:11px;color:var(--text-dim);margin-top:2px;">${itemText}</div>
+      </div>
+      <div style="font-size:13px;font-weight:600;">${o.total_amount?.toLocaleString()}원</div>
+      <div style="font-size:11px;color:var(--text-dim);">${new Date(o.created_at).toLocaleDateString('ko-KR')}</div>
+      <div><span style="font-size:10px;font-weight:600;color:${statusCol};">${statusText}</span></div>
+      <div><button class="btn btn-secondary btn-small" onclick="event.stopPropagation();openOrderModal('${o.id}')">상세</button></div>
+    </div>`;
+  }).join('');
+}
+
+function openOrderModal(id){
+  const o=allOrders.find(x=>x.id===id);
+  if(!o)return;
+  editingOrderId=id;
+  document.getElementById('omNumber').textContent=o.order_number;
+  document.getElementById('omDate').textContent=new Date(o.created_at).toLocaleString('ko-KR');
+  document.getElementById('omShippingInfo').innerHTML=`<strong>${o.recipient_name}</strong><br>${o.phone}<br>${o.zipcode} ${o.address1} ${o.address2||''}<br>${o.delivery_memo?'메모: '+o.delivery_memo:''}`;
+  document.getElementById('omSubtotal').textContent=(o.subtotal||0).toLocaleString()+'원';
+  document.getElementById('omDiscount').textContent=o.discount_amount?'-'+o.discount_amount.toLocaleString()+'원':'0원';
+  document.getElementById('omShipFee').textContent=o.shipping_fee?o.shipping_fee.toLocaleString()+'원':'무료';
+  document.getElementById('omTotal').textContent=(o.total_amount||0).toLocaleString()+'원';
+  document.getElementById('omStatus').value=o.status||'pending';
+  document.getElementById('omTrackingCo').value=o.tracking_company||'';
+  document.getElementById('omTrackingNum').value=o.tracking_number||'';
+  document.getElementById('omMemo').value=o.admin_memo||'';
+
+  // 주문 상품
+  const items=o.order_items||[];
+  document.getElementById('omItems').innerHTML=items.map(i=>`
+    <div style="display:flex;gap:12px;padding:8px 0;border-bottom:1px solid rgba(255,255,255,0.05);align-items:center;">
+      ${i.product_image_snapshot?`<img src="${i.product_image_snapshot}" style="width:48px;height:60px;object-fit:cover;border-radius:4px;">`:'<div style="width:48px;height:60px;background:var(--bg-input);border-radius:4px;"></div>'}
+      <div style="flex:1;">
+        <div style="font-size:13px;font-weight:500;">${i.product_name_snapshot}</div>
+        <div style="font-size:11px;color:var(--text-dim);">${i.option_snapshot?Object.entries(i.option_snapshot).map(([k,v])=>k+': '+v).join(' / '):''} · ${i.quantity}개</div>
+      </div>
+      <div style="font-size:13px;font-weight:600;">${i.item_total?.toLocaleString()}원</div>
+    </div>
+  `).join('');
+
+  document.getElementById('orderModal').classList.add('show');
+}
+
+function closeOrderModal(){document.getElementById('orderModal').classList.remove('show');}
+
+async function saveOrder(){
+  if(!editingOrderId)return;
+  const status=document.getElementById('omStatus').value;
+  const update={
+    status,
+    tracking_company:document.getElementById('omTrackingCo').value||null,
+    tracking_number:document.getElementById('omTrackingNum').value.trim()||null,
+    admin_memo:document.getElementById('omMemo').value.trim()||null,
+    updated_at:new Date().toISOString()
+  };
+  if(status==='shipped'&&!update.shipped_at) update.shipped_at=new Date().toISOString();
+  if(status==='delivered'&&!update.delivered_at) update.delivered_at=new Date().toISOString();
+  if(status==='cancelled') update.cancelled_at=new Date().toISOString();
+  if(status==='paid') update.paid_at=new Date().toISOString();
+
+  const{error}=await sb.from('orders').update(update).eq('id',editingOrderId);
+  if(error){showToast('저장 실패: '+error.message,true);return;}
+  showToast('주문 상태 저장 완료');
+  closeOrderModal();
+  await loadOrders();
+}
+
+// ══════════════════════════════════════════
 // 회원 관리
 // ══════════════════════════════════════════
 let allMembers=[];
@@ -1390,7 +1620,27 @@ function openMemberModal(id){
   document.getElementById('mmOrders').value=(m.order_count||0)+'건';
   document.getElementById('mmSpent').value=(m.total_spent||0).toLocaleString()+'원';
   document.getElementById('mmMarketing').textContent=m.agreed_marketing?'동의':'미동의';
+  // 주문내역 로드
+  loadMemberOrders(id);
   document.getElementById('memberModal').classList.add('show');
+}
+
+async function loadMemberOrders(userId){
+  const{data}=await sb.from('orders').select('order_number,status,total_amount,recipient_name,phone,created_at').eq('user_id',userId).order('created_at',{ascending:false}).limit(10);
+  const el=document.getElementById('mmOrders2');
+  if(!data?.length){el.innerHTML='<div style="font-size:12px;color:var(--text-muted);padding:12px 0;">주문 내역이 없습니다</div>';return;}
+  el.innerHTML=data.map(o=>`
+    <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid rgba(255,255,255,0.05);font-size:12px;">
+      <div>
+        <div style="color:var(--accent);font-weight:500;">${o.order_number}</div>
+        <div style="color:var(--text-dim);font-size:11px;">${o.recipient_name} · ${o.phone||''}</div>
+      </div>
+      <div style="text-align:right;">
+        <div style="font-weight:600;">${o.total_amount?.toLocaleString()}원</div>
+        <div style="color:var(--text-dim);font-size:10px;">${STATUS_MAP[o.status]||o.status} · ${new Date(o.created_at).toLocaleDateString('ko-KR')}</div>
+      </div>
+    </div>
+  `).join('');
 }
 
 function closeMemberModal(){document.getElementById('memberModal').classList.remove('show');}
