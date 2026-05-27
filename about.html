@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Yllowtap — About</title>
+<link rel="stylesheet" href="./css/style.css">
+<style>
+/* ── ABOUT PAGE ── */
+.about-page { min-height:100vh; }
+
+/* Hero Banner */
+.about-hero {
+  position:relative; height:60vh; overflow:hidden;
+  margin-top:var(--header-height,88px);
+}
+.about-hero__img {
+  width:100%; height:100%; object-fit:cover;
+  filter:brightness(0.7);
+}
+.about-hero__overlay {
+  position:absolute; inset:0;
+  display:flex; flex-direction:column; align-items:center; justify-content:center;
+  text-align:center; padding:0 20px;
+}
+.about-hero__title {
+  font-family:'Bodoni Moda',serif; font-size:48px; font-weight:400;
+  color:#fff; letter-spacing:0.04em; margin-bottom:16px;
+}
+.about-hero__sub {
+  font-size:14px; font-weight:400; color:rgba(255,255,255,0.8);
+  letter-spacing:0.15em; text-transform:uppercase;
+}
+
+/* Content Sections */
+.about-section {
+  max-width:900px; margin:0 auto;
+  padding:80px 40px;
+}
+.about-section--wide {
+  max-width:100%; padding:80px var(--side-padding,80px);
+}
+
+.about-intro {
+  text-align:center; max-width:700px; margin:0 auto;
+}
+.about-intro__label {
+  font-size:11px; font-weight:500; letter-spacing:0.25em;
+  text-transform:uppercase; color:#888; margin-bottom:20px;
+}
+.about-intro__title {
+  font-family:'Bodoni Moda',serif; font-size:32px; font-weight:400;
+  color:#111; line-height:1.3; margin-bottom:28px; letter-spacing:-0.01em;
+}
+.about-intro__text {
+  font-size:15px; color:#555; line-height:2; font-weight:400;
+}
+
+/* Divider */
+.about-divider {
+  width:60px; height:1px; background:#D8D3CB; margin:0 auto;
+}
+
+/* Two Column */
+.about-two-col {
+  display:grid; grid-template-columns:1fr 1fr; gap:60px;
+  align-items:center; max-width:1100px; margin:0 auto;
+  padding:80px 40px;
+}
+.about-two-col--reverse { direction:rtl; }
+.about-two-col--reverse > * { direction:ltr; }
+.about-two-col__img {
+  width:100%; aspect-ratio:4/5; object-fit:cover;
+}
+.about-two-col__content {}
+.about-two-col__label {
+  font-size:10px; font-weight:500; letter-spacing:0.25em;
+  text-transform:uppercase; color:#888; margin-bottom:16px;
+}
+.about-two-col__title {
+  font-family:'Bodoni Moda',serif; font-size:28px; font-weight:400;
+  color:#111; margin-bottom:20px; line-height:1.3;
+}
+.about-two-col__text {
+  font-size:14px; color:#555; line-height:1.9; font-weight:400;
+}
+
+/* Values Grid */
+.about-values {
+  display:grid; grid-template-columns:repeat(3,1fr); gap:40px;
+  max-width:1000px; margin:0 auto;
+}
+.about-value {
+  text-align:center; padding:40px 24px;
+}
+.about-value__icon {
+  font-size:28px; margin-bottom:20px; color:#888;
+}
+.about-value__title {
+  font-family:'Bodoni Moda',serif; font-size:20px; font-weight:400;
+  color:#111; margin-bottom:12px;
+}
+.about-value__text {
+  font-size:13px; color:#666; line-height:1.8;
+}
+
+/* Full Width Image */
+.about-full-img {
+  width:100%; height:45vh; object-fit:cover;
+}
+
+/* Quote */
+.about-quote {
+  text-align:center; max-width:700px; margin:0 auto;
+  padding:80px 40px;
+}
+.about-quote__text {
+  font-family:'Bodoni Moda',serif; font-size:26px; font-weight:400;
+  color:#111; line-height:1.5; font-style:italic; margin-bottom:20px;
+}
+.about-quote__author {
+  font-size:12px; font-weight:500; letter-spacing:0.15em;
+  text-transform:uppercase; color:#888;
+}
+
+/* CTA */
+.about-cta {
+  text-align:center; padding:60px 40px 80px;
+}
+.about-cta__title {
+  font-family:'Bodoni Moda',serif; font-size:28px; font-weight:400;
+  color:#111; margin-bottom:24px;
+}
+.about-cta__btn {
+  display:inline-block; padding:14px 36px;
+  font-size:12px; font-weight:500; letter-spacing:0.18em; text-transform:uppercase;
+  color:#111; border:1px solid #111; text-decoration:none; transition:all .2s;
+}
+.about-cta__btn:hover { background:#111; color:#fff; opacity:1; }
+
+/* ── Responsive ── */
+@media(max-width:768px) {
+  .about-hero { height:45vh; }
+  .about-hero__title { font-size:32px; }
+  .about-hero__sub { font-size:11px; }
+  .about-section { padding:48px 16px; }
+  .about-intro__title { font-size:24px; }
+  .about-intro__text { font-size:14px; }
+  .about-two-col { grid-template-columns:1fr; gap:32px; padding:48px 16px; }
+  .about-two-col--reverse { direction:ltr; }
+  .about-two-col__img { aspect-ratio:3/2; }
+  .about-two-col__title { font-size:22px; }
+  .about-values { grid-template-columns:1fr; gap:24px; }
+  .about-value { padding:24px 16px; }
+  .about-full-img { height:30vh; }
+  .about-quote { padding:48px 16px; }
+  .about-quote__text { font-size:20px; }
+  .about-cta { padding:40px 16px 60px; }
+  .about-cta__title { font-size:22px; }
+}
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header class="header">
+  <div class="header__logo"><a href="/" style="text-decoration:none;color:inherit;"><span class="header__logo-highlight">Yllowtap</span></a></div>
+  <nav class="header__nav">
+    <a href="/category.html?cat=best">Best</a><a href="/category.html?cat=new">New In</a>
+    <a href="/category.html?cat=bags">Bags</a><a href="/category.html?cat=jewelry">Jewelry</a>
+    <a href="/category.html?cat=accessories">Accessories</a><a href="/category.html?cat=keyring">Keyring</a>
+    <a href="/category.html?cat=seasonal">Seasonal</a><a href="/category.html?cat=sale">Sale</a>
+  </nav>
+  <div class="header__actions"><a href="/login.html">Login</a><a href="/mypage.html?tab=wishlist">Wishlist</a><a href="/cart.html">Bag (0)</a>
+    <button class="header__hamburger" aria-label="메뉴 열기"><span></span><span></span><span></span></button></div>
+</header>
+<div class="mobile-menu">
+  <button class="mobile-menu__close" aria-label="메뉴 닫기">✕</button>
+  <a href="/category.html?cat=best">Best</a><a href="/category.html?cat=new">New In</a>
+  <a href="/category.html?cat=bags">Bags</a><a href="/category.html?cat=jewelry">Jewelry</a>
+  <a href="/category.html?cat=accessories">Accessories</a><a href="/category.html?cat=keyring">Keyring</a>
+  <a href="/category.html?cat=seasonal">Seasonal</a><a href="/category.html?cat=sale">Sale</a>
+  <a href="/login.html">Login</a><a href="/mypage.html?tab=wishlist">Wishlist</a>
+</div>
+
+<!-- ABOUT PAGE -->
+<div class="about-page">
+
+  <!-- Hero -->
+  <div class="about-hero">
+    <img class="about-hero__img" src="https://images.unsplash.com/photo-1558618666-fcd25c85f82e?w=1920&q=80" alt="Yllowtap Brand">
+    <div class="about-hero__overlay">
+      <h1 class="about-hero__title">Our Story</h1>
+      <p class="about-hero__sub">Curated Luxury for the Modern Woman</p>
+    </div>
+  </div>
+
+  <!-- Intro -->
+  <div class="about-section about-intro">
+    <div class="about-intro__label">About Yllowtap</div>
+    <h2 class="about-intro__title">조용한 럭셔리,<br>감각적인 큐레이션</h2>
+    <p class="about-intro__text">
+      Yllowtap은 "Quiet Luxury"를 추구하는 큐레이티드 패션 플랫폼입니다.<br><br>
+      과시적인 로고와 유행을 좇기보다, 소재의 질감과 실루엣의 완성도에 집중합니다.
+      매 시즌 수백 개의 아이템 중에서 진짜 가치 있는 것만을 엄선하여, 
+      당신의 일상에 자연스러운 아름다움을 더합니다.<br><br>
+      우리는 패션이 자기 표현의 수단이자 삶의 태도라고 믿습니다.
+    </p>
+  </div>
+
+  <div class="about-divider"></div>
+
+  <!-- Philosophy 1 -->
+  <div class="about-two-col">
+    <img class="about-two-col__img" src="https://images.unsplash.com/photo-1490481651871-ab68de25d43d?w=800&q=80" alt="Curation">
+    <div class="about-two-col__content">
+      <div class="about-two-col__label">Our Philosophy</div>
+      <h3 class="about-two-col__title">엄격한 큐레이션,<br>타협 없는 품질</h3>
+      <p class="about-two-col__text">
+        모든 아이템은 소재, 봉제, 핏, 디자인 완성도 네 가지 기준을 통과해야만 Yllowtap에 입점됩니다. 
+        트렌드에 휩쓸리지 않고 오랫동안 사랑받을 수 있는 클래식한 아름다움을 추구합니다.<br><br>
+        직접 착용하고, 세탁하고, 다양한 스타일링으로 검증한 후에야 고객에게 소개합니다.
+        이 과정이 느릴 수 있지만, 그만큼 확신을 가지고 추천드릴 수 있습니다.
+      </p>
+    </div>
+  </div>
+
+  <!-- Full Image -->
+  <img class="about-full-img" src="https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=1920&q=80" alt="Yllowtap Space">
+
+  <!-- Philosophy 2 -->
+  <div class="about-two-col about-two-col--reverse">
+    <img class="about-two-col__img" src="https://images.unsplash.com/photo-1469334031218-e382a71b716b?w=800&q=80" alt="Styling">
+    <div class="about-two-col__content">
+      <div class="about-two-col__label">Our Approach</div>
+      <h3 class="about-two-col__title">스타일은 발견하는 것,<br>강요하는 것이 아닙니다</h3>
+      <p class="about-two-col__text">
+        Yllowtap은 특정 스타일을 강요하지 않습니다. 
+        대신, 다양한 무드와 상황에 맞는 선택지를 제안하여 고객이 자신만의 스타일을 발견할 수 있도록 돕습니다.<br><br>
+        에디토리얼 룩북, 스타일 가이드, 코디 제안을 통해 
+        옷장 속 아이템들이 서로 어우러지는 방법을 함께 고민합니다.
+      </p>
+    </div>
+  </div>
+
+  <div class="about-divider"></div>
+
+  <!-- Values -->
+  <div class="about-section">
+    <div class="about-intro" style="margin-bottom:48px;">
+      <div class="about-intro__label">Our Values</div>
+      <h2 class="about-intro__title">우리가 중요하게 여기는 것</h2>
+    </div>
+    <div class="about-values">
+      <div class="about-value">
+        <div class="about-value__icon">✦</div>
+        <h4 class="about-value__title">Quality First</h4>
+        <p class="about-value__text">
+          가격표가 아닌 품질이 가치를 말합니다.<br>
+          좋은 소재, 정교한 마감, 편안한 착용감.<br>
+          이 세 가지가 모든 선택의 기준입니다.
+        </p>
+      </div>
+      <div class="about-value">
+        <div class="about-value__icon">◇</div>
+        <h4 class="about-value__title">Timeless Design</h4>
+        <p class="about-value__text">
+          유행은 지나가지만 스타일은 남습니다.<br>
+          5년 후에도 꺼내 입고 싶은 옷,<br>
+          그것이 Yllowtap의 기준입니다.
+        </p>
+      </div>
+      <div class="about-value">
+        <div class="about-value__icon">○</div>
+        <h4 class="about-value__title">Mindful Choice</h4>
+        <p class="about-value__text">
+          더 적게, 더 좋은 것을 선택합니다.<br>
+          신중한 소비가 결국 가장 현명한<br>
+          패션이라고 믿습니다.
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Quote -->
+  <div style="background:#EFECE6;">
+    <div class="about-quote">
+      <p class="about-quote__text">"Fashion is not something that exists in dresses only. Fashion is in the sky, in the street. Fashion has to do with ideas, the way we live, what is happening."</p>
+      <p class="about-quote__author">— Coco Chanel</p>
+    </div>
+  </div>
+
+  <!-- CTA -->
+  <div class="about-cta">
+    <h3 class="about-cta__title">Begin Your Journey</h3>
+    <a href="/category.html?cat=new" class="about-cta__btn">Shop New Arrivals</a>
+  </div>
+
+</div>
+
+<!-- FOOTER -->
+<footer class="footer">
+  <div class="footer__grid">
+    <div><div class="footer__brand">Yllowtap</div><p class="footer__brand-desc">Curated luxury fashion for the modern woman.</p></div>
+    <div class="footer__col"><div class="footer__col-title">Shop</div><a href="/category.html?cat=best">Best</a><a href="/category.html?cat=new">New In</a><a href="/category.html?cat=bags">Bags</a><a href="/category.html?cat=jewelry">Jewelry</a></div>
+    <div class="footer__col"><div class="footer__col-title">Customer Care</div><a href="/mypage.html?tab=inquiry">1:1 문의하기</a><a href="/faq.html">FAQ 자주 묻는 질문</a><a href="/faq.html?cat=shipping">배송 안내</a><a href="/faq.html?cat=return">교환 · 반품</a></div>
+    <div class="footer__col"><div class="footer__col-title">About</div><a href="/about.html">브랜드 소개</a><a href="/terms.html">이용약관</a><a href="/privacy.html">개인정보처리방침</a></div>
+  </div>
+  <div style="max-width:1400px;margin:0 auto;padding:0 0 24px;font-size:12px;color:#888;line-height:1.8;">
+    고객센터 1544-0000<br>운영시간 : 평일 09:00 - 18:00 (점심시간 12:00 - 13:00 제외)<br>이메일 : cs@yllowtap.com
+  </div>
+  <div class="footer__bottom"><div class="footer__copy">© 2026 Yllowtap. All rights reserved.</div><div class="footer__social"><a href="https://www.instagram.com/" target="_blank">Instagram</a><a href="https://www.youtube.com/" target="_blank">YouTube</a><a href="https://pinterest.com" target="_blank">Pinterest</a></div></div>
+</footer>
+
+<script src="./js/main.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<script>
+const SUPABASE_URL='https://ppihvvpplqikclftrwdb.supabase.co';
+const SUPABASE_ANON='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBwaWh2dnBwbHFpa2NsZnRyd2RiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk3MzE0NTEsImV4cCI6MjA5NTMwNzQ1MX0.shGVcFTQiuYc4u6tdU50x18YMgJdgFUljf8c7QlQU-U';
+const sb=window.supabase.createClient(SUPABASE_URL,SUPABASE_ANON);
+</script>
+<script src="./js/common-header.js"></script>
+</body>
+</html>
