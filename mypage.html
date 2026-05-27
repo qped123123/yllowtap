@@ -348,16 +348,17 @@ async function loadOrders(){
   el.innerHTML=data.map(o=>{
     const statusMap={pending:'주문접수',paid:'결제완료',preparing:'상품준비중',shipped:'배송중',delivered:'배송완료',cancel_requested:'취소요청',cancelled:'취소완료',exchange_requested:'교환요청',return_requested:'반품요청',refunded:'환불완료'};
     const statusClass={pending:'pending',paid:'paid',preparing:'preparing',shipped:'shipped',delivered:'delivered',cancelled:'cancelled',cancel_requested:'cancelled',refunded:'refunded'};
-    const items=(o.order_items||[]).map(i=>`
-      <div class="order-item">
+    const items=(o.order_items||[]).map(i=>{
+      const link=i.product_id?`/product.html?slug=${i.product_id}`:'#';
+      return`<div class="order-item" style="cursor:pointer;" onclick="window.location.href='${link}'">
         ${i.product_image_snapshot?`<img class="order-item-img" src="${i.product_image_snapshot}">`:'<div class="order-item-img"></div>'}
         <div>
           <div class="order-item-name">${i.product_name_snapshot}</div>
           <div class="order-item-option">${i.option_snapshot?Object.entries(i.option_snapshot).map(([k,v])=>k+': '+v).join(' / '):''} · ${i.quantity}개</div>
         </div>
         <div class="order-item-price">${i.item_total?.toLocaleString()}원</div>
-      </div>
-    `).join('');
+      </div>`;
+    }).join('');
     return`<div class="order-card">
       <div class="order-card-top">
         <div><span class="order-number">${o.order_number}</span> <span class="order-date">${new Date(o.created_at).toLocaleDateString('ko-KR')}</span></div>

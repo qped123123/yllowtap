@@ -265,7 +265,7 @@
     </div>
     <div class="pd-total"><span class="pd-total-label">TOTAL PRICE</span><span class="pd-total-price" id="totalP">0원</span></div>
     <div class="pd-btn-group">
-      <button class="pd-btn-buy">BUY IT NOW</button>
+      <button class="pd-btn-buy" onclick="buyNow()">BUY IT NOW</button>
       <button class="pd-btn-cart" onclick="addToCart()">CART</button>
       <button class="pd-btn-wish" onclick="toggleWishlist()"><svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg></button>
     </div>
@@ -668,6 +668,38 @@ document.querySelectorAll('.pd-tab').forEach(tab=>{
     tab.classList.add('active');document.getElementById('panel-'+tab.dataset.tab).classList.add('active');
   });
 });
+
+// ══════════════════════════════════════════
+// BUY IT NOW — 장바구니에 담고 바로 주문서로
+// ══════════════════════════════════════════
+async function buyNow(){
+  if(!product)return;
+  const opts={};
+  document.querySelectorAll('.pd-opt-select').forEach(sel=>{
+    if(sel.value) opts[sel.dataset.opt]=sel.value;
+  });
+  const requiredOpts=product.options||[];
+  for(const o of requiredOpts){
+    if(!opts[o.name]){alert(`${o.name}을(를) 선택해주세요.`);return;}
+  }
+
+  const{data:{session}}=await sb.auth.getSession();
+  if(!session){alert('로그인이 필요합니다.');window.location.href='/login.html';return;}
+
+  let cartId;
+  const{data}=await sb.from('carts').select('id').eq('user_id',session.user.id).single();
+  if(data){cartId=data.id;}
+  else{const{data:nc}=await sb.from('carts').insert({user_id:session.user.id}).select().single();cartId=nc.id;}
+
+  const{data:existing}=await sb.from('cart_items').select('*').eq('cart_id',cartId).eq('product_id',product.id);
+  const match=existing?.find(e=>JSON.stringify(e.selected_options)===JSON.stringify(opts));
+  if(match){
+    await sb.from('cart_items').update({quantity:match.quantity+qty}).eq('id',match.id);
+  }else{
+    await sb.from('cart_items').insert({cart_id:cartId,product_id:product.id,quantity:qty,selected_options:opts});
+  }
+  window.location.href='/checkout.html';
+}
 
 // ══════════════════════════════════════════
 // ADD TO CART
