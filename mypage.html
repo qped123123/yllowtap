@@ -1,0 +1,532 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Yllowtap — My Page</title>
+<link rel="stylesheet" href="./css/style.css">
+<style>
+.my-page{max-width:1200px;margin:0 auto;padding:calc(var(--header-height,88px) + 40px) 40px 80px;min-height:100vh}
+.my-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:40px}
+.my-header h1{font-family:'Bodoni Moda',serif;font-size:32px;font-weight:400;letter-spacing:2px}
+.my-logout{font-size:12px;color:#888;cursor:pointer;background:none;border:none;text-decoration:underline;font-family:inherit}
+.my-logout:hover{color:#111}
+
+/* USER CARD */
+.my-user-card{display:flex;align-items:center;gap:24px;padding:32px;background:#fff;border:1px solid #E5E1DC;margin-bottom:40px}
+.my-avatar{width:64px;height:64px;border-radius:50%;background:#EAE7E2;display:flex;align-items:center;justify-content:center;font-size:24px;color:#888;overflow:hidden}
+.my-avatar img{width:100%;height:100%;object-fit:cover}
+.my-user-name{font-size:18px;font-weight:600;margin-bottom:4px}
+.my-user-email{font-size:13px;color:#888}
+.my-user-grade{display:inline-block;margin-top:6px;padding:3px 10px;font-size:10px;font-weight:600;letter-spacing:1px;text-transform:uppercase;background:#F4D84E;color:#111;border-radius:2px}
+.my-user-stats{margin-left:auto;display:flex;gap:32px;text-align:center}
+.my-stat-num{font-size:22px;font-weight:700;color:#111}
+.my-stat-label{font-size:11px;color:#888;letter-spacing:0.5px;margin-top:2px}
+
+/* TABS */
+.my-tabs{display:flex;border-bottom:1px solid #E5E1DC;margin-bottom:32px;gap:0}
+.my-tab{padding:14px 24px;font-size:12px;font-weight:500;letter-spacing:1.5px;text-transform:uppercase;color:#888;cursor:pointer;border-bottom:2px solid transparent;background:none;border-top:none;border-left:none;border-right:none;font-family:inherit;transition:all .3s;white-space:nowrap}
+.my-tab:hover{color:#111}
+.my-tab.active{color:#111;border-bottom-color:#111}
+.my-panel{display:none}
+.my-panel.active{display:block}
+
+/* ORDER LIST */
+.order-card{background:#fff;border:1px solid #E5E1DC;padding:20px 24px;margin-bottom:16px}
+.order-card-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;padding-bottom:12px;border-bottom:1px solid #F0EDE8}
+.order-number{font-size:13px;font-weight:600;color:#111}
+.order-date{font-size:11px;color:#888}
+.order-status{font-size:11px;font-weight:600;letter-spacing:1px;text-transform:uppercase;padding:4px 10px;border-radius:2px}
+.status-pending{background:#FFF3CD;color:#856404}
+.status-paid{background:#D4EDDA;color:#155724}
+.status-preparing{background:#CCE5FF;color:#004085}
+.status-shipped{background:#CCE5FF;color:#004085}
+.status-delivered{background:#D4EDDA;color:#155724}
+.status-cancelled{background:#F8D7DA;color:#721C24}
+.status-refunded{background:#F8D7DA;color:#721C24}
+.order-item{display:flex;gap:14px;align-items:center;padding:8px 0}
+.order-item-img{width:56px;height:70px;object-fit:cover;background:#EAE7E2;flex-shrink:0}
+.order-item-name{font-size:13px;font-weight:500;margin-bottom:2px}
+.order-item-option{font-size:11px;color:#888}
+.order-item-price{margin-left:auto;font-size:13px;font-weight:600;white-space:nowrap}
+.order-total{text-align:right;margin-top:12px;padding-top:12px;border-top:1px solid #F0EDE8;font-size:14px;font-weight:700}
+
+/* WISHLIST */
+.wish-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
+.wish-card{position:relative;cursor:pointer;text-decoration:none;color:inherit}
+.wish-card-img{aspect-ratio:3/4;overflow:hidden;background:#EAE7E2;margin-bottom:10px}
+.wish-card-img img{width:100%;height:100%;object-fit:cover;transition:transform .6s}
+.wish-card:hover .wish-card-img img{transform:scale(1.04)}
+.wish-card-brand{font-size:10px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:#888;margin-bottom:2px}
+.wish-card-name{font-size:13px;font-weight:500;margin-bottom:4px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.wish-card-price{font-size:13px;font-weight:700}
+.wish-remove{position:absolute;top:8px;right:8px;width:28px;height:28px;background:rgba(255,255,255,.85);border:none;border-radius:50%;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:14px;color:#C4453C;transition:all .2s}
+.wish-remove:hover{background:#C4453C;color:#fff}
+
+/* ADDRESS */
+.addr-card{background:#fff;border:1px solid #E5E1DC;padding:20px 24px;margin-bottom:12px;display:flex;justify-content:space-between;align-items:center}
+.addr-default{display:inline-block;padding:2px 8px;font-size:9px;font-weight:600;letter-spacing:1px;background:#F4D84E;color:#111;border-radius:2px;margin-left:8px}
+.addr-name{font-size:14px;font-weight:600;margin-bottom:4px}
+.addr-detail{font-size:12px;color:#666;line-height:1.6}
+.addr-actions{display:flex;gap:8px}
+.addr-btn{padding:6px 14px;font-size:11px;border:1px solid #E5E1DC;background:none;cursor:pointer;font-family:inherit;transition:all .2s}
+.addr-btn:hover{background:#111;color:#fff;border-color:#111}
+
+/* RECENT VIEWS */
+.recent-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:14px}
+.recent-card{text-decoration:none;color:inherit}
+.recent-card-img{aspect-ratio:3/4;overflow:hidden;background:#EAE7E2;margin-bottom:8px}
+.recent-card-img img{width:100%;height:100%;object-fit:cover}
+.recent-card-name{font-size:11px;color:#444;display:-webkit-box;-webkit-line-clamp:1;-webkit-box-orient:vertical;overflow:hidden}
+.recent-card-price{font-size:12px;font-weight:600;margin-top:2px}
+
+/* PROFILE FORM */
+.profile-form{max-width:480px}
+.pf-row{margin-bottom:18px}
+.pf-label{display:block;font-size:11px;font-weight:500;letter-spacing:1px;color:#666;margin-bottom:6px;text-transform:uppercase}
+.pf-input{width:100%;padding:12px 14px;font-size:14px;font-family:inherit;border:1px solid #E5E1DC;background:#F7F5F2;color:#111}
+.pf-input:focus{outline:none;border-color:#111}
+.pf-input:disabled{background:#EFECE6;color:#888}
+.pf-save{padding:14px 40px;font-size:12px;font-weight:600;letter-spacing:2px;text-transform:uppercase;background:#111;color:#fff;border:none;cursor:pointer;font-family:inherit;margin-top:8px}
+.pf-save:hover{background:#333}
+.pf-msg{font-size:12px;color:#4CAF50;margin-top:10px;display:none}
+
+/* EMPTY STATE */
+.my-empty{text-align:center;padding:60px 0;color:#888}
+.my-empty p{font-size:14px;margin-bottom:16px}
+.my-empty a{display:inline-block;padding:12px 32px;font-size:11px;font-weight:500;letter-spacing:2px;text-transform:uppercase;border:1px solid #111;color:#111;text-decoration:none;transition:all .2s}
+.my-empty a:hover{background:#111;color:#fff;opacity:1}
+
+/* RESPONSIVE */
+@media(max-width:768px){
+  .my-page{padding:calc(var(--header-height,60px) + 20px) 16px 60px}
+  .my-header h1{font-size:24px}
+  .my-user-card{flex-direction:column;text-align:center;gap:16px}
+  .my-user-stats{margin-left:0}
+  .my-tabs{overflow-x:auto;scrollbar-width:none}
+  .my-tab{padding:12px 16px;font-size:11px}
+  .wish-grid{grid-template-columns:repeat(2,1fr)}
+  .recent-grid{grid-template-columns:repeat(3,1fr)}
+  .order-item{flex-wrap:wrap}
+  .addr-card{flex-direction:column;gap:12px;align-items:flex-start}
+}
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header class="header">
+  <div class="header__logo"><a href="/" style="text-decoration:none;color:inherit;"><span class="header__logo-highlight">Yllowtap</span></a></div>
+  <nav class="header__nav">
+    <a href="/category.html?cat=best">Best</a><a href="/category.html?cat=new">New In</a>
+    <a href="/category.html?cat=bags">Bags</a><a href="/category.html?cat=jewelry">Jewelry</a>
+    <a href="/category.html?cat=accessories">Accessories</a><a href="/category.html?cat=keyring">Keyring</a>
+    <a href="/category.html?cat=seasonal">Seasonal</a><a href="/category.html?cat=sale">Sale</a>
+  </nav>
+  <div class="header__actions"><a href="/login.html">Login</a><a href="#">Wishlist</a><a href="#">Bag (0)</a>
+    <button class="header__hamburger" aria-label="메뉴 열기"><span></span><span></span><span></span></button></div>
+</header>
+<div class="mobile-menu">
+  <button class="mobile-menu__close" aria-label="메뉴 닫기">✕</button>
+  <a href="/category.html?cat=best">Best</a><a href="/category.html?cat=new">New In</a>
+  <a href="/category.html?cat=bags">Bags</a><a href="/category.html?cat=jewelry">Jewelry</a>
+  <a href="/category.html?cat=accessories">Accessories</a><a href="/category.html?cat=keyring">Keyring</a>
+  <a href="/category.html?cat=seasonal">Seasonal</a><a href="/category.html?cat=sale">Sale</a>
+  <a href="/login.html">Login</a><a href="#">Wishlist</a>
+</div>
+
+<!-- MY PAGE -->
+<div class="my-page">
+  <div class="my-header">
+    <h1>My Page</h1>
+    <button class="my-logout" onclick="doLogout()">로그아웃</button>
+  </div>
+
+  <!-- USER CARD -->
+  <div class="my-user-card" id="userCard">
+    <div class="my-avatar" id="userAvatar">👤</div>
+    <div>
+      <div class="my-user-name" id="userName">회원</div>
+      <div class="my-user-email" id="userEmail"></div>
+      <span class="my-user-grade" id="userGrade">BASIC</span>
+    </div>
+    <div class="my-user-stats">
+      <div><div class="my-stat-num" id="statOrders">0</div><div class="my-stat-label">주문</div></div>
+      <div><div class="my-stat-num" id="statPoint">0</div><div class="my-stat-label">포인트</div></div>
+      <div><div class="my-stat-num" id="statWish">0</div><div class="my-stat-label">위시리스트</div></div>
+    </div>
+  </div>
+
+  <!-- TABS -->
+  <div class="my-tabs">
+    <button class="my-tab active" onclick="switchMyTab('orders')">주문내역</button>
+    <button class="my-tab" onclick="switchMyTab('wishlist')">위시리스트</button>
+    <button class="my-tab" onclick="switchMyTab('recent')">최근 본 상품</button>
+    <button class="my-tab" onclick="switchMyTab('address')">배송지 관리</button>
+    <button class="my-tab" onclick="switchMyTab('inquiry')">1:1 문의</button>
+    <button class="my-tab" onclick="switchMyTab('profile')">회원정보</button>
+  </div>
+
+  <!-- 주문내역 -->
+  <div class="my-panel active" id="panel-orders">
+    <div id="orderList"></div>
+  </div>
+
+  <!-- 위시리스트 -->
+  <div class="my-panel" id="panel-wishlist">
+    <div class="wish-grid" id="wishGrid"></div>
+  </div>
+
+  <!-- 최근 본 상품 -->
+  <div class="my-panel" id="panel-recent">
+    <div class="recent-grid" id="recentGrid"></div>
+  </div>
+
+  <!-- 배송지 관리 -->
+  <div class="my-panel" id="panel-address">
+    <div id="addressList"></div>
+    <button style="margin-top:16px;padding:12px 24px;font-size:12px;font-weight:500;letter-spacing:1px;border:1px solid #E5E1DC;background:none;cursor:pointer;font-family:inherit" onclick="toggleAddressForm()">+ 새 배송지 추가</button>
+    <div id="addressForm" style="display:none;margin-top:20px;max-width:480px;background:#fff;border:1px solid #E5E1DC;padding:24px;">
+      <div class="pf-row"><label class="pf-label">배송지 이름</label><input class="pf-input" id="afLabel" placeholder="집, 회사 등" value="기본 배송지"></div>
+      <div class="pf-row"><label class="pf-label">수령인</label><input class="pf-input" id="afName" placeholder="홍길동"></div>
+      <div class="pf-row"><label class="pf-label">연락처</label><input class="pf-input" id="afPhone" placeholder="010-0000-0000"></div>
+      <div class="pf-row"><label class="pf-label">우편번호</label><input class="pf-input" id="afZip" placeholder="12345"></div>
+      <div class="pf-row"><label class="pf-label">기본 주소</label><input class="pf-input" id="afAddr1" placeholder="서울시 강남구 테헤란로 123"></div>
+      <div class="pf-row"><label class="pf-label">상세 주소</label><input class="pf-input" id="afAddr2" placeholder="101동 202호"></div>
+      <div class="pf-row"><label class="pf-label">배송 메모</label><input class="pf-input" id="afMemo" placeholder="부재 시 경비실에 맡겨주세요"></div>
+      <div class="pf-row"><label style="font-size:12px;color:#444;cursor:pointer;display:flex;align-items:center;gap:6px;"><input type="checkbox" id="afDefault"> 기본 배송지로 설정</label></div>
+      <div style="display:flex;gap:8px;margin-top:12px;">
+        <button class="pf-save" onclick="saveAddress()">저장</button>
+        <button style="padding:14px 24px;font-size:12px;border:1px solid #E5E1DC;background:none;cursor:pointer;font-family:inherit" onclick="toggleAddressForm()">취소</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 1:1 문의 -->
+  <div class="my-panel" id="panel-inquiry">
+    <div id="inquiryList"></div>
+    <button style="margin-top:16px;padding:12px 24px;font-size:12px;font-weight:500;letter-spacing:1px;border:1px solid #E5E1DC;background:none;cursor:pointer;font-family:inherit" onclick="toggleInquiryForm()">+ 새 문의 작성</button>
+    <div id="inquiryForm" style="display:none;margin-top:20px;max-width:600px;background:#fff;border:1px solid #E5E1DC;padding:24px;">
+      <div class="pf-row"><label class="pf-label">문의 유형</label>
+        <select class="pf-input" id="iqCategory" style="appearance:auto;cursor:pointer;">
+          <option value="general">일반 문의</option><option value="order">주문/결제</option>
+          <option value="shipping">배송</option><option value="exchange">교환</option>
+          <option value="return">반품/환불</option><option value="product">상품 문의</option>
+        </select>
+      </div>
+      <div class="pf-row"><label class="pf-label">제목</label><input class="pf-input" id="iqTitle" placeholder="문의 제목을 입력해주세요"></div>
+      <div class="pf-row"><label class="pf-label">내용</label><textarea class="pf-input" id="iqContent" style="min-height:120px;resize:vertical;line-height:1.6" placeholder="문의 내용을 상세히 작성해주세요"></textarea></div>
+      <div style="display:flex;gap:8px;margin-top:12px;">
+        <button class="pf-save" onclick="submitInquiry()">문의 등록</button>
+        <button style="padding:14px 24px;font-size:12px;border:1px solid #E5E1DC;background:none;cursor:pointer;font-family:inherit" onclick="toggleInquiryForm()">취소</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 회원정보 -->
+  <div class="my-panel" id="panel-profile">
+    <div class="profile-form">
+      <div class="pf-row"><label class="pf-label">이메일</label><input class="pf-input" id="pfEmail" disabled></div>
+      <div class="pf-row"><label class="pf-label">이름</label><input class="pf-input" id="pfName" placeholder="이름"></div>
+      <div class="pf-row"><label class="pf-label">연락처</label><input class="pf-input" id="pfPhone" placeholder="010-0000-0000"></div>
+      <div class="pf-row"><label class="pf-label">생년월일</label><input class="pf-input" id="pfBirthday" type="date"></div>
+      <button class="pf-save" onclick="saveProfile()">저장</button>
+      <div class="pf-msg" id="pfMsg">저장되었습니다.</div>
+    </div>
+  </div>
+</div>
+
+<!-- FOOTER -->
+<footer class="footer">
+  <div class="footer__grid">
+    <div><div class="footer__brand">Yllowtap</div><p class="footer__brand-desc">Curated luxury fashion for the modern woman.</p></div>
+    <div class="footer__col"><div class="footer__col-title">Shop</div><a href="/category.html?cat=best">Best</a><a href="/category.html?cat=new">New In</a><a href="/category.html?cat=bags">Bags</a><a href="/category.html?cat=jewelry">Jewelry</a></div>
+    <div class="footer__col"><div class="footer__col-title">Customer Care</div><a href="#">1:1 문의하기</a><a href="#">FAQ 자주 묻는 질문</a><a href="#">배송 안내</a><a href="#">교환 · 반품</a></div>
+    <div class="footer__col"><div class="footer__col-title">About</div><a href="#">브랜드 소개</a><a href="#">이용약관</a><a href="#">개인정보처리방침</a></div>
+    <div class="footer__col"><div class="footer__col-title">Account</div><a href="/login.html">로그인</a><a href="/login.html">회원가입</a><a href="/mypage.html">마이페이지</a></div>
+  </div>
+  <div style="max-width:1400px;margin:0 auto;padding:0 0 24px;font-size:12px;color:#888;line-height:1.8;">
+    고객센터 1544-0000<br>운영시간 : 평일 09:00 - 18:00 (점심시간 12:00 - 13:00 제외)<br>이메일 : cs@yllowtap.com
+  </div>
+  <div class="footer__bottom"><div class="footer__copy">© 2026 Yllowtap. All rights reserved.</div><div class="footer__social"><a href="#">Instagram</a><a href="#">YouTube</a><a href="#">Pinterest</a></div></div>
+</footer>
+
+<script src="./js/main.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<script>
+const SUPABASE_URL='https://ppihvvpplqikclftrwdb.supabase.co';
+const SUPABASE_ANON='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBwaWh2dnBwbHFpa2NsZnRyd2RiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk3MzE0NTEsImV4cCI6MjA5NTMwNzQ1MX0.shGVcFTQiuYc4u6tdU50x18YMgJdgFUljf8c7QlQU-U
+';
+const sb=window.supabase.createClient(SUPABASE_URL,SUPABASE_ANON);
+
+let currentUser=null;
+let profile=null;
+
+// ══════════════════════════════════════════
+// AUTH CHECK
+// ══════════════════════════════════════════
+async function checkAuth(){
+  const{data:{session}}=await sb.auth.getSession();
+  if(!session){window.location.href='/login.html';return;}
+  currentUser=session.user;
+  await loadProfile();
+  loadAll();
+}
+
+// ══════════════════════════════════════════
+// PROFILE
+// ══════════════════════════════════════════
+async function loadProfile(){
+  const{data}=await sb.from('user_profiles').select('*').eq('id',currentUser.id).single();
+  if(data){
+    profile=data;
+  }else{
+    // 첫 로그인 시 프로필 자동 생성
+    const name=currentUser.user_metadata?.display_name||currentUser.user_metadata?.name||'회원';
+    await sb.from('user_profiles').insert({id:currentUser.id,display_name:name});
+    profile={display_name:name,grade:'basic',point:0,order_count:0};
+  }
+  renderUserCard();
+}
+
+function renderUserCard(){
+  const name=profile?.display_name||currentUser.user_metadata?.display_name||'회원';
+  document.getElementById('userName').textContent=name+'님';
+  document.getElementById('userEmail').textContent=currentUser.email||'';
+  document.getElementById('userGrade').textContent=(profile?.grade||'basic').toUpperCase();
+  document.getElementById('statOrders').textContent=profile?.order_count||0;
+  document.getElementById('statPoint').textContent=(profile?.point||0).toLocaleString();
+  // 프로필 폼
+  document.getElementById('pfEmail').value=currentUser.email||'';
+  document.getElementById('pfName').value=profile?.display_name||'';
+  document.getElementById('pfPhone').value=profile?.phone||'';
+  document.getElementById('pfBirthday').value=profile?.birthday||'';
+}
+
+async function saveProfile(){
+  const d={
+    display_name:document.getElementById('pfName').value.trim(),
+    phone:document.getElementById('pfPhone').value.trim(),
+    birthday:document.getElementById('pfBirthday').value||null,
+    updated_at:new Date().toISOString()
+  };
+  const{error}=await sb.from('user_profiles').update(d).eq('id',currentUser.id);
+  if(error){alert('저장 실패: '+error.message);return;}
+  profile={...profile,...d};
+  renderUserCard();
+  const msg=document.getElementById('pfMsg');msg.style.display='block';setTimeout(()=>msg.style.display='none',3000);
+}
+
+// ══════════════════════════════════════════
+// TAB SWITCH
+// ══════════════════════════════════════════
+function switchMyTab(tab){
+  document.querySelectorAll('.my-tab').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('.my-panel').forEach(p=>p.classList.remove('active'));
+  event.target.classList.add('active');
+  document.getElementById('panel-'+tab).classList.add('active');
+}
+
+// ══════════════════════════════════════════
+// LOAD ALL DATA
+// ══════════════════════════════════════════
+function loadAll(){
+  loadOrders();loadWishlist();loadRecent();loadAddresses();loadInquiries();
+}
+
+// ══════════════════════════════════════════
+// ORDERS
+// ══════════════════════════════════════════
+async function loadOrders(){
+  const{data}=await sb.from('orders').select('*,order_items(*)').eq('user_id',currentUser.id).order('created_at',{ascending:false});
+  const el=document.getElementById('orderList');
+  if(!data?.length){el.innerHTML='<div class="my-empty"><p>주문 내역이 없습니다</p><a href="/category.html">쇼핑하러 가기</a></div>';return;}
+
+  el.innerHTML=data.map(o=>{
+    const statusMap={pending:'주문접수',paid:'결제완료',preparing:'상품준비중',shipped:'배송중',delivered:'배송완료',cancel_requested:'취소요청',cancelled:'취소완료',exchange_requested:'교환요청',return_requested:'반품요청',refunded:'환불완료'};
+    const statusClass={pending:'pending',paid:'paid',preparing:'preparing',shipped:'shipped',delivered:'delivered',cancelled:'cancelled',cancel_requested:'cancelled',refunded:'refunded'};
+    const items=(o.order_items||[]).map(i=>`
+      <div class="order-item">
+        ${i.product_image_snapshot?`<img class="order-item-img" src="${i.product_image_snapshot}">`:'<div class="order-item-img"></div>'}
+        <div>
+          <div class="order-item-name">${i.product_name_snapshot}</div>
+          <div class="order-item-option">${i.option_snapshot?Object.entries(i.option_snapshot).map(([k,v])=>k+': '+v).join(' / '):''} · ${i.quantity}개</div>
+        </div>
+        <div class="order-item-price">${i.item_total?.toLocaleString()}원</div>
+      </div>
+    `).join('');
+    return`<div class="order-card">
+      <div class="order-card-top">
+        <div><span class="order-number">${o.order_number}</span> <span class="order-date">${new Date(o.created_at).toLocaleDateString('ko-KR')}</span></div>
+        <span class="order-status status-${statusClass[o.status]||'pending'}">${statusMap[o.status]||o.status}</span>
+      </div>
+      ${items}
+      ${o.tracking_number?`<div style="font-size:11px;color:#888;margin-top:8px;">운송장: ${o.tracking_company||''} ${o.tracking_number}</div>`:''}
+      <div class="order-total">총 ${o.total_amount?.toLocaleString()}원</div>
+    </div>`;
+  }).join('');
+}
+
+// ══════════════════════════════════════════
+// WISHLIST
+// ══════════════════════════════════════════
+async function loadWishlist(){
+  const{data}=await sb.from('wishlists').select('*,products(*,product_media(media_url,role,display_order))').eq('user_id',currentUser.id).order('created_at',{ascending:false});
+  const el=document.getElementById('wishGrid');
+  document.getElementById('statWish').textContent=data?.length||0;
+  if(!data?.length){el.innerHTML='<div class="my-empty" style="grid-column:1/-1"><p>위시리스트가 비어있습니다</p><a href="/category.html">쇼핑하러 가기</a></div>';return;}
+
+  el.innerHTML=data.map(w=>{
+    const p=w.products;if(!p)return'';
+    const img=getMainImg(p);
+    return`<div class="wish-card">
+      <a href="/product.html?slug=${p.slug||p.id}" style="text-decoration:none;color:inherit;">
+        <div class="wish-card-img">${img?`<img src="${img}">`:'<div style="width:100%;height:100%;background:#EAE7E2"></div>'}</div>
+        <div class="wish-card-brand">${p.brand||'YLLOWTAP'}</div>
+        <div class="wish-card-name">${p.name}</div>
+        <div class="wish-card-price">${p.price?.toLocaleString()}원</div>
+      </a>
+      <button class="wish-remove" onclick="removeWish('${w.id}')" title="삭제">×</button>
+    </div>`;
+  }).join('');
+}
+
+async function removeWish(id){
+  await sb.from('wishlists').delete().eq('id',id);
+  loadWishlist();
+}
+
+// ══════════════════════════════════════════
+// RECENT VIEWS
+// ══════════════════════════════════════════
+async function loadRecent(){
+  const{data}=await sb.from('recent_views').select('*,products(*,product_media(media_url,role,display_order))').eq('user_id',currentUser.id).order('viewed_at',{ascending:false}).limit(10);
+  const el=document.getElementById('recentGrid');
+  if(!data?.length){el.innerHTML='<div class="my-empty" style="grid-column:1/-1"><p>최근 본 상품이 없습니다</p></div>';return;}
+
+  // 중복 제거
+  const seen=new Set();
+  const unique=data.filter(r=>{if(!r.products||seen.has(r.product_id))return false;seen.add(r.product_id);return true;});
+
+  el.innerHTML=unique.map(r=>{
+    const p=r.products;const img=getMainImg(p);
+    return`<a class="recent-card" href="/product.html?slug=${p.slug||p.id}">
+      <div class="recent-card-img">${img?`<img src="${img}">`:'<div style="width:100%;height:100%;background:#EAE7E2"></div>'}</div>
+      <div class="recent-card-name">${p.name}</div>
+      <div class="recent-card-price">${p.price?.toLocaleString()}원</div>
+    </a>`;
+  }).join('');
+}
+
+// ══════════════════════════════════════════
+// ADDRESSES
+// ══════════════════════════════════════════
+async function loadAddresses(){
+  const{data}=await sb.from('addresses').select('*').eq('user_id',currentUser.id).order('is_default',{ascending:false});
+  const el=document.getElementById('addressList');
+  if(!data?.length){el.innerHTML='<div class="my-empty"><p>등록된 배송지가 없습니다</p></div>';return;}
+
+  el.innerHTML=data.map(a=>`
+    <div class="addr-card">
+      <div>
+        <div class="addr-name">${a.recipient_name}${a.is_default?'<span class="addr-default">기본</span>':''}</div>
+        <div class="addr-detail">${a.phone}<br>${a.zipcode} ${a.address1} ${a.address2||''}<br>${a.delivery_memo?'메모: '+a.delivery_memo:''}</div>
+      </div>
+      <div class="addr-actions">
+        ${!a.is_default?`<button class="addr-btn" onclick="setDefaultAddr('${a.id}')">기본 설정</button>`:''}
+        <button class="addr-btn" onclick="deleteAddr('${a.id}')" style="color:#C4453C;border-color:#C4453C;">삭제</button>
+      </div>
+    </div>
+  `).join('');
+}
+
+function toggleAddressForm(){document.getElementById('addressForm').style.display=document.getElementById('addressForm').style.display==='none'?'block':'none';}
+
+async function saveAddress(){
+  const d={
+    user_id:currentUser.id,
+    label:document.getElementById('afLabel').value.trim()||'기본 배송지',
+    recipient_name:document.getElementById('afName').value.trim(),
+    phone:document.getElementById('afPhone').value.trim(),
+    zipcode:document.getElementById('afZip').value.trim(),
+    address1:document.getElementById('afAddr1').value.trim(),
+    address2:document.getElementById('afAddr2').value.trim(),
+    delivery_memo:document.getElementById('afMemo').value.trim(),
+    is_default:document.getElementById('afDefault').checked
+  };
+  if(!d.recipient_name||!d.phone||!d.zipcode||!d.address1){alert('필수 항목을 입력해주세요.');return;}
+  if(d.is_default){await sb.from('addresses').update({is_default:false}).eq('user_id',currentUser.id);}
+  const{error}=await sb.from('addresses').insert(d);
+  if(error){alert('저장 실패: '+error.message);return;}
+  toggleAddressForm();loadAddresses();
+}
+
+async function setDefaultAddr(id){
+  await sb.from('addresses').update({is_default:false}).eq('user_id',currentUser.id);
+  await sb.from('addresses').update({is_default:true}).eq('id',id);
+  loadAddresses();
+}
+
+async function deleteAddr(id){
+  if(!confirm('이 배송지를 삭제하시겠습니까?'))return;
+  await sb.from('addresses').delete().eq('id',id);
+  loadAddresses();
+}
+
+// ══════════════════════════════════════════
+// INQUIRIES
+// ══════════════════════════════════════════
+async function loadInquiries(){
+  const{data}=await sb.from('inquiries').select('*').eq('user_id',currentUser.id).order('created_at',{ascending:false});
+  const el=document.getElementById('inquiryList');
+  if(!data?.length){el.innerHTML='<div class="my-empty"><p>문의 내역이 없습니다</p></div>';return;}
+
+  const catMap={general:'일반',order:'주문/결제',shipping:'배송',exchange:'교환',return:'반품/환불',product:'상품'};
+  const statusMap={pending:'답변 대기',answered:'답변 완료',closed:'종료'};
+  el.innerHTML=data.map(q=>`
+    <div class="order-card">
+      <div class="order-card-top">
+        <div><span style="font-size:11px;color:#888;margin-right:8px;">[${catMap[q.category]||q.category}]</span><span class="order-number">${q.title}</span></div>
+        <span class="order-status ${q.status==='answered'?'status-paid':'status-pending'}">${statusMap[q.status]||q.status}</span>
+      </div>
+      <div style="font-size:13px;color:#444;line-height:1.7;margin-bottom:8px;">${q.content.replace(/\n/g,'<br>')}</div>
+      <div style="font-size:11px;color:#888;">${new Date(q.created_at).toLocaleDateString('ko-KR')}</div>
+      ${q.answer?`<div style="margin-top:12px;padding:14px;background:#F7F5F2;border-left:3px solid #F4D84E;font-size:13px;color:#444;line-height:1.7;">
+        <div style="font-size:11px;font-weight:600;color:#111;margin-bottom:6px;">관리자 답변</div>
+        ${q.answer.replace(/\n/g,'<br>')}
+        <div style="font-size:10px;color:#888;margin-top:6px;">${q.answered_at?new Date(q.answered_at).toLocaleDateString('ko-KR'):''}</div>
+      </div>`:''}
+    </div>
+  `).join('');
+}
+
+function toggleInquiryForm(){document.getElementById('inquiryForm').style.display=document.getElementById('inquiryForm').style.display==='none'?'block':'none';}
+
+async function submitInquiry(){
+  const d={
+    user_id:currentUser.id,
+    category:document.getElementById('iqCategory').value,
+    title:document.getElementById('iqTitle').value.trim(),
+    content:document.getElementById('iqContent').value.trim()
+  };
+  if(!d.title||!d.content){alert('제목과 내용을 입력해주세요.');return;}
+  const{error}=await sb.from('inquiries').insert(d);
+  if(error){alert('등록 실패: '+error.message);return;}
+  document.getElementById('iqTitle').value='';document.getElementById('iqContent').value='';
+  toggleInquiryForm();loadInquiries();
+}
+
+// ══════════════════════════════════════════
+// HELPERS
+// ══════════════════════════════════════════
+function getMainImg(p){
+  if(p.product_media?.length){const m=p.product_media.filter(x=>x.role==='main').sort((a,b)=>a.display_order-b.display_order);return m.length?m[0].media_url:p.product_media[0].media_url;}
+  return p.image_url;
+}
+
+async function doLogout(){await sb.auth.signOut();window.location.href='/login.html';}
+
+checkAuth();
+</script>
+</body>
+</html>
