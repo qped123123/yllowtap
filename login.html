@@ -3,43 +3,128 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Yllowtap — FAQ</title>
+<title>Yllowtap — Login</title>
 <link rel="stylesheet" href="./css/style.css">
 <style>
-.faq-page{max-width:800px;margin:0 auto;padding:calc(var(--header-height,88px) + 60px) 40px 80px;min-height:100vh}
-.faq-header{text-align:center;margin-bottom:48px}
-.faq-header h1{font-family:'Bodoni Moda',serif;font-size:36px;font-weight:400;letter-spacing:2px;margin-bottom:8px}
-.faq-header p{font-size:13px;color:#888}
+.auth-page {
+  min-height:100vh; display:flex; align-items:center; justify-content:center;
+  padding:var(--header-height,88px) 20px 40px; background:var(--bg-main,#F7F5F2);
+}
+.auth-box {
+  width:100%; max-width:400px; padding:48px 36px;
+  background:#fff; border:1px solid #E5E1DC;
+}
+.auth-logo {
+  font-family:'Bodoni Moda',serif; font-size:28px; font-weight:400;
+  text-align:center; margin-bottom:8px;
+}
+.auth-logo span { background:#F4D84E; padding:2px 6px; }
+.auth-subtitle {
+  text-align:center; font-size:12px; color:#888; letter-spacing:0.1em;
+  margin-bottom:36px;
+}
+.auth-tabs {
+  display:flex; border-bottom:1px solid #E5E1DC; margin-bottom:28px;
+}
+.auth-tab {
+  flex:1; padding:12px 0; text-align:center;
+  font-size:12px; font-weight:500; letter-spacing:0.15em; text-transform:uppercase;
+  color:#888; cursor:pointer; border-bottom:2px solid transparent;
+  background:none; border-top:none; border-left:none; border-right:none;
+  font-family:inherit; transition:all 0.3s;
+}
+.auth-tab.active { color:#111; border-bottom-color:#111; }
+.auth-panel { display:none; }
+.auth-panel.active { display:block; }
 
-.faq-cats{display:flex;justify-content:center;gap:8px;margin-bottom:36px;flex-wrap:wrap}
-.faq-cat{padding:8px 20px;font-size:12px;font-weight:500;letter-spacing:1px;border:1px solid #E5E1DC;background:none;cursor:pointer;font-family:inherit;transition:all .2s}
-.faq-cat:hover{border-color:#111}
-.faq-cat.active{background:#111;color:#fff;border-color:#111}
+/* Social Buttons */
+.social-btns { display:flex; flex-direction:column; gap:10px; margin-bottom:24px; }
+.social-btn {
+  display:flex; align-items:center; justify-content:center; gap:10px;
+  width:100%; height:48px; border:none; border-radius:4px;
+  font-size:14px; font-weight:600; cursor:pointer; font-family:inherit;
+  transition:opacity 0.2s;
+}
+.social-btn:hover { opacity:0.85; }
+.social-btn-kakao { background:#FEE500; color:#000; }
+.social-btn-naver { background:#03C75A; color:#fff; }
+.social-btn img { width:20px; height:20px; }
 
-.faq-list{border-top:1px solid #E5E1DC}
-.faq-item{border-bottom:1px solid #E5E1DC}
-.faq-question{display:flex;justify-content:space-between;align-items:center;padding:20px 0;cursor:pointer;gap:16px}
-.faq-question:hover{opacity:.7}
-.faq-q-cat{font-size:10px;font-weight:600;letter-spacing:1px;color:#888;text-transform:uppercase;margin-bottom:4px}
-.faq-q-text{font-size:15px;font-weight:500;color:#111;line-height:1.5}
-.faq-arrow{font-size:18px;color:#888;flex-shrink:0;transition:transform .3s}
-.faq-item.open .faq-arrow{transform:rotate(180deg)}
-.faq-answer{max-height:0;overflow:hidden;transition:max-height .4s ease}
-.faq-item.open .faq-answer{max-height:500px}
-.faq-a-text{padding:0 0 24px;font-size:14px;color:#555;line-height:1.8}
+.auth-divider {
+  display:flex; align-items:center; gap:16px; margin:24px 0;
+  font-size:11px; color:#aaa; letter-spacing:0.1em;
+}
+.auth-divider::before, .auth-divider::after {
+  content:''; flex:1; height:1px; background:#E5E1DC;
+}
 
-.faq-empty{text-align:center;padding:60px 0;color:#888;font-size:14px}
+/* Form */
+.auth-field { margin-bottom:16px; }
+.auth-label {
+  display:block; font-size:11px; font-weight:500; letter-spacing:0.1em;
+  color:#666; margin-bottom:6px; text-transform:uppercase;
+}
+.auth-input {
+  width:100%; padding:12px 14px; font-size:14px; font-family:inherit;
+  border:1px solid #E5E1DC; background:#F7F5F2; color:#111;
+  transition:border-color 0.2s;
+}
+.auth-input:focus { outline:none; border-color:#111; }
+.auth-input::placeholder { color:#bbb; }
 
-.faq-contact{text-align:center;margin-top:48px;padding:32px;background:#fff;border:1px solid #E5E1DC}
-.faq-contact p{font-size:14px;color:#444;margin-bottom:12px}
-.faq-contact a{display:inline-block;padding:12px 32px;font-size:12px;font-weight:500;letter-spacing:1.5px;text-transform:uppercase;border:1px solid #111;color:#111;text-decoration:none;transition:all .2s}
-.faq-contact a:hover{background:#111;color:#fff;opacity:1}
+.auth-submit {
+  width:100%; height:48px; margin-top:8px;
+  font-size:12px; font-weight:600; letter-spacing:0.18em; text-transform:uppercase;
+  background:#111; color:#fff; border:none; cursor:pointer; font-family:inherit;
+  transition:background 0.2s;
+}
+.auth-submit:hover { background:#333; }
 
-@media(max-width:768px){
-  .faq-page{padding:calc(var(--header-height,60px) + 30px) 16px 60px}
-  .faq-header h1{font-size:28px}
-  .faq-cat{padding:6px 14px;font-size:11px}
-  .faq-q-text{font-size:14px}
+.auth-error {
+  background:#FFF0F0; border:1px solid #E8CCCC; color:#C4453C;
+  padding:10px 14px; font-size:12px; margin-bottom:16px;
+  display:none; border-radius:2px;
+}
+.auth-error.show { display:block; }
+
+.auth-success {
+  background:#F0FFF4; border:1px solid #C6E8D0; color:#2D7A4F;
+  padding:10px 14px; font-size:12px; margin-bottom:16px;
+  display:none; border-radius:2px;
+}
+.auth-success.show { display:block; }
+
+.auth-footer {
+  text-align:center; margin-top:24px; font-size:12px; color:#888;
+}
+.auth-footer a { color:#111; font-weight:500; text-decoration:underline; }
+.auth-footer a:hover { opacity:0.7; }
+
+/* Logged in state */
+.auth-logged {
+  text-align:center; display:none;
+}
+.auth-logged-name {
+  font-family:'Bodoni Moda',serif; font-size:22px; margin-bottom:8px;
+}
+.auth-logged-email { font-size:13px; color:#888; margin-bottom:28px; }
+.auth-logged-btns { display:flex; flex-direction:column; gap:10px; }
+.auth-logged-btn {
+  display:block; padding:14px; font-size:12px; font-weight:500;
+  letter-spacing:0.15em; text-transform:uppercase; text-align:center;
+  border:1px solid #E5E1DC; color:#111; text-decoration:none;
+  font-family:inherit; cursor:pointer; background:none; transition:all 0.2s;
+}
+.auth-logged-btn:hover { background:#111; color:#fff; border-color:#111; opacity:1; }
+.auth-logout-btn {
+  margin-top:16px; font-size:12px; color:#888; background:none;
+  border:none; cursor:pointer; font-family:inherit; text-decoration:underline;
+}
+.auth-logout-btn:hover { color:#111; }
+
+@media (max-width:480px) {
+  .auth-box { padding:36px 24px; }
+  .auth-logo { font-size:24px; }
 }
 </style>
 </head>
@@ -47,15 +132,23 @@
 
 <!-- HEADER -->
 <header class="header">
-  <div class="header__logo"><a href="/" style="text-decoration:none;color:inherit;"><span class="header__logo-highlight">Yllowtap</span></a></div>
+  <div class="header__logo">
+    <a href="/" style="text-decoration:none;color:inherit;">
+      <span class="header__logo-highlight">Yllowtap</span>
+    </a>
+  </div>
   <nav class="header__nav">
     <a href="/category.html?cat=best">Best</a><a href="/category.html?cat=new">New In</a>
     <a href="/category.html?cat=bags">Bags</a><a href="/category.html?cat=jewelry">Jewelry</a>
     <a href="/category.html?cat=accessories">Accessories</a><a href="/category.html?cat=keyring">Keyring</a>
     <a href="/category.html?cat=seasonal">Seasonal</a><a href="/category.html?cat=sale">Sale</a>
   </nav>
-  <div class="header__actions"><a href="/login.html">Login</a><a href="/mypage.html?tab=wishlist">Wishlist</a><a href="/cart.html">Bag (0)</a>
-    <button class="header__hamburger" aria-label="메뉴 열기"><span></span><span></span><span></span></button></div>
+  <div class="header__actions">
+    <a href="/login.html">Login</a>
+    <a href="/mypage.html?tab=wishlist">Wishlist</a>
+    <a href="/cart.html">Bag (0)</a>
+    <button class="header__hamburger" aria-label="메뉴 열기"><span></span><span></span><span></span></button>
+  </div>
 </header>
 <div class="mobile-menu">
   <button class="mobile-menu__close" aria-label="메뉴 닫기">✕</button>
@@ -66,96 +159,206 @@
   <a href="/login.html">Login</a><a href="/mypage.html?tab=wishlist">Wishlist</a>
 </div>
 
-<!-- FAQ PAGE -->
-<div class="faq-page">
-  <div class="faq-header">
-    <h1>FAQ</h1>
-    <p>자주 묻는 질문을 확인해보세요</p>
-  </div>
+<!-- AUTH PAGE -->
+<div class="auth-page">
+  <div class="auth-box">
+    <div class="auth-logo"><span>Yllowtap</span></div>
+    <div class="auth-subtitle">Join the quiet luxury experience</div>
 
-  <div class="faq-cats" id="faqCats">
-    <button class="faq-cat active" onclick="filterFaq('all')">전체</button>
-    <button class="faq-cat" onclick="filterFaq('order')">주문/결제</button>
-    <button class="faq-cat" onclick="filterFaq('shipping')">배송</button>
-    <button class="faq-cat" onclick="filterFaq('exchange')">교환</button>
-    <button class="faq-cat" onclick="filterFaq('return')">반품/환불</button>
-    <button class="faq-cat" onclick="filterFaq('membership')">멤버십</button>
-    <button class="faq-cat" onclick="filterFaq('general')">일반</button>
-  </div>
+    <!-- 로그인 상태 -->
+    <div class="auth-logged" id="authLogged">
+      <div class="auth-logged-name" id="loggedName"></div>
+      <div class="auth-logged-email" id="loggedEmail"></div>
+      <div class="auth-logged-btns">
+        <a href="/" class="auth-logged-btn">쇼핑하러 가기</a>
+        <a href="/mypage.html" class="auth-logged-btn">마이페이지</a>
+      </div>
+      <button class="auth-logout-btn" onclick="doLogout()">로그아웃</button>
+    </div>
 
-  <div class="faq-list" id="faqList"></div>
+    <!-- 비로그인 상태 -->
+    <div id="authForms">
+      <!-- 탭 -->
+      <div class="auth-tabs">
+        <button class="auth-tab active" onclick="switchTab('login')">로그인</button>
+        <button class="auth-tab" onclick="switchTab('signup')">회원가입</button>
+      </div>
 
-  <div class="faq-contact">
-    <p>원하는 답변을 찾지 못하셨나요?</p>
-    <a href="/mypage.html?tab=inquiry">1:1 문의하기</a>
+      <!-- 소셜 로그인 -->
+      <div class="social-btns">
+        <button class="social-btn social-btn-kakao" onclick="socialLogin('kakao')">
+          <svg width="20" height="20" viewBox="0 0 24 24"><path d="M12 3C6.48 3 2 6.58 2 10.94c0 2.8 1.86 5.27 4.66 6.67-.15.53-.96 3.41-.99 3.63 0 0-.02.17.09.24.11.06.24.01.24.01.32-.04 3.7-2.44 4.28-2.85.56.08 1.14.12 1.72.12 5.52 0 10-3.58 10-7.94S17.52 3 12 3z" fill="#000"/></svg>
+          카카오로 시작하기
+        </button>
+        <button class="social-btn social-btn-naver" onclick="socialLogin('naver')">
+          <svg width="20" height="20" viewBox="0 0 24 24"><path d="M16.27 3H7.73A4.73 4.73 0 003 7.73v8.54A4.73 4.73 0 007.73 21h8.54A4.73 4.73 0 0021 16.27V7.73A4.73 4.73 0 0016.27 3zm.46 12.6l-3.34-4.82v4.82h-2.78V8.4h2.92l3.34 4.82V8.4h2.78v7.2h-2.92z" fill="#fff"/></svg>
+          네이버로 시작하기
+        </button>
+      </div>
+
+      <div class="auth-divider">또는</div>
+
+      <!-- 로그인 패널 -->
+      <div class="auth-panel active" id="panel-login">
+        <div class="auth-error" id="loginError"></div>
+        <div class="auth-field">
+          <label class="auth-label">이메일</label>
+          <input class="auth-input" id="loginEmail" type="email" placeholder="your@email.com">
+        </div>
+        <div class="auth-field">
+          <label class="auth-label">비밀번호</label>
+          <input class="auth-input" id="loginPw" type="password" placeholder="••••••••" onkeydown="if(event.key==='Enter')emailLogin()">
+        </div>
+        <button class="auth-submit" onclick="emailLogin()">로그인</button>
+        <div class="auth-footer">
+          계정이 없으신가요? <a href="#" onclick="switchTab('signup');return false;">회원가입</a>
+        </div>
+      </div>
+
+      <!-- 회원가입 패널 -->
+      <div class="auth-panel" id="panel-signup">
+        <div class="auth-error" id="signupError"></div>
+        <div class="auth-success" id="signupSuccess"></div>
+        <div class="auth-field">
+          <label class="auth-label">이름</label>
+          <input class="auth-input" id="signupName" type="text" placeholder="홍길동">
+        </div>
+        <div class="auth-field">
+          <label class="auth-label">이메일</label>
+          <input class="auth-input" id="signupEmail" type="email" placeholder="your@email.com">
+        </div>
+        <div class="auth-field">
+          <label class="auth-label">비밀번호</label>
+          <input class="auth-input" id="signupPw" type="password" placeholder="8자 이상">
+        </div>
+        <div class="auth-field">
+          <label class="auth-label">비밀번호 확인</label>
+          <input class="auth-input" id="signupPw2" type="password" placeholder="비밀번호를 다시 입력" onkeydown="if(event.key==='Enter')emailSignup()">
+        </div>
+        <button class="auth-submit" onclick="emailSignup()">회원가입</button>
+        <div class="auth-footer">
+          이미 계정이 있으신가요? <a href="#" onclick="switchTab('login');return false;">로그인</a>
+        </div>
+      </div>
+    </div>
   </div>
 </div>
-
-<!-- FOOTER -->
-<footer class="footer">
-  <div class="footer__grid">
-    <div><div class="footer__brand">Yllowtap</div><p class="footer__brand-desc">Curated luxury fashion for the modern woman.</p></div>
-    <div class="footer__col"><div class="footer__col-title">Shop</div><a href="/category.html?cat=best">Best</a><a href="/category.html?cat=new">New In</a><a href="/category.html?cat=bags">Bags</a><a href="/category.html?cat=jewelry">Jewelry</a></div>
-    <div class="footer__col"><div class="footer__col-title">Customer Care</div><a href="/mypage.html?tab=inquiry">1:1 문의하기</a><a href="/faq.html">FAQ 자주 묻는 질문</a><a href="/faq.html">배송 안내</a><a href="/faq.html">교환 · 반품</a></div>
-    <div class="footer__col"><div class="footer__col-title">About</div><a href="/">브랜드 소개</a><a href="/terms.html">이용약관</a><a href="/privacy.html">개인정보처리방침</a></div>
-    <div class="footer__col"><div class="footer__col-title">Account</div><a href="/login.html">로그인</a><a href="/login.html">회원가입</a><a href="/mypage.html">마이페이지</a></div>
-  </div>
-  <div style="max-width:1400px;margin:0 auto;padding:0 0 24px;font-size:12px;color:#888;line-height:1.8;">
-    고객센터 1544-0000<br>운영시간 : 평일 09:00 - 18:00 (점심시간 12:00 - 13:00 제외)<br>이메일 : cs@yllowtap.com
-  </div>
-  <div class="footer__bottom"><div class="footer__copy">© 2026 Yllowtap. All rights reserved.</div><div class="footer__social"><a href="https://instagram.com" target="_blank">Instagram</a><a href="https://youtube.com" target="_blank">YouTube</a><a href="https://pinterest.com" target="_blank">Pinterest</a></div></div>
-</footer>
 
 <script src="./js/main.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <script>
-const SUPABASE_URL='https://ppihvvpplqikclftrwdb.supabase.co';
-const SUPABASE_ANON='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBwaWh2dnBwbHFpa2NsZnRyd2RiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk3MzE0NTEsImV4cCI6MjA5NTMwNzQ1MX0.shGVcFTQiuYc4u6tdU50x18YMgJdgFUljf8c7QlQU-U';
-const sb=window.supabase.createClient(SUPABASE_URL,SUPABASE_ANON);
+const SUPABASE_URL = 'https://ppihvvpplqikclftrwdb.supabase.co';
+const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBwaWh2dnBwbHFpa2NsZnRyd2RiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk3MzE0NTEsImV4cCI6MjA5NTMwNzQ1MX0.shGVcFTQiuYc4u6tdU50x18YMgJdgFUljf8c7QlQU-U';
+const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON);
 
-const CAT_MAP={general:'일반',order:'주문/결제',shipping:'배송',exchange:'교환','return':'반품/환불',membership:'멤버십'};
-let allFaqs=[];
-let currentFilter='all';
-
-async function loadFaqs(){
-  const{data}=await sb.from('faqs').select('*').eq('is_active',true).order('display_order').order('created_at');
-  allFaqs=data||[];
-  renderFaqs();
+// ── 탭 전환 ──
+function switchTab(tab) {
+  document.querySelectorAll('.auth-tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.auth-panel').forEach(p => p.classList.remove('active'));
+  document.querySelector(`.auth-tab:${tab === 'login' ? 'first-child' : 'last-child'}`).classList.add('active');
+  document.getElementById('panel-' + tab).classList.add('active');
+  // 에러 초기화
+  document.querySelectorAll('.auth-error, .auth-success').forEach(e => e.classList.remove('show'));
 }
 
-function filterFaq(cat){
-  currentFilter=cat;
-  document.querySelectorAll('.faq-cat').forEach(b=>b.classList.remove('active'));
-  event.target.classList.add('active');
-  renderFaqs();
+// ── 소셜 로그인 ──
+async function socialLogin(provider) {
+  const options = {
+    redirectTo: window.location.origin + '/login.html'
+  };
+
+  if (provider === 'naver') {
+    const { error } = await sb.auth.signInWithOAuth({
+      provider: 'custom:naver',
+      options
+    });
+    if (error) { showError('loginError', error.message); }
+  } else {
+    // 카카오 — 이메일/프로필사진 제외, 닉네임만 요청
+    const { error } = await sb.auth.signInWithOAuth({
+      provider: 'kakao',
+      options: {
+        ...options,
+        scopes: 'profile_nickname'
+      }
+    });
+    if (error) { showError('loginError', error.message); }
+  }
 }
 
-function renderFaqs(){
-  const filtered=currentFilter==='all'?allFaqs:allFaqs.filter(f=>f.category===currentFilter);
-  const el=document.getElementById('faqList');
-  if(!filtered.length){el.innerHTML='<div class="faq-empty">등록된 FAQ가 없습니다</div>';return;}
-  el.innerHTML=filtered.map((f,i)=>`
-    <div class="faq-item" id="faq-${i}">
-      <div class="faq-question" onclick="toggleFaq(${i})">
-        <div>
-          <div class="faq-q-cat">${CAT_MAP[f.category]||f.category}</div>
-          <div class="faq-q-text">${f.question}</div>
-        </div>
-        <span class="faq-arrow">▾</span>
-      </div>
-      <div class="faq-answer">
-        <div class="faq-a-text">${f.answer.replace(/\n/g,'<br>')}</div>
-      </div>
-    </div>
-  `).join('');
+// ── 이메일 로그인 ──
+async function emailLogin() {
+  const email = document.getElementById('loginEmail').value.trim();
+  const pw = document.getElementById('loginPw').value;
+  if (!email || !pw) { showError('loginError', '이메일과 비밀번호를 입력해주세요.'); return; }
+
+  const { error } = await sb.auth.signInWithPassword({ email, password: pw });
+  if (error) {
+    showError('loginError', '이메일 또는 비밀번호가 올바르지 않습니다.');
+  } else {
+    checkAuth();
+  }
 }
 
-function toggleFaq(i){
-  const item=document.getElementById('faq-'+i);
-  item.classList.toggle('open');
+// ── 이메일 회원가입 ──
+async function emailSignup() {
+  const name = document.getElementById('signupName').value.trim();
+  const email = document.getElementById('signupEmail').value.trim();
+  const pw = document.getElementById('signupPw').value;
+  const pw2 = document.getElementById('signupPw2').value;
+
+  if (!name) { showError('signupError', '이름을 입력해주세요.'); return; }
+  if (!email) { showError('signupError', '이메일을 입력해주세요.'); return; }
+  if (pw.length < 8) { showError('signupError', '비밀번호는 8자 이상이어야 합니다.'); return; }
+  if (pw !== pw2) { showError('signupError', '비밀번호가 일치하지 않습니다.'); return; }
+
+  const { error } = await sb.auth.signUp({
+    email,
+    password: pw,
+    options: { data: { display_name: name } }
+  });
+
+  if (error) {
+    showError('signupError', error.message);
+  } else {
+    document.getElementById('signupSuccess').textContent = '가입 완료! 이메일 인증 후 로그인해주세요.';
+    document.getElementById('signupSuccess').classList.add('show');
+    document.getElementById('signupError').classList.remove('show');
+  }
 }
 
-loadFaqs();
+// ── 로그아웃 ──
+async function doLogout() {
+  await sb.auth.signOut();
+  window.location.reload();
+}
+
+// ── 인증 상태 체크 ──
+async function checkAuth() {
+  const { data: { session } } = await sb.auth.getSession();
+  if (session) {
+    const user = session.user;
+    const name = user.user_metadata?.display_name || user.user_metadata?.name || user.user_metadata?.preferred_username || '회원';
+    const email = user.email || '';
+    document.getElementById('loggedName').textContent = `안녕하세요, ${name}님`;
+    document.getElementById('loggedEmail').textContent = email;
+    document.getElementById('authLogged').style.display = 'block';
+    document.getElementById('authForms').style.display = 'none';
+  } else {
+    document.getElementById('authLogged').style.display = 'none';
+    document.getElementById('authForms').style.display = 'block';
+  }
+}
+
+// ── 에러 표시 ──
+function showError(id, msg) {
+  const el = document.getElementById(id);
+  el.textContent = msg;
+  el.classList.add('show');
+}
+
+// ── 초기화 ──
+checkAuth();
 </script>
 <script src="./js/common-header.js"></script>
 </body>
