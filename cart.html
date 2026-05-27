@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Yllowtap — Cart</title>
+<link rel="stylesheet" href="./css/style.css">
+<style>
+.cart-page{max-width:1200px;margin:0 auto;padding:calc(var(--header-height,88px) + 40px) 40px 80px;min-height:100vh}
+.cart-header{margin-bottom:40px}
+.cart-header h1{font-family:'Bodoni Moda',serif;font-size:32px;font-weight:400;letter-spacing:2px}
+.cart-count{font-size:13px;color:#888;margin-top:4px}
+
+.cart-layout{display:grid;grid-template-columns:1fr 340px;gap:40px;align-items:start}
+
+/* CART ITEMS */
+.cart-items{background:#fff;border:1px solid #E5E1DC}
+.cart-item{display:grid;grid-template-columns:100px 1fr 120px 100px 40px;gap:16px;padding:20px 24px;align-items:center;border-bottom:1px solid #F0EDE8}
+.cart-item:last-child{border-bottom:none}
+.cart-item-img{width:100px;height:125px;object-fit:cover;background:#EAE7E2}
+.cart-item-brand{font-size:10px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:#888;margin-bottom:3px}
+.cart-item-name{font-size:14px;font-weight:500;margin-bottom:4px}
+.cart-item-name a{color:#111;text-decoration:none}
+.cart-item-name a:hover{opacity:.7}
+.cart-item-option{font-size:11px;color:#888;line-height:1.5}
+.cart-item-price{font-size:15px;font-weight:700;text-align:right}
+.cart-item-original{font-size:11px;color:#999;text-decoration:line-through;text-align:right;margin-bottom:2px}
+
+/* QUANTITY */
+.cart-qty{display:flex;align-items:center;border:1px solid #E5E1DC;width:fit-content}
+.cart-qty-btn{width:32px;height:32px;background:none;border:none;font-size:16px;cursor:pointer;color:#666;display:flex;align-items:center;justify-content:center}
+.cart-qty-btn:hover{color:#111}
+.cart-qty-num{width:36px;text-align:center;font-size:13px;font-weight:500;border-left:1px solid #E5E1DC;border-right:1px solid #E5E1DC;line-height:32px}
+
+/* REMOVE */
+.cart-remove{width:32px;height:32px;background:none;border:none;font-size:18px;color:#ccc;cursor:pointer;display:flex;align-items:center;justify-content:center}
+.cart-remove:hover{color:#C4453C}
+
+/* SELECT ALL */
+.cart-select-bar{display:flex;justify-content:space-between;align-items:center;padding:14px 24px;border-bottom:1px solid #E5E1DC;font-size:12px;color:#666}
+.cart-select-bar label{display:flex;align-items:center;gap:6px;cursor:pointer}
+.cart-delete-selected{font-size:11px;color:#C4453C;background:none;border:none;cursor:pointer;font-family:inherit}
+.cart-delete-selected:hover{text-decoration:underline}
+
+/* SUMMARY */
+.cart-summary{background:#fff;border:1px solid #E5E1DC;padding:28px 24px;position:sticky;top:calc(var(--header-height,88px) + 20px)}
+.cart-summary-title{font-size:14px;font-weight:600;letter-spacing:1px;margin-bottom:20px;padding-bottom:14px;border-bottom:1px solid #E5E1DC}
+.cart-summary-row{display:flex;justify-content:space-between;margin-bottom:10px;font-size:13px;color:#444}
+.cart-summary-total{display:flex;justify-content:space-between;padding-top:16px;margin-top:16px;border-top:1px solid #E5E1DC;font-size:18px;font-weight:700}
+.cart-checkout-btn{display:block;width:100%;padding:16px;margin-top:20px;font-size:13px;font-weight:700;letter-spacing:2px;text-transform:uppercase;text-align:center;background:#111;color:#fff;border:none;cursor:pointer;font-family:inherit;transition:background .2s}
+.cart-checkout-btn:hover{background:#333}
+.cart-continue{display:block;text-align:center;margin-top:12px;font-size:12px;color:#888;text-decoration:underline}
+.cart-continue:hover{color:#111;opacity:1}
+
+/* FREE SHIPPING */
+.cart-shipping-msg{margin-top:14px;padding:10px 14px;background:#F7F5F2;font-size:11px;color:#666;text-align:center;line-height:1.5}
+.cart-shipping-msg strong{color:#111}
+
+/* EMPTY */
+.cart-empty{text-align:center;padding:80px 0}
+.cart-empty p{font-size:16px;color:#888;margin-bottom:20px}
+.cart-empty a{display:inline-block;padding:14px 40px;font-size:12px;font-weight:500;letter-spacing:2px;text-transform:uppercase;border:1px solid #111;color:#111;text-decoration:none;transition:all .2s}
+.cart-empty a:hover{background:#111;color:#fff;opacity:1}
+
+/* RESPONSIVE */
+@media(max-width:1024px){
+  .cart-layout{grid-template-columns:1fr;gap:24px}
+  .cart-summary{position:static}
+}
+@media(max-width:768px){
+  .cart-page{padding:calc(var(--header-height,60px) + 20px) 16px 60px}
+  .cart-header h1{font-size:24px}
+  .cart-item{grid-template-columns:80px 1fr;gap:12px;padding:16px}
+  .cart-item-img{width:80px;height:100px}
+  .cart-item-price,.cart-qty,.cart-remove{grid-column:2}
+  .cart-item-price{text-align:left}
+  .cart-item-original{text-align:left}
+}
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header class="header">
+  <div class="header__logo"><a href="/" style="text-decoration:none;color:inherit;"><span class="header__logo-highlight">Yllowtap</span></a></div>
+  <nav class="header__nav">
+    <a href="/category.html?cat=best">Best</a><a href="/category.html?cat=new">New In</a>
+    <a href="/category.html?cat=bags">Bags</a><a href="/category.html?cat=jewelry">Jewelry</a>
+    <a href="/category.html?cat=accessories">Accessories</a><a href="/category.html?cat=keyring">Keyring</a>
+    <a href="/category.html?cat=seasonal">Seasonal</a><a href="/category.html?cat=sale">Sale</a>
+  </nav>
+  <div class="header__actions"><a href="/login.html">Login</a><a href="/mypage.html?tab=wishlist">Wishlist</a><a href="/cart.html">Bag (0)</a>
+    <button class="header__hamburger" aria-label="메뉴 열기"><span></span><span></span><span></span></button></div>
+</header>
+<div class="mobile-menu">
+  <button class="mobile-menu__close" aria-label="메뉴 닫기">✕</button>
+  <a href="/category.html?cat=best">Best</a><a href="/category.html?cat=new">New In</a>
+  <a href="/category.html?cat=bags">Bags</a><a href="/category.html?cat=jewelry">Jewelry</a>
+  <a href="/category.html?cat=accessories">Accessories</a><a href="/category.html?cat=keyring">Keyring</a>
+  <a href="/category.html?cat=seasonal">Seasonal</a><a href="/category.html?cat=sale">Sale</a>
+  <a href="/login.html">Login</a><a href="/mypage.html?tab=wishlist">Wishlist</a>
+</div>
+
+<!-- CART PAGE -->
+<div class="cart-page">
+  <div class="cart-header">
+    <h1>Shopping Bag</h1>
+    <div class="cart-count" id="cartCount"></div>
+  </div>
+
+  <!-- EMPTY STATE -->
+  <div class="cart-empty" id="cartEmpty" style="display:none;">
+    <p>장바구니가 비어있습니다</p>
+    <a href="/category.html">쇼핑하러 가기</a>
+  </div>
+
+  <!-- CART CONTENT -->
+  <div class="cart-layout" id="cartLayout" style="display:none;">
+    <div>
+      <div class="cart-items">
+        <div class="cart-select-bar">
+          <label><input type="checkbox" id="selectAll" checked onchange="toggleSelectAll()"> 전체 선택</label>
+          <button class="cart-delete-selected" onclick="deleteSelected()">선택 삭제</button>
+        </div>
+        <div id="cartItems"></div>
+      </div>
+    </div>
+
+    <div class="cart-summary">
+      <div class="cart-summary-title">ORDER SUMMARY</div>
+      <div class="cart-summary-row"><span>상품 금액</span><span id="sumSubtotal">0원</span></div>
+      <div class="cart-summary-row"><span>할인 금액</span><span id="sumDiscount" style="color:#C4453C">0원</span></div>
+      <div class="cart-summary-row"><span>배송비</span><span id="sumShipping">0원</span></div>
+      <div class="cart-summary-total"><span>총 결제 금액</span><span id="sumTotal">0원</span></div>
+      <div class="cart-shipping-msg" id="shippingMsg"></div>
+      <button class="cart-checkout-btn" onclick="goCheckout()">주문하기</button>
+      <a href="/category.html" class="cart-continue">쇼핑 계속하기</a>
+    </div>
+  </div>
+</div>
+
+<!-- FOOTER -->
+<footer class="footer">
+  <div class="footer__grid">
+    <div><div class="footer__brand">Yllowtap</div><p class="footer__brand-desc">Curated luxury fashion for the modern woman.</p></div>
+    <div class="footer__col"><div class="footer__col-title">Shop</div><a href="/category.html?cat=best">Best</a><a href="/category.html?cat=new">New In</a><a href="/category.html?cat=bags">Bags</a><a href="/category.html?cat=jewelry">Jewelry</a></div>
+    <div class="footer__col"><div class="footer__col-title">Customer Care</div><a href="#">1:1 문의하기</a><a href="#">FAQ 자주 묻는 질문</a><a href="#">배송 안내</a><a href="#">교환 · 반품</a></div>
+    <div class="footer__col"><div class="footer__col-title">About</div><a href="#">브랜드 소개</a><a href="#">이용약관</a><a href="#">개인정보처리방침</a></div>
+    <div class="footer__col"><div class="footer__col-title">Account</div><a href="/login.html">로그인</a><a href="/login.html">회원가입</a><a href="/mypage.html">마이페이지</a></div>
+  </div>
+  <div style="max-width:1400px;margin:0 auto;padding:0 0 24px;font-size:12px;color:#888;line-height:1.8;">
+    고객센터 1544-0000<br>운영시간 : 평일 09:00 - 18:00 (점심시간 12:00 - 13:00 제외)<br>이메일 : cs@yllowtap.com
+  </div>
+  <div class="footer__bottom"><div class="footer__copy">© 2026 Yllowtap. All rights reserved.</div><div class="footer__social"><a href="#">Instagram</a><a href="#">YouTube</a><a href="#">Pinterest</a></div></div>
+</footer>
+
+<script src="./js/main.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<script>
+const SUPABASE_URL='https://ppihvvpplqikclftrwdb.supabase.co';
+const SUPABASE_ANON='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBwaWh2dnBwbHFpa2NsZnRyd2RiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk3MzE0NTEsImV4cCI6MjA5NTMwNzQ1MX0.shGVcFTQiuYc4u6tdU50x18YMgJdgFUljf8c7QlQU-U';
+const sb=window.supabase.createClient(SUPABASE_URL,SUPABASE_ANON);
+
+let cartId=null;
+let cartItems=[];
+let FREE_SHIPPING=50000;
+let SHIPPING_FEE=3000;
+
+// ══════════════════════════════════════════
+// GUEST ID (비회원 장바구니용)
+// ══════════════════════════════════════════
+function getGuestId(){
+  let id=localStorage.getItem('yllowtap_guest_id');
+  if(!id){id=crypto.randomUUID();localStorage.setItem('yllowtap_guest_id',id);}
+  return id;
+}
+
+// ══════════════════════════════════════════
+// CART 로드
+// ══════════════════════════════════════════
+async function loadCart(){
+  const{data:{session}}=await sb.auth.getSession();
+  let cart;
+
+  if(session){
+    // 회원: user_id로 카트 찾기
+    const{data}=await sb.from('carts').select('*').eq('user_id',session.user.id).single();
+    if(data){
+      cart=data;
+    }else{
+      // 없으면 생성
+      const{data:newCart}=await sb.from('carts').insert({user_id:session.user.id}).select().single();
+      cart=newCart;
+    }
+    // 비회원 카트 병합
+    await mergeGuestCart(session.user.id,cart.id);
+  }else{
+    // 비회원: guest_id로 카트 찾기
+    const gid=getGuestId();
+    const{data}=await sb.from('carts').select('*').eq('guest_id',gid).single();
+    if(data){
+      cart=data;
+    }else{
+      const{data:newCart}=await sb.from('carts').insert({guest_id:gid}).select().single();
+      cart=newCart;
+    }
+  }
+
+  if(!cart)return;
+  cartId=cart.id;
+
+  // 카트 아이템 로드 (상품 정보 포함)
+  const{data:items}=await sb.from('cart_items').select('*,products(*,product_media(media_url,role,display_order))').eq('cart_id',cartId).order('added_at');
+  cartItems=(items||[]).map(item=>({...item,checked:true}));
+
+  renderCart();
+
+  // 로그인 상태 헤더 변경
+  if(session){
+    document.querySelectorAll('.header__actions a, .mobile-menu a').forEach(a=>{
+      if(a.textContent.trim()==='Login'){a.textContent='My Page';a.href='/mypage.html';}
+    });
+  }
+  updateBagCount();
+}
+
+// ══════════════════════════════════════════
+// 비회원→회원 카트 병합
+// ══════════════════════════════════════════
+async function mergeGuestCart(userId,userCartId){
+  const gid=localStorage.getItem('yllowtap_guest_id');
+  if(!gid)return;
+
+  const{data:guestCart}=await sb.from('carts').select('*').eq('guest_id',gid).single();
+  if(!guestCart)return;
+
+  // 비회원 카트 아이템 → 회원 카트로 이동
+  const{data:guestItems}=await sb.from('cart_items').select('*').eq('cart_id',guestCart.id);
+  if(guestItems?.length){
+    for(const item of guestItems){
+      // 이미 있는 상품인지 체크
+      const{data:existing}=await sb.from('cart_items').select('*').eq('cart_id',userCartId).eq('product_id',item.product_id).single();
+      if(existing){
+        // 수량만 합산
+        await sb.from('cart_items').update({quantity:existing.quantity+item.quantity}).eq('id',existing.id);
+      }else{
+        // 새로 추가
+        await sb.from('cart_items').insert({cart_id:userCartId,product_id:item.product_id,quantity:item.quantity,selected_options:item.selected_options});
+      }
+    }
+    // 비회원 카트 삭제
+    await sb.from('cart_items').delete().eq('cart_id',guestCart.id);
+    await sb.from('carts').delete().eq('id',guestCart.id);
+  }
+  localStorage.removeItem('yllowtap_guest_id');
+}
+
+// ══════════════════════════════════════════
+// RENDER
+// ══════════════════════════════════════════
+function renderCart(){
+  if(!cartItems.length){
+    document.getElementById('cartEmpty').style.display='block';
+    document.getElementById('cartLayout').style.display='none';
+    document.getElementById('cartCount').textContent='';
+    return;
+  }
+
+  document.getElementById('cartEmpty').style.display='none';
+  document.getElementById('cartLayout').style.display='grid';
+  document.getElementById('cartCount').textContent=`${cartItems.length}개의 상품`;
+
+  const el=document.getElementById('cartItems');
+  el.innerHTML=cartItems.map((item,i)=>{
+    const p=item.products;
+    if(!p)return'';
+    const img=getMainImg(p);
+    const opts=item.selected_options||{};
+    const optStr=Object.entries(opts).map(([k,v])=>k+': '+v).join(' / ');
+    const isSale=p.original_price&&p.original_price>p.price;
+    return`<div class="cart-item">
+      <div>${img?`<img class="cart-item-img" src="${img}">`:'<div class="cart-item-img"></div>'}</div>
+      <div>
+        <div class="cart-item-brand">${p.brand||'YLLOWTAP'}</div>
+        <div class="cart-item-name"><a href="/product.html?slug=${p.slug||p.id}">${p.name}</a></div>
+        ${optStr?`<div class="cart-item-option">${optStr}</div>`:''}
+        <div style="margin-top:8px;">
+          <div class="cart-qty">
+            <button class="cart-qty-btn" onclick="changeQty(${i},-1)">−</button>
+            <div class="cart-qty-num">${item.quantity}</div>
+            <button class="cart-qty-btn" onclick="changeQty(${i},1)">+</button>
+          </div>
+        </div>
+      </div>
+      <div>
+        ${isSale?`<div class="cart-item-original">${p.original_price.toLocaleString()}원</div>`:''}
+        <div class="cart-item-price">${(p.price*item.quantity).toLocaleString()}원</div>
+      </div>
+      <div></div>
+      <div><button class="cart-remove" onclick="removeItem(${i})">×</button></div>
+    </div>`;
+  }).join('');
+
+  updateSummary();
+}
+
+function updateSummary(){
+  let subtotal=0, discount=0;
+  cartItems.forEach(item=>{
+    const p=item.products;
+    if(!p)return;
+    subtotal+=p.price*item.quantity;
+    if(p.original_price&&p.original_price>p.price){
+      discount+=(p.original_price-p.price)*item.quantity;
+    }
+  });
+  const shipping=subtotal>=FREE_SHIPPING?0:SHIPPING_FEE;
+  const total=subtotal+shipping;
+
+  document.getElementById('sumSubtotal').textContent=(subtotal+discount).toLocaleString()+'원';
+  document.getElementById('sumDiscount').textContent=discount?'-'+discount.toLocaleString()+'원':'0원';
+  document.getElementById('sumShipping').textContent=shipping?shipping.toLocaleString()+'원':'무료';
+  document.getElementById('sumTotal').textContent=total.toLocaleString()+'원';
+
+  const remaining=FREE_SHIPPING-subtotal;
+  document.getElementById('shippingMsg').innerHTML=remaining>0
+    ?`<strong>${remaining.toLocaleString()}원</strong> 더 구매하면 무료배송!`
+    :'🎉 무료배송 적용 중';
+}
+
+// ══════════════════════════════════════════
+// ACTIONS
+// ══════════════════════════════════════════
+async function changeQty(idx,delta){
+  const item=cartItems[idx];
+  const newQty=item.quantity+delta;
+  if(newQty<1)return;
+  await sb.from('cart_items').update({quantity:newQty}).eq('id',item.id);
+  cartItems[idx].quantity=newQty;
+  renderCart();
+  updateBagCount();
+}
+
+async function removeItem(idx){
+  const item=cartItems[idx];
+  await sb.from('cart_items').delete().eq('id',item.id);
+  cartItems.splice(idx,1);
+  renderCart();
+  updateBagCount();
+}
+
+function toggleSelectAll(){
+  const checked=document.getElementById('selectAll').checked;
+  cartItems.forEach(item=>item.checked=checked);
+}
+
+async function deleteSelected(){
+  const toDelete=cartItems.filter(item=>item.checked);
+  if(!toDelete.length)return;
+  if(!confirm(`${toDelete.length}개 상품을 삭제하시겠습니까?`))return;
+  for(const item of toDelete){
+    await sb.from('cart_items').delete().eq('id',item.id);
+  }
+  cartItems=cartItems.filter(item=>!item.checked);
+  renderCart();
+  updateBagCount();
+}
+
+function goCheckout(){
+  if(!cartItems.length){alert('장바구니가 비어있습니다.');return;}
+  window.location.href='/checkout.html';
+}
+
+// ══════════════════════════════════════════
+// HELPERS
+// ══════════════════════════════════════════
+function getMainImg(p){
+  if(p.product_media?.length){const m=p.product_media.filter(x=>x.role==='main').sort((a,b)=>a.display_order-b.display_order);return m.length?m[0].media_url:p.product_media[0].media_url;}
+  return p.image_url;
+}
+
+function updateBagCount(){
+  const count=cartItems.length;
+  document.querySelectorAll('.header__actions a, .mobile-menu a').forEach(a=>{
+    if(a.textContent.includes('Bag')||a.textContent.includes('bag')){a.textContent=`Bag (${count})`;}
+  });
+}
+
+// 사이트 설정에서 배송비/무료배송 기준 로드
+async function loadShippingSettings(){
+  const{data}=await sb.from('site_settings').select('*');
+  if(data){
+    data.forEach(r=>{
+      if(r.key==='shipping_fee')SHIPPING_FEE=parseInt(r.value)||3000;
+      if(r.key==='free_shipping_amount')FREE_SHIPPING=parseInt(r.value)||50000;
+    });
+  }
+}
+
+async function init(){
+  await loadShippingSettings();
+  await loadCart();
+}
+init();
+</script>
+</body>
+</html>

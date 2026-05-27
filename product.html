@@ -266,8 +266,8 @@
     <div class="pd-total"><span class="pd-total-label">TOTAL PRICE</span><span class="pd-total-price" id="totalP">0원</span></div>
     <div class="pd-btn-group">
       <button class="pd-btn-buy">BUY IT NOW</button>
-      <button class="pd-btn-cart">CART</button>
-      <button class="pd-btn-wish"><svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg></button>
+      <button class="pd-btn-cart" onclick="addToCart()">CART</button>
+      <button class="pd-btn-wish" onclick="toggleWishlist()"><svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg></button>
     </div>
     <div class="pd-notices">
       <div class="pd-notice"><span class="pd-notice-dot"></span>무료 배송 · 5만원 이상 구매 시</div>
@@ -669,7 +669,85 @@ document.querySelectorAll('.pd-tab').forEach(tab=>{
   });
 });
 
-loadProduct();
+// ══════════════════════════════════════════
+// ADD TO CART
+// ══════════════════════════════════════════
+async function addToCart(){
+  if(!product)return;
+  // 옵션 수집
+  const opts={};
+  document.querySelectorAll('.pd-opt-select').forEach(sel=>{
+    if(sel.value) opts[sel.dataset.opt]=sel.value;
+  });
+  // 필수 옵션 체크
+  const requiredOpts=product.options||[];
+  for(const o of requiredOpts){
+    if(!opts[o.name]){alert(`${o.name}을(를) 선택해주세요.`);return;}
+  }
+
+  const{data:{session}}=await sb.auth.getSession();
+  let cartId;
+
+  if(session){
+    const{data}=await sb.from('carts').select('id').eq('user_id',session.user.id).single();
+    if(data){cartId=data.id;}
+    else{const{data:nc}=await sb.from('carts').insert({user_id:session.user.id}).select().single();cartId=nc.id;}
+  }else{
+    let gid=localStorage.getItem('yllowtap_guest_id');
+    if(!gid){gid=crypto.randomUUID();localStorage.setItem('yllowtap_guest_id',gid);}
+    const{data}=await sb.from('carts').select('id').eq('guest_id',gid).single();
+    if(data){cartId=data.id;}
+    else{const{data:nc}=await sb.from('carts').insert({guest_id:gid}).select().single();cartId=nc.id;}
+  }
+
+  // 이미 같은 상품+옵션이 있으면 수량만 증가
+  const{data:existing}=await sb.from('cart_items').select('*').eq('cart_id',cartId).eq('product_id',product.id);
+  const match=existing?.find(e=>JSON.stringify(e.selected_options)===JSON.stringify(opts));
+  if(match){
+    await sb.from('cart_items').update({quantity:match.quantity+qty}).eq('id',match.id);
+  }else{
+    await sb.from('cart_items').insert({cart_id:cartId,product_id:product.id,quantity:qty,selected_options:opts});
+  }
+
+  if(confirm('장바구니에 담았습니다!\n장바구니로 이동하시겠습니까?')){
+    window.location.href='/cart.html';
+  }
+}
+
+// ══════════════════════════════════════════
+// WISHLIST TOGGLE
+// ══════════════════════════════════════════
+async function toggleWishlist(){
+  const{data:{session}}=await sb.auth.getSession();
+  if(!session){alert('로그인이 필요합니다.');window.location.href='/login.html';return;}
+  if(!product)return;
+
+  const{data:existing}=await sb.from('wishlists').select('id').eq('user_id',session.user.id).eq('product_id',product.id).single();
+  if(existing){
+    await sb.from('wishlists').delete().eq('id',existing.id);
+    alert('위시리스트에서 제거되었습니다.');
+  }else{
+    await sb.from('wishlists').insert({user_id:session.user.id,product_id:product.id});
+    alert('위시리스트에 추가되었습니다!');
+  }
+}
+
+// ══════════════════════════════════════════
+// RECENT VIEW 기록
+// ══════════════════════════════════════════
+async function recordView(){
+  if(!product)return;
+  const{data:{session}}=await sb.auth.getSession();
+  if(session){
+    await sb.from('recent_views').insert({user_id:session.user.id,product_id:product.id}).catch(()=>{});
+  }else{
+    const gid=localStorage.getItem('yllowtap_guest_id')||crypto.randomUUID();
+    localStorage.setItem('yllowtap_guest_id',gid);
+    await sb.from('recent_views').insert({guest_id:gid,product_id:product.id}).catch(()=>{});
+  }
+}
+
+loadProduct().then(()=>recordView());
 </script>
 <script>
 (async function(){
