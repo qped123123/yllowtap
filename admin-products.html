@@ -313,6 +313,7 @@ body { font-family:var(--font); background:var(--bg); color:var(--text); font-si
       <a onclick="switchPage('inquiries')" id="nav-inquiries"><span class="icon">💬</span> 문의 관리</a>
       <a onclick="switchPage('orders')" id="nav-orders"><span class="icon">📦</span> 주문 관리</a>
       <a onclick="switchPage('members')" id="nav-members"><span class="icon">👥</span> 회원 관리</a>
+      <a onclick="switchPage('faqs')" id="nav-faqs"><span class="icon">❓</span> FAQ 관리</a>
       <a href="/" target="_blank"><span class="icon">🌐</span> 사이트 보기</a>
       <a onclick="doLogout()" style="margin-top:16px;border-top:1px solid var(--border);padding-top:16px;"><span class="icon">🚪</span> 로그아웃</a>
     </nav>
@@ -469,6 +470,22 @@ body { font-family:var(--font); background:var(--bg); color:var(--text); font-si
         </div>
       </div>
       <div style="margin-top:12px;font-size:11px;color:var(--text-muted);" id="memberCount"></div>
+    </div>
+
+    <!-- ============================================ -->
+    <!-- PAGE 7: FAQ 관리 -->
+    <!-- ============================================ -->
+    <div class="page-section" id="page-faqs">
+      <div class="top-bar">
+        <h1>FAQ 관리</h1>
+        <button class="btn btn-primary" onclick="openFaqModal()">+ 새 FAQ</button>
+      </div>
+      <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);">
+        <div style="display:grid;grid-template-columns:80px 1fr 60px 60px 80px;gap:12px;padding:10px 16px;font-size:10px;font-weight:500;letter-spacing:1px;text-transform:uppercase;color:var(--text-muted);border-bottom:1px solid var(--border);">
+          <div>카테고리</div><div>질문 / 답변</div><div>순서</div><div>상태</div><div>관리</div>
+        </div>
+        <div id="faqAdminList"><div class="empty-list"><p>등록된 FAQ가 없습니다</p></div></div>
+      </div>
     </div>
 
   </div>
@@ -835,6 +852,54 @@ body { font-family:var(--font); background:var(--bg); color:var(--text); font-si
   </div>
 </div>
 
+<!-- ===== FAQ MANAGEMENT PAGE ===== -->
+<!-- 이 HTML은 page-members 닫힌 후, 모달들 앞에 위치 -->
+
+<!-- ===== FAQ FORM MODAL ===== -->
+<div class="modal-overlay" id="faqModal">
+  <div class="modal" style="max-width:560px;">
+    <div class="modal-header">
+      <h2 id="faqFormTitle">FAQ 등록</h2>
+      <button class="modal-close" onclick="closeFaqModal()">×</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label class="form-label">카테고리</label>
+        <select class="form-select" id="faqCategory">
+          <option value="general">일반</option>
+          <option value="order">주문/결제</option>
+          <option value="shipping">배송</option>
+          <option value="exchange">교환</option>
+          <option value="return">반품/환불</option>
+          <option value="membership">멤버십</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">질문</label>
+        <input class="form-input" id="faqQuestion" placeholder="자주 묻는 질문을 입력하세요">
+      </div>
+      <div class="form-group">
+        <label class="form-label">답변</label>
+        <textarea class="form-textarea" id="faqAnswer" style="min-height:120px;" placeholder="답변을 입력하세요"></textarea>
+      </div>
+      <div class="form-group">
+        <label class="form-label">순서 (낮을수록 위에 표시)</label>
+        <input class="form-input" id="faqOrder" type="number" value="0">
+      </div>
+      <div class="form-group">
+        <label style="display:flex;align-items:center;gap:8px;font-size:12px;color:var(--text-dim);cursor:pointer;">
+          <input type="checkbox" id="faqActive" checked> 활성화 (고객에게 노출)
+        </label>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-danger" id="faqDeleteBtn" style="display:none;" onclick="deleteFaq()">삭제</button>
+      <button class="btn btn-secondary" onclick="closeFaqModal()">취소</button>
+      <button class="btn btn-primary" onclick="saveFaq()">저장</button>
+    </div>
+  </div>
+</div>
+
 <!-- ===== ORDER DETAIL MODAL ===== -->
 <div class="modal-overlay" id="orderModal">
   <div class="modal" style="max-width:700px;">
@@ -963,7 +1028,7 @@ function switchPage(page) {
 // 초기화
 // ══════════════════════════════════════════
 async function init() {
-  await Promise.all([loadCategories(), loadCollections(), loadProducts(), loadHeroSlides(), loadSettings(), loadInquiries(), loadMembers(), loadOrders()]);
+  await Promise.all([loadCategories(), loadCollections(), loadProducts(), loadHeroSlides(), loadSettings(), loadInquiries(), loadMembers(), loadOrders(), loadFaqs()]);
   bindTagCheckboxes(); bindCustomTagInput(); bindImageUpload(); bindHeroMediaUpload(); bindSettingsImageUpload();
 }
 
@@ -1720,6 +1785,90 @@ async function saveInquiryAnswer(){
   showToast('답변 저장 완료');
   closeInquiryModal();
   await loadInquiries();
+}
+
+// ══════════════════════════════════════════
+// FAQ 관리
+// ══════════════════════════════════════════
+let allFaqs=[];
+let editingFaqId=null;
+const FAQ_CAT_MAP={general:'일반',order:'주문/결제',shipping:'배송',exchange:'교환','return':'반품/환불',membership:'멤버십'};
+
+async function loadFaqs(){
+  const{data}=await sb.from('faqs').select('*').order('display_order').order('created_at',{ascending:false});
+  allFaqs=data||[];
+  renderFaqList();
+}
+
+function renderFaqList(){
+  const el=document.getElementById('faqAdminList');
+  if(!allFaqs.length){el.innerHTML='<div class="empty-list"><p>등록된 FAQ가 없습니다</p></div>';return;}
+  el.innerHTML=allFaqs.map(f=>`
+    <div style="display:grid;grid-template-columns:80px 1fr 60px 60px 80px;gap:12px;padding:12px 16px;align-items:center;border-bottom:1px solid rgba(255,255,255,0.04);cursor:pointer;transition:background 0.15s;" onmouseover="this.style.background='var(--bg-hover)'" onmouseout="this.style.background=''" onclick="openFaqModal('${f.id}')">
+      <div style="font-size:11px;color:var(--accent);">${FAQ_CAT_MAP[f.category]||f.category}</div>
+      <div>
+        <div style="font-size:13px;font-weight:500;">${f.question}</div>
+        <div style="font-size:11px;color:var(--text-dim);margin-top:2px;">${f.answer?.substring(0,60)}${f.answer?.length>60?'...':''}</div>
+      </div>
+      <div style="font-size:12px;text-align:center;">${f.display_order}</div>
+      <div><span class="status-badge ${f.is_active?'status-active':'status-inactive'}">${f.is_active?'활성':'비활성'}</span></div>
+      <div><button class="btn btn-secondary btn-small" onclick="event.stopPropagation();openFaqModal('${f.id}')">편집</button></div>
+    </div>
+  `).join('');
+}
+
+function openFaqModal(id){
+  if(id){
+    const f=allFaqs.find(x=>x.id===id);
+    if(!f)return;
+    editingFaqId=id;
+    document.getElementById('faqFormTitle').textContent='FAQ 편집';
+    document.getElementById('faqCategory').value=f.category||'general';
+    document.getElementById('faqQuestion').value=f.question||'';
+    document.getElementById('faqAnswer').value=f.answer||'';
+    document.getElementById('faqOrder').value=f.display_order||0;
+    document.getElementById('faqActive').checked=f.is_active!==false;
+    document.getElementById('faqDeleteBtn').style.display='inline-flex';
+  }else{
+    editingFaqId=null;
+    document.getElementById('faqFormTitle').textContent='FAQ 등록';
+    document.getElementById('faqCategory').value='general';
+    document.getElementById('faqQuestion').value='';
+    document.getElementById('faqAnswer').value='';
+    document.getElementById('faqOrder').value=0;
+    document.getElementById('faqActive').checked=true;
+    document.getElementById('faqDeleteBtn').style.display='none';
+  }
+  document.getElementById('faqModal').classList.add('show');
+}
+
+function closeFaqModal(){document.getElementById('faqModal').classList.remove('show');}
+
+async function saveFaq(){
+  const d={
+    category:document.getElementById('faqCategory').value,
+    question:document.getElementById('faqQuestion').value.trim(),
+    answer:document.getElementById('faqAnswer').value.trim(),
+    display_order:parseInt(document.getElementById('faqOrder').value)||0,
+    is_active:document.getElementById('faqActive').checked
+  };
+  if(!d.question||!d.answer){showToast('질문과 답변을 입력해주세요',true);return;}
+  let error;
+  if(editingFaqId){({error}=await sb.from('faqs').update(d).eq('id',editingFaqId));}
+  else{({error}=await sb.from('faqs').insert(d));}
+  if(error){showToast('저장 실패: '+error.message,true);return;}
+  showToast(editingFaqId?'FAQ 수정 완료':'FAQ 등록 완료');
+  closeFaqModal();
+  await loadFaqs();
+}
+
+async function deleteFaq(){
+  if(!editingFaqId||!confirm('이 FAQ를 삭제하시겠습니까?'))return;
+  const{error}=await sb.from('faqs').delete().eq('id',editingFaqId);
+  if(error){showToast('삭제 실패',true);return;}
+  showToast('FAQ 삭제 완료');
+  closeFaqModal();
+  await loadFaqs();
 }
 
 // ─── 시작: 인증 체크 ───

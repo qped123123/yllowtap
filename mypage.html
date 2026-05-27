@@ -3,116 +3,212 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Yllowtap — My Page</title>
+<title>Yllowtap — Product</title>
 <link rel="stylesheet" href="./css/style.css">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,opsz,wght@0,6..96,400;0,6..96,700;1,6..96,400&family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet">
 <style>
-.my-page{max-width:1200px;margin:0 auto;padding:calc(var(--header-height,88px) + 40px) 40px 80px;min-height:100vh}
-.my-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:40px}
-.my-header h1{font-family:'Bodoni Moda',serif;font-size:32px;font-weight:400;letter-spacing:2px}
-.my-logout{font-size:12px;color:#888;cursor:pointer;background:none;border:none;text-decoration:underline;font-family:inherit}
-.my-logout:hover{color:#111}
+:root {
+  --pd-bg:#F7F5F2;--pd-white:#FFFFFF;--pd-text:#111111;--pd-text2:#666666;--pd-text3:#999999;
+  --pd-accent:#F4D84E;--pd-accent-dk:#D4B83E;--pd-border:#E5E1DC;--pd-border-lt:#F0EDE8;--pd-red:#C4453C;
+  --pd-fd:'Bodoni Moda',serif;--pd-fb:'Noto Sans KR','Pretendard',sans-serif;
+}
 
-/* USER CARD */
-.my-user-card{display:flex;align-items:center;gap:24px;padding:32px;background:#fff;border:1px solid #E5E1DC;margin-bottom:40px}
-.my-avatar{width:64px;height:64px;border-radius:50%;background:#EAE7E2;display:flex;align-items:center;justify-content:center;font-size:24px;color:#888;overflow:hidden}
-.my-avatar img{width:100%;height:100%;object-fit:cover}
-.my-user-name{font-size:18px;font-weight:600;margin-bottom:4px}
-.my-user-email{font-size:13px;color:#888}
-.my-user-grade{display:inline-block;margin-top:6px;padding:3px 10px;font-size:10px;font-weight:600;letter-spacing:1px;text-transform:uppercase;background:#F4D84E;color:#111;border-radius:2px}
-.my-user-stats{margin-left:auto;display:flex;gap:32px;text-align:center}
-.my-stat-num{font-size:22px;font-weight:700;color:#111}
-.my-stat-label{font-size:11px;color:#888;letter-spacing:0.5px;margin-top:2px}
+/* BREADCRUMB */
+.pd-breadcrumb{max-width:1400px;margin:0 auto;padding:76px 40px 14px;font-size:11px;color:var(--pd-text3);letter-spacing:1px}
+.pd-breadcrumb a{color:var(--pd-text3);text-decoration:none;transition:color .3s}.pd-breadcrumb a:hover{color:var(--pd-text)}
+.pd-breadcrumb span{margin:0 7px}
 
-/* TABS */
-.my-tabs{display:flex;border-bottom:1px solid #E5E1DC;margin-bottom:32px;gap:0}
-.my-tab{padding:14px 24px;font-size:12px;font-weight:500;letter-spacing:1.5px;text-transform:uppercase;color:#888;cursor:pointer;border-bottom:2px solid transparent;background:none;border-top:none;border-left:none;border-right:none;font-family:inherit;transition:all .3s;white-space:nowrap}
-.my-tab:hover{color:#111}
-.my-tab.active{color:#111;border-bottom-color:#111}
-.my-panel{display:none}
-.my-panel.active{display:block}
+/* PRODUCT TOP */
+.pd-top{max-width:1400px;margin:0 auto;padding:6px 40px 0;display:grid;grid-template-columns:1fr 420px;gap:56px;align-items:start}
 
-/* ORDER LIST */
-.order-card{background:#fff;border:1px solid #E5E1DC;padding:20px 24px;margin-bottom:16px}
-.order-card-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;padding-bottom:12px;border-bottom:1px solid #F0EDE8}
-.order-number{font-size:13px;font-weight:600;color:#111}
-.order-date{font-size:11px;color:#888}
-.order-status{font-size:11px;font-weight:600;letter-spacing:1px;text-transform:uppercase;padding:4px 10px;border-radius:2px}
-.status-pending{background:#FFF3CD;color:#856404}
-.status-paid{background:#D4EDDA;color:#155724}
-.status-preparing{background:#CCE5FF;color:#004085}
-.status-shipped{background:#CCE5FF;color:#004085}
-.status-delivered{background:#D4EDDA;color:#155724}
-.status-cancelled{background:#F8D7DA;color:#721C24}
-.status-refunded{background:#F8D7DA;color:#721C24}
-.order-item{display:flex;gap:14px;align-items:center;padding:8px 0}
-.order-item-img{width:56px;height:70px;object-fit:cover;background:#EAE7E2;flex-shrink:0}
-.order-item-name{font-size:13px;font-weight:500;margin-bottom:2px}
-.order-item-option{font-size:11px;color:#888}
-.order-item-price{margin-left:auto;font-size:13px;font-weight:600;white-space:nowrap}
-.order-total{text-align:right;margin-top:12px;padding-top:12px;border-top:1px solid #F0EDE8;font-size:14px;font-weight:700}
+/* GALLERY — 개선: 스크롤 가능 + 카운터 */
+.pd-gallery{display:grid;grid-template-columns:76px 1fr;gap:10px;position:sticky;top:76px}
+.pd-thumbs-wrap{position:relative;height:600px}
+.pd-thumbs{display:flex;flex-direction:column;gap:7px;height:100%;overflow-y:auto;scrollbar-width:thin;scrollbar-color:var(--pd-border) transparent;padding-right:4px}
+.pd-thumbs::-webkit-scrollbar{width:3px}.pd-thumbs::-webkit-scrollbar-thumb{background:var(--pd-border);border-radius:3px}
+.pd-thumb{width:76px;min-height:95px;height:95px;object-fit:cover;cursor:pointer;border:2px solid transparent;transition:border-color .3s,opacity .3s;opacity:.5;flex-shrink:0}
+.pd-thumb.active,.pd-thumb:hover{border-color:var(--pd-text);opacity:1}
+.pd-main{position:relative;aspect-ratio:3/4;overflow:hidden;background:#EAE7E2;cursor:zoom-in}
+.pd-main img{width:100%;height:100%;object-fit:cover;transition:opacity .4s}
+.pd-img-counter{position:absolute;bottom:12px;right:12px;background:rgba(0,0,0,.5);color:#fff;font-size:11px;padding:4px 10px;border-radius:3px;letter-spacing:1px}
 
-/* WISHLIST */
-.wish-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
-.wish-card{position:relative;cursor:pointer;text-decoration:none;color:inherit}
-.wish-card-img{aspect-ratio:3/4;overflow:hidden;background:#EAE7E2;margin-bottom:10px}
-.wish-card-img img{width:100%;height:100%;object-fit:cover;transition:transform .6s}
-.wish-card:hover .wish-card-img img{transform:scale(1.04)}
-.wish-card-brand{font-size:10px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:#888;margin-bottom:2px}
-.wish-card-name{font-size:13px;font-weight:500;margin-bottom:4px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
-.wish-card-price{font-size:13px;font-weight:700}
-.wish-remove{position:absolute;top:8px;right:8px;width:28px;height:28px;background:rgba(255,255,255,.85);border:none;border-radius:50%;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:14px;color:#C4453C;transition:all .2s}
-.wish-remove:hover{background:#C4453C;color:#fff}
+/* PRODUCT INFO */
+.pd-info{padding:6px 0 60px}
+.pd-info-brand{font-size:11px;font-weight:500;letter-spacing:2px;text-transform:uppercase;color:var(--pd-text3);margin-bottom:7px}
+.pd-info-name{font-family:var(--pd-fd);font-size:26px;font-weight:400;line-height:1.3;margin-bottom:4px}
+.pd-info-subtitle{font-size:13px;color:var(--pd-text2);line-height:1.6;margin-bottom:22px}
+.pd-info-price{display:flex;align-items:baseline;gap:10px;margin-bottom:28px;padding-bottom:22px;border-bottom:1px solid var(--pd-border)}
+.pd-price-now{font-size:24px;font-weight:700}.pd-price-old{font-size:15px;color:var(--pd-text3);text-decoration:line-through}.pd-price-off{font-size:15px;font-weight:700;color:var(--pd-red)}
 
-/* ADDRESS */
-.addr-card{background:#fff;border:1px solid #E5E1DC;padding:20px 24px;margin-bottom:12px;display:flex;justify-content:space-between;align-items:center}
-.addr-default{display:inline-block;padding:2px 8px;font-size:9px;font-weight:600;letter-spacing:1px;background:#F4D84E;color:#111;border-radius:2px;margin-left:8px}
-.addr-name{font-size:14px;font-weight:600;margin-bottom:4px}
-.addr-detail{font-size:12px;color:#666;line-height:1.6}
-.addr-actions{display:flex;gap:8px}
-.addr-btn{padding:6px 14px;font-size:11px;border:1px solid #E5E1DC;background:none;cursor:pointer;font-family:inherit;transition:all .2s}
-.addr-btn:hover{background:#111;color:#fff;border-color:#111}
+/* OPTIONS */
+.pd-opt-group{margin-bottom:18px}
+.pd-opt-label{font-size:11px;font-weight:500;letter-spacing:1.5px;text-transform:uppercase;color:var(--pd-text2);margin-bottom:8px}
+.pd-opt-select{width:100%;padding:12px 14px;font-size:13px;font-family:var(--pd-fb);border:1px solid var(--pd-border);background:var(--pd-white);color:var(--pd-text);cursor:pointer;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%23999'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 14px center}
 
-/* RECENT VIEWS */
-.recent-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:14px}
-.recent-card{text-decoration:none;color:inherit}
-.recent-card-img{aspect-ratio:3/4;overflow:hidden;background:#EAE7E2;margin-bottom:8px}
-.recent-card-img img{width:100%;height:100%;object-fit:cover}
-.recent-card-name{font-size:11px;color:#444;display:-webkit-box;-webkit-line-clamp:1;-webkit-box-orient:vertical;overflow:hidden}
-.recent-card-price{font-size:12px;font-weight:600;margin-top:2px}
+/* COLOR PREVIEW — 컬러별 이미지 표시 */
+.pd-colors{margin-bottom:24px}
+.pd-colors-title{font-size:14px;font-weight:600;text-align:center;margin-bottom:16px}
+.pd-colors-grid{display:flex;gap:20px;justify-content:center;flex-wrap:wrap}
+.pd-color-item{text-align:center;cursor:pointer;transition:opacity .3s;opacity:.7}
+.pd-color-item:hover,.pd-color-item.active{opacity:1}
+.pd-color-item img{width:140px;height:175px;object-fit:cover;border:2px solid transparent;transition:border-color .3s}
+.pd-color-item.active img{border-color:var(--pd-text)}
+.pd-color-label{font-size:11px;font-weight:500;letter-spacing:1px;text-transform:uppercase;color:var(--pd-text2);margin-top:8px}
 
-/* PROFILE FORM */
-.profile-form{max-width:480px}
-.pf-row{margin-bottom:18px}
-.pf-label{display:block;font-size:11px;font-weight:500;letter-spacing:1px;color:#666;margin-bottom:6px;text-transform:uppercase}
-.pf-input{width:100%;padding:12px 14px;font-size:14px;font-family:inherit;border:1px solid #E5E1DC;background:#F7F5F2;color:#111}
-.pf-input:focus{outline:none;border-color:#111}
-.pf-input:disabled{background:#EFECE6;color:#888}
-.pf-save{padding:14px 40px;font-size:12px;font-weight:600;letter-spacing:2px;text-transform:uppercase;background:#111;color:#fff;border:none;cursor:pointer;font-family:inherit;margin-top:8px}
-.pf-save:hover{background:#333}
-.pf-msg{font-size:12px;color:#4CAF50;margin-top:10px;display:none}
+/* QUANTITY */
+.pd-qty-row{display:flex;align-items:center;gap:14px;margin-bottom:22px}
+.pd-qty-box{display:flex;align-items:center;border:1px solid var(--pd-border)}
+.pd-qty-btn{width:38px;height:38px;background:none;border:none;font-size:17px;cursor:pointer;color:var(--pd-text2);display:flex;align-items:center;justify-content:center;transition:color .3s}
+.pd-qty-btn:hover{color:var(--pd-text)}
+.pd-qty-num{width:44px;text-align:center;font-size:14px;font-weight:500;border-left:1px solid var(--pd-border);border-right:1px solid var(--pd-border);line-height:38px}
 
-/* EMPTY STATE */
-.my-empty{text-align:center;padding:60px 0;color:#888}
-.my-empty p{font-size:14px;margin-bottom:16px}
-.my-empty a{display:inline-block;padding:12px 32px;font-size:11px;font-weight:500;letter-spacing:2px;text-transform:uppercase;border:1px solid #111;color:#111;text-decoration:none;transition:all .2s}
-.my-empty a:hover{background:#111;color:#fff;opacity:1}
+/* TOTAL */
+.pd-total{display:flex;justify-content:space-between;align-items:center;padding:18px 0;border-top:1px solid var(--pd-border);border-bottom:1px solid var(--pd-border);margin-bottom:22px}
+.pd-total-label{font-size:12px;font-weight:500;letter-spacing:1px;color:var(--pd-text2)}.pd-total-price{font-size:20px;font-weight:700}
+
+/* BUTTONS */
+.pd-btn-group{display:flex;gap:7px;margin-bottom:14px}
+.pd-btn-buy{flex:2;padding:15px;font-size:13px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--pd-text);background:var(--pd-accent);border:none;cursor:pointer;font-family:var(--pd-fb);transition:background .3s}
+.pd-btn-buy:hover{background:var(--pd-accent-dk)}
+.pd-btn-cart{flex:1;padding:15px;font-size:12px;font-weight:500;letter-spacing:1.5px;text-transform:uppercase;color:var(--pd-text);background:none;border:1px solid var(--pd-text);cursor:pointer;font-family:var(--pd-fb);transition:all .3s}
+.pd-btn-cart:hover{background:var(--pd-text);color:var(--pd-bg)}
+.pd-btn-wish{width:auto;min-width:50px;height:50px;padding:0 14px;background:none;border:1px solid var(--pd-border);cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;transition:all .3s}
+.pd-btn-wish:hover{border-color:var(--pd-text)}
+.pd-btn-wish svg{width:19px;height:19px;stroke:var(--pd-text2);fill:none;stroke-width:1.5;transition:all .3s}
+.pd-btn-wish.active{border-color:#E8837C}
+.pd-btn-wish.active svg{stroke:#E8837C;fill:#E8837C}
+.pd-wish-count{font-size:12px;font-weight:500;color:var(--pd-text2)}
+
+/* NOTICES */
+.pd-notices{margin-top:18px;padding:14px;background:var(--pd-white);border:1px solid var(--pd-border-lt)}
+.pd-notice{font-size:12px;color:var(--pd-text2);line-height:1.8;display:flex;align-items:center;gap:7px}
+.pd-notice-dot{width:4px;height:4px;border-radius:50%;background:var(--pd-accent);flex-shrink:0}
+
+/* EDITORIAL MOOD */
+.pd-editorial{max-width:1400px;margin:0 auto;padding:90px 40px}
+.pd-editorial-head{text-align:center;margin-bottom:44px}
+.pd-editorial-over{font-size:10px;font-weight:500;letter-spacing:4px;text-transform:uppercase;color:var(--pd-text3);margin-bottom:10px}
+.pd-editorial-title{font-family:var(--pd-fd);font-size:34px;font-weight:400;font-style:italic;letter-spacing:2px;margin-bottom:14px}
+.pd-editorial-desc{font-size:14px;color:var(--pd-text2);line-height:1.8;max-width:540px;margin:0 auto}
+.pd-editorial-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.pd-editorial-img{width:100%;aspect-ratio:3/4;object-fit:cover;opacity:0;transform:translateY(28px);transition:all .8s cubic-bezier(.25,0,.15,1)}
+.pd-editorial-img.visible{opacity:1;transform:translateY(0)}.pd-editorial-img.wide{grid-column:1/-1;aspect-ratio:21/9}
+
+/* DETAIL TABS */
+.pd-detail{max-width:1400px;margin:0 auto;padding:0 40px 70px}
+.pd-tabs{display:flex;border-bottom:1px solid var(--pd-border);margin-bottom:36px}
+.pd-tab{padding:14px 22px;font-size:12px;font-weight:500;letter-spacing:1.5px;color:var(--pd-text3);cursor:pointer;border-bottom:2px solid transparent;transition:all .3s;background:none;border-top:none;border-left:none;border-right:none;font-family:var(--pd-fb)}
+.pd-tab:hover{color:var(--pd-text)}.pd-tab.active{color:var(--pd-text);border-bottom-color:var(--pd-text)}
+.pd-panel{display:none;max-width:800px;margin:0 auto}.pd-panel.active{display:block}
+.pd-content{font-size:14px;line-height:1.9;color:var(--pd-text2)}
+.pd-content h3{font-size:13px;font-weight:600;letter-spacing:1px;color:var(--pd-text);margin:28px 0 10px}.pd-content h3:first-child{margin-top:0}
+.pd-content table{width:100%;border-collapse:collapse;margin:14px 0}
+.pd-content table th,.pd-content table td{padding:10px 14px;text-align:left;font-size:13px;border-bottom:1px solid var(--pd-border-lt)}
+.pd-content table th{font-weight:500;color:var(--pd-text);width:110px;background:rgba(0,0,0,.02)}
+
+/* ===== REVIEW SYSTEM ===== */
+.pd-review-summary{display:flex;align-items:center;gap:24px;margin-bottom:32px;padding-bottom:24px;border-bottom:1px solid var(--pd-border-lt)}
+.pd-review-avg{text-align:center}
+.pd-review-avg-num{font-size:36px;font-weight:700;line-height:1}
+.pd-review-avg-stars{color:var(--pd-accent);font-size:18px;margin-top:4px}
+.pd-review-avg-count{font-size:11px;color:var(--pd-text3);margin-top:4px}
+.pd-review-bars{flex:1}
+.pd-review-bar-row{display:flex;align-items:center;gap:8px;margin-bottom:3px}
+.pd-review-bar-label{font-size:11px;color:var(--pd-text3);width:30px;text-align:right}
+.pd-review-bar{flex:1;height:6px;background:var(--pd-border-lt);border-radius:3px;overflow:hidden}
+.pd-review-bar-fill{height:100%;background:var(--pd-accent);border-radius:3px;transition:width .5s}
+.pd-review-bar-count{font-size:10px;color:var(--pd-text3);width:20px}
+
+.pd-review-write-btn{display:block;width:100%;padding:14px;font-size:12px;font-weight:500;letter-spacing:1.5px;text-transform:uppercase;background:none;border:1px solid var(--pd-border);cursor:pointer;font-family:var(--pd-fb);transition:all .3s;margin-bottom:28px;color:var(--pd-text)}
+.pd-review-write-btn:hover{background:var(--pd-text);color:var(--pd-bg)}
+
+/* REVIEW FORM */
+.pd-review-form{background:var(--pd-white);border:1px solid var(--pd-border-lt);padding:24px;margin-bottom:28px;display:none}
+.pd-review-form.show{display:block}
+.pd-review-form-title{font-size:14px;font-weight:600;margin-bottom:16px}
+.pd-rf-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px}
+.pd-rf-row.full{grid-template-columns:1fr}
+.pd-rf-label{font-size:11px;font-weight:500;color:var(--pd-text2);margin-bottom:4px}
+.pd-rf-input{padding:10px 12px;font-size:13px;font-family:var(--pd-fb);border:1px solid var(--pd-border);background:var(--pd-bg);color:var(--pd-text);width:100%}
+.pd-rf-textarea{padding:10px 12px;font-size:13px;font-family:var(--pd-fb);border:1px solid var(--pd-border);background:var(--pd-bg);color:var(--pd-text);width:100%;min-height:100px;resize:vertical;line-height:1.6}
+.pd-rf-stars{display:flex;gap:4px;margin-bottom:12px}
+.pd-rf-star{font-size:24px;cursor:pointer;color:var(--pd-border);transition:color .2s}
+.pd-rf-star.on{color:var(--pd-accent)}
+.pd-rf-actions{display:flex;gap:8px;justify-content:flex-end;margin-top:16px}
+.pd-rf-img-preview{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
+.pd-rf-img-preview img{width:60px;height:60px;object-fit:cover;border-radius:4px;border:1px solid var(--pd-border)}
+
+/* REVIEW ITEM */
+.pd-review-item{padding:24px 0;border-bottom:1px solid var(--pd-border-lt)}
+.pd-review-item-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
+.pd-review-item-stars{color:var(--pd-accent);font-size:14px}
+.pd-review-item-author{font-size:11px;color:var(--pd-text3)}
+.pd-review-item-date{font-size:10px;color:var(--pd-text3)}
+.pd-review-item-images{display:flex;gap:8px;margin:12px 0;flex-wrap:wrap}
+.pd-review-item-images img{width:100px;height:100px;object-fit:cover;border-radius:4px;cursor:pointer;transition:transform .2s}
+.pd-review-item-images img:hover{transform:scale(1.05)}
+.pd-review-item-text{font-size:13px;line-height:1.7;color:var(--pd-text2)}
+.pd-review-more{text-align:center;margin-top:20px}
+.pd-review-empty{text-align:center;padding:40px 0;color:var(--pd-text3);font-size:13px}
+
+/* RECOMMEND */
+.pd-recommend{max-width:1400px;margin:0 auto;padding:50px 40px 90px;border-top:1px solid var(--pd-border)}
+.pd-rec-head{text-align:center;margin-bottom:36px}
+.pd-rec-over{font-size:10px;font-weight:500;letter-spacing:4px;text-transform:uppercase;color:var(--pd-text3);margin-bottom:7px}
+.pd-rec-title{font-family:var(--pd-fd);font-size:26px;font-weight:400;letter-spacing:2px}
+.pd-rec-sub{font-size:13px;color:var(--pd-text2);margin-top:7px}
+.pd-rec-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:18px}
+.pd-rec-card{text-decoration:none;color:inherit}
+.pd-rec-card-img{position:relative;aspect-ratio:3/4;overflow:hidden;background:#EAE7E2;margin-bottom:10px}
+.pd-rec-card-img img{width:100%;height:100%;object-fit:cover;transition:transform .8s cubic-bezier(.25,0,.15,1)}
+.pd-rec-card:hover .pd-rec-card-img img{transform:scale(1.05)}
+.pd-rec-brand{font-size:10px;font-weight:500;letter-spacing:1.5px;text-transform:uppercase;color:var(--pd-text3);margin-bottom:3px}
+.pd-rec-name{font-size:13px;line-height:1.4;margin-bottom:5px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.pd-rec-price{font-size:14px;font-weight:700}
+
+/* JOURNAL LINK */
+.pd-journal{background:var(--pd-text);padding:70px 40px;text-align:center}
+.pd-journal-over{font-size:10px;letter-spacing:4px;text-transform:uppercase;color:rgba(255,255,255,.4);margin-bottom:14px}
+.pd-journal-title{font-family:var(--pd-fd);font-size:30px;font-weight:400;font-style:italic;color:#fff;letter-spacing:2px;margin-bottom:22px}
+.pd-journal-btn{display:inline-block;padding:13px 44px;font-size:11px;font-weight:500;letter-spacing:3px;text-transform:uppercase;color:var(--pd-text);background:var(--pd-accent);text-decoration:none;transition:background .3s}
+.pd-journal-btn:hover{background:var(--pd-accent-dk)}
+
+/* LOADING */
+.pd-loading{position:fixed;inset:0;background:var(--pd-bg);display:flex;align-items:center;justify-content:center;z-index:999;transition:opacity .5s}
+.pd-loading.hide{opacity:0;pointer-events:none}
+.pd-spinner{width:24px;height:24px;border:2px solid var(--pd-border);border-top-color:var(--pd-text);border-radius:50%;animation:pdSpin .8s linear infinite}
+@keyframes pdSpin{to{transform:rotate(360deg)}}
+@keyframes pdFadeUp{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:translateY(0)}}
+.pd-fade{opacity:0;animation:pdFadeUp .6s ease forwards}
 
 /* RESPONSIVE */
+@media(max-width:1024px){
+  .pd-top{grid-template-columns:1fr;gap:28px}
+  .pd-gallery{position:static;grid-template-columns:1fr}
+  .pd-thumbs-wrap{height:auto}
+  .pd-thumbs{flex-direction:row;overflow-x:auto;overflow-y:hidden;order:2;height:auto}
+  .pd-thumb{width:56px;min-height:70px;height:70px}
+  .pd-main{order:1}
+  .pd-rec-grid{grid-template-columns:repeat(3,1fr)}
+}
 @media(max-width:768px){
-  .my-page{padding:calc(var(--header-height,60px) + 20px) 16px 60px}
-  .my-header h1{font-size:24px}
-  .my-user-card{flex-direction:column;text-align:center;gap:16px}
-  .my-user-stats{margin-left:0}
-  .my-tabs{overflow-x:auto;scrollbar-width:none}
-  .my-tab{padding:12px 16px;font-size:11px}
-  .wish-grid{grid-template-columns:repeat(2,1fr)}
-  .recent-grid{grid-template-columns:repeat(3,1fr)}
-  .order-item{flex-wrap:wrap}
-  .addr-card{flex-direction:column;gap:12px;align-items:flex-start}
+  .pd-top{padding:6px 20px 0}.pd-breadcrumb{padding:76px 20px 10px}
+  .pd-editorial{padding:50px 20px}.pd-detail{padding:0 20px 50px}
+  .pd-recommend{padding:36px 20px 50px}.pd-editorial-grid{grid-template-columns:1fr}
+  .pd-rec-grid{grid-template-columns:repeat(2,1fr)}.pd-info-name{font-size:20px}
+  .pd-editorial-title{font-size:24px}
+  .pd-tabs{overflow-x:auto;scrollbar-width:none}.pd-tab{white-space:nowrap;padding:12px 14px;font-size:11px}
+  .pd-journal{padding:50px 20px}.pd-journal-title{font-size:22px}
+  .pd-color-item img{width:100px;height:125px}
+  .pd-review-summary{flex-direction:column;gap:16px}
+  .pd-rf-row{grid-template-columns:1fr}
 }
 </style>
 </head>
 <body>
+<div class="pd-loading" id="pageLoading"><div class="pd-spinner"></div></div>
 
 <!-- HEADER -->
 <header class="header">
@@ -123,7 +219,7 @@
     <a href="/category.html?cat=accessories">Accessories</a><a href="/category.html?cat=keyring">Keyring</a>
     <a href="/category.html?cat=seasonal">Seasonal</a><a href="/category.html?cat=sale">Sale</a>
   </nav>
-  <div class="header__actions"><a href="/mypage.html">My Page</a><a href="/mypage.html?tab=wishlist">Wishlist</a><a href="/cart.html">Bag (0)</a>
+  <div class="header__actions"><a href="/login.html">Login</a><a href="/mypage.html?tab=wishlist">Wishlist</a><a href="/cart.html">Bag (0)</a>
     <button class="header__hamburger" aria-label="메뉴 열기"><span></span><span></span><span></span></button></div>
 </header>
 <div class="mobile-menu">
@@ -132,435 +228,589 @@
   <a href="/category.html?cat=bags">Bags</a><a href="/category.html?cat=jewelry">Jewelry</a>
   <a href="/category.html?cat=accessories">Accessories</a><a href="/category.html?cat=keyring">Keyring</a>
   <a href="/category.html?cat=seasonal">Seasonal</a><a href="/category.html?cat=sale">Sale</a>
-  <a href="/mypage.html">My Page</a><a href="#">Wishlist</a>
+  <a href="/login.html">Login</a><a href="/mypage.html?tab=wishlist">Wishlist</a>
 </div>
 
-<!-- MY PAGE -->
-<div class="my-page">
-  <div class="my-header">
-    <h1>My Page</h1>
-    <button class="my-logout" onclick="doLogout()">로그아웃</button>
-  </div>
+<!-- BREADCRUMB -->
+<nav class="pd-breadcrumb"><a href="/">HOME</a><span>›</span><a href="/category.html">SHOP</a><span>›</span><span id="breadcrumbCat">BAGS</span></nav>
 
-  <!-- USER CARD -->
-  <div class="my-user-card" id="userCard">
-    <div class="my-avatar" id="userAvatar">👤</div>
-    <div>
-      <div class="my-user-name" id="userName">회원</div>
-      <div class="my-user-email" id="userEmail"></div>
-      <span class="my-user-grade" id="userGrade">BASIC</span>
-    </div>
-    <div class="my-user-stats">
-      <div><div class="my-stat-num" id="statOrders">0</div><div class="my-stat-label">주문</div></div>
-      <div><div class="my-stat-num" id="statPoint">0</div><div class="my-stat-label">포인트</div></div>
-      <div><div class="my-stat-num" id="statWish">0</div><div class="my-stat-label">위시리스트</div></div>
+<!-- PRODUCT TOP -->
+<section class="pd-top pd-fade">
+  <div class="pd-gallery" id="gallery">
+    <div class="pd-thumbs-wrap"><div class="pd-thumbs" id="thumbs"></div></div>
+    <div class="pd-main" id="mainWrap">
+      <img id="mainImg" src="" alt="">
+      <div class="pd-img-counter" id="imgCounter"></div>
     </div>
   </div>
-
-  <!-- TABS -->
-  <div class="my-tabs">
-    <button class="my-tab active" onclick="switchMyTab('orders')">주문내역</button>
-    <button class="my-tab" onclick="switchMyTab('wishlist')">위시리스트</button>
-    <button class="my-tab" onclick="switchMyTab('recent')">최근 본 상품</button>
-    <button class="my-tab" onclick="switchMyTab('address')">배송지 관리</button>
-    <button class="my-tab" onclick="switchMyTab('inquiry')">1:1 문의</button>
-    <button class="my-tab" onclick="switchMyTab('profile')">회원정보</button>
-  </div>
-
-  <!-- 주문내역 -->
-  <div class="my-panel active" id="panel-orders">
-    <div id="orderList"></div>
-  </div>
-
-  <!-- 위시리스트 -->
-  <div class="my-panel" id="panel-wishlist">
-    <div class="wish-grid" id="wishGrid"></div>
-  </div>
-
-  <!-- 최근 본 상품 -->
-  <div class="my-panel" id="panel-recent">
-    <div class="recent-grid" id="recentGrid"></div>
-  </div>
-
-  <!-- 배송지 관리 -->
-  <div class="my-panel" id="panel-address">
-    <div id="addressList"></div>
-    <button style="margin-top:16px;padding:12px 24px;font-size:12px;font-weight:500;letter-spacing:1px;border:1px solid #E5E1DC;background:none;cursor:pointer;font-family:inherit" onclick="toggleAddressForm()">+ 새 배송지 추가</button>
-    <div id="addressForm" style="display:none;margin-top:20px;max-width:480px;background:#fff;border:1px solid #E5E1DC;padding:24px;">
-      <div class="pf-row"><label class="pf-label">배송지 이름</label><input class="pf-input" id="afLabel" placeholder="집, 회사 등" value="기본 배송지"></div>
-      <div class="pf-row"><label class="pf-label">수령인</label><input class="pf-input" id="afName" placeholder="홍길동"></div>
-      <div class="pf-row"><label class="pf-label">연락처</label><input class="pf-input" id="afPhone" placeholder="010-0000-0000"></div>
-      <div class="pf-row"><label class="pf-label">우편번호</label><div style="display:flex;gap:8px;"><input class="pf-input" id="afZip" placeholder="12345" readonly style="flex:1;cursor:pointer;" onclick="searchMyAddr()"><button type="button" onclick="searchMyAddr()" style="padding:10px 16px;font-size:11px;font-weight:500;background:#111;color:#fff;border:none;cursor:pointer;font-family:inherit;white-space:nowrap;">주소 검색</button></div></div>
-      <div class="pf-row"><label class="pf-label">기본 주소</label><input class="pf-input" id="afAddr1" placeholder="서울시 강남구 테헤란로 123"></div>
-      <div class="pf-row"><label class="pf-label">상세 주소</label><input class="pf-input" id="afAddr2" placeholder="101동 202호"></div>
-      <div class="pf-row"><label class="pf-label">배송 메모</label><input class="pf-input" id="afMemo" placeholder="부재 시 경비실에 맡겨주세요"></div>
-      <div class="pf-row"><label style="font-size:12px;color:#444;cursor:pointer;display:flex;align-items:center;gap:6px;"><input type="checkbox" id="afDefault"> 기본 배송지로 설정</label></div>
-      <div style="display:flex;gap:8px;margin-top:12px;">
-        <button class="pf-save" onclick="saveAddress()">저장</button>
-        <button style="padding:14px 24px;font-size:12px;border:1px solid #E5E1DC;background:none;cursor:pointer;font-family:inherit" onclick="toggleAddressForm()">취소</button>
+  <div class="pd-info">
+    <div class="pd-info-brand" id="pBrand">YLLOWTAP</div>
+    <h1 class="pd-info-name" id="pName"></h1>
+    <p class="pd-info-subtitle" id="pSub"></p>
+    <div class="pd-info-price">
+      <span class="pd-price-now" id="pPrice"></span>
+      <span class="pd-price-old" id="pOrig" style="display:none"></span>
+      <span class="pd-price-off" id="pDisc" style="display:none"></span>
+    </div>
+    <div id="optsArea"></div>
+    <!-- COLOR PREVIEW -->
+    <div class="pd-colors" id="colorSec" style="display:none">
+      <div class="pd-colors-title">Colors</div>
+      <div class="pd-colors-grid" id="colorGrid"></div>
+    </div>
+    <div class="pd-qty-row">
+      <div class="pd-opt-label">QUANTITY</div>
+      <div class="pd-qty-box">
+        <button class="pd-qty-btn" id="qtyM">−</button>
+        <div class="pd-qty-num" id="qtyN">1</div>
+        <button class="pd-qty-btn" id="qtyP">+</button>
       </div>
     </div>
-  </div>
-
-  <!-- 1:1 문의 -->
-  <div class="my-panel" id="panel-inquiry">
-    <div id="inquiryList"></div>
-    <button style="margin-top:16px;padding:12px 24px;font-size:12px;font-weight:500;letter-spacing:1px;border:1px solid #E5E1DC;background:none;cursor:pointer;font-family:inherit" onclick="toggleInquiryForm()">+ 새 문의 작성</button>
-    <div id="inquiryForm" style="display:none;margin-top:20px;max-width:600px;background:#fff;border:1px solid #E5E1DC;padding:24px;">
-      <div class="pf-row"><label class="pf-label">문의 유형</label>
-        <select class="pf-input" id="iqCategory" style="appearance:auto;cursor:pointer;">
-          <option value="general">일반 문의</option><option value="order">주문/결제</option>
-          <option value="shipping">배송</option><option value="exchange">교환</option>
-          <option value="return">반품/환불</option><option value="product">상품 문의</option>
-        </select>
-      </div>
-      <div class="pf-row"><label class="pf-label">제목</label><input class="pf-input" id="iqTitle" placeholder="문의 제목을 입력해주세요"></div>
-      <div class="pf-row"><label class="pf-label">내용</label><textarea class="pf-input" id="iqContent" style="min-height:120px;resize:vertical;line-height:1.6" placeholder="문의 내용을 상세히 작성해주세요"></textarea></div>
-      <div style="display:flex;gap:8px;margin-top:12px;">
-        <button class="pf-save" onclick="submitInquiry()">문의 등록</button>
-        <button style="padding:14px 24px;font-size:12px;border:1px solid #E5E1DC;background:none;cursor:pointer;font-family:inherit" onclick="toggleInquiryForm()">취소</button>
-      </div>
+    <div class="pd-total"><span class="pd-total-label">TOTAL PRICE</span><span class="pd-total-price" id="totalP">0원</span></div>
+    <div class="pd-btn-group">
+      <button class="pd-btn-buy" onclick="buyNow()">BUY IT NOW</button>
+      <button class="pd-btn-cart" onclick="addToCart()">CART</button>
+      <button class="pd-btn-wish" id="wishBtn" onclick="toggleWishlist()"><svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg><span class="pd-wish-count" id="wishCount"></span></button>
+    </div>
+    <div class="pd-notices">
+      <div class="pd-notice"><span class="pd-notice-dot"></span>무료 배송 · 5만원 이상 구매 시</div>
+      <div class="pd-notice"><span class="pd-notice-dot"></span>교환/반품 · 수령 후 7일 이내</div>
+      <div class="pd-notice"><span class="pd-notice-dot"></span>결제 혜택 · 최대 10% 적립</div>
     </div>
   </div>
+</section>
 
-  <!-- 회원정보 -->
-  <div class="my-panel" id="panel-profile">
-    <div class="profile-form">
-      <div class="pf-row"><label class="pf-label">이메일</label><input class="pf-input" id="pfEmail" disabled></div>
-      <div class="pf-row"><label class="pf-label">이름</label><input class="pf-input" id="pfName" placeholder="이름"></div>
-      <div class="pf-row"><label class="pf-label">연락처</label><input class="pf-input" id="pfPhone" placeholder="010-0000-0000"></div>
-      <div class="pf-row"><label class="pf-label">생년월일</label><input class="pf-input" id="pfBirthday" type="date"></div>
-      <button class="pf-save" onclick="saveProfile()">저장</button>
-      <div class="pf-msg" id="pfMsg">저장되었습니다.</div>
+<!-- EDITORIAL MOOD -->
+<section class="pd-editorial" id="editSec" style="display:none">
+  <div class="pd-editorial-head">
+    <div class="pd-editorial-over">THE MOOD</div>
+    <h2 class="pd-editorial-title" id="editTitle"></h2>
+    <p class="pd-editorial-desc" id="editDesc"></p>
+  </div>
+  <div class="pd-editorial-grid" id="editGrid"></div>
+</section>
+
+<!-- DETAIL TABS -->
+<section class="pd-detail">
+  <div class="pd-tabs">
+    <button class="pd-tab active" data-tab="detail">상세정보</button>
+    <button class="pd-tab" data-tab="guide">구매안내</button>
+    <button class="pd-tab" data-tab="review">사용후기 <span id="revCnt">(0)</span></button>
+    <button class="pd-tab" data-tab="qna">상품문의 <span id="qnaCnt">(0)</span></button>
+  </div>
+  <div class="pd-panel active" id="panel-detail"><div class="pd-content" id="detailHTML"></div></div>
+  <div class="pd-panel" id="panel-guide">
+    <div class="pd-content">
+      <h3>배송 안내</h3><p>주문 후 1~3일 이내 출고. MADE 제품은 5~7일 소요.</p>
+      <h3>교환 및 반품</h3><p>수령 후 7일 이내 가능. 착용 흔적 시 불가.</p>
+      <h3>사이즈 안내</h3><p>상세 사이즈는 상품별 상세정보 참고. 1~2cm 오차 가능.</p>
     </div>
   </div>
-</div>
+  <!-- REVIEW PANEL -->
+  <div class="pd-panel" id="panel-review">
+    <div id="reviewSummary"></div>
+    <button class="pd-review-write-btn" onclick="toggleReviewForm()">후기 작성하기</button>
+    <div class="pd-review-form" id="reviewForm">
+      <div class="pd-review-form-title">후기 작성</div>
+      <div class="pd-rf-stars" id="rfStars">
+        <span class="pd-rf-star" data-v="1">★</span><span class="pd-rf-star" data-v="2">★</span>
+        <span class="pd-rf-star" data-v="3">★</span><span class="pd-rf-star" data-v="4">★</span>
+        <span class="pd-rf-star" data-v="5">★</span>
+      </div>
+      <div class="pd-rf-row">
+        <div><div class="pd-rf-label">작성자명</div><input class="pd-rf-input" id="rfName" placeholder="홍길동"></div>
+        <div><div class="pd-rf-label">비밀번호 (삭제 시 필요)</div><input class="pd-rf-input" id="rfPw" type="password" placeholder="****"></div>
+      </div>
+      <div class="pd-rf-row full">
+        <div><div class="pd-rf-label">후기 내용</div><textarea class="pd-rf-textarea" id="rfContent" placeholder="상품 후기를 작성해주세요."></textarea></div>
+      </div>
+      <div class="pd-rf-row full">
+        <div>
+          <div class="pd-rf-label">사진/GIF 첨부 (선택)</div>
+          <label class="btn btn-secondary btn-small" style="display:inline-flex;align-items:center;gap:6px;cursor:pointer;padding:8px 16px;font-size:11px;border:1px solid var(--pd-border);background:var(--pd-bg);border-radius:4px;">
+            📎 이미지 첨부
+            <input type="file" id="rfFiles" accept="image/png,image/jpeg,image/gif" multiple style="display:none;">
+          </label>
+          <div class="pd-rf-img-preview" id="rfImgPreview"></div>
+        </div>
+      </div>
+      <div class="pd-rf-actions">
+        <button style="padding:10px 24px;font-size:12px;border:1px solid var(--pd-border);background:none;cursor:pointer;font-family:var(--pd-fb);color:var(--pd-text2)" onclick="toggleReviewForm()">취소</button>
+        <button style="padding:10px 24px;font-size:12px;border:none;background:var(--pd-accent);cursor:pointer;font-family:var(--pd-fb);color:var(--pd-text);font-weight:600" onclick="submitReview()">등록</button>
+      </div>
+    </div>
+    <div id="reviewList"></div>
+  </div>
+  <div class="pd-panel" id="panel-qna"><div class="pd-content" style="text-align:center;padding:50px 0;"><p style="color:var(--pd-text3);">문의 내역이 없습니다.</p></div></div>
+</section>
+
+<!-- RECOMMEND -->
+<section class="pd-recommend" id="recSec" style="display:none">
+  <div class="pd-rec-head"><div class="pd-rec-over">YOU MAY ALSO LIKE</div><h2 class="pd-rec-title">Recommend Items</h2><p class="pd-rec-sub">이 상품과 함께 구매하는 아이템</p></div>
+  <div class="pd-rec-grid" id="recGrid"></div>
+</section>
+
+<!-- JOURNAL LINK -->
+<section class="pd-journal">
+  <div class="pd-journal-over">STYLE JOURNAL</div>
+  <h2 class="pd-journal-title">Discover the Story Behind the Style</h2>
+  <a href="#" class="pd-journal-btn">Read Journal</a>
+</section>
 
 <!-- FOOTER -->
 <footer class="footer">
   <div class="footer__grid">
     <div><div class="footer__brand">Yllowtap</div><p class="footer__brand-desc">Curated luxury fashion for the modern woman.</p></div>
     <div class="footer__col"><div class="footer__col-title">Shop</div><a href="/category.html?cat=best">Best</a><a href="/category.html?cat=new">New In</a><a href="/category.html?cat=bags">Bags</a><a href="/category.html?cat=jewelry">Jewelry</a></div>
-    <div class="footer__col"><div class="footer__col-title">Customer Care</div><a href="#">1:1 문의하기</a><a href="#">FAQ 자주 묻는 질문</a><a href="#">배송 안내</a><a href="#">교환 · 반품</a></div>
-    <div class="footer__col"><div class="footer__col-title">About</div><a href="#">브랜드 소개</a><a href="#">이용약관</a><a href="#">개인정보처리방침</a></div>
-    <div class="footer__col"><div class="footer__col-title">Account</div><a href="/login.html">로그인</a><a href="/login.html">회원가입</a><a href="/mypage.html">마이페이지</a></div>
+    <div class="footer__col"><div class="footer__col-title">Customer Care</div><a href="/mypage.html?tab=inquiry">1:1 문의하기</a><a href="/faq.html">FAQ 자주 묻는 질문</a><a href="/faq.html">배송 안내</a><a href="/faq.html">교환 · 반품</a></div>
+    <div class="footer__col"><div class="footer__col-title">About</div><a href="/">브랜드 소개</a><a href="/terms.html">이용약관</a><a href="/privacy.html">개인정보처리방침</a></div>
+    <div class="footer__col"><div class="footer__col-title">Account</div><a href="/login.html">로그인</a><a href="/login.html">회원가입</a><a href="/mypage.html?tab=wishlist">위시리스트</a></div>
   </div>
-  <div style="max-width:1400px;margin:0 auto;padding:0 0 24px;font-size:12px;color:#888;line-height:1.8;">
-    고객센터 1544-0000<br>운영시간 : 평일 09:00 - 18:00 (점심시간 12:00 - 13:00 제외)<br>이메일 : cs@yllowtap.com
+  <div style="max-width:1400px;margin:0 auto;padding:0 40px 24px;font-size:12px;color:#888;line-height:1.8;">
+    고객센터 1544-0000<br>
+    운영시간 : 평일 09:00 - 18:00 (점심시간 12:00 - 13:00 제외)<br>
+    이메일 : cs@yllowtap.com
   </div>
-  <div class="footer__bottom"><div class="footer__copy">© 2026 Yllowtap. All rights reserved.</div><div class="footer__social"><a href="#">Instagram</a><a href="#">YouTube</a><a href="#">Pinterest</a></div></div>
+  <div class="footer__bottom"><div class="footer__copy">© 2026 Yllowtap. All rights reserved.</div><div class="footer__social"><a href="https://instagram.com" target="_blank">Instagram</a><a href="https://youtube.com" target="_blank">YouTube</a><a href="https://pinterest.com" target="_blank">Pinterest</a></div></div>
 </footer>
 
 <script src="./js/main.js"></script>
-<script src="https://t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <script>
 const SUPABASE_URL='https://ppihvvpplqikclftrwdb.supabase.co';
 const SUPABASE_ANON='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBwaWh2dnBwbHFpa2NsZnRyd2RiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk3MzE0NTEsImV4cCI6MjA5NTMwNzQ1MX0.shGVcFTQiuYc4u6tdU50x18YMgJdgFUljf8c7QlQU-U';
 const sb=window.supabase.createClient(SUPABASE_URL,SUPABASE_ANON);
 
-let currentUser=null;
-let profile=null;
+let product=null,qty=1,allGalleryImgs=[],currentImgIdx=0,rfRating=5,rfImageUrls=[];
+let colorImages=[];
+
+function getSlug(){return new URLSearchParams(window.location.search).get('slug')}
 
 // ══════════════════════════════════════════
-// AUTH CHECK
+// LOAD PRODUCT
 // ══════════════════════════════════════════
-async function checkAuth(){
-  const{data:{session}}=await sb.auth.getSession();
-  if(!session){window.location.href='/login.html';return;}
-  currentUser=session.user;
-  await loadProfile();
-  loadAll();
+async function loadProduct(){
+  const slug=getSlug();
+  if(!slug){alert('상품을 찾을 수 없습니다.');return}
+  let{data,error}=await sb.from('products').select('*,product_media(id,media_url,media_type,role,alt_text,display_order)').eq('slug',slug).single();
+  if(error||!data){const r=await sb.from('products').select('*,product_media(id,media_url,media_type,role,alt_text,display_order)').eq('id',slug).single();data=r.data;error=r.error}
+  if(error||!data){alert('상품을 찾을 수 없습니다.');return}
+  product=data;
+  render();
+  await Promise.all([loadColorImages(),loadRecs(),loadReviews()]);
+  hideLoading();
 }
 
-// ══════════════════════════════════════════
-// PROFILE
-// ══════════════════════════════════════════
-async function loadProfile(){
-  const{data}=await sb.from('user_profiles').select('*').eq('id',currentUser.id).single();
-  if(data){
-    profile=data;
-  }else{
-    // 첫 로그인 시 프로필 자동 생성
-    const name=currentUser.user_metadata?.display_name||currentUser.user_metadata?.name||'회원';
-    await sb.from('user_profiles').insert({id:currentUser.id,display_name:name});
-    profile={display_name:name,grade:'basic',point:0,order_count:0};
+function render(){
+  const p=product;
+  document.title=`Yllowtap — ${p.name}`;
+  document.getElementById('pBrand').textContent=p.brand||'YLLOWTAP';
+  document.getElementById('pName').textContent=p.name;
+  document.getElementById('pSub').textContent=p.subtitle||'';
+  document.getElementById('breadcrumbCat').textContent=p.category?.toUpperCase()||'SHOP';
+  document.getElementById('pPrice').textContent=p.price.toLocaleString()+'원';
+  if(p.original_price&&p.original_price>p.price){
+    document.getElementById('pOrig').textContent=p.original_price.toLocaleString()+'원';document.getElementById('pOrig').style.display='';
+    document.getElementById('pDisc').textContent=Math.round((1-p.price/p.original_price)*100)+'%';document.getElementById('pDisc').style.display='';
   }
-  renderUserCard();
-}
-
-function renderUserCard(){
-  const name=profile?.display_name||currentUser.user_metadata?.display_name||'회원';
-  document.getElementById('userName').textContent=name+'님';
-  document.getElementById('userEmail').textContent=currentUser.email||'';
-  document.getElementById('userGrade').textContent=(profile?.grade||'basic').toUpperCase();
-  document.getElementById('statOrders').textContent=profile?.order_count||0;
-  document.getElementById('statPoint').textContent=(profile?.point||0).toLocaleString();
-  // 프로필 폼
-  document.getElementById('pfEmail').value=currentUser.email||'';
-  document.getElementById('pfName').value=profile?.display_name||'';
-  document.getElementById('pfPhone').value=profile?.phone||'';
-  document.getElementById('pfBirthday').value=profile?.birthday||'';
-}
-
-async function saveProfile(){
-  const d={
-    display_name:document.getElementById('pfName').value.trim(),
-    phone:document.getElementById('pfPhone').value.trim(),
-    birthday:document.getElementById('pfBirthday').value||null,
-    updated_at:new Date().toISOString()
-  };
-  const{error}=await sb.from('user_profiles').update(d).eq('id',currentUser.id);
-  if(error){alert('저장 실패: '+error.message);return;}
-  profile={...profile,...d};
-  renderUserCard();
-  const msg=document.getElementById('pfMsg');msg.style.display='block';setTimeout(()=>msg.style.display='none',3000);
+  updateTotal();renderGallery();renderOpts();renderEditorial();
+  document.getElementById('detailHTML').innerHTML=p.description_detail||'<p style="color:var(--pd-text3);text-align:center;padding:36px 0;">상세 정보가 등록되지 않았습니다.</p>';
 }
 
 // ══════════════════════════════════════════
-// TAB SWITCH
+// GALLERY — 스크롤 가능 + 카운터
 // ══════════════════════════════════════════
-function switchMyTab(tab){
-  document.querySelectorAll('.my-tab').forEach(t=>t.classList.remove('active'));
-  document.querySelectorAll('.my-panel').forEach(p=>p.classList.remove('active'));
-  document.getElementById('panel-'+tab).classList.add('active');
-  // 해당 탭 버튼 active
-  document.querySelectorAll('.my-tab').forEach(t=>{
-    if(t.getAttribute('onclick')?.includes("'"+tab+"'")) t.classList.add('active');
+function renderGallery(){
+  const media=(product.product_media||[]).sort((a,b)=>a.display_order-b.display_order);
+  allGalleryImgs=media.filter(m=>(m.media_type||'image')==='image'&&m.role!=='mood');
+  if(!allGalleryImgs.length&&product.image_url) allGalleryImgs.push({media_url:product.image_url,role:'main',alt_text:product.name});
+  if(!allGalleryImgs.length) return;
+  currentImgIdx=0;
+  setMainImage(0);
+  const th=document.getElementById('thumbs');
+  th.innerHTML=allGalleryImgs.map((img,i)=>`<img class="pd-thumb${i===0?' active':''}" src="${img.media_url}" alt="${img.alt_text||''}" data-i="${i}">`).join('');
+  th.querySelectorAll('.pd-thumb').forEach(t=>{
+    t.addEventListener('click',()=>{setMainImage(parseInt(t.dataset.i))});
   });
 }
 
-// ══════════════════════════════════════════
-// LOAD ALL DATA
-// ══════════════════════════════════════════
-function loadAll(){
-  loadOrders();loadWishlist();loadRecent();loadAddresses();loadInquiries();
+function setMainImage(idx){
+  currentImgIdx=idx;
+  document.getElementById('mainImg').src=allGalleryImgs[idx].media_url;
+  document.getElementById('mainImg').alt=allGalleryImgs[idx].alt_text||product.name;
+  document.getElementById('imgCounter').textContent=`${idx+1} / ${allGalleryImgs.length}`;
+  document.querySelectorAll('.pd-thumb').forEach((t,i)=>t.classList.toggle('active',i===idx));
+  // 썸네일 스크롤 위치 조정
+  const thumb=document.querySelectorAll('.pd-thumb')[idx];
+  if(thumb) thumb.scrollIntoView({behavior:'smooth',block:'nearest'});
 }
 
 // ══════════════════════════════════════════
-// ORDERS
+// OPTIONS + COLOR IMAGES
 // ══════════════════════════════════════════
-async function loadOrders(){
-  const{data}=await sb.from('orders').select('*,order_items(*)').eq('user_id',currentUser.id).order('created_at',{ascending:false});
-  const el=document.getElementById('orderList');
-  if(!data?.length){el.innerHTML='<div class="my-empty"><p>주문 내역이 없습니다</p><a href="/category.html">쇼핑하러 가기</a></div>';return;}
-
-  el.innerHTML=data.map(o=>{
-    const statusMap={pending:'주문접수',paid:'결제완료',preparing:'상품준비중',shipped:'배송중',delivered:'배송완료',cancel_requested:'취소요청',cancelled:'취소완료',exchange_requested:'교환요청',return_requested:'반품요청',refunded:'환불완료'};
-    const statusClass={pending:'pending',paid:'paid',preparing:'preparing',shipped:'shipped',delivered:'delivered',cancelled:'cancelled',cancel_requested:'cancelled',refunded:'refunded'};
-    const items=(o.order_items||[]).map(i=>{
-      const link=i.product_id?`/product.html?slug=${i.product_id}`:'#';
-      return`<div class="order-item" style="cursor:pointer;" onclick="window.location.href='${link}'">
-        ${i.product_image_snapshot?`<img class="order-item-img" src="${i.product_image_snapshot}">`:'<div class="order-item-img"></div>'}
-        <div>
-          <div class="order-item-name">${i.product_name_snapshot}</div>
-          <div class="order-item-option">${i.option_snapshot?Object.entries(i.option_snapshot).map(([k,v])=>k+': '+v).join(' / '):''} · ${i.quantity}개</div>
-        </div>
-        <div class="order-item-price">${i.item_total?.toLocaleString()}원</div>
-      </div>`;
-    }).join('');
-    return`<div class="order-card">
-      <div class="order-card-top">
-        <div><span class="order-number">${o.order_number}</span> <span class="order-date">${new Date(o.created_at).toLocaleDateString('ko-KR')}</span></div>
-        <span class="order-status status-${statusClass[o.status]||'pending'}">${statusMap[o.status]||o.status}</span>
-      </div>
-      ${items}
-      ${o.tracking_number?`<div style="font-size:11px;color:#888;margin-top:8px;">운송장: ${o.tracking_company||''} ${o.tracking_number}</div>`:''}
-      <div class="order-total">총 ${o.total_amount?.toLocaleString()}원</div>
-    </div>`;
-  }).join('');
+function renderOpts(){
+  const opts=product.options||[];
+  document.getElementById('optsArea').innerHTML=opts.map((o,i)=>
+    `<div class="pd-opt-group"><div class="pd-opt-label">${o.name}</div>
+     <select class="pd-opt-select" data-opt="${o.name}" onchange="onOptionChange(this)"><option value="">- [필수] 옵션을 선택해 주세요 -</option>
+     ${(o.values||[]).map(v=>`<option value="${v}">${v}</option>`).join('')}</select></div>`
+  ).join('');
 }
 
-// ══════════════════════════════════════════
-// WISHLIST
-// ══════════════════════════════════════════
-async function loadWishlist(){
-  const{data}=await sb.from('wishlists').select('*,products(*,product_media(media_url,role,display_order))').eq('user_id',currentUser.id).order('created_at',{ascending:false});
-  const el=document.getElementById('wishGrid');
-  document.getElementById('statWish').textContent=data?.length||0;
-  if(!data?.length){el.innerHTML='<div class="my-empty" style="grid-column:1/-1"><p>위시리스트가 비어있습니다</p><a href="/category.html">쇼핑하러 가기</a></div>';return;}
-
-  el.innerHTML=data.map(w=>{
-    const p=w.products;if(!p)return'';
-    const img=getMainImg(p);
-    return`<div class="wish-card">
-      <a href="/product.html?slug=${p.slug||p.id}" style="text-decoration:none;color:inherit;">
-        <div class="wish-card-img">${img?`<img src="${img}">`:'<div style="width:100%;height:100%;background:#EAE7E2"></div>'}</div>
-        <div class="wish-card-brand">${p.brand||'YLLOWTAP'}</div>
-        <div class="wish-card-name">${p.name}</div>
-        <div class="wish-card-price">${p.price?.toLocaleString()}원</div>
-      </a>
-      <button class="wish-remove" onclick="removeWish('${w.id}')" title="삭제">×</button>
-    </div>`;
-  }).join('');
+async function loadColorImages(){
+  const{data}=await sb.from('product_option_images').select('*').eq('product_id',product.id).order('display_order');
+  colorImages=data||[];
+  if(!colorImages.length) return;
+  document.getElementById('colorSec').style.display='';
+  const grid=document.getElementById('colorGrid');
+  grid.innerHTML=colorImages.map((ci,i)=>
+    `<div class="pd-color-item${i===0?' active':''}" data-value="${ci.option_value}" onclick="selectColor(this,'${ci.option_value}')">
+      <img src="${ci.image_url}" alt="${ci.option_value}">
+      <div class="pd-color-label">${ci.option_value}</div>
+    </div>`
+  ).join('');
 }
 
-async function removeWish(id){
-  await sb.from('wishlists').delete().eq('id',id);
-  loadWishlist();
+function selectColor(el,value){
+  document.querySelectorAll('.pd-color-item').forEach(c=>c.classList.remove('active'));
+  el.classList.add('active');
+  // 옵션 셀렉트도 동기화
+  const sel=document.querySelector(`select[data-opt="컬러"],select[data-opt="색상"],select[data-opt="Color"],select[data-opt="color"]`);
+  if(sel) sel.value=value;
+  // 메인 이미지 교체
+  const ci=colorImages.find(c=>c.option_value===value);
+  if(ci){
+    document.getElementById('mainImg').src=ci.image_url;
+    document.getElementById('mainImg').alt=value;
+  }
 }
 
-// ══════════════════════════════════════════
-// RECENT VIEWS
-// ══════════════════════════════════════════
-async function loadRecent(){
-  const{data}=await sb.from('recent_views').select('*,products(*,product_media(media_url,role,display_order))').eq('user_id',currentUser.id).order('viewed_at',{ascending:false}).limit(10);
-  const el=document.getElementById('recentGrid');
-  if(!data?.length){el.innerHTML='<div class="my-empty" style="grid-column:1/-1"><p>최근 본 상품이 없습니다</p></div>';return;}
-
-  // 중복 제거
-  const seen=new Set();
-  const unique=data.filter(r=>{if(!r.products||seen.has(r.product_id))return false;seen.add(r.product_id);return true;});
-
-  el.innerHTML=unique.map(r=>{
-    const p=r.products;const img=getMainImg(p);
-    return`<a class="recent-card" href="/product.html?slug=${p.slug||p.id}">
-      <div class="recent-card-img">${img?`<img src="${img}">`:'<div style="width:100%;height:100%;background:#EAE7E2"></div>'}</div>
-      <div class="recent-card-name">${p.name}</div>
-      <div class="recent-card-price">${p.price?.toLocaleString()}원</div>
-    </a>`;
-  }).join('');
-}
-
-// ══════════════════════════════════════════
-// ADDRESSES
-// ══════════════════════════════════════════
-async function loadAddresses(){
-  const{data}=await sb.from('addresses').select('*').eq('user_id',currentUser.id).order('is_default',{ascending:false});
-  const el=document.getElementById('addressList');
-  if(!data?.length){el.innerHTML='<div class="my-empty"><p>등록된 배송지가 없습니다</p></div>';return;}
-
-  el.innerHTML=data.map(a=>`
-    <div class="addr-card">
-      <div>
-        <div class="addr-name">${a.recipient_name}${a.is_default?'<span class="addr-default">기본</span>':''}</div>
-        <div class="addr-detail">${a.phone}<br>${a.zipcode} ${a.address1} ${a.address2||''}<br>${a.delivery_memo?'메모: '+a.delivery_memo:''}</div>
-      </div>
-      <div class="addr-actions">
-        ${!a.is_default?`<button class="addr-btn" onclick="setDefaultAddr('${a.id}')">기본 설정</button>`:''}
-        <button class="addr-btn" onclick="deleteAddr('${a.id}')" style="color:#C4453C;border-color:#C4453C;">삭제</button>
-      </div>
-    </div>
-  `).join('');
-}
-
-function toggleAddressForm(){document.getElementById('addressForm').style.display=document.getElementById('addressForm').style.display==='none'?'block':'none';}
-
-async function saveAddress(){
-  const d={
-    user_id:currentUser.id,
-    label:document.getElementById('afLabel').value.trim()||'기본 배송지',
-    recipient_name:document.getElementById('afName').value.trim(),
-    phone:document.getElementById('afPhone').value.trim(),
-    zipcode:document.getElementById('afZip').value.trim(),
-    address1:document.getElementById('afAddr1').value.trim(),
-    address2:document.getElementById('afAddr2').value.trim(),
-    delivery_memo:document.getElementById('afMemo').value.trim(),
-    is_default:document.getElementById('afDefault').checked
-  };
-  if(!d.recipient_name||!d.phone||!d.zipcode||!d.address1){alert('필수 항목을 입력해주세요.');return;}
-  if(d.is_default){await sb.from('addresses').update({is_default:false}).eq('user_id',currentUser.id);}
-  const{error}=await sb.from('addresses').insert(d);
-  if(error){alert('저장 실패: '+error.message);return;}
-  toggleAddressForm();loadAddresses();
-}
-
-async function setDefaultAddr(id){
-  await sb.from('addresses').update({is_default:false}).eq('user_id',currentUser.id);
-  await sb.from('addresses').update({is_default:true}).eq('id',id);
-  loadAddresses();
-}
-
-async function deleteAddr(id){
-  if(!confirm('이 배송지를 삭제하시겠습니까?'))return;
-  await sb.from('addresses').delete().eq('id',id);
-  loadAddresses();
-}
-
-// ══════════════════════════════════════════
-// INQUIRIES
-// ══════════════════════════════════════════
-async function loadInquiries(){
-  const{data}=await sb.from('inquiries').select('*').eq('user_id',currentUser.id).order('created_at',{ascending:false});
-  const el=document.getElementById('inquiryList');
-  if(!data?.length){el.innerHTML='<div class="my-empty"><p>문의 내역이 없습니다</p></div>';return;}
-
-  const catMap={general:'일반',order:'주문/결제',shipping:'배송',exchange:'교환',return:'반품/환불',product:'상품'};
-  const statusMap={pending:'답변 대기',answered:'답변 완료',closed:'종료'};
-  el.innerHTML=data.map(q=>`
-    <div class="order-card">
-      <div class="order-card-top">
-        <div><span style="font-size:11px;color:#888;margin-right:8px;">[${catMap[q.category]||q.category}]</span><span class="order-number">${q.title}</span></div>
-        <span class="order-status ${q.status==='answered'?'status-paid':'status-pending'}">${statusMap[q.status]||q.status}</span>
-      </div>
-      <div style="font-size:13px;color:#444;line-height:1.7;margin-bottom:8px;">${q.content.replace(/\n/g,'<br>')}</div>
-      <div style="font-size:11px;color:#888;">${new Date(q.created_at).toLocaleDateString('ko-KR')}</div>
-      ${q.answer?`<div style="margin-top:12px;padding:14px;background:#F7F5F2;border-left:3px solid #F4D84E;font-size:13px;color:#444;line-height:1.7;">
-        <div style="font-size:11px;font-weight:600;color:#111;margin-bottom:6px;">관리자 답변</div>
-        ${q.answer.replace(/\n/g,'<br>')}
-        <div style="font-size:10px;color:#888;margin-top:6px;">${q.answered_at?new Date(q.answered_at).toLocaleDateString('ko-KR'):''}</div>
-      </div>`:''}
-    </div>
-  `).join('');
-}
-
-function toggleInquiryForm(){document.getElementById('inquiryForm').style.display=document.getElementById('inquiryForm').style.display==='none'?'block':'none';}
-
-async function submitInquiry(){
-  const d={
-    user_id:currentUser.id,
-    category:document.getElementById('iqCategory').value,
-    title:document.getElementById('iqTitle').value.trim(),
-    content:document.getElementById('iqContent').value.trim()
-  };
-  if(!d.title||!d.content){alert('제목과 내용을 입력해주세요.');return;}
-  const{error}=await sb.from('inquiries').insert(d);
-  if(error){alert('등록 실패: '+error.message);return;}
-  document.getElementById('iqTitle').value='';document.getElementById('iqContent').value='';
-  toggleInquiryForm();loadInquiries();
-}
-
-// ══════════════════════════════════════════
-// HELPERS
-// ══════════════════════════════════════════
-function getMainImg(p){
-  if(p.product_media?.length){const m=p.product_media.filter(x=>x.role==='main').sort((a,b)=>a.display_order-b.display_order);return m.length?m[0].media_url:p.product_media[0].media_url;}
-  return p.image_url;
-}
-
-function searchMyAddr(){
-  new daum.Postcode({
-    oncomplete:function(data){
-      document.getElementById('afZip').value=data.zonecode;
-      document.getElementById('afAddr1').value=data.roadAddress||data.jibunAddress;
-      document.getElementById('afAddr2').focus();
-    }
-  }).open();
-}
-
-async function doLogout(){await sb.auth.signOut();window.location.href='/login.html';}
-
-// URL 파라미터로 탭 전환 (?tab=wishlist 등)
-function checkTabParam(){
-  const tab=new URLSearchParams(window.location.search).get('tab');
-  if(tab){
-    document.querySelectorAll('.my-tab').forEach(t=>t.classList.remove('active'));
-    document.querySelectorAll('.my-panel').forEach(p=>p.classList.remove('active'));
-    const panel=document.getElementById('panel-'+tab);
-    if(panel){
-      panel.classList.add('active');
-      document.querySelectorAll('.my-tab').forEach(t=>{if(t.textContent.includes(getTabLabel(tab)))t.classList.add('active');});
+function onOptionChange(sel){
+  const optName=sel.dataset.opt;
+  const val=sel.value;
+  if(!val) return;
+  if(['컬러','색상','Color','color'].includes(optName)){
+    const ci=colorImages.find(c=>c.option_value===val);
+    if(ci){
+      document.getElementById('mainImg').src=ci.image_url;
+      document.querySelectorAll('.pd-color-item').forEach(c=>c.classList.toggle('active',c.dataset.value===val));
     }
   }
 }
-function getTabLabel(tab){
-  const m={orders:'주문내역',wishlist:'위시리스트',recent:'최근',address:'배송지',inquiry:'문의',profile:'회원정보'};
-  return m[tab]||'';
+
+// ══════════════════════════════════════════
+// EDITORIAL
+// ══════════════════════════════════════════
+function renderEditorial(){
+  const p=product;
+  const moodImgs=(p.product_media||[]).filter(m=>m.role==='mood'||m.role==='editorial').sort((a,b)=>a.display_order-b.display_order);
+  if(!moodImgs.length&&!p.mood_title) return;
+  document.getElementById('editSec').style.display='';
+  document.getElementById('editTitle').textContent=p.mood_title||'The Mood';
+  document.getElementById('editDesc').textContent=p.mood_description||p.description_editorial||'';
+  document.getElementById('editGrid').innerHTML=moodImgs.map((img,i)=>
+    `<img class="pd-editorial-img${i===0&&moodImgs.length>2?' wide':''}" src="${img.media_url}" alt="${img.alt_text||''}" loading="lazy">`
+  ).join('');
+  const obs=new IntersectionObserver(entries=>{entries.forEach(e=>{if(e.isIntersecting){e.target.classList.add('visible');obs.unobserve(e.target)}})},{threshold:.15});
+  document.querySelectorAll('.pd-editorial-img').forEach(img=>obs.observe(img));
 }
 
-checkAuth();
-// 탭 파라미터 확인은 loadAll 후 실행
-setTimeout(checkTabParam,500);
+// ══════════════════════════════════════════
+// REVIEWS
+// ══════════════════════════════════════════
+let allReviews=[];
+
+async function loadReviews(){
+  const{data}=await sb.from('reviews').select('*').eq('product_id',product.id).eq('is_visible',true).order('created_at',{ascending:false});
+  allReviews=data||[];
+  document.getElementById('revCnt').textContent=`(${allReviews.length})`;
+  renderReviewSummary();
+  renderReviewList();
+}
+
+function renderReviewSummary(){
+  if(!allReviews.length){
+    document.getElementById('reviewSummary').innerHTML='';
+    return;
+  }
+  const avg=(allReviews.reduce((s,r)=>s+r.rating,0)/allReviews.length).toFixed(1);
+  const counts=[0,0,0,0,0];
+  allReviews.forEach(r=>counts[r.rating-1]++);
+  const max=Math.max(...counts,1);
+  document.getElementById('reviewSummary').innerHTML=`
+    <div class="pd-review-summary">
+      <div class="pd-review-avg">
+        <div class="pd-review-avg-num">${avg}</div>
+        <div class="pd-review-avg-stars">${'★'.repeat(Math.round(avg))}${'☆'.repeat(5-Math.round(avg))}</div>
+        <div class="pd-review-avg-count">${allReviews.length}개의 후기</div>
+      </div>
+      <div class="pd-review-bars">
+        ${[5,4,3,2,1].map(n=>`<div class="pd-review-bar-row">
+          <div class="pd-review-bar-label">${n}점</div>
+          <div class="pd-review-bar"><div class="pd-review-bar-fill" style="width:${(counts[n-1]/max*100)}%"></div></div>
+          <div class="pd-review-bar-count">${counts[n-1]}</div>
+        </div>`).join('')}
+      </div>
+    </div>`;
+}
+
+function renderReviewList(){
+  const el=document.getElementById('reviewList');
+  if(!allReviews.length){el.innerHTML='<div class="pd-review-empty">아직 작성된 후기가 없습니다.</div>';return}
+  el.innerHTML=allReviews.map(r=>{
+    const stars='★'.repeat(r.rating)+'☆'.repeat(5-r.rating);
+    const name=maskName(r.author_name);
+    const date=new Date(r.created_at).toLocaleDateString('ko-KR');
+    const imgs=(r.images||[]).map(url=>`<img src="${url}" alt="후기 이미지" onclick="window.open('${url}','_blank')">`).join('');
+    return `<div class="pd-review-item">
+      <div class="pd-review-item-top">
+        <div><span class="pd-review-item-stars">${stars}</span> <span class="pd-review-item-author">${name}</span></div>
+        <div class="pd-review-item-date">${date}</div>
+      </div>
+      ${imgs?`<div class="pd-review-item-images">${imgs}</div>`:''}
+      <div class="pd-review-item-text">${r.content.replace(/\n/g,'<br>')}</div>
+    </div>`;
+  }).join('');
+}
+
+function maskName(name){
+  if(!name) return '***';
+  if(name.length<=2) return name[0]+'*';
+  return name[0]+'*'.repeat(name.length-2)+name[name.length-1];
+}
+
+// ── REVIEW FORM ──
+function toggleReviewForm(){
+  document.getElementById('reviewForm').classList.toggle('show');
+}
+
+// Star rating
+document.querySelectorAll('.pd-rf-star').forEach(star=>{
+  star.addEventListener('click',()=>{
+    rfRating=parseInt(star.dataset.v);
+    document.querySelectorAll('.pd-rf-star').forEach((s,i)=>s.classList.toggle('on',i<rfRating));
+  });
+  star.addEventListener('mouseenter',()=>{
+    const v=parseInt(star.dataset.v);
+    document.querySelectorAll('.pd-rf-star').forEach((s,i)=>s.classList.toggle('on',i<v));
+  });
+});
+document.getElementById('rfStars').addEventListener('mouseleave',()=>{
+  document.querySelectorAll('.pd-rf-star').forEach((s,i)=>s.classList.toggle('on',i<rfRating));
+});
+// 초기 별 5개
+document.querySelectorAll('.pd-rf-star').forEach(s=>s.classList.add('on'));
+
+// Image upload
+document.getElementById('rfFiles').addEventListener('change',async function(e){
+  const files=Array.from(e.target.files);
+  for(const file of files){
+    const ext=file.name.split('.').pop();
+    const fn=`reviews/${Date.now()}_${Math.random().toString(36).slice(2,8)}.${ext}`;
+    const{error}=await sb.storage.from('media').upload(fn,file,{upsert:true,contentType:file.type});
+    if(error){alert('이미지 업로드 실패');continue}
+    const{data:u}=sb.storage.from('media').getPublicUrl(fn);
+    rfImageUrls.push(u.publicUrl);
+  }
+  renderRfImgPreview();
+  e.target.value='';
+});
+
+function renderRfImgPreview(){
+  document.getElementById('rfImgPreview').innerHTML=rfImageUrls.map(url=>`<img src="${url}">`).join('');
+}
+
+async function submitReview(){
+  const name=document.getElementById('rfName').value.trim();
+  const content=document.getElementById('rfContent').value.trim();
+  if(!name){alert('작성자명을 입력해주세요.');return}
+  if(!content){alert('후기 내용을 입력해주세요.');return}
+  const{error}=await sb.from('reviews').insert({
+    product_id:product.id,author_name:name,rating:rfRating,content,images:rfImageUrls
+  });
+  if(error){alert('등록 실패: '+error.message);return}
+  // 리셋
+  document.getElementById('rfName').value='';document.getElementById('rfContent').value='';
+  rfRating=5;rfImageUrls=[];
+  document.querySelectorAll('.pd-rf-star').forEach(s=>s.classList.add('on'));
+  renderRfImgPreview();
+  toggleReviewForm();
+  await loadReviews();
+}
+
+// ══════════════════════════════════════════
+// RECOMMEND
+// ══════════════════════════════════════════
+async function loadRecs(){
+  let{data:recs}=await sb.from('recommended_products').select('recommended_product_id').eq('source_product_id',product.id).order('display_order');
+  let items=[];
+  if(recs?.length){const{data}=await sb.from('products').select('*,product_media(media_url,role,display_order)').in('id',recs.map(r=>r.recommended_product_id)).eq('is_active',true);items=data||[]}
+  else{const{data}=await sb.from('products').select('*,product_media(media_url,role,display_order)').eq('category',product.category).eq('is_active',true).neq('id',product.id).limit(4).order('display_order');items=data||[]}
+  if(!items.length) return;
+  document.getElementById('recSec').style.display='';
+  document.getElementById('recGrid').innerHTML=items.map(p=>{
+    const img=getMainImg(p);
+    return`<a class="pd-rec-card" href="/product.html?slug=${p.slug||p.id}"><div class="pd-rec-card-img">${img?`<img src="${img}" alt="${p.name}" loading="lazy">`:'<div style="width:100%;height:100%;background:#EAE7E2"></div>'}</div><div class="pd-rec-brand">${p.brand||'YLLOWTAP'}</div><div class="pd-rec-name">${p.name}</div><div class="pd-rec-price">${p.price.toLocaleString()}원</div></a>`;
+  }).join('');
+}
+
+function getMainImg(p){
+  if(p.product_media?.length){const m=p.product_media.filter(x=>x.role==='main').sort((a,b)=>a.display_order-b.display_order);return m.length?m[0].media_url:p.product_media[0].media_url}
+  return p.image_url;
+}
+
+function updateTotal(){if(product) document.getElementById('totalP').textContent=(product.price*qty).toLocaleString()+'원'}
+function hideLoading(){const l=document.getElementById('pageLoading');l.classList.add('hide');setTimeout(()=>l.remove(),500)}
+
+document.getElementById('qtyM').addEventListener('click',()=>{if(qty>1){qty--;document.getElementById('qtyN').textContent=qty;updateTotal()}});
+document.getElementById('qtyP').addEventListener('click',()=>{qty++;document.getElementById('qtyN').textContent=qty;updateTotal()});
+document.querySelectorAll('.pd-tab').forEach(tab=>{
+  tab.addEventListener('click',()=>{
+    document.querySelectorAll('.pd-tab').forEach(t=>t.classList.remove('active'));
+    document.querySelectorAll('.pd-panel').forEach(p=>p.classList.remove('active'));
+    tab.classList.add('active');document.getElementById('panel-'+tab.dataset.tab).classList.add('active');
+  });
+});
+
+// ══════════════════════════════════════════
+// BUY IT NOW — 장바구니에 담고 바로 주문서로
+// ══════════════════════════════════════════
+async function buyNow(){
+  if(!product)return;
+  const opts={};
+  document.querySelectorAll('.pd-opt-select').forEach(sel=>{
+    if(sel.value) opts[sel.dataset.opt]=sel.value;
+  });
+  const requiredOpts=product.options||[];
+  for(const o of requiredOpts){
+    if(!opts[o.name]){alert(`${o.name}을(를) 선택해주세요.`);return;}
+  }
+
+  const{data:{session}}=await sb.auth.getSession();
+  if(!session){alert('로그인이 필요합니다.');window.location.href='/login.html';return;}
+
+  let cartId;
+  const{data}=await sb.from('carts').select('id').eq('user_id',session.user.id).single();
+  if(data){cartId=data.id;}
+  else{const{data:nc}=await sb.from('carts').insert({user_id:session.user.id}).select().single();cartId=nc.id;}
+
+  const{data:existing}=await sb.from('cart_items').select('*').eq('cart_id',cartId).eq('product_id',product.id);
+  const match=existing?.find(e=>JSON.stringify(e.selected_options)===JSON.stringify(opts));
+  if(match){
+    await sb.from('cart_items').update({quantity:match.quantity+qty}).eq('id',match.id);
+  }else{
+    await sb.from('cart_items').insert({cart_id:cartId,product_id:product.id,quantity:qty,selected_options:opts});
+  }
+  window.location.href='/checkout.html';
+}
+
+// ══════════════════════════════════════════
+// ADD TO CART
+// ══════════════════════════════════════════
+async function addToCart(){
+  if(!product)return;
+  // 옵션 수집
+  const opts={};
+  document.querySelectorAll('.pd-opt-select').forEach(sel=>{
+    if(sel.value) opts[sel.dataset.opt]=sel.value;
+  });
+  // 필수 옵션 체크
+  const requiredOpts=product.options||[];
+  for(const o of requiredOpts){
+    if(!opts[o.name]){alert(`${o.name}을(를) 선택해주세요.`);return;}
+  }
+
+  const{data:{session}}=await sb.auth.getSession();
+  let cartId;
+
+  if(session){
+    const{data}=await sb.from('carts').select('id').eq('user_id',session.user.id).single();
+    if(data){cartId=data.id;}
+    else{const{data:nc}=await sb.from('carts').insert({user_id:session.user.id}).select().single();cartId=nc.id;}
+  }else{
+    let gid=localStorage.getItem('yllowtap_guest_id');
+    if(!gid){gid=crypto.randomUUID();localStorage.setItem('yllowtap_guest_id',gid);}
+    const{data}=await sb.from('carts').select('id').eq('guest_id',gid).single();
+    if(data){cartId=data.id;}
+    else{const{data:nc}=await sb.from('carts').insert({guest_id:gid}).select().single();cartId=nc.id;}
+  }
+
+  // 이미 같은 상품+옵션이 있으면 수량만 증가
+  const{data:existing}=await sb.from('cart_items').select('*').eq('cart_id',cartId).eq('product_id',product.id);
+  const match=existing?.find(e=>JSON.stringify(e.selected_options)===JSON.stringify(opts));
+  if(match){
+    await sb.from('cart_items').update({quantity:match.quantity+qty}).eq('id',match.id);
+  }else{
+    await sb.from('cart_items').insert({cart_id:cartId,product_id:product.id,quantity:qty,selected_options:opts});
+  }
+
+  if(confirm('장바구니에 담았습니다!\n장바구니로 이동하시겠습니까?')){
+    window.location.href='/cart.html';
+  }
+}
+
+// ══════════════════════════════════════════
+// WISHLIST TOGGLE
+// ══════════════════════════════════════════
+async function toggleWishlist(){
+  const{data:{session}}=await sb.auth.getSession();
+  if(!session){
+    if(confirm('로그인 후 이용할 수 있습니다.\n로그인 페이지로 이동하시겠습니까?')){
+      window.location.href='/login.html';
+    }
+    return;
+  }
+  if(!product)return;
+
+  const btn=document.getElementById('wishBtn');
+  const{data:existing}=await sb.from('wishlists').select('id').eq('user_id',session.user.id).eq('product_id',product.id).single();
+  if(existing){
+    await sb.from('wishlists').delete().eq('id',existing.id);
+    btn.classList.remove('active');
+  }else{
+    await sb.from('wishlists').insert({user_id:session.user.id,product_id:product.id});
+    btn.classList.add('active');
+  }
+  await loadWishCount();
+}
+
+// 찜 개수 로드 + 내가 찜했는지 체크
+async function loadWishCount(){
+  if(!product)return;
+  const{data:all}=await sb.from('wishlists').select('id,user_id').eq('product_id',product.id);
+  const count=all?.length||0;
+  const el=document.getElementById('wishCount');
+  if(el) el.textContent=count>0?count:'';
+
+  // 내가 찜했는지 체크
+  const{data:{session}}=await sb.auth.getSession();
+  if(session&&all){
+    const mine=all.find(w=>w.user_id===session.user.id);
+    const btn=document.getElementById('wishBtn');
+    if(mine) btn.classList.add('active');
+    else btn.classList.remove('active');
+  }
+}
+
+// ══════════════════════════════════════════
+// RECENT VIEW 기록
+// ══════════════════════════════════════════
+async function recordView(){
+  if(!product)return;
+  try{
+    const{data:{session}}=await sb.auth.getSession();
+    if(session){
+      await sb.from('recent_views').insert({user_id:session.user.id,product_id:product.id});
+    }else{
+      const gid=localStorage.getItem('yllowtap_guest_id')||crypto.randomUUID();
+      localStorage.setItem('yllowtap_guest_id',gid);
+      await sb.from('recent_views').insert({guest_id:gid,product_id:product.id});
+    }
+  }catch(e){}
+}
+
+loadProduct().then(()=>{recordView();loadWishCount();});
 </script>
+<script src="./js/common-header.js"></script>
 </body>
 </html>
