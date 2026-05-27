@@ -5,23 +5,28 @@
 
 (function () {
   // ── Supabase 클라이언트 (이미 페이지에 sb가 있으면 재사용) ──
-  const SUPABASE_URL = 'https://ppihvvpplqikclftrwdb.supabase.co';
-  const SUPABASE_ANON = typeof window._SUPABASE_ANON !== 'undefined'
-    ? window._SUPABASE_ANON
-    : (typeof SUPABASE_ANON !== 'undefined' ? SUPABASE_ANON : '');
+  let sbClient = null;
 
-  let sbClient;
-  if (typeof sb !== 'undefined') {
-    sbClient = sb;
-  } else if (window.supabase) {
-    sbClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON);
+  function getSb() {
+    if (sbClient) return sbClient;
+    // 페이지에서 이미 만든 sb 변수 사용
+    if (typeof window.sb !== 'undefined') { sbClient = window.sb; return sbClient; }
+    if (typeof sb !== 'undefined') { sbClient = sb; return sbClient; }
+    // 직접 생성
+    if (window.supabase) {
+      const url = 'https://ppihvvpplqikclftrwdb.supabase.co';
+      const key = window.SUPABASE_ANON || window._SUPABASE_ANON || '';
+      if (key) { sbClient = window.supabase.createClient(url, key); return sbClient; }
+    }
+    return null;
   }
 
   // ── 헤더 액션 영역 업데이트 ──
   async function updateHeaderAuth() {
-    if (!sbClient) return;
+    const supa = getSb();
+    if (!supa) return;
 
-    const { data: { user } } = await sbClient.auth.getUser();
+    const { data: { user } } = await supa.auth.getUser();
     const actions = document.querySelector('.header__actions');
     const mobileMenu = document.querySelector('.mobile-menu');
     if (!actions) return;
@@ -52,7 +57,7 @@
       logoutLink.textContent = 'Logout';
       logoutLink.addEventListener('click', async (e) => {
         e.preventDefault();
-        await sbClient.auth.signOut();
+        await getSb().auth.signOut();
         window.location.reload();
       });
       actions.appendChild(logoutLink);
@@ -107,7 +112,7 @@
 
           authSection.querySelector('.mobile-logout-btn').addEventListener('click', async (e) => {
             e.preventDefault();
-            await sbClient.auth.signOut();
+            await getSb().auth.signOut();
             window.location.reload();
           });
         }
@@ -223,9 +228,9 @@
   // ── 카트 수량 업데이트 ──
   async function updateCartCount() {
     try {
-      const { data: { user } } = await sbClient.auth.getUser();
+      const { data: { user } } = await getSb().auth.getUser();
       if (!user) return;
-      const { count } = await sbClient
+      const { count } = await getSb()
         .from('cart_items')
         .select('*', { count: 'exact', head: true })
         .eq('user_id', user.id);
@@ -360,14 +365,23 @@
   // ── 초기화 ──
   function init() {
     injectStyles();
-    updateHeaderAuth();
+    // sb가 준비될 때까지 재시도
+    let retries = 0;
+    function tryInit() {
+      if (getSb()) {
+        updateHeaderAuth();
+      } else if (retries < 20) {
+        retries++;
+        setTimeout(tryInit, 100);
+      }
+    }
+    tryInit();
   }
 
   // Supabase SDK 로드 후 실행
   if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', init);
+    document.addEventListener('DOMContentLoaded', () => setTimeout(init, 100));
   } else {
-    // 약간의 딜레이로 sb 변수 초기화 대기
-    setTimeout(init, 50);
+    setTimeout(init, 100);
   }
 })();
