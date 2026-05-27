@@ -467,15 +467,19 @@ async function submitOrder(){
       });
     }
 
-    // 프로필 업데이트 (주문 수, 총 구매액)
+    // 프로필 업데이트 (주문 수, 총 구매액, 이름/연락처 자동 저장)
     if(currentUser.id){
-      const{data:profile}=await sb.from('user_profiles').select('order_count,total_spent').eq('id',currentUser.id).single();
+      const{data:profile}=await sb.from('user_profiles').select('order_count,total_spent,display_name,phone').eq('id',currentUser.id).single();
       if(profile){
-        await sb.from('user_profiles').update({
+        const profileUpdate={
           order_count:(profile.order_count||0)+1,
           total_spent:(profile.total_spent||0)+total,
           updated_at:new Date().toISOString()
-        }).eq('id',currentUser.id);
+        };
+        // 이름/연락처가 비어있으면 주문 정보로 자동 채우기
+        if(!profile.display_name||profile.display_name==='회원') profileUpdate.display_name=name;
+        if(!profile.phone) profileUpdate.phone=phone;
+        await sb.from('user_profiles').update(profileUpdate).eq('id',currentUser.id);
       }
     }
 
