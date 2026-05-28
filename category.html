@@ -396,9 +396,12 @@ let allProducts = [];
 let categories = [];
 const PAGE_SIZE = 20;
 let currentPage = 1;
+let searchQuery = '';
 
 function getCategoryFromURL() {
-  return new URLSearchParams(window.location.search).get('cat') || 'all';
+  const params = new URLSearchParams(window.location.search);
+  searchQuery = params.get('search') || '';
+  return params.get('cat') || 'all';
 }
 
 async function loadCategories() {
@@ -422,9 +425,14 @@ async function loadCategories() {
 
 function updateCategoryUI() {
   document.querySelectorAll('.cat-tab').forEach(tab => tab.classList.toggle('active', tab.dataset.slug === currentCategory));
-  const cat = categories.find(c => c.slug === currentCategory);
-  document.getElementById('categoryTitle').textContent = cat ? cat.name : 'ALL';
-  document.getElementById('categoryDesc').textContent = cat?.description || 'Curated selection of quiet luxury essentials';
+  if (searchQuery) {
+    document.getElementById('categoryTitle').textContent = `"${searchQuery}" 검색 결과`;
+    document.getElementById('categoryDesc').textContent = '';
+  } else {
+    const cat = categories.find(c => c.slug === currentCategory);
+    document.getElementById('categoryTitle').textContent = cat ? cat.name : 'ALL';
+    document.getElementById('categoryDesc').textContent = cat?.description || 'Curated selection of quiet luxury essentials';
+  }
 }
 
 async function loadProducts() {
@@ -435,6 +443,18 @@ async function loadProducts() {
 
 function renderProducts() {
   let filtered = [...allProducts];
+
+  // 검색어 필터
+  if (searchQuery) {
+    const q = searchQuery.toLowerCase();
+    filtered = filtered.filter(p =>
+      (p.name && p.name.toLowerCase().includes(q)) ||
+      (p.brand && p.brand.toLowerCase().includes(q)) ||
+      (p.description && p.description.toLowerCase().includes(q)) ||
+      (p.tags && p.tags.some(t => t.toLowerCase().includes(q)))
+    );
+  }
+
   if (currentCategory !== 'all') {
     if (currentCategory === 'best') filtered = filtered.filter(p => p.tags?.includes('best'));
     else if (currentCategory === 'new') filtered = filtered.filter(p => p.tags?.includes('new'));
