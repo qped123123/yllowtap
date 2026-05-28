@@ -361,10 +361,27 @@
     `;
     document.head.appendChild(style);
   }
-
+// ── GA4 + Clarity 자동 삽입 ──
+  function injectAnalytics() {
+    if (document.getElementById('ga4-script')) return;
+    // GA4
+    const gaScript = document.createElement('script');
+    gaScript.id = 'ga4-script';
+    gaScript.async = true;
+    gaScript.src = 'https://www.googletagmanager.com/gtag/js?id=G-4EJX3DZ6TB';
+    document.head.appendChild(gaScript);
+    const gaInit = document.createElement('script');
+    gaInit.textContent = "window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-4EJX3DZ6TB');";
+    document.head.appendChild(gaInit);
+    // Clarity
+    const clarityScript = document.createElement('script');
+    clarityScript.textContent = "(function(c,l,a,r,i,t,y){c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};t=l.createElement(r);t.async=1;t.src='https://www.clarity.ms/tag/'+i;y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);})(window,document,'clarity','script','wxzzmt0znb');";
+    document.head.appendChild(clarityScript);
+  }
   // ── 초기화 ──
   function init() {
     injectStyles();
+    injectAnalytics();
     // sb가 준비될 때까지 재시도
     let retries = 0;
     function tryInit() {
