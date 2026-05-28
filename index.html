@@ -7,38 +7,73 @@
   <title>Yllowtap — Curated Luxury Fashion</title>
   <link rel="stylesheet" href="./css/style.css">
   <style>
-  /* ★ 팝업 공지 스타일 (여러 개) */
+  /* ★ 팝업 공지 스타일 (슬라이드) */
   .popup-overlay {
     position: fixed; inset: 0; z-index: 9999;
     background: rgba(0,0,0,0.6);
-    display: flex; align-items: center; justify-content: center; gap: 16px;
+    display: flex; align-items: center; justify-content: center;
     padding: 20px;
     opacity: 0; animation: popupFadeIn 0.3s ease forwards;
   }
   @keyframes popupFadeIn { to { opacity: 1; } }
   .popup-overlay.hiding { animation: popupFadeOut 0.25s ease forwards; }
   @keyframes popupFadeOut { to { opacity: 0; } }
-  .popup-box {
-    background: #fff; border-radius: 12px; overflow: hidden;
-    max-width: 360px; width: 100%; box-shadow: 0 20px 60px rgba(0,0,0,0.3);
-    position: relative; flex-shrink: 0;
+
+  .popup-slider-wrap {
+    display: flex; flex-direction: column; align-items: center; gap: 12px;
+    max-width: 420px; width: 90%;
   }
-  .popup-box img {
-    width: 100%; display: block; max-height: 360px; object-fit: cover;
+  .popup-slider {
+    position: relative; width: 100%;
+    overflow: hidden; border-radius: 12px;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.3);
   }
-  .popup-box-text {
+  .popup-slide {
+    display: none; background: #fff; border-radius: 12px; overflow: hidden;
+  }
+  .popup-slide.active { display: block; }
+  .popup-slide img {
+    width: 100%; display: block; max-height: 400px; object-fit: cover;
+  }
+  .popup-slide-text {
     padding: 16px 20px; font-size: 13px; line-height: 1.7;
     color: #333; word-break: keep-all;
   }
-  .popup-box-close {
-    position: absolute; top: 8px; right: 8px;
+  .popup-slide-close {
+    position: absolute; top: 10px; right: 10px;
     width: 28px; height: 28px; border-radius: 50%;
     background: rgba(0,0,0,0.5); border: none; color: #fff;
     font-size: 16px; cursor: pointer; display: flex;
     align-items: center; justify-content: center;
+    transition: background 0.2s; z-index: 2;
+  }
+  .popup-slide-close:hover { background: rgba(0,0,0,0.7); }
+
+  /* 좌우 화살표 */
+  .popup-arrow {
+    position: absolute; top: 50%; transform: translateY(-50%);
+    width: 36px; height: 36px; border-radius: 50%;
+    background: rgba(0,0,0,0.4); border: none; color: #fff;
+    font-size: 18px; cursor: pointer; display: flex;
+    align-items: center; justify-content: center;
+    transition: background 0.2s; z-index: 2;
+  }
+  .popup-arrow:hover { background: rgba(0,0,0,0.7); }
+  .popup-arrow-left { left: 10px; }
+  .popup-arrow-right { right: 10px; }
+
+  /* 도트 인디케이터 */
+  .popup-dots {
+    display: flex; gap: 8px; justify-content: center;
+  }
+  .popup-dot {
+    width: 8px; height: 8px; border-radius: 50%;
+    background: rgba(255,255,255,0.4); cursor: pointer;
     transition: background 0.2s;
   }
-  .popup-box-close:hover { background: rgba(0,0,0,0.7); }
+  .popup-dot.active { background: #fff; }
+
+  /* 하단 옵션 */
   .popup-footer {
     display: flex; align-items: center; gap: 16px;
     background: rgba(0,0,0,0.7); padding: 10px 20px; border-radius: 8px;
@@ -49,27 +84,20 @@
     font-size: 12px; color: #ccc;
   }
   .popup-footer label input { accent-color: #B89B72; }
-  .popup-footer button {
-    background: none; border: none; font-size: 12px; color: #ccc;
-    cursor: pointer; padding: 4px 8px; letter-spacing: 0.5px;
-  }
-  .popup-footer button:hover { color: #fff; }
+
   @media (max-width: 768px) {
-    .popup-overlay {
-      flex-direction: column; align-items: center;
-      overflow-y: auto; gap: 12px; padding: 20px 20px 80px;
-    }
-    .popup-box { max-width: 320px; }
-    .popup-footer { bottom: 12px; }
+    .popup-slider-wrap { max-width: 340px; width: 92%; }
+    .popup-arrow { width: 30px; height: 30px; font-size: 14px; }
   }
   </style>
 </head>
 <body>
 
-<!-- ★ 팝업 공지 (JS가 제어) -->
+<!-- ★ 팝업 공지 (슬라이드) -->
 <div class="popup-overlay" id="popupOverlay" style="display:none;">
-  <div style="display:flex;flex-direction:column;align-items:center;gap:12px;">
-    <div id="popupContainer" style="display:flex;gap:16px;flex-wrap:wrap;justify-content:center;"></div>
+  <div class="popup-slider-wrap">
+    <div class="popup-slider" id="popupSlider"></div>
+    <div class="popup-dots" id="popupDots"></div>
     <div class="popup-footer" id="popupFooter" style="display:none;">
       <label><input type="checkbox" id="popupDontShow"> 오늘 하루 안 보기</label>
       <label style="cursor:pointer;display:flex;align-items:center;gap:6px;"><input type="checkbox" onchange="if(this.checked)closeAllPopups()" style="accent-color:#B89B72;"> 전체 닫기</label>
@@ -119,7 +147,7 @@
   <a href="/mypage.html?tab=wishlist">Wishlist</a>
 </div>
 
-<!-- ═══ HERO — DB에서 로드 ═══ -->
+<!-- ═══ HERO ═══ -->
 <section class="hero">
   <div class="hero__slider" id="heroSlider"></div>
   <div class="hero__pagination" id="heroPagination"></div>
@@ -262,8 +290,11 @@ const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFz
 const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON);
 
 // ══════════════════════════════════════════
-// ★ 팝업 공지 (여러 개, 나란히)
+// ★ 팝업 공지 (슬라이드 방식)
 // ══════════════════════════════════════════
+let popupCurrent = 0;
+let popupTotal = 0;
+
 function closeAllPopups() {
   const overlay = document.getElementById('popupOverlay');
   if (document.getElementById('popupDontShow').checked) {
@@ -275,16 +306,20 @@ function closeAllPopups() {
   setTimeout(() => { overlay.style.display = 'none'; }, 250);
 }
 
-function closeSinglePopup(btn) {
-  const box = btn.closest('.popup-box');
-  box.style.transition = 'opacity 0.2s, transform 0.2s';
-  box.style.opacity = '0';
-  box.style.transform = 'scale(0.95)';
-  setTimeout(() => {
-    box.remove();
-    const remaining = document.querySelectorAll('#popupContainer .popup-box');
-    if (!remaining.length) closeAllPopups();
-  }, 200);
+function goPopup(idx) {
+  if (idx < 0 || idx >= popupTotal) return;
+  document.querySelectorAll('.popup-slide').forEach((s, i) => {
+    s.classList.toggle('active', i === idx);
+  });
+  document.querySelectorAll('.popup-dot').forEach((d, i) => {
+    d.classList.toggle('active', i === idx);
+  });
+  popupCurrent = idx;
+  // 화살표 표시/숨기기
+  const leftArr = document.getElementById('popupArrowLeft');
+  const rightArr = document.getElementById('popupArrowRight');
+  if (leftArr) leftArr.style.display = idx === 0 ? 'none' : 'flex';
+  if (rightArr) rightArr.style.display = idx === popupTotal - 1 ? 'none' : 'flex';
 }
 
 async function loadPopup() {
@@ -295,26 +330,45 @@ async function loadPopup() {
     .eq('is_active', true).order('display_order').limit(5);
   if (!data?.length) return;
 
-  const container = document.getElementById('popupContainer');
-  container.innerHTML = data.map(p => {
-    const hasImg = p.image_url && p.image_url.trim();
-    const hasTxt = p.text_content && p.text_content.trim();
-    if (!hasImg && !hasTxt) return '';
-    const linkOpen = p.link_url ? `<a href="${p.link_url}" style="text-decoration:none;color:inherit;display:block;">` : '';
-    const linkClose = p.link_url ? '</a>' : '';
-    return `<div class="popup-box">
-      <button class="popup-box-close" onclick="closeSinglePopup(this)">✕</button>
-      ${linkOpen}
-      ${hasImg ? `<img src="${p.image_url}" alt="${p.title || '공지'}">` : ''}
-      ${hasTxt ? `<div class="popup-box-text">${p.text_content.replace(/\n/g,'<br>')}</div>` : ''}
-      ${linkClose}
-    </div>`;
-  }).join('');
+  const valid = data.filter(p => (p.image_url && p.image_url.trim()) || (p.text_content && p.text_content.trim()));
+  if (!valid.length) return;
 
-  if (container.querySelectorAll('.popup-box').length) {
-    document.getElementById('popupOverlay').style.display = 'flex';
-    document.getElementById('popupFooter').style.display = 'flex';
+  popupTotal = valid.length;
+  popupCurrent = 0;
+
+  const slider = document.getElementById('popupSlider');
+  slider.innerHTML = (popupTotal > 1 ? `<button class="popup-arrow popup-arrow-left" id="popupArrowLeft" onclick="goPopup(popupCurrent-1)" style="display:none;">‹</button>
+    <button class="popup-arrow popup-arrow-right" id="popupArrowRight" onclick="goPopup(popupCurrent+1)">›</button>` : '') +
+    valid.map((p, i) => {
+      const hasImg = p.image_url && p.image_url.trim();
+      const hasTxt = p.text_content && p.text_content.trim();
+      const linkOpen = p.link_url ? `<a href="${p.link_url}" style="text-decoration:none;color:inherit;display:block;">` : '';
+      const linkClose = p.link_url ? '</a>' : '';
+      return `<div class="popup-slide${i === 0 ? ' active' : ''}">
+        ${linkOpen}
+        ${hasImg ? `<img src="${p.image_url}" alt="${p.title || '공지'}">` : ''}
+        ${hasTxt ? `<div class="popup-slide-text">${p.text_content.replace(/\n/g, '<br>')}</div>` : ''}
+        ${linkClose}
+      </div>`;
+    }).join('');
+
+  // 닫기 버튼 (슬라이더 위에 1개)
+  const closeBtn = document.createElement('button');
+  closeBtn.className = 'popup-slide-close';
+  closeBtn.textContent = '✕';
+  closeBtn.onclick = closeAllPopups;
+  slider.appendChild(closeBtn);
+
+  // 도트
+  const dots = document.getElementById('popupDots');
+  if (popupTotal > 1) {
+    dots.innerHTML = valid.map((_, i) =>
+      `<span class="popup-dot${i === 0 ? ' active' : ''}" onclick="goPopup(${i})"></span>`
+    ).join('');
   }
+
+  document.getElementById('popupOverlay').style.display = 'flex';
+  document.getElementById('popupFooter').style.display = 'flex';
 }
 
 document.getElementById('popupOverlay').addEventListener('click', function(e) {
