@@ -773,6 +773,20 @@ body { font-family:var(--font); background:var(--bg); color:var(--text); font-si
     </div>
   </div>
 </div>
+<!-- POPUP NOTICE MODAL -->
+<div class="modal-overlay" id="popupNoticeModal">
+  <div class="modal" style="max-width:560px;">
+    <div class="modal-header"><h2>팝업 편집</h2><button class="modal-close" onclick="closePopupNoticeModal()">×</button></div>
+    <div class="modal-body">
+      <div class="form-group"><label class="form-label">제목 (관리용)</label><input class="form-input" id="pnTitle" placeholder="예: 오픈 이벤트"></div>
+      <div class="form-group"><label class="form-label">이미지</label><div style="display:flex;gap:8px;align-items:center;"><input class="form-input" id="pnImage" placeholder="이미지 URL" style="flex:1;"><label class="btn btn-secondary btn-small" style="cursor:pointer;">📎 업로드<input type="file" id="pnImageFile" accept="image/*" style="display:none;"></label></div></div>
+      <div class="form-group"><label class="form-label">텍스트</label><textarea class="form-textarea" id="pnText" placeholder="공지 내용 (줄바꿈 가능)" style="min-height:80px;"></textarea></div>
+      <div class="form-group"><label class="form-label">클릭 시 이동 링크</label><input class="form-input" id="pnLink" placeholder="https:// 또는 /category.html"></div>
+      <div class="form-row"><div class="form-group"><label class="form-label">순서</label><input class="form-input" id="pnOrder" type="number" value="0"></div><div class="form-group"><label class="form-label">활성</label><select class="form-select" id="pnActive"><option value="true">ON</option><option value="false">OFF</option></select></div></div>
+    </div>
+    <div class="modal-footer"><button class="btn btn-secondary" onclick="closePopupNoticeModal()">취소</button><button class="btn btn-primary" onclick="savePopupNotice()">저장</button></div>
+  </div>
+</div>
 
 <!-- TOAST -->
 <div class="toast" id="toast"></div>
@@ -802,8 +816,8 @@ function switchPage(page) {
 }
 
 async function init() {
-  await Promise.all([loadCategories(), loadCollections(), loadProducts(), loadHeroSlides(), loadSettings(), loadInquiries(), loadMembers(), loadOrders(), loadFaqs()]);
-  bindTagCheckboxes(); bindCustomTagInput(); bindImageUpload(); bindHeroMediaUpload(); bindSettingsImageUpload(); bindPopupImageUpload();
+  await Promise.all([loadPopupNotices(), loadCategories(), loadCollections(), loadProducts(), loadHeroSlides(), loadSettings(), loadInquiries(), loadMembers(), loadOrders(), loadFaqs()]);
+  bindTagCheckboxes(); bindCustomTagInput(); bindImageUpload(); bindHeroMediaUpload(); bindSettingsImageUpload(); bindPopupNoticeImageUpload();
 }
 
 async function loadCategories() {
@@ -982,9 +996,6 @@ async function loadSettings() {
   document.getElementById('sBgmVolume').value=siteSettings.bgm_volume||'0.3';
   document.getElementById('sMoodImage').value=siteSettings.mood_image_url||'';
   document.getElementById('sMoodTitle').value=siteSettings.mood_title||'About the Mood';
-  document.getElementById('sPopupEnabled').value=siteSettings.popup_enabled||'false';
-  document.getElementById('sPopupImage').value=siteSettings.popup_image_url||'';
-  document.getElementById('sPopupText').value=siteSettings.popup_text||'';
 }
 
 function bindSettingsImageUpload() {
@@ -1016,9 +1027,6 @@ async function saveSettings() {
     {key:'bgm_volume',value:document.getElementById('sBgmVolume').value},
     {key:'mood_image_url',value:document.getElementById('sMoodImage').value},
     {key:'mood_title',value:document.getElementById('sMoodTitle').value},
-    {key:'popup_enabled',value:document.getElementById('sPopupEnabled').value},
-    {key:'popup_image_url',value:document.getElementById('sPopupImage').value},
-    {key:'popup_text',value:document.getElementById('sPopupText').value}
   ];
   try { for(const item of items){await sb.from('site_settings').upsert({key:item.key,value:item.value,updated_at:new Date().toISOString()},{onConflict:'key'});} showToast('설정 저장 완료'); }
   catch(err){showToast('저장 실패: '+err.message,true);}
