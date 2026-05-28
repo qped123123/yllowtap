@@ -232,6 +232,10 @@
       <div class="pf-row"><label class="pf-label">생년월일</label><input class="pf-input" id="pfBirthday" type="date"></div>
       <button class="pf-save" onclick="saveProfile()">저장</button>
       <div class="pf-msg" id="pfMsg">저장되었습니다.</div>
+      <div style="margin-top:48px;padding-top:24px;border-top:1px solid #E5E1DC;">
+        <p style="font-size:12px;color:#999;margin-bottom:12px;">더 이상 Yllowtap을 이용하지 않으시나요?</p>
+        <button onclick="withdrawAccount()" style="font-size:12px;color:#999;background:none;border:none;cursor:pointer;text-decoration:underline;padding:0;">회원 탈퇴</button>
+      </div>
     </div>
   </div>
 </div>
@@ -314,6 +318,32 @@ async function saveProfile(){
   profile={...profile,...d};
   renderUserCard();
   const msg=document.getElementById('pfMsg');msg.style.display='block';setTimeout(()=>msg.style.display='none',3000);
+}
+
+async function withdrawAccount(){
+  const c1=confirm('정말 탈퇴하시겠습니까?\n\n탈퇴 시 적립금, 쿠폰, 주문내역 등 모든 정보가 삭제되며 복구할 수 없습니다.');
+  if(!c1) return;
+  const c2=confirm('마지막 확인입니다.\n\n회원 탈퇴를 진행하시겠습니까?');
+  if(!c2) return;
+
+  try {
+    const uid = currentUser.id;
+    // 관련 데이터 삭제 (순서 중요 — 외래키 참조 순)
+    await sb.from('cart_items').delete().eq('user_id', uid);
+    await sb.from('wishlists').delete().eq('user_id', uid);
+    await sb.from('recent_views').delete().eq('user_id', uid);
+    await sb.from('addresses').delete().eq('user_id', uid);
+    await sb.from('inquiries').delete().eq('user_id', uid);
+    await sb.from('notifications').delete().eq('user_id', uid);
+    await sb.from('user_profiles').delete().eq('id', uid);
+
+    // 로그아웃
+    await sb.auth.signOut();
+    alert('회원 탈퇴가 완료되었습니다.\n그동안 Yllowtap을 이용해주셔서 감사합니다.');
+    window.location.href = '/';
+  } catch(e) {
+    alert('탈퇴 처리 중 오류가 발생했습니다. 고객센터로 문의해주세요.');
+  }
 }
 
 // ══════════════════════════════════════════
