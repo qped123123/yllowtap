@@ -390,27 +390,11 @@ body { font-family:var(--font); background:var(--bg); color:var(--text); font-si
           <input class="form-input" id="sMoodTitle" placeholder="About the Mood">
         </div>
 
-        <!-- ★ 팝업 공지 설정 (추가됨) -->
+        <!-- ★ 팝업 공지 관리 -->
         <div style="border-top:1px solid var(--border);margin:20px 0;"></div>
-        <div style="font-size:12px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:var(--accent);margin-bottom:16px;">팝업 공지 설정</div>
-        <div class="setting-row">
-          <div class="setting-label">팝업 사용</div>
-          <select class="form-select" id="sPopupEnabled" style="width:120px;"><option value="false">OFF</option><option value="true">ON</option></select>
-        </div>
-        <div class="setting-row">
-          <div class="setting-label">팝업 이미지</div>
-          <div style="display:flex;gap:8px;align-items:center;">
-            <input class="form-input" id="sPopupImage" placeholder="이미지 URL" style="flex:1;">
-            <label class="btn btn-secondary btn-small" style="cursor:pointer;">
-              📎 업로드
-              <input type="file" id="sPopupImageFile" accept="image/*" style="display:none;">
-            </label>
-          </div>
-        </div>
-        <div class="setting-row">
-          <div class="setting-label">팝업 텍스트</div>
-          <textarea class="form-textarea" id="sPopupText" placeholder="공지 내용 (줄바꿈 가능)" style="min-height:60px;"></textarea>
-        </div>
+        <div style="font-size:12px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:var(--accent);margin-bottom:16px;">팝업 공지 관리</div>
+        <div style="margin-bottom:12px;"><button class="btn btn-secondary btn-small" onclick="addPopupNotice()">+ 팝업 추가</button><span style="font-size:11px;color:var(--text-muted);margin-left:12px;">최대 5개</span></div>
+        <div id="popupNoticeList"></div>
       </div>
     </div>
 
