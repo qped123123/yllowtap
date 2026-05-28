@@ -6,8 +6,55 @@
   <meta name="description" content="Yllowtap — Curated luxury fashion for the modern woman. Quiet luxury, editorial style.">
   <title>Yllowtap — Curated Luxury Fashion</title>
   <link rel="stylesheet" href="./css/style.css">
+  <style>
+  /* ★ 팝업 공지 스타일 */
+  .popup-overlay {
+    position: fixed; inset: 0; z-index: 9999;
+    background: rgba(0,0,0,0.6);
+    display: flex; align-items: center; justify-content: center;
+    opacity: 0; animation: popupFadeIn 0.3s ease forwards;
+  }
+  @keyframes popupFadeIn { to { opacity: 1; } }
+  .popup-overlay.hiding { animation: popupFadeOut 0.25s ease forwards; }
+  @keyframes popupFadeOut { to { opacity: 0; } }
+  .popup-box {
+    background: #fff; border-radius: 12px; overflow: hidden;
+    max-width: 420px; width: 90%; box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+    position: relative;
+  }
+  .popup-box img {
+    width: 100%; display: block; max-height: 400px; object-fit: cover;
+  }
+  .popup-text {
+    padding: 20px 24px; font-size: 14px; line-height: 1.7;
+    color: #333; word-break: keep-all;
+  }
+  .popup-footer {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 12px 20px; border-top: 1px solid #eee; font-size: 12px; color: #888;
+  }
+  .popup-footer label { cursor: pointer; display: flex; align-items: center; gap: 6px; }
+  .popup-footer label input { accent-color: #B89B72; }
+  .popup-close-btn {
+    background: none; border: none; font-size: 13px; color: #888;
+    cursor: pointer; padding: 4px 8px; letter-spacing: 0.5px;
+  }
+  .popup-close-btn:hover { color: #333; }
+  </style>
 </head>
 <body>
+
+<!-- ★ 팝업 공지 (JS가 제어) -->
+<div class="popup-overlay" id="popupOverlay" style="display:none;">
+  <div class="popup-box">
+    <img id="popupImg" src="" alt="공지" style="display:none;">
+    <div class="popup-text" id="popupText" style="display:none;"></div>
+    <div class="popup-footer">
+      <label><input type="checkbox" id="popupDontShow"> 오늘 하루 안 보기</label>
+      <button class="popup-close-btn" onclick="closePopup()">닫기</button>
+    </div>
+  </div>
+</div>
 
 <!-- HEADER -->
 <header class="header">
@@ -204,6 +251,55 @@ const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFz
 const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON);
 
 // ══════════════════════════════════════════
+// ★ 팝업 공지
+// ══════════════════════════════════════════
+function closePopup() {
+  const overlay = document.getElementById('popupOverlay');
+  if (document.getElementById('popupDontShow').checked) {
+    const midnight = new Date();
+    midnight.setHours(23, 59, 59, 999);
+    localStorage.setItem('yllowtap_popup_hide', midnight.getTime());
+  }
+  overlay.classList.add('hiding');
+  setTimeout(() => { overlay.style.display = 'none'; }, 250);
+}
+
+async function loadPopup() {
+  // "오늘 하루 안 보기" 체크 확인
+  const hideUntil = localStorage.getItem('yllowtap_popup_hide');
+  if (hideUntil && Date.now() < parseInt(hideUntil)) return;
+
+  const { data } = await sb.from('site_settings').select('*');
+  const settings = {};
+  (data || []).forEach(r => settings[r.key] = r.value);
+
+  if (settings.popup_enabled !== 'true') return;
+
+  const hasImage = settings.popup_image_url && settings.popup_image_url.trim();
+  const hasText = settings.popup_text && settings.popup_text.trim();
+  if (!hasImage && !hasText) return;
+
+  const imgEl = document.getElementById('popupImg');
+  const textEl = document.getElementById('popupText');
+
+  if (hasImage) {
+    imgEl.src = settings.popup_image_url;
+    imgEl.style.display = 'block';
+  }
+  if (hasText) {
+    textEl.innerHTML = settings.popup_text.replace(/\n/g, '<br>');
+    textEl.style.display = 'block';
+  }
+
+  document.getElementById('popupOverlay').style.display = 'flex';
+}
+
+// 배경 클릭으로 닫기
+document.getElementById('popupOverlay').addEventListener('click', function(e) {
+  if (e.target === this) closePopup();
+});
+
+// ══════════════════════════════════════════
 // 히어로 슬라이드 — DB에서 로드
 // ══════════════════════════════════════════
 async function loadHero() {
@@ -213,7 +309,6 @@ async function loadHero() {
   const pagination = document.getElementById('heroPagination');
 
   if (!slides.length) {
-    // DB에 슬라이드가 없으면 기본 슬라이드
     slider.innerHTML = `<div class="hero__slide active">
       <img class="hero__media" src="https://images.unsplash.com/photo-1509631179647-0177331693ae?w=1920&q=80" alt="Collection">
       <div class="hero__overlay"></div>
@@ -249,12 +344,10 @@ async function loadHero() {
     `<span${i === 0 ? ' class="active"' : ''}>${String(i + 1).padStart(2, '0')}</span>`
   ).join('');
 
-  // 슬라이더 재초기화 (main.js에 슬라이더 로직이 있다면)
   if (typeof initHeroSlider === 'function') initHeroSlider();
   else initSimpleSlider(slides.length);
 }
 
-// 심플 슬라이더 (main.js에 없을 경우 대비)
 function initSimpleSlider(count) {
   if (count <= 1) return;
   let current = 0;
@@ -310,7 +403,7 @@ function getMainImg(p) {
 }
 
 // ══════════════════════════════════════════
-// Curated For You — section=curated 또는 최신 5개
+// Curated For You
 // ══════════════════════════════════════════
 async function loadCurated() {
   const { data } = await sb
@@ -329,7 +422,7 @@ async function loadCurated() {
 }
 
 // ══════════════════════════════════════════
-// Best Collection — tags에 'best' 포함된 상품
+// Best Collection
 // ══════════════════════════════════════════
 async function loadBest() {
   const { data } = await sb
@@ -342,7 +435,6 @@ async function loadBest() {
 
   const grid = document.getElementById('bestGrid');
   if (!data?.length) {
-    // best 태그 상품이 없으면 섹션 숨기기
     document.getElementById('sectionBest').style.display = 'none';
     return;
   }
@@ -350,7 +442,7 @@ async function loadBest() {
 }
 
 // ══════════════════════════════════════════
-// About the Mood — site_settings에서 로드
+// About the Mood
 // ══════════════════════════════════════════
 async function loadMood() {
   const { data } = await sb.from('site_settings').select('*');
@@ -369,7 +461,6 @@ async function loadMood() {
     moodTitle.textContent = settings.mood_title;
   }
 
-  // BGM 설정
   if (settings.bgm_enabled === 'true' && settings.bgm_url) {
     const audio = document.getElementById('heroBgm');
     audio.querySelector('source').src = settings.bgm_url;
@@ -379,7 +470,7 @@ async function loadMood() {
 }
 
 // ══════════════════════════════════════════
-// From The Journal — DB에서 로드
+// From The Journal
 // ══════════════════════════════════════════
 async function loadJournal() {
   const { data } = await sb
@@ -391,7 +482,6 @@ async function loadJournal() {
 
   const grid = document.getElementById('journalGrid');
   if (!data?.length) {
-    // 저널 없으면 하드코딩 유지
     grid.innerHTML = `
       <div class="journal-card">
         <div class="journal-card__img-wrap"><img class="journal-card__img" src="https://images.unsplash.com/photo-1558171813-4c088753af8f?w=800&q=80" alt="Style Guide"></div>
@@ -425,7 +515,7 @@ async function loadJournal() {
 // 초기화
 // ══════════════════════════════════════════
 async function init() {
-  await Promise.all([loadHero(), loadCurated(), loadBest(), loadMood(), loadJournal()]);
+  await Promise.all([loadHero(), loadCurated(), loadBest(), loadMood(), loadJournal(), loadPopup()]);
 }
 init();
 </script>
