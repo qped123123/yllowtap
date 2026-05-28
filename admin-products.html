@@ -1008,7 +1008,67 @@ function bindSettingsImageUpload() {
     document.getElementById('sMoodImage').value=u.publicUrl; e.target.value='';
   });
 }
-
+// ── 팝업 공지 관리 (여러 개) ──
+let popupNotices=[];
+async function loadPopupNotices(){
+  const{data}=await sb.from('popup_notices').select('*').order('display_order');
+  popupNotices=data||[];renderPopupNotices();
+}
+function renderPopupNotices(){
+  const el=document.getElementById('popupNoticeList');
+  if(!popupNotices.length){el.innerHTML='<div style="font-size:12px;color:var(--text-muted);padding:16px 0;">등록된 팝업이 없습니다</div>';return;}
+  el.innerHTML=popupNotices.map((p,i)=>`<div style="display:grid;grid-template-columns:60px 1fr 80px 60px 80px;gap:10px;align-items:center;padding:10px;margin-bottom:8px;background:var(--bg-input);border:1px solid var(--border);border-radius:var(--radius);">
+    <div>${p.image_url?`<img src="${p.image_url}" style="width:60px;height:60px;object-fit:cover;border-radius:4px;">`:'<div style="width:60px;height:60px;background:var(--bg-hover);border-radius:4px;display:flex;align-items:center;justify-content:center;color:var(--text-muted);font-size:10px;">없음</div>'}</div>
+    <div><div style="font-size:12px;font-weight:500;">${p.title||'(제목 없음)'}</div><div style="font-size:10px;color:var(--text-dim);margin-top:2px;">${p.text_content?p.text_content.substring(0,30)+'...':''}</div></div>
+    <div><span class="status-badge ${p.is_active?'status-active':'status-inactive'}">${p.is_active?'ON':'OFF'}</span></div>
+    <div style="font-size:11px;color:var(--text-dim);text-align:center;">순서 ${p.display_order}</div>
+    <div style="display:flex;gap:4px;"><button class="btn btn-secondary btn-small" onclick="editPopupNotice('${p.id}')">편집</button><button class="btn btn-small" style="background:var(--red);color:#fff;border:none;" onclick="deletePopupNotice('${p.id}')">×</button></div>
+  </div>`).join('');
+}
+async function addPopupNotice(){
+  if(popupNotices.length>=5){showToast('최대 5개까지 등록 가능',true);return;}
+  const title=prompt('팝업 제목 (관리용)');if(!title)return;
+  const{error}=await sb.from('popup_notices').insert({title,display_order:popupNotices.length,is_active:true});
+  if(error){showToast('추가 실패',true);return;}
+  showToast('팝업 추가됨');await loadPopupNotices();
+  const last=popupNotices[popupNotices.length-1];if(last)editPopupNotice(last.id);
+}
+async function deletePopupNotice(id){
+  if(!confirm('이 팝업을 삭제하시겠습니까?'))return;
+  const{error}=await sb.from('popup_notices').delete().eq('id',id);
+  if(error){showToast('삭제 실패',true);return;}
+  showToast('팝업 삭제됨');await loadPopupNotices();
+}
+function editPopupNotice(id){
+  const p=popupNotices.find(x=>x.id===id);if(!p)return;
+  editingPopupId=id;
+  document.getElementById('pnTitle').value=p.title||'';
+  document.getElementById('pnImage').value=p.image_url||'';
+  document.getElementById('pnText').value=p.text_content||'';
+  document.getElementById('pnLink').value=p.link_url||'';
+  document.getElementById('pnOrder').value=p.display_order||0;
+  document.getElementById('pnActive').value=String(p.is_active);
+  document.getElementById('popupNoticeModal').classList.add('show');
+}
+function closePopupNoticeModal(){document.getElementById('popupNoticeModal').classList.remove('show');}
+let editingPopupId=null;
+async function savePopupNotice(){
+  if(!editingPopupId)return;
+  const d={title:document.getElementById('pnTitle').value.trim(),image_url:document.getElementById('pnImage').value.trim()||null,text_content:document.getElementById('pnText').value.trim()||null,link_url:document.getElementById('pnLink').value.trim()||null,display_order:parseInt(document.getElementById('pnOrder').value)||0,is_active:document.getElementById('pnActive').value==='true',updated_at:new Date().toISOString()};
+  const{error}=await sb.from('popup_notices').update(d).eq('id',editingPopupId);
+  if(error){showToast('저장 실패',true);return;}
+  showToast('팝업 저장 완료');closePopupNoticeModal();await loadPopupNotices();
+}
+function bindPopupNoticeImageUpload(){
+  document.getElementById('pnImageFile').addEventListener('change',async function(e){
+    const file=e.target.files[0];if(!file)return;
+    const fn='popup/'+Date.now()+'.'+file.name.split('.').pop();
+    const{error}=await sb.storage.from('media').upload(fn,file,{upsert:true,contentType:file.type});
+    if(error){showToast('업로드 실패',true);return;}
+    const{data:u}=sb.storage.from('media').getPublicUrl(fn);
+    document.getElementById('pnImage').value=u.publicUrl;e.target.value='';
+  });
+}
 function bindPopupImageUpload() {
   document.getElementById('sPopupImageFile').addEventListener('change',async function(e){
     const file=e.target.files[0];if(!file)return;
