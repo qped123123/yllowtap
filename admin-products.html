@@ -1089,7 +1089,26 @@ function renderDetailBlocks(){
       return `<div style="padding:10px;margin-bottom:8px;background:var(--bg-input);border:1px solid var(--border);border-radius:var(--radius);">
         <div style="display:flex;gap:10px;align-items:flex-start;">
           <div style="font-size:10px;color:var(--accent);font-weight:600;width:20px;padding-top:10px;">${i+1}</div>
-          <textarea class="form-textarea" style="flex:1;min-height:60px;font-size:12px;" placeholder="텍스트 내용 (줄바꿈 가능)" onchange="formDetailBlocks[${i}].text_content=this.value">${b.text_content||''}</textarea>
+          <div style="flex:1;">
+            <div style="display:flex;gap:6px;margin-bottom:6px;">
+              <select class="form-select" style="padding:4px 8px;font-size:10px;width:80px;" onchange="formDetailBlocks[${i}].font_size=this.value">
+                <option value="small"${b.font_size==='small'?' selected':''}>소 (12px)</option>
+                <option value="medium"${b.font_size==='medium'||!b.font_size?' selected':''}>중 (14px)</option>
+                <option value="large"${b.font_size==='large'?' selected':''}>대 (18px)</option>
+                <option value="xlarge"${b.font_size==='xlarge'?' selected':''}>특대 (24px)</option>
+              </select>
+              <select class="form-select" style="padding:4px 8px;font-size:10px;width:80px;" onchange="formDetailBlocks[${i}].text_align=this.value">
+                <option value="left"${b.text_align==='left'?' selected':''}>왼쪽</option>
+                <option value="center"${b.text_align==='center'||!b.text_align?' selected':''}>가운데</option>
+                <option value="right"${b.text_align==='right'?' selected':''}>오른쪽</option>
+              </select>
+              <select class="form-select" style="padding:4px 8px;font-size:10px;width:80px;" onchange="formDetailBlocks[${i}].font_weight=this.value">
+                <option value="normal"${b.font_weight==='normal'||!b.font_weight?' selected':''}>일반</option>
+                <option value="bold"${b.font_weight==='bold'?' selected':''}>볼드</option>
+              </select>
+            </div>
+            <textarea class="form-textarea" style="flex:1;min-height:60px;font-size:12px;" placeholder="텍스트 내용 (줄바꿈 가능)" onchange="formDetailBlocks[${i}].text_content=this.value">${b.text_content||''}</textarea>
+          </div>
           <div style="display:flex;gap:2px;flex-direction:column;">
             ${i>0?`<button class="img-btn-move" onclick="moveDetailBlock(${i},-1)" style="width:22px;height:22px;border:none;border-radius:4px;background:var(--bg-hover);color:var(--text-dim);font-size:11px;cursor:pointer;">↑</button>`:''}
             ${i<formDetailBlocks.length-1?`<button class="img-btn-move" onclick="moveDetailBlock(${i},1)" style="width:22px;height:22px;border:none;border-radius:4px;background:var(--bg-hover);color:var(--text-dim);font-size:11px;cursor:pointer;">↓</button>`:''}
@@ -1121,13 +1140,13 @@ async function uploadDetailBlockImg(input,idx){
 
 async function loadDetailBlocks(productId){
   const{data}=await sb.from('product_detail_blocks').select('*').eq('product_id',productId).order('display_order');
-  formDetailBlocks=(data||[]).map(b=>({id:b.id,block_type:b.block_type,image_url:b.image_url||'',text_content:b.text_content||'',display_order:b.display_order,isNew:false}));
+  formDetailBlocks=(data||[]).map(b=>({id:b.id,block_type:b.block_type,image_url:b.image_url||'',text_content:b.text_content||'',font_size:b.font_size||'medium',text_align:b.text_align||'center',font_weight:b.font_weight||'normal',display_order:b.display_order,isNew:false}));
 }
 
 async function saveDetailBlocks(productId){
   await sb.from('product_detail_blocks').delete().eq('product_id',productId);
   if(formDetailBlocks.length){
-    await sb.from('product_detail_blocks').insert(formDetailBlocks.map((b,i)=>({product_id:productId,block_type:b.block_type,image_url:b.image_url||null,text_content:b.text_content||null,display_order:i})));
+    await sb.from('product_detail_blocks').insert(formDetailBlocks.map((b,i)=>({product_id:productId,block_type:b.block_type,image_url:b.image_url||null,text_content:b.text_content||null,font_size:b.font_size||'medium',text_align:b.text_align||'center',font_weight:b.font_weight||'normal',display_order:i})));
   }
 }
 

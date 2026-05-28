@@ -418,7 +418,7 @@ async function render(){
   if(blocks?.length){
     document.getElementById('detailBlocks').innerHTML=blocks.map(b=>{
       if(b.block_type==='image'&&b.image_url)return`<div style="max-width:800px;margin:0 auto 20px;"><img src="${b.image_url}" alt="" style="width:100%;display:block;border-radius:4px;" loading="lazy"></div>`;
-      if(b.block_type==='text'&&b.text_content)return`<div style="max-width:700px;margin:0 auto 30px;padding:0 20px;font-size:14px;line-height:2;color:var(--pd-text2,#555);text-align:center;word-break:keep-all;">${b.text_content.replace(/\n/g,'<br>')}</div>`;
+      if(b.block_type==='text'&&b.text_content){const sz={'small':'12px','medium':'14px','large':'18px','xlarge':'24px'};return`<div style="max-width:700px;margin:0 auto 30px;padding:0 20px;font-size:${sz[b.font_size]||'14px'};line-height:2;color:var(--pd-text2,#555);text-align:${b.text_align||'center'};font-weight:${b.font_weight||'normal'};word-break:keep-all;">${b.text_content.replace(/\n/g,'<br>')}</div>`;}
       return'';
     }).join('');
   }
