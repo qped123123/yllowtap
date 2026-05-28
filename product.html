@@ -298,7 +298,7 @@
     <button class="pd-tab" data-tab="review">사용후기 <span id="revCnt">(0)</span></button>
     <button class="pd-tab" data-tab="qna">상품문의 <span id="qnaCnt">(0)</span></button>
   </div>
-  <div class="pd-panel active" id="panel-detail"><div class="pd-content" id="detailHTML"></div></div>
+  <div class="pd-panel active" id="panel-detail"><div id="detailBlocks" style="margin-bottom:40px;"></div><div class="pd-content" id="detailHTML"></div></div>
   <div class="pd-panel" id="panel-guide">
     <div class="pd-content">
       <h3>배송 안내</h3><p>주문 후 1~3일 이내 출고. MADE 제품은 5~7일 소요.</p>
@@ -400,7 +400,7 @@ async function loadProduct(){
   hideLoading();
 }
 
-function render(){
+async function render(){
   const p=product;
   document.title=`Yllowtap — ${p.name}`;
   document.getElementById('pBrand').textContent=p.brand||'YLLOWTAP';
@@ -413,6 +413,15 @@ function render(){
     document.getElementById('pDisc').textContent=Math.round((1-p.price/p.original_price)*100)+'%';document.getElementById('pDisc').style.display='';
   }
   updateTotal();renderGallery();renderOpts();renderEditorial();
+  // 상세 블록 로드
+  const{data:blocks}=await sb.from('product_detail_blocks').select('*').eq('product_id',p.id).order('display_order');
+  if(blocks?.length){
+    document.getElementById('detailBlocks').innerHTML=blocks.map(b=>{
+      if(b.block_type==='image'&&b.image_url)return`<div style="max-width:800px;margin:0 auto 20px;"><img src="${b.image_url}" alt="" style="width:100%;display:block;border-radius:4px;" loading="lazy"></div>`;
+      if(b.block_type==='text'&&b.text_content)return`<div style="max-width:700px;margin:0 auto 30px;padding:0 20px;font-size:14px;line-height:2;color:var(--pd-text2,#555);text-align:center;word-break:keep-all;">${b.text_content.replace(/\n/g,'<br>')}</div>`;
+      return'';
+    }).join('');
+  }
   document.getElementById('detailHTML').innerHTML=p.description_detail||'<p style="color:var(--pd-text3);text-align:center;padding:36px 0;">상세 정보가 등록되지 않았습니다.</p>';
 }
 

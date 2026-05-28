@@ -660,7 +660,15 @@ body { font-family:var(--font); background:var(--bg); color:var(--text); font-si
         <p style="font-size:11px;color:var(--text-muted);margin-bottom:12px;">옵션에 "컬러" 항목이 있으면 각 컬러별 대표 이미지를 등록하세요. 상세페이지 Colors 섹션에 표시됩니다.</p>
         <div id="colorImageArea"></div>
       </div>
-
+      <div class="form-section">
+        <div class="form-section-title">상세 페이지 블록</div>
+        <p style="font-size:11px;color:var(--text-muted);margin-bottom:12px;">이미지와 텍스트를 순서대로 추가하면 상세 페이지에 쭉 나열됩니다.</p>
+        <div id="detailBlockArea"></div>
+        <div style="margin-top:12px;display:flex;gap:8px;">
+          <button class="btn btn-secondary btn-small" onclick="addDetailBlock('image')">+ 이미지 블록</button>
+          <button class="btn btn-secondary btn-small" onclick="addDetailBlock('text')">+ 텍스트 블록</button>
+        </div>
+      </div>
       <div class="form-section">
         <div class="form-section-title">추천 상품</div>
         <p style="font-size:11px;color:var(--text-muted);margin-bottom:12px;">비워두면 같은 카테고리 자동 추천</p>
@@ -852,8 +860,8 @@ function getMainImg(p) {
 
 function openProductForm() { editingProductId = null; document.getElementById('productFormTitle').textContent = '새 상품 등록'; document.getElementById('productDeleteBtn').style.display = 'none'; resetProductForm(); document.getElementById('productModal').classList.add('show'); }
 function closeProductForm() { document.getElementById('productModal').classList.remove('show'); }
-function resetProductForm() { ['fName','fSubtitle','fSlug','fPrice','fOriginalPrice','fEditorial','fMoodTitle','fMoodDesc','fDetail'].forEach(id => document.getElementById(id).value = ''); document.getElementById('fCategory').value = ''; document.getElementById('fCollection').value = ''; document.getElementById('fOrder').value = '0'; document.getElementById('fActive').value = 'true'; formImages=[]; formPresetTags=[]; formCustomTags=[]; formOptions=[]; formRecommends=[]; formColorImages=[]; renderProductFormAll(); }
-function renderProductFormAll() { renderImages(); renderPresetTags(); renderCustomTags(); renderOptions(); renderRecommends(); renderColorImages(); }
+function resetProductForm() { ['fName','fSubtitle','fSlug','fPrice','fOriginalPrice','fEditorial','fMoodTitle','fMoodDesc','fDetail'].forEach(id => document.getElementById(id).value = ''); document.getElementById('fCategory').value = ''; document.getElementById('fCollection').value = ''; document.getElementById('fOrder').value = '0'; document.getElementById('fActive').value = 'true'; formImages=[]; formPresetTags=[]; formCustomTags=[]; formOptions=[]; formRecommends=[]; formColorImages=[]; formDetailBlocks=[];renderProductFormAll(); }
+function renderProductFormAll() { renderImages(); renderPresetTags(); renderCustomTags(); renderOptions(); renderRecommends(); renderColorImages(); renderDetailBlocks(); }
 
 async function editProduct(id) {
   const p = allProducts.find(x=>x.id===id); if (!p) return;
@@ -877,6 +885,7 @@ async function editProduct(id) {
   formRecommends = (recs||[]).map(r=>r.recommended_product_id);
   const { data:ci } = await sb.from('product_option_images').select('*').eq('product_id',id).order('display_order');
   formColorImages = (ci||[]).map(c=>({id:c.id, option_value:c.option_value, image_url:c.image_url}));
+  await loadDetailBlocks(id);
   renderProductFormAll(); document.getElementById('productModal').classList.add('show');
 }
 
@@ -950,8 +959,9 @@ async function saveProduct() {
     if(formImages.length){await sb.from('product_media').insert(formImages.map((img,i)=>({product_id:pid,media_url:img.url,media_type:img.mediaType||'image',role:img.role,display_order:i})));}
     await sb.from('recommended_products').delete().eq('source_product_id',pid);
     if(formRecommends.length){await sb.from('recommended_products').insert(formRecommends.map((rid,i)=>({source_product_id:pid,recommended_product_id:rid,display_order:i})));}
-    await sb.from('product_option_images').delete().eq('product_id',pid);
+   await sb.from('product_option_images').delete().eq('product_id',pid);
     if(formColorImages.length){const colorOpt=formOptions.find(o=>['컬러','색상','Color','color'].includes(o.name));if(colorOpt){await sb.from('product_option_images').insert(formColorImages.map((ci,i)=>({product_id:pid,option_name:colorOpt.name,option_value:ci.option_value,image_url:ci.image_url,display_order:i})));}}
+    await saveDetailBlocks(pid);
     showToast(editingProductId?'수정 완료':'등록 완료');closeProductForm();await loadProducts();
   } catch(err) { if(err.message?.includes('duplicate')&&err.message?.includes('slug'))showToast('중복된 슬러그',true);else showToast('저장 실패: '+err.message,true); }
 }
@@ -1051,8 +1061,77 @@ function bindPopupNoticeImageUpload(){
     if(error){showToast('업로드 실패',true);return;}
     const{data:u}=sb.storage.from('media').getPublicUrl(fn);
     document.getElementById('pnImage').value=u.publicUrl;e.target.value='';
-  });
+ });
 }
+
+// ── 상세 페이지 블록 관리 ──
+let formDetailBlocks=[];
+
+function renderDetailBlocks(){
+  const area=document.getElementById('detailBlockArea');
+  if(!formDetailBlocks.length){area.innerHTML='<div style="font-size:12px;color:var(--text-muted);padding:16px 0;text-align:center;border:2px dashed var(--border);border-radius:var(--radius);">위 버튼으로 이미지/텍스트 블록을 추가하세요</div>';return;}
+  area.innerHTML=formDetailBlocks.map((b,i)=>{
+    if(b.block_type==='image'){
+      return `<div style="display:flex;gap:10px;align-items:center;padding:10px;margin-bottom:8px;background:var(--bg-input);border:1px solid var(--border);border-radius:var(--radius);">
+        <div style="font-size:10px;color:var(--accent);font-weight:600;width:20px;">${i+1}</div>
+        ${b.image_url?`<img src="${b.image_url}" style="width:80px;height:80px;object-fit:cover;border-radius:4px;">`:'<div style="width:80px;height:80px;background:var(--bg-hover);border-radius:4px;display:flex;align-items:center;justify-content:center;color:var(--text-muted);font-size:10px;">없음</div>'}
+        <div style="flex:1;display:flex;gap:6px;align-items:center;">
+          <input class="form-input" value="${b.image_url||''}" placeholder="이미지 URL" style="flex:1;font-size:11px;" onchange="formDetailBlocks[${i}].image_url=this.value;renderDetailBlocks()">
+          <label class="btn btn-secondary btn-small" style="cursor:pointer;white-space:nowrap;">📎<input type="file" accept="image/*" style="display:none;" onchange="uploadDetailBlockImg(this,${i})"></label>
+        </div>
+        <div style="display:flex;gap:2px;flex-direction:column;">
+          ${i>0?`<button class="img-btn-move" onclick="moveDetailBlock(${i},-1)" style="width:22px;height:22px;border:none;border-radius:4px;background:var(--bg-hover);color:var(--text-dim);font-size:11px;cursor:pointer;">↑</button>`:''}
+          ${i<formDetailBlocks.length-1?`<button class="img-btn-move" onclick="moveDetailBlock(${i},1)" style="width:22px;height:22px;border:none;border-radius:4px;background:var(--bg-hover);color:var(--text-dim);font-size:11px;cursor:pointer;">↓</button>`:''}
+        </div>
+        <button style="width:22px;height:22px;border:none;border-radius:4px;background:var(--red);color:#fff;font-size:11px;cursor:pointer;" onclick="removeDetailBlock(${i})">×</button>
+      </div>`;
+    } else {
+      return `<div style="padding:10px;margin-bottom:8px;background:var(--bg-input);border:1px solid var(--border);border-radius:var(--radius);">
+        <div style="display:flex;gap:10px;align-items:flex-start;">
+          <div style="font-size:10px;color:var(--accent);font-weight:600;width:20px;padding-top:10px;">${i+1}</div>
+          <textarea class="form-textarea" style="flex:1;min-height:60px;font-size:12px;" placeholder="텍스트 내용 (줄바꿈 가능)" onchange="formDetailBlocks[${i}].text_content=this.value">${b.text_content||''}</textarea>
+          <div style="display:flex;gap:2px;flex-direction:column;">
+            ${i>0?`<button class="img-btn-move" onclick="moveDetailBlock(${i},-1)" style="width:22px;height:22px;border:none;border-radius:4px;background:var(--bg-hover);color:var(--text-dim);font-size:11px;cursor:pointer;">↑</button>`:''}
+            ${i<formDetailBlocks.length-1?`<button class="img-btn-move" onclick="moveDetailBlock(${i},1)" style="width:22px;height:22px;border:none;border-radius:4px;background:var(--bg-hover);color:var(--text-dim);font-size:11px;cursor:pointer;">↓</button>`:''}
+          </div>
+          <button style="width:22px;height:22px;border:none;border-radius:4px;background:var(--red);color:#fff;font-size:11px;cursor:pointer;flex-shrink:0;" onclick="removeDetailBlock(${i})">×</button>
+        </div>
+      </div>`;
+    }
+  }).join('');
+}
+
+function addDetailBlock(type){
+  formDetailBlocks.push({block_type:type,image_url:'',text_content:'',display_order:formDetailBlocks.length,isNew:true});
+  renderDetailBlocks();
+}
+function removeDetailBlock(i){formDetailBlocks.splice(i,1);renderDetailBlocks();}
+function moveDetailBlock(i,d){const t=i+d;if(t<0||t>=formDetailBlocks.length)return;[formDetailBlocks[i],formDetailBlocks[t]]=[formDetailBlocks[t],formDetailBlocks[i]];renderDetailBlocks();}
+
+async function uploadDetailBlockImg(input,idx){
+  const file=input.files[0];if(!file)return;
+  const ext=file.name.split('.').pop();
+  const fn=`detail/${Date.now()}_${Math.random().toString(36).slice(2,8)}.${ext}`;
+  const{error}=await sb.storage.from('media').upload(fn,file,{upsert:true,contentType:file.type});
+  if(error){showToast('업로드 실패',true);return;}
+  const{data:u}=sb.storage.from('media').getPublicUrl(fn);
+  formDetailBlocks[idx].image_url=u.publicUrl;
+  renderDetailBlocks();input.value='';
+}
+
+async function loadDetailBlocks(productId){
+  const{data}=await sb.from('product_detail_blocks').select('*').eq('product_id',productId).order('display_order');
+  formDetailBlocks=(data||[]).map(b=>({id:b.id,block_type:b.block_type,image_url:b.image_url||'',text_content:b.text_content||'',display_order:b.display_order,isNew:false}));
+}
+
+async function saveDetailBlocks(productId){
+  await sb.from('product_detail_blocks').delete().eq('product_id',productId);
+  if(formDetailBlocks.length){
+    await sb.from('product_detail_blocks').insert(formDetailBlocks.map((b,i)=>({product_id:productId,block_type:b.block_type,image_url:b.image_url||null,text_content:b.text_content||null,display_order:i})));
+  }
+}
+
+
 function bindPopupImageUpload() {
   document.getElementById('sPopupImageFile').addEventListener('change',async function(e){
     const file=e.target.files[0];if(!file)return;
