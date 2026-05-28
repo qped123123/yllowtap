@@ -100,6 +100,25 @@
 .auth-footer a { color:#111; font-weight:500; text-decoration:underline; }
 .auth-footer a:hover { opacity:0.7; }
 
+/* Agree checkboxes */
+.auth-agree { margin-top:20px; margin-bottom:8px; }
+.auth-agree-item {
+  display:flex; align-items:center; gap:8px;
+  margin-bottom:8px; cursor:pointer;
+}
+.auth-agree-item input[type="checkbox"] {
+  width:16px; height:16px; accent-color:#111; cursor:pointer; flex-shrink:0;
+}
+.auth-agree-item label {
+  font-size:13px; color:#444; cursor:pointer; line-height:1.4;
+}
+.auth-agree-item label span {
+  color:#888; font-size:11px;
+}
+.auth-agree-divider {
+  height:1px; background:#E5E1DC; margin:12px 0;
+}
+
 /* Logged in state */
 .auth-logged {
   text-align:center; display:none;
@@ -235,6 +254,36 @@
           <label class="auth-label">비밀번호 확인</label>
           <input class="auth-input" id="signupPw2" type="password" placeholder="비밀번호를 다시 입력" onkeydown="if(event.key==='Enter')emailSignup()">
         </div>
+
+        <!-- 약관 동의 -->
+        <div class="auth-agree">
+          <div class="auth-agree-item">
+            <input type="checkbox" id="agreeAll" onchange="toggleAllAgree(this.checked)">
+            <label for="agreeAll" style="font-weight:600;">전체 동의</label>
+          </div>
+          <div class="auth-agree-divider"></div>
+          <div class="auth-agree-item">
+            <input type="checkbox" id="agreeTerms" onchange="checkAgreeAll()">
+            <label for="agreeTerms"><a href="/terms.html" target="_blank" style="color:#111;text-decoration:underline;">이용약관</a> 동의 <span>(필수)</span></label>
+          </div>
+          <div class="auth-agree-item">
+            <input type="checkbox" id="agreePrivacy" onchange="checkAgreeAll()">
+            <label for="agreePrivacy"><a href="/privacy.html" target="_blank" style="color:#111;text-decoration:underline;">개인정보처리방침</a> 동의 <span>(필수)</span></label>
+          </div>
+          <div class="auth-agree-item">
+            <input type="checkbox" id="agreeMarketing" onchange="checkAgreeAll()">
+            <label for="agreeMarketing">마케팅 정보 수신 동의 <span>(선택)</span></label>
+          </div>
+          <div class="auth-agree-item">
+            <input type="checkbox" id="agreeNotiEmail" checked onchange="checkAgreeAll()">
+            <label for="agreeNotiEmail">이메일 알림 수신 <span>(선택 · 주문/배송 안내)</span></label>
+          </div>
+          <div class="auth-agree-item">
+            <input type="checkbox" id="agreeNotiKakao" onchange="checkAgreeAll()">
+            <label for="agreeNotiKakao">카카오 알림톡 수신 <span>(선택 · 준비 중)</span></label>
+          </div>
+        </div>
+
         <button class="auth-submit" onclick="emailSignup()">회원가입</button>
         <div class="auth-footer">
           이미 계정이 있으신가요? <a href="#" onclick="switchTab('login');return false;">로그인</a>
@@ -257,8 +306,19 @@ function switchTab(tab) {
   document.querySelectorAll('.auth-panel').forEach(p => p.classList.remove('active'));
   document.querySelector(`.auth-tab:${tab === 'login' ? 'first-child' : 'last-child'}`).classList.add('active');
   document.getElementById('panel-' + tab).classList.add('active');
-  // 에러 초기화
   document.querySelectorAll('.auth-error, .auth-success').forEach(e => e.classList.remove('show'));
+}
+
+// ── 전체 동의 / 개별 체크 ──
+function toggleAllAgree(checked) {
+  ['agreeTerms','agreePrivacy','agreeMarketing','agreeNotiEmail','agreeNotiKakao'].forEach(id => {
+    document.getElementById(id).checked = checked;
+  });
+}
+function checkAgreeAll() {
+  const all = ['agreeTerms','agreePrivacy','agreeMarketing','agreeNotiEmail','agreeNotiKakao']
+    .every(id => document.getElementById(id).checked);
+  document.getElementById('agreeAll').checked = all;
 }
 
 // ── 소셜 로그인 ──
@@ -274,7 +334,6 @@ async function socialLogin(provider) {
     });
     if (error) { showError('loginError', error.message); }
   } else {
-    // 카카오 — 이메일/프로필사진 제외, 닉네임만 요청
     const { error } = await sb.auth.signInWithOAuth({
       provider: 'kakao',
       options: {
@@ -306,13 +365,20 @@ async function emailSignup() {
   const email = document.getElementById('signupEmail').value.trim();
   const pw = document.getElementById('signupPw').value;
   const pw2 = document.getElementById('signupPw2').value;
+  const agreeTerms = document.getElementById('agreeTerms').checked;
+  const agreePrivacy = document.getElementById('agreePrivacy').checked;
+  const agreeMarketing = document.getElementById('agreeMarketing').checked;
+  const notiEmail = document.getElementById('agreeNotiEmail').checked;
+  const notiKakao = document.getElementById('agreeNotiKakao').checked;
 
   if (!name) { showError('signupError', '이름을 입력해주세요.'); return; }
   if (!email) { showError('signupError', '이메일을 입력해주세요.'); return; }
   if (pw.length < 8) { showError('signupError', '비밀번호는 8자 이상이어야 합니다.'); return; }
   if (pw !== pw2) { showError('signupError', '비밀번호가 일치하지 않습니다.'); return; }
+  if (!agreeTerms) { showError('signupError', '이용약관에 동의해주세요.'); return; }
+  if (!agreePrivacy) { showError('signupError', '개인정보처리방침에 동의해주세요.'); return; }
 
-  const { error } = await sb.auth.signUp({
+  const { data, error } = await sb.auth.signUp({
     email,
     password: pw,
     options: { data: { display_name: name } }
@@ -320,11 +386,23 @@ async function emailSignup() {
 
   if (error) {
     showError('signupError', error.message);
-  } else {
-    document.getElementById('signupSuccess').textContent = '가입 완료! 이메일 인증 후 로그인해주세요.';
-    document.getElementById('signupSuccess').classList.add('show');
-    document.getElementById('signupError').classList.remove('show');
+    return;
   }
+
+  // user_profiles에 약관 동의 + 알림 설정 저장
+  if (data.user) {
+    await sb.from('user_profiles').update({
+      agreed_terms: agreeTerms,
+      agreed_privacy: agreePrivacy,
+      agreed_marketing: agreeMarketing,
+      notification_email: notiEmail,
+      notification_kakao: notiKakao
+    }).eq('id', data.user.id);
+  }
+
+  document.getElementById('signupSuccess').textContent = '가입 완료! 이메일 인증 후 로그인해주세요.';
+  document.getElementById('signupSuccess').classList.add('show');
+  document.getElementById('signupError').classList.remove('show');
 }
 
 // ── 로그아웃 ──
