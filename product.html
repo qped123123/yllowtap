@@ -377,7 +377,7 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <script>
 const SUPABASE_URL='https://ppihvvpplqikclftrwdb.supabase.co';
-const SUPABASE_ANON='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBwaWh2dnBwbHFpa2NsZnRyd2RiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk3MzE0NTEsImV4cCI6MjA5NTMwNzQ1MX0.shGVcFTQiuYc4u6tdU50x18YMgJdgFUljf8c7QlQU-U';
+const SUPABASE_ANON='eyJhbciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBwaWh2dnBwbHFpa2NsZnRyd2RiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk3MzE0NTEsImV4cCI6MjA5NTMwNzQ1MX0.shGVcFTQiuYc4u6tdU50x18YMgJdgFUljf8c7QlQU-U';
 const sb=window.supabase.createClient(SUPABASE_URL,SUPABASE_ANON);
 
 let product=null,qty=1,allGalleryImgs=[],currentImgIdx=0,rfRating=5,rfImageUrls=[];
@@ -395,7 +395,7 @@ async function loadProduct(){
   if(error||!data){const r=await sb.from('products').select('*,product_media(id,media_url,media_type,role,alt_text,display_order)').eq('id',slug).single();data=r.data;error=r.error}
   if(error||!data){alert('상품을 찾을 수 없습니다.');return}
   product=data;
-  render();
+  await render();
   await Promise.all([loadColorImages(),loadRecs(),loadReviews()]);
   hideLoading();
 }
