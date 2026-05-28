@@ -7,11 +7,12 @@
   <title>Yllowtap — Curated Luxury Fashion</title>
   <link rel="stylesheet" href="./css/style.css">
   <style>
-  /* ★ 팝업 공지 스타일 */
+  /* ★ 팝업 공지 스타일 (여러 개) */
   .popup-overlay {
     position: fixed; inset: 0; z-index: 9999;
     background: rgba(0,0,0,0.6);
-    display: flex; align-items: center; justify-content: center;
+    display: flex; align-items: center; justify-content: center; gap: 16px;
+    padding: 20px;
     opacity: 0; animation: popupFadeIn 0.3s ease forwards;
   }
   @keyframes popupFadeIn { to { opacity: 1; } }
@@ -19,40 +20,59 @@
   @keyframes popupFadeOut { to { opacity: 0; } }
   .popup-box {
     background: #fff; border-radius: 12px; overflow: hidden;
-    max-width: 420px; width: 90%; box-shadow: 0 20px 60px rgba(0,0,0,0.3);
-    position: relative;
+    max-width: 360px; width: 100%; box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+    position: relative; flex-shrink: 0;
   }
   .popup-box img {
-    width: 100%; display: block; max-height: 400px; object-fit: cover;
+    width: 100%; display: block; max-height: 360px; object-fit: cover;
   }
-  .popup-text {
-    padding: 20px 24px; font-size: 14px; line-height: 1.7;
+  .popup-box-text {
+    padding: 16px 20px; font-size: 13px; line-height: 1.7;
     color: #333; word-break: keep-all;
   }
-  .popup-footer {
-    display: flex; justify-content: space-between; align-items: center;
-    padding: 12px 20px; border-top: 1px solid #eee; font-size: 12px; color: #888;
+  .popup-box-close {
+    position: absolute; top: 8px; right: 8px;
+    width: 28px; height: 28px; border-radius: 50%;
+    background: rgba(0,0,0,0.5); border: none; color: #fff;
+    font-size: 16px; cursor: pointer; display: flex;
+    align-items: center; justify-content: center;
+    transition: background 0.2s;
   }
-  .popup-footer label { cursor: pointer; display: flex; align-items: center; gap: 6px; }
+  .popup-box-close:hover { background: rgba(0,0,0,0.7); }
+  .popup-footer {
+    position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%);
+    display: flex; align-items: center; gap: 16px;
+    background: rgba(0,0,0,0.7); padding: 10px 20px; border-radius: 8px;
+    z-index: 10000;
+  }
+  .popup-footer label {
+    cursor: pointer; display: flex; align-items: center; gap: 6px;
+    font-size: 12px; color: #ccc;
+  }
   .popup-footer label input { accent-color: #B89B72; }
-  .popup-close-btn {
-    background: none; border: none; font-size: 13px; color: #888;
+  .popup-footer button {
+    background: none; border: none; font-size: 12px; color: #ccc;
     cursor: pointer; padding: 4px 8px; letter-spacing: 0.5px;
   }
-  .popup-close-btn:hover { color: #333; }
+  .popup-footer button:hover { color: #fff; }
+  @media (max-width: 768px) {
+    .popup-overlay {
+      flex-direction: column; align-items: center;
+      overflow-y: auto; gap: 12px; padding: 16px;
+    }
+    .popup-box { max-width: 320px; }
+    .popup-footer { bottom: 12px; }
+  }
   </style>
 </head>
 <body>
 
 <!-- ★ 팝업 공지 (JS가 제어) -->
 <div class="popup-overlay" id="popupOverlay" style="display:none;">
-  <div class="popup-box">
-    <img id="popupImg" src="" alt="공지" style="display:none;">
-    <div class="popup-text" id="popupText" style="display:none;"></div>
-    <div class="popup-footer">
-      <label><input type="checkbox" id="popupDontShow"> 오늘 하루 안 보기</label>
-      <button class="popup-close-btn" onclick="closePopup()">닫기</button>
-    </div>
+  <div id="popupContainer"></div>
+  <div class="popup-footer" id="popupFooter" style="display:none;">
+    <label><input type="checkbox" id="popupDontShow"> 오늘 하루 안 보기</label>
+    <button onclick="closeAllPopups()">전체 닫기</button>
   </div>
 </div>
 
@@ -100,11 +120,8 @@
 
 <!-- ═══ HERO — DB에서 로드 ═══ -->
 <section class="hero">
-  <div class="hero__slider" id="heroSlider">
-    <!-- JS가 DB에서 슬라이드 로드 -->
-  </div>
+  <div class="hero__slider" id="heroSlider"></div>
   <div class="hero__pagination" id="heroPagination"></div>
-
   <audio id="heroBgm" loop preload="auto">
     <source src="./audio/bgm.mp3" type="audio/mpeg">
   </audio>
@@ -146,20 +163,18 @@
   </div>
 </div>
 
-<!-- ═══ CURATED FOR YOU — DB에서 로드 ═══ -->
+<!-- ═══ CURATED FOR YOU ═══ -->
 <div class="divider"></div>
 <section class="section" id="sectionCurated">
   <div class="section__header">
     <p class="section__label">Curated For You</p>
     <h2 class="section__title">당신을 위한 셀렉션</h2>
   </div>
-  <div class="product-grid" id="curatedGrid">
-    <!-- JS가 DB에서 상품 로드 -->
-  </div>
+  <div class="product-grid" id="curatedGrid"></div>
   <div class="view-more"><a href="/category.html">View More →</a></div>
 </section>
 
-<!-- ═══ ABOUT THE MOOD — DB에서 로드 ═══ -->
+<!-- ═══ ABOUT THE MOOD ═══ -->
 <section class="mood-section" id="moodSection">
   <img class="mood-section__img" id="moodImg" src="" alt="About the Mood">
   <div class="mood-section__overlay">
@@ -180,28 +195,24 @@
 
 <div class="divider"></div>
 
-<!-- ═══ BEST COLLECTION — DB에서 로드 ═══ -->
+<!-- ═══ BEST COLLECTION ═══ -->
 <section class="section" id="sectionBest">
   <div class="section__header">
     <p class="section__label">Best Collection</p>
     <h2 class="section__title">이번 시즌 베스트</h2>
   </div>
-  <div class="product-grid" id="bestGrid">
-    <!-- JS가 DB에서 상품 로드 -->
-  </div>
+  <div class="product-grid" id="bestGrid"></div>
   <div class="view-more"><a href="/category.html?cat=best">View More →</a></div>
 </section>
 
-<!-- ═══ FROM THE JOURNAL — DB에서 로드 ═══ -->
+<!-- ═══ FROM THE JOURNAL ═══ -->
 <div class="divider"></div>
 <section class="section" id="sectionJournal">
   <div class="section__header">
     <p class="section__label">From The Journal</p>
     <h2 class="section__title">스타일 인사이트</h2>
   </div>
-  <div class="journal-grid" id="journalGrid">
-    <!-- JS가 DB에서 저널 로드 -->
-  </div>
+  <div class="journal-grid" id="journalGrid"></div>
 </section>
 
 <!-- FOOTER -->
@@ -245,15 +256,14 @@
 <script src="./js/main.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <script>
-// ─── Supabase 설정 ───
 const SUPABASE_URL = 'https://ppihvvpplqikclftrwdb.supabase.co';
 const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBwaWh2dnBwbHFpa2NsZnRyd2RiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk3MzE0NTEsImV4cCI6MjA5NTMwNzQ1MX0.shGVcFTQiuYc4u6tdU50x18YMgJdgFUljf8c7QlQU-U';
 const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON);
 
 // ══════════════════════════════════════════
-// ★ 팝업 공지
+// ★ 팝업 공지 (여러 개, 나란히)
 // ══════════════════════════════════════════
-function closePopup() {
+function closeAllPopups() {
   const overlay = document.getElementById('popupOverlay');
   if (document.getElementById('popupDontShow').checked) {
     const midnight = new Date();
@@ -264,43 +274,54 @@ function closePopup() {
   setTimeout(() => { overlay.style.display = 'none'; }, 250);
 }
 
+function closeSinglePopup(btn) {
+  const box = btn.closest('.popup-box');
+  box.style.transition = 'opacity 0.2s, transform 0.2s';
+  box.style.opacity = '0';
+  box.style.transform = 'scale(0.95)';
+  setTimeout(() => {
+    box.remove();
+    const remaining = document.querySelectorAll('#popupContainer .popup-box');
+    if (!remaining.length) closeAllPopups();
+  }, 200);
+}
+
 async function loadPopup() {
-  // "오늘 하루 안 보기" 체크 확인
   const hideUntil = localStorage.getItem('yllowtap_popup_hide');
   if (hideUntil && Date.now() < parseInt(hideUntil)) return;
 
-  const { data } = await sb.from('site_settings').select('*');
-  const settings = {};
-  (data || []).forEach(r => settings[r.key] = r.value);
+  const { data } = await sb.from('popup_notices').select('*')
+    .eq('is_active', true).order('display_order').limit(5);
+  if (!data?.length) return;
 
-  if (settings.popup_enabled !== 'true') return;
+  const container = document.getElementById('popupContainer');
+  container.innerHTML = data.map(p => {
+    const hasImg = p.image_url && p.image_url.trim();
+    const hasTxt = p.text_content && p.text_content.trim();
+    if (!hasImg && !hasTxt) return '';
+    const linkOpen = p.link_url ? `<a href="${p.link_url}" style="text-decoration:none;color:inherit;display:block;">` : '';
+    const linkClose = p.link_url ? '</a>' : '';
+    return `<div class="popup-box">
+      <button class="popup-box-close" onclick="closeSinglePopup(this)">✕</button>
+      ${linkOpen}
+      ${hasImg ? `<img src="${p.image_url}" alt="${p.title || '공지'}">` : ''}
+      ${hasTxt ? `<div class="popup-box-text">${p.text_content.replace(/\n/g,'<br>')}</div>` : ''}
+      ${linkClose}
+    </div>`;
+  }).join('');
 
-  const hasImage = settings.popup_image_url && settings.popup_image_url.trim();
-  const hasText = settings.popup_text && settings.popup_text.trim();
-  if (!hasImage && !hasText) return;
-
-  const imgEl = document.getElementById('popupImg');
-  const textEl = document.getElementById('popupText');
-
-  if (hasImage) {
-    imgEl.src = settings.popup_image_url;
-    imgEl.style.display = 'block';
+  if (container.querySelectorAll('.popup-box').length) {
+    document.getElementById('popupOverlay').style.display = 'flex';
+    document.getElementById('popupFooter').style.display = 'flex';
   }
-  if (hasText) {
-    textEl.innerHTML = settings.popup_text.replace(/\n/g, '<br>');
-    textEl.style.display = 'block';
-  }
-
-  document.getElementById('popupOverlay').style.display = 'flex';
 }
 
-// 배경 클릭으로 닫기
 document.getElementById('popupOverlay').addEventListener('click', function(e) {
-  if (e.target === this) closePopup();
+  if (e.target === this) closeAllPopups();
 });
 
 // ══════════════════════════════════════════
-// 히어로 슬라이드 — DB에서 로드
+// 히어로 슬라이드
 // ══════════════════════════════════════════
 async function loadHero() {
   const { data } = await sb.from('hero_slides').select('*').eq('is_active', true).order('slide_order');
@@ -353,7 +374,6 @@ function initSimpleSlider(count) {
   let current = 0;
   const slides = document.querySelectorAll('.hero__slide');
   const dots = document.querySelectorAll('.hero__pagination span');
-
   setInterval(() => {
     slides[current].classList.remove('active');
     dots[current].classList.remove('active');
@@ -361,7 +381,6 @@ function initSimpleSlider(count) {
     slides[current].classList.add('active');
     dots[current].classList.add('active');
   }, 5000);
-
   dots.forEach((dot, i) => {
     dot.addEventListener('click', () => {
       slides[current].classList.remove('active');
@@ -374,7 +393,7 @@ function initSimpleSlider(count) {
 }
 
 // ══════════════════════════════════════════
-// 상품 카드 HTML 생성 헬퍼
+// 상품 카드
 // ══════════════════════════════════════════
 function productCardHTML(p) {
   const img = getMainImg(p);
@@ -383,7 +402,6 @@ function productCardHTML(p) {
   const price = isSale
     ? `<span style="text-decoration:line-through;color:#999;font-size:12px;margin-right:6px;">₩ ${p.original_price.toLocaleString()}</span>₩ ${p.price.toLocaleString()}`
     : `₩ ${p.price.toLocaleString()}`;
-
   return `<a href="/product.html?slug=${slug}" class="product-card" style="text-decoration:none;color:inherit;">
     <div class="product-card__img-wrap">
       ${img ? `<img class="product-card__img" src="${img}" alt="${p.name}" loading="lazy">` : '<div class="product-card__img" style="width:100%;height:100%;background:#EAE7E2;"></div>'}
@@ -403,64 +421,29 @@ function getMainImg(p) {
 }
 
 // ══════════════════════════════════════════
-// Curated For You
+// Curated / Best / Mood / Journal
 // ══════════════════════════════════════════
 async function loadCurated() {
-  const { data } = await sb
-    .from('products')
-    .select('*, product_media(media_url, role, display_order)')
-    .eq('is_active', true)
-    .order('display_order')
-    .limit(5);
-
+  const { data } = await sb.from('products').select('*, product_media(media_url, role, display_order)').eq('is_active', true).order('display_order').limit(5);
   const grid = document.getElementById('curatedGrid');
-  if (!data?.length) {
-    grid.innerHTML = '<p style="text-align:center;color:#999;padding:40px;grid-column:1/-1;">어드민에서 상품을 등록해주세요.</p>';
-    return;
-  }
+  if (!data?.length) { grid.innerHTML = '<p style="text-align:center;color:#999;padding:40px;grid-column:1/-1;">어드민에서 상품을 등록해주세요.</p>'; return; }
   grid.innerHTML = data.map(p => productCardHTML(p)).join('');
 }
 
-// ══════════════════════════════════════════
-// Best Collection
-// ══════════════════════════════════════════
 async function loadBest() {
-  const { data } = await sb
-    .from('products')
-    .select('*, product_media(media_url, role, display_order)')
-    .eq('is_active', true)
-    .contains('tags', ['best'])
-    .order('display_order')
-    .limit(5);
-
+  const { data } = await sb.from('products').select('*, product_media(media_url, role, display_order)').eq('is_active', true).contains('tags', ['best']).order('display_order').limit(5);
   const grid = document.getElementById('bestGrid');
-  if (!data?.length) {
-    document.getElementById('sectionBest').style.display = 'none';
-    return;
-  }
+  if (!data?.length) { document.getElementById('sectionBest').style.display = 'none'; return; }
   grid.innerHTML = data.map(p => productCardHTML(p)).join('');
 }
 
-// ══════════════════════════════════════════
-// About the Mood
-// ══════════════════════════════════════════
 async function loadMood() {
   const { data } = await sb.from('site_settings').select('*');
-  const settings = {};
-  (data || []).forEach(r => settings[r.key] = r.value);
-
+  const settings = {}; (data || []).forEach(r => settings[r.key] = r.value);
   const moodImg = document.getElementById('moodImg');
   const moodTitle = document.getElementById('moodTitle');
-
-  if (settings.mood_image_url) {
-    moodImg.src = settings.mood_image_url;
-  } else {
-    moodImg.src = 'https://images.unsplash.com/photo-1469334031218-e382a71b716b?w=1920&q=80';
-  }
-  if (settings.mood_title) {
-    moodTitle.textContent = settings.mood_title;
-  }
-
+  moodImg.src = settings.mood_image_url || 'https://images.unsplash.com/photo-1469334031218-e382a71b716b?w=1920&q=80';
+  if (settings.mood_title) moodTitle.textContent = settings.mood_title;
   if (settings.bgm_enabled === 'true' && settings.bgm_url) {
     const audio = document.getElementById('heroBgm');
     audio.querySelector('source').src = settings.bgm_url;
@@ -469,46 +452,17 @@ async function loadMood() {
   }
 }
 
-// ══════════════════════════════════════════
-// From The Journal
-// ══════════════════════════════════════════
 async function loadJournal() {
-  const { data } = await sb
-    .from('journal')
-    .select('*')
-    .eq('is_active', true)
-    .order('display_order')
-    .limit(3);
-
+  const { data } = await sb.from('journal').select('*').eq('is_active', true).order('display_order').limit(3);
   const grid = document.getElementById('journalGrid');
   if (!data?.length) {
     grid.innerHTML = `
-      <div class="journal-card">
-        <div class="journal-card__img-wrap"><img class="journal-card__img" src="https://images.unsplash.com/photo-1558171813-4c088753af8f?w=800&q=80" alt="Style Guide"></div>
-        <div class="journal-card__category">Style Guide</div>
-        <div class="journal-card__title">The Art of Quiet Dressing</div>
-      </div>
-      <div class="journal-card">
-        <div class="journal-card__img-wrap"><img class="journal-card__img" src="https://images.unsplash.com/photo-1492707892479-7bc8d5a4ee93?w=800&q=80" alt="Brand Story"></div>
-        <div class="journal-card__category">Brand Story</div>
-        <div class="journal-card__title">Behind the Collection: SS26</div>
-      </div>
-      <div class="journal-card">
-        <div class="journal-card__img-wrap"><img class="journal-card__img" src="https://images.unsplash.com/photo-1483985988355-763728e1935b?w=800&q=80" alt="Trend Report"></div>
-        <div class="journal-card__category">Trend Report</div>
-        <div class="journal-card__title">2026 Summer: What to Wear</div>
-      </div>`;
+      <div class="journal-card"><div class="journal-card__img-wrap"><img class="journal-card__img" src="https://images.unsplash.com/photo-1558171813-4c088753af8f?w=800&q=80" alt="Style Guide"></div><div class="journal-card__category">Style Guide</div><div class="journal-card__title">The Art of Quiet Dressing</div></div>
+      <div class="journal-card"><div class="journal-card__img-wrap"><img class="journal-card__img" src="https://images.unsplash.com/photo-1492707892479-7bc8d5a4ee93?w=800&q=80" alt="Brand Story"></div><div class="journal-card__category">Brand Story</div><div class="journal-card__title">Behind the Collection: SS26</div></div>
+      <div class="journal-card"><div class="journal-card__img-wrap"><img class="journal-card__img" src="https://images.unsplash.com/photo-1483985988355-763728e1935b?w=800&q=80" alt="Trend Report"></div><div class="journal-card__category">Trend Report</div><div class="journal-card__title">2026 Summer: What to Wear</div></div>`;
     return;
   }
-  grid.innerHTML = data.map(j => `
-    <div class="journal-card">
-      <div class="journal-card__img-wrap">
-        <img class="journal-card__img" src="${j.image_url || 'https://images.unsplash.com/photo-1558171813-4c088753af8f?w=800&q=80'}" alt="${j.title}" loading="lazy">
-      </div>
-      <div class="journal-card__category">${j.category}</div>
-      <div class="journal-card__title">${j.title}</div>
-    </div>
-  `).join('');
+  grid.innerHTML = data.map(j => `<div class="journal-card"><div class="journal-card__img-wrap"><img class="journal-card__img" src="${j.image_url || 'https://images.unsplash.com/photo-1558171813-4c088753af8f?w=800&q=80'}" alt="${j.title}" loading="lazy"></div><div class="journal-card__category">${j.category}</div><div class="journal-card__title">${j.title}</div></div>`).join('');
 }
 
 // ══════════════════════════════════════════
