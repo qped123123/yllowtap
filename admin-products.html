@@ -1188,7 +1188,7 @@ async function doLogout() { await sb.auth.signOut();document.getElementById('log
 function showAdmin() { document.getElementById('loginScreen').style.display='none';document.getElementById('adminLayout').style.display='flex';init(); }
 
 // ══════════════════════════════════════════
-// 주문 관리
+// 주문 관리 (송장 자동 상태변경 포함)
 // ══════════════════════════════════════════
 let allOrders=[],editingOrderId=null;
 const STATUS_MAP={pending:'주문접수',paid:'결제완료',preparing:'상품준비중',shipped:'배송중',delivered:'배송완료',cancel_requested:'취소요청',cancelled:'취소완료',exchange_requested:'교환요청',return_requested:'반품요청',returned:'반품완료',refunded:'환불완료'};
@@ -1198,7 +1198,40 @@ function filterOrders() { const search=(document.getElementById('orderSearch')?.
 function renderOrderList(orders) { const el=document.getElementById('orderAdminList');document.getElementById('orderCount').textContent=`총 ${orders.length}건`;if(!orders.length){el.innerHTML='<div class="empty-list"><p>주문이 없습니다</p></div>';return;}el.innerHTML=orders.map(o=>{const itemCount=o.order_items?.length||0;const firstName=o.order_items?.[0]?.product_name_snapshot||'';const itemText=itemCount>1?`${firstName} 외 ${itemCount-1}건`:firstName;const statusText=STATUS_MAP[o.status]||o.status;const statusCol=STATUS_COLOR[o.status]||'#888';return`<div style="display:grid;grid-template-columns:130px 1fr 100px 100px 80px 100px;gap:12px;padding:12px 16px;align-items:center;border-bottom:1px solid rgba(255,255,255,0.04);cursor:pointer;transition:background 0.15s;" onmouseover="this.style.background='var(--bg-hover)'" onmouseout="this.style.background=''" onclick="openOrderModal('${o.id}')"><div style="font-size:12px;font-weight:500;color:var(--accent);">${o.order_number}</div><div><div style="font-size:13px;font-weight:500;">${o.recipient_name||'이름없음'}</div><div style="font-size:11px;color:var(--text-dim);margin-top:2px;">${itemText}</div></div><div style="font-size:13px;font-weight:600;">${o.total_amount?.toLocaleString()}원</div><div style="font-size:11px;color:var(--text-dim);">${new Date(o.created_at).toLocaleDateString('ko-KR')}</div><div><span style="font-size:10px;font-weight:600;color:${statusCol};">${statusText}</span></div><div><button class="btn btn-secondary btn-small" onclick="event.stopPropagation();openOrderModal('${o.id}')">상세</button></div></div>`;}).join(''); }
 function openOrderModal(id) { const o=allOrders.find(x=>x.id===id);if(!o)return;editingOrderId=id;document.getElementById('omNumber').textContent=o.order_number;document.getElementById('omDate').textContent=new Date(o.created_at).toLocaleString('ko-KR');document.getElementById('omShippingInfo').innerHTML=`<strong>${o.recipient_name}</strong><br>${o.phone}<br>${o.zipcode} ${o.address1} ${o.address2||''}<br>${o.delivery_memo?'메모: '+o.delivery_memo:''}`;document.getElementById('omSubtotal').textContent=(o.subtotal||0).toLocaleString()+'원';document.getElementById('omDiscount').textContent=o.discount_amount?'-'+o.discount_amount.toLocaleString()+'원':'0원';document.getElementById('omShipFee').textContent=o.shipping_fee?o.shipping_fee.toLocaleString()+'원':'무료';document.getElementById('omTotal').textContent=(o.total_amount||0).toLocaleString()+'원';document.getElementById('omStatus').value=o.status||'pending';document.getElementById('omTrackingCo').value=o.tracking_company||'';document.getElementById('omTrackingNum').value=o.tracking_number||'';document.getElementById('omMemo').value=o.admin_memo||'';const items=o.order_items||[];document.getElementById('omItems').innerHTML=items.map(i=>`<div style="display:flex;gap:12px;padding:8px 0;border-bottom:1px solid rgba(255,255,255,0.05);align-items:center;">${i.product_image_snapshot?`<img src="${i.product_image_snapshot}" style="width:48px;height:60px;object-fit:cover;border-radius:4px;">`:'<div style="width:48px;height:60px;background:var(--bg-input);border-radius:4px;"></div>'}<div style="flex:1;"><div style="font-size:13px;font-weight:500;">${i.product_name_snapshot}</div><div style="font-size:11px;color:var(--text-dim);">${i.option_snapshot?Object.entries(i.option_snapshot).map(([k,v])=>k+': '+v).join(' / '):''} · ${i.quantity}개</div></div><div style="font-size:13px;font-weight:600;">${i.item_total?.toLocaleString()}원</div></div>`).join('');document.getElementById('orderModal').classList.add('show'); }
 function closeOrderModal() { document.getElementById('orderModal').classList.remove('show'); }
-async function saveOrder() { if(!editingOrderId)return;const status=document.getElementById('omStatus').value;const update={status,tracking_company:document.getElementById('omTrackingCo').value||null,tracking_number:document.getElementById('omTrackingNum').value.trim()||null,admin_memo:document.getElementById('omMemo').value.trim()||null,updated_at:new Date().toISOString()};if(status==='shipped')update.shipped_at=new Date().toISOString();if(status==='delivered')update.delivered_at=new Date().toISOString();if(status==='cancelled')update.cancelled_at=new Date().toISOString();if(status==='paid')update.paid_at=new Date().toISOString();const{error}=await sb.from('orders').update(update).eq('id',editingOrderId);if(error){showToast('저장 실패: '+error.message,true);return;}showToast('주문 상태 저장 완료');closeOrderModal();await loadOrders(); }
+async function saveOrder() {
+  if(!editingOrderId)return;
+
+  let status=document.getElementById('omStatus').value;
+  const trackingNum=document.getElementById('omTrackingNum').value.trim()||null;
+  const trackingCo=document.getElementById('omTrackingCo').value||null;
+
+  // ★ 송장번호 입력했는데 상태가 배송중 이전이면 자동으로 배송중으로 변경
+  const preShipStatuses=['pending','paid','preparing'];
+  if(trackingNum && preShipStatuses.includes(status)){
+    status='shipped';
+    document.getElementById('omStatus').value='shipped';
+    showToast('송장번호 입력 → 상태가 자동으로 "배송중"으로 변경되었습니다');
+  }
+
+  const update={
+    status,
+    tracking_company:trackingCo,
+    tracking_number:trackingNum,
+    admin_memo:document.getElementById('omMemo').value.trim()||null,
+    updated_at:new Date().toISOString()
+  };
+
+  if(status==='shipped')update.shipped_at=new Date().toISOString();
+  if(status==='delivered')update.delivered_at=new Date().toISOString();
+  if(status==='cancelled')update.cancelled_at=new Date().toISOString();
+  if(status==='paid')update.paid_at=new Date().toISOString();
+
+  const{error}=await sb.from('orders').update(update).eq('id',editingOrderId);
+  if(error){showToast('저장 실패: '+error.message,true);return;}
+  showToast('주문 상태 저장 완료');
+  closeOrderModal();
+  await loadOrders();
+}
 
 // ══════════════════════════════════════════
 // 회원 관리
