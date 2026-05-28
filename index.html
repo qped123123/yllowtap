@@ -40,10 +40,10 @@
   }
   .popup-box-close:hover { background: rgba(0,0,0,0.7); }
   .popup-footer {
-    position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%);
+    position: absolute; bottom: -48px; left: 50%; transform: translateX(-50%);
     display: flex; align-items: center; gap: 16px;
     background: rgba(0,0,0,0.7); padding: 10px 20px; border-radius: 8px;
-    z-index: 10000;
+    z-index: 10000; white-space: nowrap;
   }
   .popup-footer label {
     cursor: pointer; display: flex; align-items: center; gap: 6px;
@@ -72,7 +72,7 @@
   <div id="popupContainer"></div>
   <div class="popup-footer" id="popupFooter" style="display:none;">
     <label><input type="checkbox" id="popupDontShow"> 오늘 하루 안 보기</label>
-    <button onclick="closeAllPopups()">전체 닫기</button>
+    <button onclick="closeAllPopups()"><label style="cursor:pointer;display:flex;align-items:center;gap:6px;"><input type="checkbox" onchange="if(this.checked)closeAllPopups()" style="accent-color:#B89B72;"> 전체 닫기</label></button>
   </div>
 </div>
 
