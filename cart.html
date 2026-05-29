@@ -149,7 +149,18 @@
 .taste-row{display:grid;grid-template-columns:50px 1fr 50px;gap:8px;align-items:center;margin-bottom:12px}
 .taste-row span{font-size:10px;color:#999}
 .taste-row span:last-child{text-align:right}
-.taste-slider{width:100%;cursor:pointer;accent-color:#333}
+.taste-slider{
+  -webkit-appearance:none;appearance:none;width:100%;height:20px;
+  background:#F0EDE8;border-radius:10px;outline:none;cursor:pointer;
+}
+.taste-slider::-webkit-slider-thumb{
+  -webkit-appearance:none;width:14px;height:14px;border-radius:50%;
+  background:#333;border:2px solid #333;cursor:pointer;
+}
+.taste-slider::-moz-range-thumb{
+  width:14px;height:14px;border-radius:50%;
+  background:#333;border:2px solid #333;cursor:pointer;
+}
 .taste-confirm-btn{
   display:block;width:100%;max-width:240px;margin:16px auto 0;padding:12px;
   font-size:12px;font-weight:500;letter-spacing:1px;
@@ -385,13 +396,13 @@ function renderCart(){
         ${isSale?`<div class="cart-item-original">${p.original_price.toLocaleString()}원</div>`:''}
         <div class="cart-item-price">${(p.price*item.quantity).toLocaleString()}원</div>
       </div>
-      <div></div>
+      <div style="text-align:center;"><label style="font-size:10px;color:#999;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:2px;"><input type="checkbox" class="compare-check" data-idx="${i}" data-cat="${p.category}" onchange="updateCompareCheck()"><span>비교</span></label></div>
       <div><button class="cart-remove" onclick="removeItem(${i})">×</button></div>
     </div>`;
   }).join('');
 
   updateSummary();
-  checkCompareEligible();
+  updateCompareCheck();
 }
 
 function updateSummary(){
@@ -469,16 +480,27 @@ async function loadShippingSettings(){
 // ══════════════════════════════════════════
 let compareItems = [];
 
-function checkCompareEligible() {
+function updateCompareCheck() {
   const entry = document.getElementById('compareEntry');
   if (!entry) return;
+
+  const checks = document.querySelectorAll('.compare-check:checked');
+  const selected = [];
+  checks.forEach(cb => {
+    const idx = parseInt(cb.dataset.idx);
+    if (cartItems[idx]) selected.push(cartItems[idx]);
+  });
+
+  // 같은 카테고리 2개 이상 체크됐는지
   const cats = {};
-  cartItems.forEach(item => {
+  selected.forEach(item => {
     const cat = item.products?.category;
     if (cat) { if (!cats[cat]) cats[cat] = []; cats[cat].push(item); }
   });
+
   let eligible = null;
   for (const cat in cats) { if (cats[cat].length >= 2) { eligible = cats[cat]; break; } }
+
   if (eligible) {
     compareItems = eligible.slice(0, 2);
     entry.style.display = 'block';
@@ -491,6 +513,7 @@ function checkCompareEligible() {
 
 let compareScoreMap = {};
 let compareStyleDefs = [];
+let compareQualityDefs = [];
 
 async function openCompare() {
   if (compareItems.length < 2) return;
@@ -510,8 +533,9 @@ async function openCompare() {
     compareScoreMap[s.product_id][s.attribute_id] = parseFloat(s.value);
   });
 
-  const qDefs = (attrDefs || []).filter(a => a.attr_type === 'quality' && a.category === cat);
+  compareQualityDefs = (attrDefs || []).filter(a => a.attr_type === 'quality' && a.category === cat);
   compareStyleDefs = (attrDefs || []).filter(a => a.attr_type === 'style' && !a.category);
+  const qDefs = compareQualityDefs;
   const imgA = getMainImg(pA);
   const imgB = getMainImg(pB);
 
@@ -531,64 +555,54 @@ async function openCompare() {
     </div>
   </div>`;
 
-  // 취향 슬라이더
+  // 매칭 결과 영역 (취향 비교 후 표시)
+  html += `<div class="compare-match-result" id="matchResult"></div>`;
+
+  // 선택 버튼 (상품 카드 바로 아래, 항상 보임)
+  html += `<div class="compare-actions">
+    <div style="font-size:13px;color:#666;margin-bottom:14px;">이 상품으로 구매하시겠어요?</div>
+    <div class="compare-choose-btns">
+      <button class="compare-choose-btn" onclick="selectPreferred('${pA.id}','${pB.id}')">${pA.name} 구매하기</button>
+      <button class="compare-choose-btn" onclick="selectPreferred('${pB.id}','${pA.id}')">${pB.name} 구매하기</button>
+    </div>
+    <button class="compare-skip" onclick="closeCompare()">고르지 않고 닫기</button>
+  </div>`;
+
+  // 구분선
+  html += `<div style="border-top:1px solid #F0EDE8;margin:8px 24px 16px;"></div>`;
+
+  // 취향 슬라이더 (품질 + 무드 통합)
   html += `<div class="compare-section">
-    <div class="compare-section-label">내 취향 맞추기</div>
-    <p style="font-size:11px;color:#AAA;margin-bottom:14px;">슬라이더를 움직여 나의 취향을 맞춰보세요</p>`;
+    <div class="compare-section-label">취향으로 비교해보기</div>
+    <p style="font-size:11px;color:#AAA;margin-bottom:16px;">슬라이더를 맞추고 확인하면 더 가까운 상품을 알려드려요</p>`;
+
+  // 품질 슬라이더 (0~10)
+  if (qDefs.length) {
+    html += `<div style="font-size:10px;font-weight:600;color:#AAA;margin-bottom:8px;letter-spacing:1px;">품질</div>`;
+    qDefs.forEach(a => {
+      const vA = compareScoreMap[pA.id]?.[a.id] ?? 5;
+      const vB = compareScoreMap[pB.id]?.[a.id] ?? 5;
+      html += `<div class="taste-row">
+        <span>${a.name_ko}</span>
+        <input type="range" class="taste-slider" min="0" max="10" value="5" step="0.5" id="taste-${a.id}">
+        <span style="font-size:9px;color:#CCC;">0~10</span>
+      </div>`;
+    });
+  }
+
+  // 무드 슬라이더 (-5~+5)
+  html += `<div style="font-size:10px;font-weight:600;color:#AAA;margin:16px 0 8px;letter-spacing:1px;">무드</div>`;
   compareStyleDefs.forEach(a => {
+    const vA = compareScoreMap[pA.id]?.[a.id] ?? 0;
+    const vB = compareScoreMap[pB.id]?.[a.id] ?? 0;
     html += `<div class="taste-row">
       <span>${a.pole_low}</span>
       <input type="range" class="taste-slider" min="-5" max="5" value="0" step="1" id="taste-${a.id}">
       <span>${a.pole_high}</span>
     </div>`;
   });
+
   html += `<button class="taste-confirm-btn" onclick="calculateMatch()">내 취향으로 비교하기</button>
-  </div>`;
-
-  // 매칭 결과 영역 (처음엔 숨김)
-  html += `<div class="compare-match-result" id="matchResult"></div>`;
-
-  // 품질 바 (상품명 포함)
-  if (qDefs.length) {
-    html += `<div class="compare-section"><div class="compare-section-label">품질 참고</div>
-    <div style="display:flex;gap:16px;font-size:10px;color:#999;margin-bottom:10px;">
-      <span>● ${pA.name}</span><span style="color:#CCC;">● ${pB.name}</span>
-    </div>`;
-    qDefs.forEach(a => {
-      const vA = compareScoreMap[pA.id]?.[a.id] ?? 0;
-      const vB = compareScoreMap[pB.id]?.[a.id] ?? 0;
-      const wA = (vA / 10) * 100;
-      const wB = (vB / 10) * 100;
-      html += `<div class="compare-bar-row">
-        <div class="compare-bar-label">${a.name_ko}</div>
-        <div class="compare-bars">
-          <div style="display:flex;align-items:center;gap:4px;">
-            <div class="compare-bar compare-bar-a" style="width:${wA}%;min-width:4px;"></div>
-            <span style="font-size:10px;color:#333;font-weight:600;">${vA}</span>
-          </div>
-          <div style="display:flex;align-items:center;gap:4px;">
-            <div class="compare-bar compare-bar-b" style="width:${wB}%;min-width:4px;"></div>
-            <span style="font-size:10px;color:#999;">${vB}</span>
-          </div>
-        </div>
-      </div>`;
-    });
-    html += `</div>`;
-  }
-
-  // 선택 버튼 (매칭 후 표시)
-  html += `<div class="compare-actions" id="compareActions" style="display:none;">
-    <div style="font-size:13px;color:#666;margin-bottom:14px;">어느 쪽으로 결정하시겠어요?</div>
-    <div class="compare-choose-btns">
-      <button class="compare-choose-btn" onclick="selectPreferred('${pA.id}','${pB.id}')">${pA.name}</button>
-      <button class="compare-choose-btn" onclick="selectPreferred('${pB.id}','${pA.id}')">${pB.name}</button>
-    </div>
-    <button class="compare-skip" onclick="closeCompare()">고르지 않고 닫기</button>
-  </div>`;
-
-  // 매칭 전 닫기 버튼
-  html += `<div class="compare-actions" id="compareSkipOnly">
-    <button class="compare-skip" onclick="closeCompare()">닫기</button>
   </div>`;
 
   document.getElementById('compareContent').innerHTML = html;
@@ -600,10 +614,11 @@ function calculateMatch() {
   const pA = compareItems[0].products;
   const pB = compareItems[1].products;
 
-  // 고객 취향값 수집
-  const tastes = compareStyleDefs.map(a => ({
+  // 모든 슬라이더 값 수집 (품질 + 무드)
+  const allDefs = [...compareQualityDefs, ...compareStyleDefs];
+  const tastes = allDefs.map(a => ({
     id: a.id,
-    value: parseInt(document.getElementById('taste-' + a.id)?.value || 0)
+    value: parseFloat(document.getElementById('taste-' + a.id)?.value || 0)
   }));
 
   // 유클리드 거리 계산
@@ -630,10 +645,6 @@ function calculateMatch() {
   resultEl.innerHTML = `<div class="compare-match-label">당신의 취향에 더 가까운 상품</div>
     <div class="compare-match-name">${closer.name}</div>`;
   resultEl.classList.add('show');
-
-  // 선택 버튼 표시
-  document.getElementById('compareActions').style.display = 'block';
-  document.getElementById('compareSkipOnly').style.display = 'none';
 
   // 결과로 스크롤
   resultEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
@@ -667,7 +678,8 @@ async function selectPreferred(chosenId, rejectedId) {
   }
 
   closeCompare();
-  showCompareToast('취향을 기록했어요 ✨');
+  showCompareToast('선택 완료! 주문 페이지로 이동합니다');
+  setTimeout(() => { window.location.href = '/checkout.html'; }, 1000);
 }
 
 function closeCompare() {
