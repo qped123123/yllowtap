@@ -280,6 +280,24 @@ body { font-family:var(--font); background:var(--bg); color:var(--text); font-si
 .login-box .form-label { margin-bottom:6px; }
 .login-box .btn-primary { width:100%; margin-top:20px; padding:12px; font-size:13px; }
 .login-error { color:var(--red); font-size:11px; margin-top:12px; display:none; }
+/* ===== 점수 입력 슬라이더 ===== */
+.score-row {
+  display:grid; grid-template-columns:90px 1fr 44px;
+  gap:12px; align-items:center; margin-bottom:10px;
+}
+.score-label { font-size:12px; color:var(--text-dim); }
+.score-slider { width:100%; cursor:pointer; accent-color:var(--accent); }
+.score-value {
+  font-size:13px; font-weight:600; color:var(--accent);
+  text-align:center; background:var(--bg-input);
+  border-radius:4px; padding:3px 0;
+}
+.score-poles {
+  display:flex; justify-content:space-between;
+  font-size:10px; color:var(--text-muted); margin-top:-4px; margin-bottom:6px;
+  grid-column:2; padding:0 2px;
+}
+.score-group-empty { font-size:11px; color:var(--text-muted); padding:12px 0; }
 </style>
 </head>
 <body>
@@ -617,6 +635,23 @@ body { font-family:var(--font); background:var(--bg); color:var(--text); font-si
       </div>
 
       <div class="form-section">
+        <div class="form-section-title">비교용 점수 (선택)</div>
+        <p style="font-size:11px;color:var(--text-muted);margin-bottom:6px;">
+          카테고리를 먼저 선택하면 항목이 나타나요. 비교 기능에서 사용돼요. 안 매겨도 저장됩니다.
+        </p>
+        <p style="font-size:11px;color:var(--text-muted);margin-bottom:16px;">
+          <strong style="color:var(--accent)">품질</strong>=높을수록 좋음(0~10) ·
+          <strong style="color:var(--accent)">무드</strong>=취향 방향(왼쪽←0→오른쪽)
+        </p>
+ 
+        <div style="font-size:11px;font-weight:600;color:var(--text);margin-bottom:10px;">품질 점수</div>
+        <div id="qualityScores"><div class="score-group-empty">카테고리를 선택하세요</div></div>
+ 
+        <div style="font-size:11px;font-weight:600;color:var(--text);margin:18px 0 10px;">무드 (전 카테고리 공통)</div>
+        <div id="styleScores"><div class="score-group-empty">불러오는 중...</div></div>
+      </div>
+
+      <div class="form-section">
         <div class="form-section-title">이미지 / 영상</div>
         <p style="font-size:11px;color:var(--text-muted);margin-bottom:4px;">PNG, JPG, GIF, MP4 업로드 가능. ↑↓로 순서 변경.</p>
         <p style="font-size:11px;color:var(--text-muted);margin-bottom:12px;">
@@ -808,7 +843,7 @@ function switchPage(page) {
 }
 
 async function init() {
-  await Promise.all([loadPopupNotices(), loadCategories(), loadCollections(), loadProducts(), loadHeroSlides(), loadSettings(), loadInquiries(), loadMembers(), loadOrders(), loadFaqs()]);
+  await Promise.all([loadPopupNotices(), loadCategories(), loadCollections(), loadProducts(), loadHeroSlides(), loadSettings(), loadInquiries(), loadMembers(), loadOrders(), loadFaqs(), loadAttrDefs()]);
   bindTagCheckboxes(); bindCustomTagInput(); bindImageUpload(); bindHeroMediaUpload(); bindSettingsImageUpload(); bindPopupNoticeImageUpload();
 }
 
@@ -860,7 +895,7 @@ function getMainImg(p) {
 
 function openProductForm() { editingProductId = null; document.getElementById('productFormTitle').textContent = '새 상품 등록'; document.getElementById('productDeleteBtn').style.display = 'none'; resetProductForm(); document.getElementById('productModal').classList.add('show'); }
 function closeProductForm() { document.getElementById('productModal').classList.remove('show'); }
-function resetProductForm() { ['fName','fSubtitle','fSlug','fPrice','fOriginalPrice','fEditorial','fMoodTitle','fMoodDesc','fDetail'].forEach(id => document.getElementById(id).value = ''); document.getElementById('fCategory').value = ''; document.getElementById('fCollection').value = ''; document.getElementById('fOrder').value = '0'; document.getElementById('fActive').value = 'true'; formImages=[]; formPresetTags=[]; formCustomTags=[]; formOptions=[]; formRecommends=[]; formColorImages=[]; formDetailBlocks=[];renderProductFormAll(); }
+function resetProductForm() { ['fName','fSubtitle','fSlug','fPrice','fOriginalPrice','fEditorial','fMoodTitle','fMoodDesc','fDetail'].forEach(id => document.getElementById(id).value = ''); document.getElementById('fCategory').value = ''; document.getElementById('fCollection').value = ''; document.getElementById('fOrder').value = '0'; document.getElementById('fActive').value = 'true'; formImages=[]; formPresetTags=[]; formCustomTags=[]; formOptions=[]; formRecommends=[]; formColorImages=[]; formDetailBlocks=[]; formScores={}; renderProductFormAll(); renderScoreSliders(); }
 function renderProductFormAll() { renderImages(); renderPresetTags(); renderCustomTags(); renderOptions(); renderRecommends(); renderColorImages(); renderDetailBlocks(); }
 
 async function editProduct(id) {
@@ -886,7 +921,8 @@ async function editProduct(id) {
   const { data:ci } = await sb.from('product_option_images').select('*').eq('product_id',id).order('display_order');
   formColorImages = (ci||[]).map(c=>({id:c.id, option_value:c.option_value, image_url:c.image_url}));
   await loadDetailBlocks(id);
-  renderProductFormAll(); document.getElementById('productModal').classList.add('show');
+  await loadProductScores(id);
+  renderProductFormAll(); renderScoreSliders(); document.getElementById('productModal').classList.add('show');
 }
 
 function bindTagCheckboxes() { document.querySelectorAll('#tagCheckboxes .checkbox-item').forEach(item => { item.addEventListener('click', () => { const tag = item.dataset.tag, cb = item.querySelector('input'); cb.checked = !cb.checked; item.classList.toggle('checked', cb.checked); if (cb.checked) { if (!formPresetTags.includes(tag)) formPresetTags.push(tag); } else { formPresetTags = formPresetTags.filter(t=>t!==tag); } }); }); }
@@ -947,7 +983,7 @@ async function uploadColorImage(input,colorValue) { const file=input.files[0];if
 function removeColorImage(colorValue){formColorImages=formColorImages.filter(c=>c.option_value!==colorValue);renderColorImages();}
 
 document.getElementById('fName').addEventListener('input', function() { if(!editingProductId) document.getElementById('fSlug').value=this.value.toLowerCase().replace(/[^a-z0-9가-힣\s-]/g,'').replace(/\s+/g,'-').replace(/--+/g,'-').replace(/^-|-$/g,''); });
-
+document.getElementById('fCategory').addEventListener('change', renderScoreSliders);
 async function saveProduct() {
   const name=document.getElementById('fName').value.trim(),slug=document.getElementById('fSlug').value.trim(),category=document.getElementById('fCategory').value,price=parseInt(document.getElementById('fPrice').value)||0;
   if(!name){showToast('상품명 입력',true);return;} if(!slug){showToast('슬러그 입력',true);return;} if(!category){showToast('카테고리 선택',true);return;} if(!price){showToast('가격 입력',true);return;}
@@ -962,6 +998,7 @@ async function saveProduct() {
    await sb.from('product_option_images').delete().eq('product_id',pid);
     if(formColorImages.length){const colorOpt=formOptions.find(o=>['컬러','색상','Color','color'].includes(o.name));if(colorOpt){await sb.from('product_option_images').insert(formColorImages.map((ci,i)=>({product_id:pid,option_name:colorOpt.name,option_value:ci.option_value,image_url:ci.image_url,display_order:i})));}}
     await saveDetailBlocks(pid);
+    await saveProductScores(pid);
     showToast(editingProductId?'수정 완료':'등록 완료');closeProductForm();await loadProducts();
   } catch(err) { if(err.message?.includes('duplicate')&&err.message?.includes('slug'))showToast('중복된 슬러그',true);else showToast('저장 실패: '+err.message,true); }
 }
@@ -1266,7 +1303,82 @@ function openFaqModal(id) { if(id){const f=allFaqs.find(x=>x.id===id);if(!f)retu
 function closeFaqModal() { document.getElementById('faqModal').classList.remove('show'); }
 async function saveFaq() { const d={category:document.getElementById('faqCategory').value,question:document.getElementById('faqQuestion').value.trim(),answer:document.getElementById('faqAnswer').value.trim(),display_order:parseInt(document.getElementById('faqOrder').value)||0,is_active:document.getElementById('faqActive').checked};if(!d.question||!d.answer){showToast('질문과 답변을 입력해주세요',true);return;}let error;if(editingFaqId){({error}=await sb.from('faqs').update(d).eq('id',editingFaqId));}else{({error}=await sb.from('faqs').insert(d));}if(error){showToast('저장 실패: '+error.message,true);return;}showToast(editingFaqId?'FAQ 수정 완료':'FAQ 등록 완료');closeFaqModal();await loadFaqs(); }
 async function deleteFaq() { if(!editingFaqId||!confirm('이 FAQ를 삭제하시겠습니까?'))return;const{error}=await sb.from('faqs').delete().eq('id',editingFaqId);if(error){showToast('삭제 실패',true);return;}showToast('FAQ 삭제 완료');closeFaqModal();await loadFaqs(); }
-
+// ══════════════════════════════════════════
+// 상품 비교용 점수 (품질 + 스타일)
+// ══════════════════════════════════════════
+let attrDefs = [];          // 전체 속성 정의
+let formScores = {};         // { attribute_id: value } 현재 폼의 점수
+ 
+// 속성 정의 로딩 (init에서 1번 호출)
+async function loadAttrDefs() {
+  const { data } = await sb.from('attribute_definitions')
+    .select('*').eq('is_active', true).order('sort_order');
+  attrDefs = data || [];
+}
+ 
+// 카테고리 선택/변경 시 슬라이더 다시 그리기
+function renderScoreSliders() {
+  const cat = document.getElementById('fCategory').value;
+ 
+  // ── 품질 (선택한 카테고리 전용) ──
+  const qEl = document.getElementById('qualityScores');
+  const qDefs = attrDefs.filter(a => a.attr_type === 'quality' && a.category === cat);
+  if (!cat) {
+    qEl.innerHTML = '<div class="score-group-empty">카테고리를 선택하세요</div>';
+  } else if (!qDefs.length) {
+    qEl.innerHTML = '<div class="score-group-empty">이 카테고리는 품질 항목이 없어요</div>';
+  } else {
+    qEl.innerHTML = qDefs.map(a => {
+      const v = formScores[a.id] ?? 5;   // 기본값 5
+      return `<div class="score-row">
+        <span class="score-label">${a.name_ko}</span>
+        <input type="range" class="score-slider" min="0" max="10" step="0.5"
+               value="${v}" oninput="setScore(${a.id}, this.value)">
+        <span class="score-value" id="sv-${a.id}">${v}</span>
+      </div>`;
+    }).join('');
+  }
+ 
+  // ── 스타일 (공통, category = null) ──
+  const sEl = document.getElementById('styleScores');
+  const sDefs = attrDefs.filter(a => a.attr_type === 'style' && !a.category);
+  sEl.innerHTML = sDefs.map(a => {
+    const v = formScores[a.id] ?? 0;   // 기본값 0(중립)
+    return `<div class="score-row">
+      <span class="score-label">${a.pole_low}</span>
+      <input type="range" class="score-slider" min="-5" max="5" step="1"
+             value="${v}" oninput="setScore(${a.id}, this.value)">
+      <span class="score-value" id="sv-${a.id}">${v}</span>
+    </div>
+    <div class="score-poles"><span>${a.pole_low}</span><span>${a.pole_high}</span></div>`;
+  }).join('');
+}
+ 
+function setScore(attrId, val) {
+  formScores[attrId] = parseFloat(val);
+  const el = document.getElementById('sv-' + attrId);
+  if (el) el.textContent = val;
+}
+ 
+// 수정 시: 기존 점수 불러오기
+async function loadProductScores(productId) {
+  formScores = {};
+  const { data } = await sb.from('product_attributes')
+    .select('attribute_id, value').eq('product_id', productId);
+  (data || []).forEach(r => { formScores[r.attribute_id] = parseFloat(r.value); });
+}
+ 
+// 저장 시: 점수 저장 (기존 saveProduct 안에서 호출)
+async function saveProductScores(productId) {
+  await sb.from('product_attributes').delete().eq('product_id', productId);
+  const rows = Object.entries(formScores).map(([attribute_id, value]) => ({
+    product_id: productId,
+    attribute_id: parseInt(attribute_id),
+    value: value,
+    scored_by: 'admin'
+  }));
+  if (rows.length) await sb.from('product_attributes').insert(rows);
+}
 // ─── 시작 ───
 checkAuth();
 </script>
