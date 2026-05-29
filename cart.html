@@ -151,16 +151,28 @@
 .taste-row span:last-child{text-align:right}
 .taste-slider{
   -webkit-appearance:none;appearance:none;width:100%;height:20px;
-  background:#F0EDE8;border-radius:10px;outline:none;cursor:pointer;
+  border-radius:10px;outline:none;cursor:pointer;
+  background:
+    repeating-linear-gradient(90deg,
+      transparent 0%,
+      transparent calc(10% - 0.5px),
+      rgba(0,0,0,0.08) calc(10% - 0.5px),
+      rgba(0,0,0,0.08) calc(10% + 0.5px),
+      transparent calc(10% + 0.5px)
+    ),
+    #F0EDE8;
 }
 .taste-slider::-webkit-slider-thumb{
-  -webkit-appearance:none;width:14px;height:14px;border-radius:50%;
-  background:#333;border:2px solid #333;cursor:pointer;
+  -webkit-appearance:none;width:16px;height:16px;border-radius:50%;
+  background:#fff;border:2px solid #999;cursor:pointer;
+  transition:border-color .2s;
 }
+.taste-slider::-webkit-slider-thumb:hover{border-color:#333}
 .taste-slider::-moz-range-thumb{
-  width:14px;height:14px;border-radius:50%;
-  background:#333;border:2px solid #333;cursor:pointer;
+  width:16px;height:16px;border-radius:50%;
+  background:#fff;border:2px solid #999;cursor:pointer;
 }
+.taste-slider::-moz-range-thumb:hover{border-color:#333}
 .taste-confirm-btn{
   display:block;width:100%;max-width:240px;margin:16px auto 0;padding:12px;
   font-size:12px;font-weight:500;letter-spacing:1px;
@@ -558,8 +570,8 @@ async function openCompare() {
   // 매칭 결과 영역 (취향 비교 후 표시)
   html += `<div class="compare-match-result" id="matchResult"></div>`;
 
-  // 선택 버튼 (상품 카드 바로 아래, 항상 보임)
-  html += `<div class="compare-actions">
+  // 선택 버튼 (취향 비교 후에만 표시)
+  html += `<div class="compare-actions" id="compareActions" style="display:none;">
     <div style="font-size:13px;color:#666;margin-bottom:14px;">이 상품으로 구매하시겠어요?</div>
     <div class="compare-choose-btns">
       <button class="compare-choose-btn" onclick="selectPreferred('${pA.id}','${pB.id}')">${pA.name} 구매하기</button>
@@ -585,7 +597,7 @@ async function openCompare() {
       html += `<div class="taste-row">
         <span>${a.name_ko}</span>
         <input type="range" class="taste-slider" min="0" max="10" value="5" step="0.5" id="taste-${a.id}">
-        <span style="font-size:9px;color:#CCC;">0~10</span>
+        <span></span>
       </div>`;
     });
   }
@@ -648,6 +660,10 @@ function calculateMatch() {
 
   // 결과로 스크롤
   resultEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+
+  // 구매 버튼 표시
+  const actionsEl = document.getElementById('compareActions');
+  if (actionsEl) actionsEl.style.display = 'block';
 }
 
 async function selectPreferred(chosenId, rejectedId) {
