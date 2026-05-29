@@ -227,19 +227,16 @@
 
   // ── 카트 수량 업데이트 ──
   async function updateCartCount() {
-    try {
-      const { data: { user } } = await getSb().auth.getUser();
-      if (!user) return;
-      const { count } = await getSb()
-        .from('cart_items')
-        .select('*', { count: 'exact', head: true })
-        .eq('user_id', user.id);
-      const cartLink = document.getElementById('headerCartLink');
-      if (cartLink) cartLink.textContent = `Bag${count ? ' ' + count : ''}`;
-    } catch (e) {
-      // cart_items 테이블 없어도 무시
-    }
-  }
+  try {
+    const { data: { user } } = await getSb().auth.getUser();
+    if (!user) return;
+    const { data: cart } = await getSb().from('carts').select('id').eq('user_id', user.id).single();
+    if (!cart) return;
+    const { count } = await getSb().from('cart_items').select('*', { count: 'exact', head: true }).eq('cart_id', cart.id);
+    const cartLink = document.getElementById('headerCartLink');
+    if (cartLink) cartLink.textContent = `Bag${count ? ' (' + count + ')' : ''}`;
+  } catch (e) {}
+}
 
   // ── 햄버거 메뉴 바인딩 ──
   function bindHamburger() {
