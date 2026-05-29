@@ -160,7 +160,7 @@
       rgba(0,0,0,0.06) calc(10% + 0.5px),
       transparent calc(10% + 0.5px)
     ),
-    linear-gradient(90deg, #EDE9E3, #D5CFC6);
+    linear-gradient(90deg, #E5E0D8, #C8C0B5);
 }
 .taste-slider::-webkit-slider-thumb{
   -webkit-appearance:none;width:18px;height:18px;border-radius:50%;
@@ -583,11 +583,12 @@ async function openCompare() {
   // 취향 슬라이더 (품질 + 무드 통합)
   html += `<div class="compare-section">
     <div class="compare-section-label">취향으로 비교해보기</div>
-    <p style="font-size:11px;color:#AAA;margin-bottom:16px;">슬라이더를 맞추고 확인하면 더 가까운 상품을 알려드려요</p>`;
+    <p style="font-size:11px;color:#AAA;margin-bottom:16px;line-height:1.6;">슬라이더를 내 취향에 맞추고 아래 버튼을 누르면 더 가까운 상품을 알려드려요.<br>상품 이미지를 직접 클릭해서 선택할 수도 있어요.</p>`;
 
   // 품질 슬라이더 (0~10)
   if (qDefs.length) {
-    html += `<div style="font-size:10px;font-weight:600;color:#AAA;margin-bottom:8px;letter-spacing:1px;">품질</div>`;
+    html += `<div style="font-size:11px;font-weight:600;color:#555;margin-bottom:4px;letter-spacing:1px;">품질</div>
+    <div style="font-size:10px;color:#AAA;margin-bottom:10px;">높을수록 중요하게 생각해요</div>`;
     qDefs.forEach(a => {
       const vA = compareScoreMap[pA.id]?.[a.id] ?? 5;
       const vB = compareScoreMap[pB.id]?.[a.id] ?? 5;
@@ -600,7 +601,8 @@ async function openCompare() {
   }
 
   // 무드 슬라이더 (-5~+5)
-  html += `<div style="font-size:10px;font-weight:600;color:#AAA;margin:16px 0 8px;letter-spacing:1px;">무드</div>`;
+  html += `<div style="font-size:11px;font-weight:600;color:#555;margin:18px 0 4px;letter-spacing:1px;">무드</div>
+  <div style="font-size:10px;color:#AAA;margin-bottom:10px;">선호하는 방향으로 맞춰보세요</div>`;
   compareStyleDefs.forEach(a => {
     const vA = compareScoreMap[pA.id]?.[a.id] ?? 0;
     const vB = compareScoreMap[pB.id]?.[a.id] ?? 0;
