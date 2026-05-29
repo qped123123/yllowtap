@@ -71,7 +71,7 @@
       // CART
       const cartLink = document.createElement('a');
       cartLink.href = '/cart.html';
-      cartLink.textContent = 'Cart';
+      cartLink.textContent = 'Bag';
       cartLink.id = 'headerCartLink';
       actions.appendChild(cartLink);
 
@@ -105,7 +105,7 @@
             <span style="font-size:13px;color:#888;">${displayName}님</span>
             <a href="/mypage.html" style="font-size:18px;">My Page</a>
             <a href="/mypage.html?tab=orders" style="font-size:18px;">Orders</a>
-            <a href="/cart.html" style="font-size:18px;">Cart</a>
+            <a href="/cart.html" style="font-size:18px;">Bag</a>
             <a href="#" class="mobile-logout-btn" style="font-size:18px;color:#888;">Logout</a>
           `;
           mobileMenu.appendChild(authSection);

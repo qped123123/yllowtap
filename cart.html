@@ -62,6 +62,89 @@
 .cart-empty a{display:inline-block;padding:14px 40px;font-size:12px;font-weight:500;letter-spacing:2px;text-transform:uppercase;border:1px solid #111;color:#111;text-decoration:none;transition:all .2s}
 .cart-empty a:hover{background:#111;color:#fff;opacity:1}
 
+/* ===== 비교 기능 ===== */
+.compare-entry{
+  margin-top:16px;padding:18px 24px;
+  border:1px solid #E5E1DC;background:#FAFAF8;
+  text-align:center;opacity:0;transform:translateY(8px);
+  transition:opacity .4s ease-out, transform .4s ease-out;
+}
+.compare-entry.show{opacity:1;transform:translateY(0)}
+.compare-entry-text{font-size:13px;color:#888;margin-bottom:10px}
+.compare-entry-btn{
+  padding:10px 28px;font-size:12px;font-weight:500;letter-spacing:1px;
+  background:none;border:1px solid #CCC;color:#666;cursor:pointer;
+  font-family:inherit;transition:all .3s;
+}
+.compare-entry-btn:hover{border-color:#111;color:#111}
+
+.compare-overlay{
+  position:fixed;inset:0;z-index:999;
+  background:rgba(0,0,0,.4);opacity:0;
+  transition:opacity .3s;pointer-events:none;
+}
+.compare-overlay.show{opacity:1;pointer-events:auto}
+
+.compare-sheet{
+  position:fixed;bottom:0;left:0;right:0;z-index:1000;
+  max-width:720px;margin:0 auto;
+  max-height:90vh;overflow-y:auto;
+  background:#fff;border-radius:16px 16px 0 0;
+  transform:translateY(100%);transition:transform .4s ease-out;
+  padding:0 0 32px;
+}
+.compare-overlay.show .compare-sheet{transform:translateY(0)}
+
+.compare-handle{width:40px;height:4px;background:#DDD;border-radius:2px;margin:12px auto 0}
+.compare-close{position:absolute;top:14px;right:18px;background:none;border:none;font-size:22px;color:#999;cursor:pointer}
+.compare-close:hover{color:#111}
+
+.compare-header{text-align:center;padding:20px 24px 16px;font-size:14px;font-weight:500;letter-spacing:1px;color:#333}
+
+.compare-products{display:grid;grid-template-columns:1fr 1fr;gap:16px;padding:0 24px 20px}
+.compare-product-card{text-align:center}
+.compare-product-card img{width:100%;max-width:160px;aspect-ratio:3/4;object-fit:cover;border-radius:4px}
+.compare-product-name{font-size:12px;font-weight:500;margin-top:8px;color:#333}
+.compare-product-price{font-size:12px;color:#888;margin-top:2px}
+
+.compare-section{padding:0 24px;margin-bottom:20px}
+.compare-section-label{font-size:11px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:#AAA;margin-bottom:14px;padding-bottom:8px;border-bottom:1px solid #F0EDE8}
+
+.compare-bar-row{display:grid;grid-template-columns:70px 1fr;gap:8px;margin-bottom:10px;align-items:center}
+.compare-bar-label{font-size:11px;color:#888}
+.compare-bars{display:flex;flex-direction:column;gap:3px}
+.compare-bar{height:6px;border-radius:3px}
+.compare-bar-a{background:#333}
+.compare-bar-b{background:#CCC}
+
+.compare-axis-row{margin-bottom:14px}
+.compare-axis-labels{display:flex;justify-content:space-between;font-size:10px;color:#999;margin-bottom:4px}
+.compare-axis-line{position:relative;height:20px;background:#F0EDE8;border-radius:10px}
+.compare-axis-center{position:absolute;left:50%;top:0;bottom:0;width:1px;background:#DDD}
+.compare-axis-dot{position:absolute;top:50%;width:12px;height:12px;border-radius:50%;transform:translate(-50%,-50%)}
+.compare-dot-a{background:#333;border:2px solid #333}
+.compare-dot-b{background:#fff;border:2px solid #999}
+
+.compare-actions{padding:0 24px;text-align:center}
+.compare-choose-btns{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px}
+.compare-choose-btn{
+  padding:14px;font-size:12px;font-weight:500;letter-spacing:0.5px;
+  background:#fff;border:1px solid #DDD;color:#333;cursor:pointer;
+  font-family:inherit;transition:all .3s;border-radius:4px;
+}
+.compare-choose-btn:hover{border-color:#111;background:#111;color:#fff}
+.compare-skip{font-size:11px;color:#AAA;background:none;border:none;cursor:pointer;font-family:inherit}
+.compare-skip:hover{color:#666}
+
+.compare-privacy{font-size:10px;color:#CCC;text-align:center;margin-top:16px;padding:0 24px}
+
+.compare-toast{
+  position:fixed;top:20px;left:50%;transform:translateX(-50%) translateY(-60px);
+  padding:12px 24px;background:#333;color:#fff;font-size:12px;
+  border-radius:8px;z-index:1100;opacity:0;transition:all .3s;
+}
+.compare-toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
 /* RESPONSIVE */
 @media(max-width:1024px){
   .cart-layout{grid-template-columns:1fr;gap:24px}
@@ -75,6 +158,10 @@
   .cart-item-price,.cart-qty,.cart-remove{grid-column:2}
   .cart-item-price{text-align:left}
   .cart-item-original{text-align:left}
+  .compare-products{gap:10px;padding:0 16px 16px}
+  .compare-section{padding:0 16px}
+  .compare-actions{padding:0 16px}
+  .compare-sheet{max-width:100%}
 }
 </style>
 </head>
@@ -124,6 +211,12 @@
         </div>
         <div id="cartItems"></div>
       </div>
+
+      <!-- 비교 엔트리 -->
+      <div id="compareEntry" class="compare-entry" style="display:none;">
+        <div class="compare-entry-text">⟡ 두 상품의 차이를 나란히 볼까요?</div>
+        <button class="compare-entry-btn" onclick="openCompare()">나란히 보기</button>
+      </div>
     </div>
 
     <div class="cart-summary">
@@ -153,6 +246,18 @@
   <div class="footer__bottom"><div class="footer__copy">© 2026 Yllowtap. All rights reserved.</div><div class="footer__social"><a href="https://www.instagram.com/" target="_blank">Instagram</a><a href="https://www.youtube.com/" target="_blank">YouTube</a><a href="https://pinterest.com" target="_blank">Pinterest</a></div></div>
 </footer>
 
+<!-- 비교 바텀시트 -->
+<div id="compareOverlay" class="compare-overlay" onclick="closeCompare()">
+  <div class="compare-sheet" onclick="event.stopPropagation()">
+    <div class="compare-handle"></div>
+    <button class="compare-close" onclick="closeCompare()">✕</button>
+    <div class="compare-header">나란히 보기</div>
+    <div id="compareContent"></div>
+    <div class="compare-privacy">선택 내용은 취향 추천과 익명 통계에만 사용됩니다</div>
+  </div>
+</div>
+<div id="compareToast" class="compare-toast"></div>
+
 <script src="./js/main.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <script>
@@ -165,56 +270,29 @@ let cartItems=[];
 let FREE_SHIPPING=50000;
 let SHIPPING_FEE=3000;
 
-// ══════════════════════════════════════════
-// GUEST ID (비회원 장바구니용)
-// ══════════════════════════════════════════
 function getGuestId(){
   let id=localStorage.getItem('yllowtap_guest_id');
   if(!id){id=crypto.randomUUID();localStorage.setItem('yllowtap_guest_id',id);}
   return id;
 }
 
-// ══════════════════════════════════════════
-// CART 로드
-// ══════════════════════════════════════════
 async function loadCart(){
   const{data:{session}}=await sb.auth.getSession();
   let cart;
-
   if(session){
-    // 회원: user_id로 카트 찾기
     const{data}=await sb.from('carts').select('*').eq('user_id',session.user.id).single();
-    if(data){
-      cart=data;
-    }else{
-      // 없으면 생성
-      const{data:newCart}=await sb.from('carts').insert({user_id:session.user.id}).select().single();
-      cart=newCart;
-    }
-    // 비회원 카트 병합
+    if(data){cart=data;}else{const{data:newCart}=await sb.from('carts').insert({user_id:session.user.id}).select().single();cart=newCart;}
     await mergeGuestCart(session.user.id,cart.id);
   }else{
-    // 비회원: guest_id로 카트 찾기
     const gid=getGuestId();
     const{data}=await sb.from('carts').select('*').eq('guest_id',gid).single();
-    if(data){
-      cart=data;
-    }else{
-      const{data:newCart}=await sb.from('carts').insert({guest_id:gid}).select().single();
-      cart=newCart;
-    }
+    if(data){cart=data;}else{const{data:newCart}=await sb.from('carts').insert({guest_id:gid}).select().single();cart=newCart;}
   }
-
   if(!cart)return;
   cartId=cart.id;
-
-  // 카트 아이템 로드 (상품 정보 포함)
   const{data:items}=await sb.from('cart_items').select('*,products(*,product_media(media_url,role,display_order))').eq('cart_id',cartId).order('added_at');
   cartItems=(items||[]).map(item=>({...item,checked:true}));
-
   renderCart();
-
-  // 로그인 상태 헤더 변경
   if(session){
     document.querySelectorAll('.header__actions a, .mobile-menu a').forEach(a=>{
       if(a.textContent.trim()==='Login'){a.textContent='My Page';a.href='/mypage.html';}
@@ -223,40 +301,24 @@ async function loadCart(){
   updateBagCount();
 }
 
-// ══════════════════════════════════════════
-// 비회원→회원 카트 병합
-// ══════════════════════════════════════════
 async function mergeGuestCart(userId,userCartId){
   const gid=localStorage.getItem('yllowtap_guest_id');
   if(!gid)return;
-
   const{data:guestCart}=await sb.from('carts').select('*').eq('guest_id',gid).single();
   if(!guestCart)return;
-
-  // 비회원 카트 아이템 → 회원 카트로 이동
   const{data:guestItems}=await sb.from('cart_items').select('*').eq('cart_id',guestCart.id);
   if(guestItems?.length){
     for(const item of guestItems){
-      // 이미 있는 상품인지 체크
       const{data:existing}=await sb.from('cart_items').select('*').eq('cart_id',userCartId).eq('product_id',item.product_id).single();
-      if(existing){
-        // 수량만 합산
-        await sb.from('cart_items').update({quantity:existing.quantity+item.quantity}).eq('id',existing.id);
-      }else{
-        // 새로 추가
-        await sb.from('cart_items').insert({cart_id:userCartId,product_id:item.product_id,quantity:item.quantity,selected_options:item.selected_options});
-      }
+      if(existing){await sb.from('cart_items').update({quantity:existing.quantity+item.quantity}).eq('id',existing.id);}
+      else{await sb.from('cart_items').insert({cart_id:userCartId,product_id:item.product_id,quantity:item.quantity,selected_options:item.selected_options});}
     }
-    // 비회원 카트 삭제
     await sb.from('cart_items').delete().eq('cart_id',guestCart.id);
     await sb.from('carts').delete().eq('id',guestCart.id);
   }
   localStorage.removeItem('yllowtap_guest_id');
 }
 
-// ══════════════════════════════════════════
-// RENDER
-// ══════════════════════════════════════════
 function renderCart(){
   if(!cartItems.length){
     document.getElementById('cartEmpty').style.display='block';
@@ -264,7 +326,6 @@ function renderCart(){
     document.getElementById('cartCount').textContent='';
     return;
   }
-
   document.getElementById('cartEmpty').style.display='none';
   document.getElementById('cartLayout').style.display='grid';
   document.getElementById('cartCount').textContent=`${cartItems.length}개의 상품`;
@@ -301,6 +362,7 @@ function renderCart(){
   }).join('');
 
   updateSummary();
+  checkCompareEligible();
 }
 
 function updateSummary(){
@@ -309,43 +371,30 @@ function updateSummary(){
     const p=item.products;
     if(!p)return;
     subtotal+=p.price*item.quantity;
-    if(p.original_price&&p.original_price>p.price){
-      discount+=(p.original_price-p.price)*item.quantity;
-    }
+    if(p.original_price&&p.original_price>p.price){discount+=(p.original_price-p.price)*item.quantity;}
   });
   const shipping=subtotal>=FREE_SHIPPING?0:SHIPPING_FEE;
   const total=subtotal+shipping;
-
   document.getElementById('sumSubtotal').textContent=(subtotal+discount).toLocaleString()+'원';
   document.getElementById('sumDiscount').textContent=discount?'-'+discount.toLocaleString()+'원':'0원';
   document.getElementById('sumShipping').textContent=shipping?shipping.toLocaleString()+'원':'무료';
   document.getElementById('sumTotal').textContent=total.toLocaleString()+'원';
-
   const remaining=FREE_SHIPPING-subtotal;
   document.getElementById('shippingMsg').innerHTML=remaining>0
     ?`<strong>${remaining.toLocaleString()}원</strong> 더 구매하면 무료배송!`
     :'🎉 무료배송 적용 중';
 }
 
-// ══════════════════════════════════════════
-// ACTIONS
-// ══════════════════════════════════════════
 async function changeQty(idx,delta){
-  const item=cartItems[idx];
-  const newQty=item.quantity+delta;
-  if(newQty<1)return;
+  const item=cartItems[idx];const newQty=item.quantity+delta;if(newQty<1)return;
   await sb.from('cart_items').update({quantity:newQty}).eq('id',item.id);
-  cartItems[idx].quantity=newQty;
-  renderCart();
-  updateBagCount();
+  cartItems[idx].quantity=newQty;renderCart();updateBagCount();
 }
 
 async function removeItem(idx){
   const item=cartItems[idx];
   await sb.from('cart_items').delete().eq('id',item.id);
-  cartItems.splice(idx,1);
-  renderCart();
-  updateBagCount();
+  cartItems.splice(idx,1);renderCart();updateBagCount();
 }
 
 function toggleSelectAll(){
@@ -357,12 +406,8 @@ async function deleteSelected(){
   const toDelete=cartItems.filter(item=>item.checked);
   if(!toDelete.length)return;
   if(!confirm(`${toDelete.length}개 상품을 삭제하시겠습니까?`))return;
-  for(const item of toDelete){
-    await sb.from('cart_items').delete().eq('id',item.id);
-  }
-  cartItems=cartItems.filter(item=>!item.checked);
-  renderCart();
-  updateBagCount();
+  for(const item of toDelete){await sb.from('cart_items').delete().eq('id',item.id);}
+  cartItems=cartItems.filter(item=>!item.checked);renderCart();updateBagCount();
 }
 
 function goCheckout(){
@@ -370,9 +415,6 @@ function goCheckout(){
   window.location.href='/checkout.html';
 }
 
-// ══════════════════════════════════════════
-// HELPERS
-// ══════════════════════════════════════════
 function getMainImg(p){
   if(p.product_media?.length){const m=p.product_media.filter(x=>x.role==='main').sort((a,b)=>a.display_order-b.display_order);return m.length?m[0].media_url:p.product_media[0].media_url;}
   return p.image_url;
@@ -385,15 +427,181 @@ function updateBagCount(){
   });
 }
 
-// 사이트 설정에서 배송비/무료배송 기준 로드
 async function loadShippingSettings(){
   const{data}=await sb.from('site_settings').select('*');
-  if(data){
-    data.forEach(r=>{
-      if(r.key==='shipping_fee')SHIPPING_FEE=parseInt(r.value)||3000;
-      if(r.key==='free_shipping_amount')FREE_SHIPPING=parseInt(r.value)||50000;
+  if(data){data.forEach(r=>{
+    if(r.key==='shipping_fee')SHIPPING_FEE=parseInt(r.value)||3000;
+    if(r.key==='free_shipping_amount')FREE_SHIPPING=parseInt(r.value)||50000;
+  });}
+}
+
+// ══════════════════════════════════════════
+// 비교 기능
+// ══════════════════════════════════════════
+let compareItems = [];
+
+function checkCompareEligible() {
+  const entry = document.getElementById('compareEntry');
+  if (!entry) return;
+  const cats = {};
+  cartItems.forEach(item => {
+    const cat = item.products?.category;
+    if (cat) { if (!cats[cat]) cats[cat] = []; cats[cat].push(item); }
+  });
+  let eligible = null;
+  for (const cat in cats) { if (cats[cat].length >= 2) { eligible = cats[cat]; break; } }
+  if (eligible) {
+    compareItems = eligible.slice(0, 2);
+    entry.style.display = 'block';
+    setTimeout(() => entry.classList.add('show'), 50);
+  } else {
+    entry.style.display = 'none';
+    entry.classList.remove('show');
+  }
+}
+
+async function openCompare() {
+  if (compareItems.length < 2) return;
+  const pA = compareItems[0].products;
+  const pB = compareItems[1].products;
+  const cat = pA.category;
+
+  const { data: attrDefs } = await sb.from('attribute_definitions')
+    .select('*').eq('is_active', true).order('sort_order');
+  const ids = [pA.id, pB.id];
+  const { data: scores } = await sb.from('product_attributes')
+    .select('product_id, attribute_id, value').in('product_id', ids);
+
+  const scoreMap = {};
+  (scores || []).forEach(s => {
+    if (!scoreMap[s.product_id]) scoreMap[s.product_id] = {};
+    scoreMap[s.product_id][s.attribute_id] = parseFloat(s.value);
+  });
+
+  const qDefs = (attrDefs || []).filter(a => a.attr_type === 'quality' && a.category === cat);
+  const sDefs = (attrDefs || []).filter(a => a.attr_type === 'style' && !a.category);
+  const imgA = getMainImg(pA);
+  const imgB = getMainImg(pB);
+
+  let html = '';
+
+  // 상품 카드
+  html += `<div class="compare-products">
+    <div class="compare-product-card">
+      ${imgA ? `<img src="${imgA}">` : ''}
+      <div class="compare-product-name">${pA.name}</div>
+      <div class="compare-product-price">${pA.price?.toLocaleString()}원</div>
+    </div>
+    <div class="compare-product-card">
+      ${imgB ? `<img src="${imgB}">` : ''}
+      <div class="compare-product-name">${pB.name}</div>
+      <div class="compare-product-price">${pB.price?.toLocaleString()}원</div>
+    </div>
+  </div>`;
+
+  // 품질 바
+  if (qDefs.length) {
+    html += `<div class="compare-section"><div class="compare-section-label">품질</div>`;
+    qDefs.forEach(a => {
+      const vA = scoreMap[pA.id]?.[a.id] ?? 0;
+      const vB = scoreMap[pB.id]?.[a.id] ?? 0;
+      const wA = (vA / 10) * 100;
+      const wB = (vB / 10) * 100;
+      html += `<div class="compare-bar-row">
+        <div class="compare-bar-label">${a.name_ko}</div>
+        <div class="compare-bars">
+          <div style="display:flex;align-items:center;gap:4px;">
+            <div class="compare-bar compare-bar-a" style="width:${wA}%;min-width:4px;"></div>
+            <span style="font-size:10px;color:#333;font-weight:600;">${vA}</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:4px;">
+            <div class="compare-bar compare-bar-b" style="width:${wB}%;min-width:4px;"></div>
+            <span style="font-size:10px;color:#999;">${vB}</span>
+          </div>
+        </div>
+      </div>`;
+    });
+    html += `</div>`;
+  }
+
+  // 스타일 축
+  if (sDefs.length) {
+    html += `<div class="compare-section"><div class="compare-section-label">무드</div>`;
+    sDefs.forEach(a => {
+      const vA = scoreMap[pA.id]?.[a.id] ?? 0;
+      const vB = scoreMap[pB.id]?.[a.id] ?? 0;
+      const posA = ((vA + 5) / 10) * 100;
+      const posB = ((vB + 5) / 10) * 100;
+      html += `<div class="compare-axis-row">
+        <div class="compare-axis-labels"><span>${a.pole_low}</span><span>${a.pole_high}</span></div>
+        <div class="compare-axis-line">
+          <div class="compare-axis-center"></div>
+          <div class="compare-axis-dot compare-dot-a" style="left:${posA}%" title="${pA.name}: ${vA}"></div>
+          <div class="compare-axis-dot compare-dot-b" style="left:${posB}%" title="${pB.name}: ${vB}"></div>
+        </div>
+      </div>`;
+    });
+    html += `<div style="display:flex;align-items:center;gap:16px;justify-content:center;font-size:10px;color:#999;margin-top:4px;">
+      <span>● ${pA.name}</span><span>○ ${pB.name}</span>
+    </div></div>`;
+  }
+
+  // 선택 버튼
+  html += `<div class="compare-actions">
+    <div style="font-size:13px;color:#666;margin-bottom:14px;">어느 쪽이 더 끌리세요?</div>
+    <div class="compare-choose-btns">
+      <button class="compare-choose-btn" onclick="selectPreferred('${pA.id}','${pB.id}')">${pA.name}</button>
+      <button class="compare-choose-btn" onclick="selectPreferred('${pB.id}','${pA.id}')">${pB.name}</button>
+    </div>
+    <button class="compare-skip" onclick="closeCompare()">고르지 않고 닫기</button>
+  </div>`;
+
+  document.getElementById('compareContent').innerHTML = html;
+  document.getElementById('compareOverlay').classList.add('show');
+  document.body.style.overflow = 'hidden';
+}
+
+async function selectPreferred(chosenId, rejectedId) {
+  const { data: { session } } = await sb.auth.getSession();
+  const userId = session?.user?.id || null;
+  const cat = compareItems[0].products?.category;
+
+  const { data: compSession } = await sb.from('comparison_sessions').insert({
+    user_id: userId,
+    anon_id: userId ? null : getGuestId(),
+    category: cat,
+    device: window.innerWidth < 768 ? 'mobile' : 'desktop'
+  }).select().single();
+
+  if (compSession) {
+    await sb.from('comparison_items').insert(
+      compareItems.map((item, i) => ({
+        session_id: compSession.id,
+        product_id: item.products.id,
+        position: i
+      }))
+    );
+    await sb.from('comparison_choices').insert({
+      session_id: compSession.id,
+      chosen_product: chosenId,
+      rejected_products: [rejectedId]
     });
   }
+
+  closeCompare();
+  showCompareToast('취향을 기록했어요 ✨');
+}
+
+function closeCompare() {
+  document.getElementById('compareOverlay').classList.remove('show');
+  document.body.style.overflow = '';
+}
+
+function showCompareToast(msg) {
+  const el = document.getElementById('compareToast');
+  el.textContent = msg;
+  el.classList.add('show');
+  setTimeout(() => el.classList.remove('show'), 2500);
 }
 
 async function init(){
