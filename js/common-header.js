@@ -12,10 +12,18 @@
     // 페이지에서 이미 만든 sb 변수 사용
     if (typeof window.sb !== 'undefined') { sbClient = window.sb; return sbClient; }
     if (typeof sb !== 'undefined') { sbClient = sb; return sbClient; }
-    // 직접 생성
+    // 직접 생성 (페이지 스크립트에서 anon 키 자동 탐색)
     if (window.supabase) {
-      const url = 'https://ppihvvpplqikclftrwdb.supabase.co';
-      const key = window.SUPABASE_ANON || window._SUPABASE_ANON || '';
+      var url = 'https://ppihvvpplqikclftrwdb.supabase.co';
+      var key = window.SUPABASE_ANON || window._SUPABASE_ANON || '';
+      if (!key) {
+        var scripts = document.querySelectorAll('script');
+        for (var i = 0; i < scripts.length; i++) {
+          var txt = scripts[i].textContent || '';
+          var m = txt.match(/SUPABASE_ANON\s*=\s*'([^']{20,})'/);
+          if (m) { key = m[1]; break; }
+        }
+      }
       if (key) { sbClient = window.supabase.createClient(url, key); return sbClient; }
     }
     return null;

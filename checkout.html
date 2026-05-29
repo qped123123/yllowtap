@@ -238,13 +238,11 @@ async function loadCartItems(){
   cartItems=(items||[]).map(item=>({...item,checked:true}));
   if(!cartItems.length){window.location.href='/cart.html';return;}
 
-  // URL에서 선택된 상품 체크 (비교에서 넘어온 경우)
+  // URL에서 선택된 상품 (비교에서 넘어온 경우) - 선택 안 한 건 아예 제외
   const params=new URLSearchParams(window.location.search);
   const selectedId=params.get('selected');
   if(selectedId){
-    cartItems.forEach(item=>{
-      item.checked=(item.products?.id===selectedId);
-    });
+    cartItems=cartItems.filter(item=>item.products?.id===selectedId);
   }
 
   renderItems();
