@@ -156,23 +156,24 @@
     repeating-linear-gradient(90deg,
       transparent 0%,
       transparent calc(10% - 0.5px),
-      rgba(0,0,0,0.08) calc(10% - 0.5px),
-      rgba(0,0,0,0.08) calc(10% + 0.5px),
+      rgba(0,0,0,0.06) calc(10% - 0.5px),
+      rgba(0,0,0,0.06) calc(10% + 0.5px),
       transparent calc(10% + 0.5px)
     ),
-    #F0EDE8;
+    linear-gradient(90deg, #EDE9E3, #D5CFC6);
 }
 .taste-slider::-webkit-slider-thumb{
-  -webkit-appearance:none;width:16px;height:16px;border-radius:50%;
-  background:#fff;border:2px solid #999;cursor:pointer;
-  transition:border-color .2s;
+  -webkit-appearance:none;width:18px;height:18px;border-radius:50%;
+  background:#fff;border:2px solid #BBB;cursor:pointer;
+  box-shadow:0 1px 3px rgba(0,0,0,0.1);transition:border-color .2s;
 }
-.taste-slider::-webkit-slider-thumb:hover{border-color:#333}
+.taste-slider::-webkit-slider-thumb:hover{border-color:#555}
 .taste-slider::-moz-range-thumb{
-  width:16px;height:16px;border-radius:50%;
-  background:#fff;border:2px solid #999;cursor:pointer;
+  width:18px;height:18px;border-radius:50%;
+  background:#fff;border:2px solid #BBB;cursor:pointer;
+  box-shadow:0 1px 3px rgba(0,0,0,0.1);
 }
-.taste-slider::-moz-range-thumb:hover{border-color:#333}
+.taste-slider::-moz-range-thumb:hover{border-color:#555}
 .taste-confirm-btn{
   display:block;width:100%;max-width:240px;margin:16px auto 0;padding:12px;
   font-size:12px;font-weight:500;letter-spacing:1px;
@@ -553,31 +554,27 @@ async function openCompare() {
 
   let html = '';
 
-  // 상품 카드 (강조용 id 포함)
+  // 상품 카드 (클릭해서 선택)
   html += `<div class="compare-products" id="compareCards">
-    <div class="compare-product-card" id="card-${pA.id}">
+    <div class="compare-product-card" id="card-${pA.id}" onclick="highlightCard('${pA.id}')" style="cursor:pointer;">
       ${imgA ? `<img src="${imgA}">` : ''}
       <div class="compare-product-name">${pA.name}</div>
       <div class="compare-product-price">${pA.price?.toLocaleString()}원</div>
     </div>
-    <div class="compare-product-card" id="card-${pB.id}">
+    <div class="compare-product-card" id="card-${pB.id}" onclick="highlightCard('${pB.id}')" style="cursor:pointer;">
       ${imgB ? `<img src="${imgB}">` : ''}
       <div class="compare-product-name">${pB.name}</div>
       <div class="compare-product-price">${pB.price?.toLocaleString()}원</div>
     </div>
   </div>`;
 
-  // 매칭 결과 영역 (취향 비교 후 표시)
+  // 매칭 결과 영역
   html += `<div class="compare-match-result" id="matchResult"></div>`;
 
-  // 선택 버튼 (취향 비교 후에만 표시)
+  // 구매 버튼 (카드 선택 후 표시, 1개)
   html += `<div class="compare-actions" id="compareActions" style="display:none;">
-    <div style="font-size:13px;color:#666;margin-bottom:14px;">이 상품으로 구매하시겠어요?</div>
-    <div class="compare-choose-btns">
-      <button class="compare-choose-btn" onclick="selectPreferred('${pA.id}','${pB.id}')">${pA.name} 구매하기</button>
-      <button class="compare-choose-btn" onclick="selectPreferred('${pB.id}','${pA.id}')">${pB.name} 구매하기</button>
-    </div>
-    <button class="compare-skip" onclick="closeCompare()">고르지 않고 닫기</button>
+    <button class="taste-confirm-btn" id="buyBtn" onclick="confirmPurchase()">상품을 선택해주세요</button>
+    <button class="compare-skip" style="margin-top:8px;" onclick="closeCompare()">고르지 않고 닫기</button>
   </div>`;
 
   // 구분선
@@ -645,14 +642,10 @@ function calculateMatch() {
   distB = Math.sqrt(distB);
 
   const closer = distA <= distB ? pA : pB;
-  const closerId = closer.id;
 
-  // 상품 카드 강조
-  document.querySelectorAll('.compare-product-card').forEach(c => c.classList.remove('highlighted'));
-  const card = document.getElementById('card-' + closerId);
-  if (card) card.classList.add('highlighted');
+  // 결과 표시 + 카드 강조 + 구매 버튼
+  highlightCard(closer.id);
 
-  // 결과 표시
   const resultEl = document.getElementById('matchResult');
   resultEl.innerHTML = `<div class="compare-match-label">당신의 취향에 더 가까운 상품</div>
     <div class="compare-match-name">${closer.name}</div>`;
@@ -664,6 +657,26 @@ function calculateMatch() {
   // 구매 버튼 표시
   const actionsEl = document.getElementById('compareActions');
   if (actionsEl) actionsEl.style.display = 'block';
+}
+
+let selectedProductId = null;
+
+function highlightCard(id) {
+  selectedProductId = id;
+  document.querySelectorAll('.compare-product-card').forEach(c => c.classList.remove('highlighted'));
+  document.getElementById('card-' + id).classList.add('highlighted');
+  // 구매 버튼 업데이트
+  const name = compareItems.find(i => i.products.id === id)?.products.name || '선택한 상품';
+  const btn = document.getElementById('buyBtn');
+  if (btn) btn.textContent = name + ' 구매하기';
+  const actions = document.getElementById('compareActions');
+  if (actions) actions.style.display = 'block';
+}
+
+function confirmPurchase() {
+  if (!selectedProductId) return;
+  const rejected = compareItems.filter(i => i.products.id !== selectedProductId).map(i => i.products.id);
+  selectPreferred(selectedProductId, rejected[0] || null);
 }
 
 async function selectPreferred(chosenId, rejectedId) {
