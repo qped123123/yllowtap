@@ -145,6 +145,35 @@
 }
 .compare-toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
 
+/* 취향 슬라이더 */
+.taste-row{display:grid;grid-template-columns:50px 1fr 50px;gap:8px;align-items:center;margin-bottom:12px}
+.taste-row span{font-size:10px;color:#999}
+.taste-row span:last-child{text-align:right}
+.taste-slider{width:100%;cursor:pointer;accent-color:#333}
+.taste-confirm-btn{
+  display:block;width:100%;max-width:240px;margin:16px auto 0;padding:12px;
+  font-size:12px;font-weight:500;letter-spacing:1px;
+  background:#111;color:#fff;border:none;cursor:pointer;font-family:inherit;
+  transition:background .3s;border-radius:4px;
+}
+.taste-confirm-btn:hover{background:#333}
+
+/* 매칭 결과 */
+.compare-match-result{
+  text-align:center;padding:16px 24px;margin:0 24px 16px;
+  background:#F7F5F2;border-radius:8px;
+  opacity:0;transform:translateY(8px);transition:all .4s;
+}
+.compare-match-result.show{opacity:1;transform:translateY(0)}
+.compare-match-label{font-size:11px;color:#888;margin-bottom:4px}
+.compare-match-name{font-size:16px;font-weight:600;color:#111}
+
+/* 상품 카드 강조 */
+.compare-product-card.highlighted{
+  outline:2px solid #111;outline-offset:4px;border-radius:4px;
+  transition:outline .3s;
+}
+
 /* RESPONSIVE */
 @media(max-width:1024px){
   .cart-layout{grid-template-columns:1fr;gap:24px}
@@ -460,6 +489,9 @@ function checkCompareEligible() {
   }
 }
 
+let compareScoreMap = {};
+let compareStyleDefs = [];
+
 async function openCompare() {
   if (compareItems.length < 2) return;
   const pA = compareItems[0].products;
@@ -472,39 +504,59 @@ async function openCompare() {
   const { data: scores } = await sb.from('product_attributes')
     .select('product_id, attribute_id, value').in('product_id', ids);
 
-  const scoreMap = {};
+  compareScoreMap = {};
   (scores || []).forEach(s => {
-    if (!scoreMap[s.product_id]) scoreMap[s.product_id] = {};
-    scoreMap[s.product_id][s.attribute_id] = parseFloat(s.value);
+    if (!compareScoreMap[s.product_id]) compareScoreMap[s.product_id] = {};
+    compareScoreMap[s.product_id][s.attribute_id] = parseFloat(s.value);
   });
 
   const qDefs = (attrDefs || []).filter(a => a.attr_type === 'quality' && a.category === cat);
-  const sDefs = (attrDefs || []).filter(a => a.attr_type === 'style' && !a.category);
+  compareStyleDefs = (attrDefs || []).filter(a => a.attr_type === 'style' && !a.category);
   const imgA = getMainImg(pA);
   const imgB = getMainImg(pB);
 
   let html = '';
 
-  // 상품 카드
-  html += `<div class="compare-products">
-    <div class="compare-product-card">
+  // 상품 카드 (강조용 id 포함)
+  html += `<div class="compare-products" id="compareCards">
+    <div class="compare-product-card" id="card-${pA.id}">
       ${imgA ? `<img src="${imgA}">` : ''}
       <div class="compare-product-name">${pA.name}</div>
       <div class="compare-product-price">${pA.price?.toLocaleString()}원</div>
     </div>
-    <div class="compare-product-card">
+    <div class="compare-product-card" id="card-${pB.id}">
       ${imgB ? `<img src="${imgB}">` : ''}
       <div class="compare-product-name">${pB.name}</div>
       <div class="compare-product-price">${pB.price?.toLocaleString()}원</div>
     </div>
   </div>`;
 
-  // 품질 바
+  // 취향 슬라이더
+  html += `<div class="compare-section">
+    <div class="compare-section-label">내 취향 맞추기</div>
+    <p style="font-size:11px;color:#AAA;margin-bottom:14px;">슬라이더를 움직여 나의 취향을 맞춰보세요</p>`;
+  compareStyleDefs.forEach(a => {
+    html += `<div class="taste-row">
+      <span>${a.pole_low}</span>
+      <input type="range" class="taste-slider" min="-5" max="5" value="0" step="1" id="taste-${a.id}">
+      <span>${a.pole_high}</span>
+    </div>`;
+  });
+  html += `<button class="taste-confirm-btn" onclick="calculateMatch()">내 취향으로 비교하기</button>
+  </div>`;
+
+  // 매칭 결과 영역 (처음엔 숨김)
+  html += `<div class="compare-match-result" id="matchResult"></div>`;
+
+  // 품질 바 (상품명 포함)
   if (qDefs.length) {
-    html += `<div class="compare-section"><div class="compare-section-label">품질</div>`;
+    html += `<div class="compare-section"><div class="compare-section-label">품질 참고</div>
+    <div style="display:flex;gap:16px;font-size:10px;color:#999;margin-bottom:10px;">
+      <span>● ${pA.name}</span><span style="color:#CCC;">● ${pB.name}</span>
+    </div>`;
     qDefs.forEach(a => {
-      const vA = scoreMap[pA.id]?.[a.id] ?? 0;
-      const vB = scoreMap[pB.id]?.[a.id] ?? 0;
+      const vA = compareScoreMap[pA.id]?.[a.id] ?? 0;
+      const vB = compareScoreMap[pB.id]?.[a.id] ?? 0;
       const wA = (vA / 10) * 100;
       const wB = (vB / 10) * 100;
       html += `<div class="compare-bar-row">
@@ -524,31 +576,9 @@ async function openCompare() {
     html += `</div>`;
   }
 
-  // 스타일 축
-  if (sDefs.length) {
-    html += `<div class="compare-section"><div class="compare-section-label">무드</div>`;
-    sDefs.forEach(a => {
-      const vA = scoreMap[pA.id]?.[a.id] ?? 0;
-      const vB = scoreMap[pB.id]?.[a.id] ?? 0;
-      const posA = ((vA + 5) / 10) * 100;
-      const posB = ((vB + 5) / 10) * 100;
-      html += `<div class="compare-axis-row">
-        <div class="compare-axis-labels"><span>${a.pole_low}</span><span>${a.pole_high}</span></div>
-        <div class="compare-axis-line">
-          <div class="compare-axis-center"></div>
-          <div class="compare-axis-dot compare-dot-a" style="left:${posA}%" title="${pA.name}: ${vA}"></div>
-          <div class="compare-axis-dot compare-dot-b" style="left:${posB}%" title="${pB.name}: ${vB}"></div>
-        </div>
-      </div>`;
-    });
-    html += `<div style="display:flex;align-items:center;gap:16px;justify-content:center;font-size:10px;color:#999;margin-top:4px;">
-      <span>● ${pA.name}</span><span>○ ${pB.name}</span>
-    </div></div>`;
-  }
-
-  // 선택 버튼
-  html += `<div class="compare-actions">
-    <div style="font-size:13px;color:#666;margin-bottom:14px;">어느 쪽이 더 끌리세요?</div>
+  // 선택 버튼 (매칭 후 표시)
+  html += `<div class="compare-actions" id="compareActions" style="display:none;">
+    <div style="font-size:13px;color:#666;margin-bottom:14px;">어느 쪽으로 결정하시겠어요?</div>
     <div class="compare-choose-btns">
       <button class="compare-choose-btn" onclick="selectPreferred('${pA.id}','${pB.id}')">${pA.name}</button>
       <button class="compare-choose-btn" onclick="selectPreferred('${pB.id}','${pA.id}')">${pB.name}</button>
@@ -556,9 +586,57 @@ async function openCompare() {
     <button class="compare-skip" onclick="closeCompare()">고르지 않고 닫기</button>
   </div>`;
 
+  // 매칭 전 닫기 버튼
+  html += `<div class="compare-actions" id="compareSkipOnly">
+    <button class="compare-skip" onclick="closeCompare()">닫기</button>
+  </div>`;
+
   document.getElementById('compareContent').innerHTML = html;
   document.getElementById('compareOverlay').classList.add('show');
   document.body.style.overflow = 'hidden';
+}
+
+function calculateMatch() {
+  const pA = compareItems[0].products;
+  const pB = compareItems[1].products;
+
+  // 고객 취향값 수집
+  const tastes = compareStyleDefs.map(a => ({
+    id: a.id,
+    value: parseInt(document.getElementById('taste-' + a.id)?.value || 0)
+  }));
+
+  // 유클리드 거리 계산
+  let distA = 0, distB = 0;
+  tastes.forEach(t => {
+    const sA = compareScoreMap[pA.id]?.[t.id] ?? 0;
+    const sB = compareScoreMap[pB.id]?.[t.id] ?? 0;
+    distA += (t.value - sA) ** 2;
+    distB += (t.value - sB) ** 2;
+  });
+  distA = Math.sqrt(distA);
+  distB = Math.sqrt(distB);
+
+  const closer = distA <= distB ? pA : pB;
+  const closerId = closer.id;
+
+  // 상품 카드 강조
+  document.querySelectorAll('.compare-product-card').forEach(c => c.classList.remove('highlighted'));
+  const card = document.getElementById('card-' + closerId);
+  if (card) card.classList.add('highlighted');
+
+  // 결과 표시
+  const resultEl = document.getElementById('matchResult');
+  resultEl.innerHTML = `<div class="compare-match-label">당신의 취향에 더 가까운 상품</div>
+    <div class="compare-match-name">${closer.name}</div>`;
+  resultEl.classList.add('show');
+
+  // 선택 버튼 표시
+  document.getElementById('compareActions').style.display = 'block';
+  document.getElementById('compareSkipOnly').style.display = 'none';
+
+  // 결과로 스크롤
+  resultEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
 }
 
 async function selectPreferred(chosenId, rejectedId) {
