@@ -10,12 +10,8 @@
 .co-header{margin-bottom:36px}
 .co-header h1{font-family:'Bodoni Moda',serif;font-size:32px;font-weight:400;letter-spacing:2px}
 .co-layout{display:grid;grid-template-columns:1fr 380px;gap:40px;align-items:start}
-
-/* SECTIONS */
 .co-section{background:#fff;border:1px solid #E5E1DC;padding:28px 24px;margin-bottom:20px}
 .co-section-title{font-size:14px;font-weight:600;letter-spacing:1px;margin-bottom:20px;padding-bottom:12px;border-bottom:1px solid #E5E1DC}
-
-/* FORM */
 .co-row{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px}
 .co-row.full{grid-template-columns:1fr}
 .co-label{display:block;font-size:11px;font-weight:500;letter-spacing:1px;color:#666;margin-bottom:6px;text-transform:uppercase}
@@ -25,39 +21,32 @@
 .co-input:disabled{background:#EFECE6;color:#888}
 .co-select{width:100%;padding:12px 14px;font-size:14px;font-family:inherit;border:1px solid #E5E1DC;background:#F7F5F2;color:#111;appearance:auto}
 .co-textarea{width:100%;padding:12px 14px;font-size:14px;font-family:inherit;border:1px solid #E5E1DC;background:#F7F5F2;color:#111;min-height:60px;resize:vertical;line-height:1.5}
-
-/* SAVED ADDRESS */
 .co-saved-addr{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px}
 .co-addr-chip{padding:8px 16px;font-size:12px;border:1px solid #E5E1DC;background:none;cursor:pointer;font-family:inherit;transition:all .2s;border-radius:2px}
 .co-addr-chip:hover{border-color:#111}
 .co-addr-chip.active{background:#111;color:#fff;border-color:#111}
 
-/* ORDER ITEMS */
-.co-item{display:flex;gap:14px;padding:12px 0;border-bottom:1px solid #F0EDE8;align-items:center}
+/* ORDER ITEMS WITH CHECKBOX */
+.co-item{display:flex;gap:14px;padding:12px 0;border-bottom:1px solid #F0EDE8;align-items:center;transition:opacity .3s}
 .co-item:last-child{border-bottom:none}
+.co-item.unchecked{opacity:.4}
+.co-item-check{flex-shrink:0;cursor:pointer;width:18px;height:18px;accent-color:#111}
 .co-item-img{width:60px;height:75px;object-fit:cover;background:#EAE7E2;flex-shrink:0}
 .co-item-name{font-size:13px;font-weight:500;margin-bottom:2px}
 .co-item-opt{font-size:11px;color:#888}
 .co-item-qty{font-size:11px;color:#888;margin-top:2px}
 .co-item-price{margin-left:auto;font-size:14px;font-weight:600;white-space:nowrap}
 
-/* SUMMARY */
 .co-summary{background:#fff;border:1px solid #E5E1DC;padding:28px 24px;position:sticky;top:calc(var(--header-height,88px) + 20px)}
 .co-summary-title{font-size:14px;font-weight:600;letter-spacing:1px;margin-bottom:20px;padding-bottom:12px;border-bottom:1px solid #E5E1DC}
 .co-summary-row{display:flex;justify-content:space-between;margin-bottom:10px;font-size:13px;color:#444}
 .co-summary-total{display:flex;justify-content:space-between;padding-top:16px;margin-top:16px;border-top:1px solid #E5E1DC;font-size:20px;font-weight:700}
-
-/* AGREE */
 .co-agree{margin-top:20px;padding-top:16px;border-top:1px solid #E5E1DC}
 .co-agree label{display:flex;align-items:flex-start;gap:8px;font-size:12px;color:#444;line-height:1.5;cursor:pointer;margin-bottom:8px}
 .co-agree input{margin-top:2px;flex-shrink:0}
-
-/* SUBMIT */
 .co-submit{display:block;width:100%;padding:18px;margin-top:20px;font-size:14px;font-weight:700;letter-spacing:2px;text-transform:uppercase;text-align:center;background:#111;color:#fff;border:none;cursor:pointer;font-family:inherit;transition:background .2s}
 .co-submit:hover{background:#333}
 .co-submit:disabled{background:#ccc;cursor:not-allowed}
-
-/* SUCCESS */
 .co-success{display:none;text-align:center;padding:80px 0}
 .co-success-icon{font-size:48px;margin-bottom:16px}
 .co-success-title{font-family:'Bodoni Moda',serif;font-size:28px;margin-bottom:8px}
@@ -68,12 +57,8 @@
 .co-success-btn:hover{background:#111;color:#fff;opacity:1}
 .co-success-btn.primary{background:#111;color:#fff}
 .co-success-btn.primary:hover{background:#333}
-
-/* ERROR */
 .co-error{background:#FFF0F0;border:1px solid #E8CCCC;color:#C4453C;padding:10px 14px;font-size:12px;margin-bottom:16px;display:none;border-radius:2px}
 .co-error.show{display:block}
-
-/* RESPONSIVE */
 @media(max-width:1024px){.co-layout{grid-template-columns:1fr;gap:24px}.co-summary{position:static}}
 @media(max-width:768px){
   .co-page{padding:calc(var(--header-height,60px) + 20px) 16px 60px}
@@ -84,7 +69,6 @@
 </head>
 <body>
 
-<!-- HEADER -->
 <header class="header">
   <div class="header__logo"><a href="/" style="text-decoration:none;color:inherit;"><span class="header__logo-highlight">Yllowtap</span></a></div>
   <nav class="header__nav">
@@ -105,11 +89,9 @@
   <a href="/mypage.html">My Page</a><a href="/mypage.html?tab=wishlist">Wishlist</a>
 </div>
 
-<!-- CHECKOUT PAGE -->
 <div class="co-page">
   <div class="co-header"><h1>Checkout</h1></div>
 
-  <!-- SUCCESS STATE -->
   <div class="co-success" id="coSuccess">
     <div class="co-success-icon">✓</div>
     <div class="co-success-title">주문이 완료되었습니다</div>
@@ -121,17 +103,12 @@
     </div>
   </div>
 
-  <!-- CHECKOUT FORM -->
   <div class="co-layout" id="coForm">
     <div>
-      <!-- 배송 정보 -->
       <div class="co-section">
         <div class="co-section-title">배송 정보</div>
         <div class="co-error" id="coError"></div>
-
-        <!-- 저장된 배송지 -->
         <div class="co-saved-addr" id="savedAddresses"></div>
-
         <div class="co-row">
           <div><label class="co-label">수령인<span class="req">*</span></label><input class="co-input" id="coName" placeholder="홍길동"></div>
           <div><label class="co-label">연락처<span class="req">*</span></label><input class="co-input" id="coPhone" placeholder="010-0000-0000"></div>
@@ -145,12 +122,8 @@
           </div>
           <div></div>
         </div>
-        <div class="co-row full">
-          <div><label class="co-label">기본 주소<span class="req">*</span></label><input class="co-input" id="coAddr1" placeholder="주소 검색을 클릭해주세요" readonly></div>
-        </div>
-        <div class="co-row full">
-          <div><label class="co-label">상세 주소</label><input class="co-input" id="coAddr2" placeholder="101동 202호"></div>
-        </div>
+        <div class="co-row full"><div><label class="co-label">기본 주소<span class="req">*</span></label><input class="co-input" id="coAddr1" placeholder="주소 검색을 클릭해주세요" readonly></div></div>
+        <div class="co-row full"><div><label class="co-label">상세 주소</label><input class="co-input" id="coAddr2" placeholder="101동 202호"></div></div>
         <div class="co-row full">
           <div><label class="co-label">배송 메모</label>
             <select class="co-select" id="coMemo">
@@ -172,14 +145,18 @@
         </div>
       </div>
 
-      <!-- 주문 상품 -->
+      <!-- 주문 상품 (체크리스트) -->
       <div class="co-section">
         <div class="co-section-title">주문 상품</div>
+        <div style="margin-bottom:12px;">
+          <label style="font-size:12px;color:#666;cursor:pointer;display:flex;align-items:center;gap:6px;">
+            <input type="checkbox" id="coSelectAll" checked onchange="toggleCoSelectAll()"> 전체 선택
+          </label>
+        </div>
         <div id="coItems"></div>
       </div>
     </div>
 
-    <!-- ORDER SUMMARY -->
     <div class="co-summary">
       <div class="co-summary-title">ORDER SUMMARY</div>
       <div class="co-summary-row"><span>상품 금액</span><span id="coSubtotal">0원</span></div>
@@ -200,7 +177,6 @@
   </div>
 </div>
 
-<!-- FOOTER -->
 <footer class="footer">
   <div class="footer__grid">
     <div><div class="footer__brand">Yllowtap</div><p class="footer__brand-desc">Curated luxury fashion for the modern woman.</p></div>
@@ -222,7 +198,6 @@ const SUPABASE_URL='https://ppihvvpplqikclftrwdb.supabase.co';
 const SUPABASE_ANON='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBwaWh2dnBwbHFpa2NsZnRyd2RiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk3MzE0NTEsImV4cCI6MjA5NTMwNzQ1MX0.shGVcFTQiuYc4u6tdU50x18YMgJdgFUljf8c7QlQU-U';
 const sb=window.supabase.createClient(SUPABASE_URL,SUPABASE_ANON);
 
-// 다음 우편번호 검색
 function searchAddress(){
   new daum.Postcode({
     oncomplete:function(data){
@@ -238,19 +213,10 @@ let cartItems=[];
 let FREE_SHIPPING=50000;
 let SHIPPING_FEE=3000;
 
-// ══════════════════════════════════════════
-// INIT
-// ══════════════════════════════════════════
 async function init(){
-  // 로그인 체크
   const{data:{session}}=await sb.auth.getSession();
-  if(!session){
-    alert('로그인이 필요합니다.');
-    window.location.href='/login.html';
-    return;
-  }
+  if(!session){alert('로그인이 필요합니다.');window.location.href='/login.html';return;}
   currentUser=session.user;
-
   await loadShippingSettings();
   await loadCartItems();
   await loadSavedAddresses();
@@ -259,37 +225,41 @@ async function init(){
 
 async function loadShippingSettings(){
   const{data}=await sb.from('site_settings').select('*');
-  if(data){
-    data.forEach(r=>{
-      if(r.key==='shipping_fee')SHIPPING_FEE=parseInt(r.value)||3000;
-      if(r.key==='free_shipping_amount')FREE_SHIPPING=parseInt(r.value)||50000;
-    });
-  }
+  if(data){data.forEach(r=>{
+    if(r.key==='shipping_fee')SHIPPING_FEE=parseInt(r.value)||3000;
+    if(r.key==='free_shipping_amount')FREE_SHIPPING=parseInt(r.value)||50000;
+  });}
 }
 
-// ══════════════════════════════════════════
-// CART ITEMS 로드
-// ══════════════════════════════════════════
 async function loadCartItems(){
   const{data:cart}=await sb.from('carts').select('id').eq('user_id',currentUser.id).single();
   if(!cart){window.location.href='/cart.html';return;}
-
   const{data:items}=await sb.from('cart_items').select('*,products(*,product_media(media_url,role,display_order))').eq('cart_id',cart.id).order('added_at');
-  cartItems=items||[];
-
+  cartItems=(items||[]).map(item=>({...item,checked:true}));
   if(!cartItems.length){window.location.href='/cart.html';return;}
+
+  // URL에서 선택된 상품 체크 (비교에서 넘어온 경우)
+  const params=new URLSearchParams(window.location.search);
+  const selectedId=params.get('selected');
+  if(selectedId){
+    cartItems.forEach(item=>{
+      item.checked=(item.products?.id===selectedId);
+    });
+  }
+
   renderItems();
   updateSummary();
 }
 
 function renderItems(){
-  document.getElementById('coItems').innerHTML=cartItems.map(item=>{
+  document.getElementById('coItems').innerHTML=cartItems.map((item,i)=>{
     const p=item.products;
     if(!p)return'';
     const img=getMainImg(p);
     const opts=item.selected_options||{};
     const optStr=Object.entries(opts).map(([k,v])=>k+': '+v).join(' / ');
-    return`<div class="co-item">
+    return`<div class="co-item${item.checked?'':' unchecked'}" id="co-item-${i}">
+      <input type="checkbox" class="co-item-check" ${item.checked?'checked':''} onchange="toggleCoItem(${i})">
       ${img?`<img class="co-item-img" src="${img}">`:'<div class="co-item-img"></div>'}
       <div>
         <div class="co-item-name">${p.name}</div>
@@ -301,42 +271,57 @@ function renderItems(){
   }).join('');
 }
 
+function toggleCoItem(idx){
+  cartItems[idx].checked=!cartItems[idx].checked;
+  const el=document.getElementById('co-item-'+idx);
+  if(el)el.classList.toggle('unchecked',!cartItems[idx].checked);
+  updateSummary();
+  // 전체 선택 체크박스 동기화
+  const allChecked=cartItems.every(i=>i.checked);
+  document.getElementById('coSelectAll').checked=allChecked;
+}
+
+function toggleCoSelectAll(){
+  const checked=document.getElementById('coSelectAll').checked;
+  cartItems.forEach((item,i)=>{
+    item.checked=checked;
+    const el=document.getElementById('co-item-'+i);
+    if(el)el.classList.toggle('unchecked',!checked);
+    const cb=el?.querySelector('.co-item-check');
+    if(cb)cb.checked=checked;
+  });
+  updateSummary();
+}
+
 function updateSummary(){
+  const checkedItems=cartItems.filter(i=>i.checked);
   let subtotal=0,discount=0;
-  cartItems.forEach(item=>{
+  checkedItems.forEach(item=>{
     const p=item.products;if(!p)return;
     subtotal+=p.price*item.quantity;
     if(p.original_price&&p.original_price>p.price) discount+=(p.original_price-p.price)*item.quantity;
   });
-  const shipping=subtotal>=FREE_SHIPPING?0:SHIPPING_FEE;
+  const shipping=subtotal>=FREE_SHIPPING?0:(subtotal>0?SHIPPING_FEE:0);
   const total=subtotal+shipping;
   document.getElementById('coSubtotal').textContent=(subtotal+discount).toLocaleString()+'원';
   document.getElementById('coDiscount').textContent=discount?'-'+discount.toLocaleString()+'원':'0원';
-  document.getElementById('coShipping').textContent=shipping?shipping.toLocaleString()+'원':'무료';
+  document.getElementById('coShipping').textContent=shipping?shipping.toLocaleString()+'원':(subtotal>0?'무료':'0원');
   document.getElementById('coTotal').textContent=total.toLocaleString()+'원';
 }
 
-// ══════════════════════════════════════════
-// 저장된 배송지
-// ══════════════════════════════════════════
 async function loadSavedAddresses(){
   const{data}=await sb.from('addresses').select('*').eq('user_id',currentUser.id).order('is_default',{ascending:false});
   if(!data?.length)return;
-
   const el=document.getElementById('savedAddresses');
   el.innerHTML='<div style="font-size:11px;color:#888;margin-bottom:8px;">저장된 배송지:</div>'+
     data.map((a,i)=>`<button class="co-addr-chip${a.is_default?' active':''}" onclick="fillAddress(${i})" data-idx="${i}">${a.label||a.recipient_name}${a.is_default?' ✓':''}</button>`).join('');
-
-  // 기본 배송지 자동 채우기
   const def=data.find(a=>a.is_default)||data[0];
   if(def) fillAddressData(def);
-
   window._savedAddresses=data;
 }
 
 function fillAddress(idx){
-  const addr=window._savedAddresses[idx];
-  if(!addr)return;
+  const addr=window._savedAddresses[idx];if(!addr)return;
   fillAddressData(addr);
   document.querySelectorAll('.co-addr-chip').forEach((c,i)=>c.classList.toggle('active',i===idx));
 }
@@ -355,28 +340,22 @@ function fillAddressData(a){
   }
 }
 
-// ══════════════════════════════════════════
-// 배송 메모 직접 입력
-// ══════════════════════════════════════════
 function bindMemoSelect(){
   document.getElementById('coMemo').addEventListener('change',function(){
     document.getElementById('coMemoCustomRow').style.display=this.value==='직접 입력'?'block':'none';
   });
 }
 
-// ══════════════════════════════════════════
-// 전체 동의
-// ══════════════════════════════════════════
 function toggleAgreeAll(){
   const checked=document.getElementById('agreeAll').checked;
   document.querySelectorAll('.agree-item').forEach(cb=>cb.checked=checked);
 }
 
-// ══════════════════════════════════════════
-// 주문 제출
-// ══════════════════════════════════════════
 async function submitOrder(){
-  // 유효성 검사
+  // 체크된 상품만
+  const checkedItems=cartItems.filter(i=>i.checked);
+  if(!checkedItems.length){showError('주문할 상품을 선택해주세요.');return;}
+
   const name=document.getElementById('coName').value.trim();
   const phone=document.getElementById('coPhone').value.trim();
   const zip=document.getElementById('coZip').value.trim();
@@ -393,14 +372,12 @@ async function submitOrder(){
     showError('필수 약관에 동의해주세요.');return;
   }
 
-  // 버튼 비활성화
   const btn=document.getElementById('coSubmitBtn');
   btn.disabled=true;btn.textContent='처리 중...';
 
   try{
-    // 금액 계산
     let subtotal=0,discount=0;
-    cartItems.forEach(item=>{
+    checkedItems.forEach(item=>{
       const p=item.products;if(!p)return;
       subtotal+=p.price*item.quantity;
       if(p.original_price&&p.original_price>p.price) discount+=(p.original_price-p.price)*item.quantity;
@@ -408,81 +385,51 @@ async function submitOrder(){
     const shipping=subtotal>=FREE_SHIPPING?0:SHIPPING_FEE;
     const total=subtotal+shipping;
 
-    // 주문번호 생성
     const now=new Date();
     const dateStr=now.getFullYear().toString()+String(now.getMonth()+1).padStart(2,'0')+String(now.getDate()).padStart(2,'0');
     const rand=String(Math.floor(Math.random()*10000)).padStart(4,'0');
     const orderNumber='YT-'+dateStr+'-'+rand;
 
-    // 주문 생성
     const{data:order,error:orderErr}=await sb.from('orders').insert({
-      order_number:orderNumber,
-      user_id:currentUser.id,
-      status:'pending',
-      recipient_name:name,
-      phone:phone,
-      zipcode:zip,
-      address1:addr1,
-      address2:addr2,
-      delivery_memo:memo,
-      subtotal:subtotal,
-      shipping_fee:shipping,
-      discount_amount:discount,
-      total_amount:total
+      order_number:orderNumber,user_id:currentUser.id,status:'pending',
+      recipient_name:name,phone,zipcode:zip,address1:addr1,address2:addr2,
+      delivery_memo:memo,subtotal,shipping_fee:shipping,discount_amount:discount,total_amount:total
     }).select().single();
-
     if(orderErr) throw orderErr;
 
-    // 주문 상품 생성 (당시 가격 스냅샷)
-    const orderItems=cartItems.map(item=>{
+    const orderItems=checkedItems.map(item=>{
       const p=item.products;
-      return{
-        order_id:order.id,
-        product_id:p.id,
-        product_name_snapshot:p.name,
-        product_brand_snapshot:p.brand||'YLLOWTAP',
-        product_image_snapshot:getMainImg(p),
-        product_price_snapshot:p.price,
-        product_original_price_snapshot:p.original_price||null,
-        option_snapshot:item.selected_options||{},
-        quantity:item.quantity,
-        item_total:p.price*item.quantity
-      };
+      return{order_id:order.id,product_id:p.id,product_name_snapshot:p.name,
+        product_brand_snapshot:p.brand||'YLLOWTAP',product_image_snapshot:getMainImg(p),
+        product_price_snapshot:p.price,product_original_price_snapshot:p.original_price||null,
+        option_snapshot:item.selected_options||{},quantity:item.quantity,item_total:p.price*item.quantity};
     });
     const{error:itemsErr}=await sb.from('order_items').insert(orderItems);
     if(itemsErr) throw itemsErr;
 
-    // 장바구니 비우기
-    const{data:cart}=await sb.from('carts').select('id').eq('user_id',currentUser.id).single();
-    if(cart) await sb.from('cart_items').delete().eq('cart_id',cart.id);
+    // 주문된 상품만 장바구니에서 제거
+    for(const item of checkedItems){
+      await sb.from('cart_items').delete().eq('id',item.id);
+    }
 
-    // 배송지 저장
     if(document.getElementById('coSaveAddr').checked){
       await sb.from('addresses').insert({
-        user_id:currentUser.id,
-        label:'주문 시 저장',
+        user_id:currentUser.id,label:'주문 시 저장',
         recipient_name:name,phone,zipcode:zip,address1:addr1,address2:addr2,
         delivery_memo:memo,is_default:false
       });
     }
 
-    // 프로필 업데이트 (주문 수, 총 구매액, 이름/연락처 자동 저장)
     if(currentUser.id){
       const{data:profile}=await sb.from('user_profiles').select('order_count,total_spent,display_name,phone').eq('id',currentUser.id).single();
       if(profile){
-        const profileUpdate={
-          order_count:(profile.order_count||0)+1,
-          total_spent:(profile.total_spent||0)+total,
-          updated_at:new Date().toISOString()
-        };
-        // 이름/연락처가 비어있으면 주문 정보로 자동 채우기
+        const profileUpdate={order_count:(profile.order_count||0)+1,total_spent:(profile.total_spent||0)+total,updated_at:new Date().toISOString()};
         if(!profile.display_name||profile.display_name==='회원') profileUpdate.display_name=name;
         if(!profile.phone) profileUpdate.phone=phone;
         await sb.from('user_profiles').update(profileUpdate).eq('id',currentUser.id);
       }
     }
 
-    // 성공 화면
     document.getElementById('coForm').style.display='none';
     document.getElementById('coSuccess').style.display='block';
     document.getElementById('coOrderNum').textContent='주문번호: '+orderNumber;

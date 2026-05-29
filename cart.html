@@ -710,7 +710,7 @@ async function selectPreferred(chosenId, rejectedId) {
 
   closeCompare();
   showCompareToast('선택 완료! 주문 페이지로 이동합니다');
-  setTimeout(() => { window.location.href = '/checkout.html'; }, 1000);
+  setTimeout(() => { window.location.href = '/checkout.html?selected=' + chosenId; }, 1000);
 }
 
 function closeCompare() {
