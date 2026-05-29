@@ -235,7 +235,7 @@
         .select('*', { count: 'exact', head: true })
         .eq('user_id', user.id);
       const cartLink = document.getElementById('headerCartLink');
-      if (cartLink) cartLink.textContent = `Cart${count ? ' ' + count : ''}`;
+      if (cartLink) cartLink.textContent = `Bag${count ? ' ' + count : ''}`;
     } catch (e) {
       // cart_items 테이블 없어도 무시
     }
