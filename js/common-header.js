@@ -468,8 +468,8 @@
       .nav-dropdown {\
         position:absolute; top:100%; left:0;\
         transform:translateY(6px);\
-        min-width:max-content; max-width:160px; background:var(--bg-main,#F7F5F2);\
-        border:1px solid var(--divider,#D8D3CB); padding:10px 0;\
+        width:148px; background:var(--bg-main,#F7F5F2);\
+        border:1px solid var(--divider,#D8D3CB); padding:8px 0;\
         display:flex; flex-direction:column;\
         opacity:0; visibility:hidden;\
         transition:opacity .25s ease, transform .25s ease;\
