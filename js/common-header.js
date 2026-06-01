@@ -401,3 +401,104 @@
     setTimeout(init, 100);
   }
 })();
+
+
+/* =====================================================
+   ★ NAV HOVER 서브메뉴 (원본 위에 덧붙임 · 기존 기능 안 건드림)
+   - 데스크탑: 메뉴에 마우스 올리면 서브메뉴 펼침 (클릭은 그대로 이동)
+   - 모바일: Accessories / Seasonal 숨김
+   ▼ 메뉴와 서브메뉴는 아래 NAV_MENU 한 곳에서만 수정하면 전 페이지 반영
+   ===================================================== */
+(function () {
+  // [수정은 여기만] label=메뉴이름 / slug=카테고리 / sub=[표시명, 하위슬러그]
+  var NAV_MENU = [
+    { slug: 'best',    label: 'Best',    sub: [['베스트 상품', 'best'], ['Yllowtap Pick', 'pick'], ['많이 본 상품', 'popular']] },
+    { slug: 'new',     label: 'New In',  sub: [['신상품', 'new'], ['재입고', 'restock']] },
+    { slug: 'bags',    label: 'Bags',    sub: [['토트백', 'tote'], ['숄더백', 'shoulder'], ['미니백', 'mini']] },
+    { slug: 'jewelry', label: 'Jewelry', sub: [['반지', 'ring'], ['팔찌', 'bracelet'], ['목걸이', 'necklace'], ['귀걸이', 'earring']] },
+    { slug: 'keyring', label: 'Keyring', sub: [['키링 커스텀', 'custom'], ['완제품 키링', 'ready']] },
+    { slug: 'sale',    label: 'Sale',    sub: [['마지막 수량', 'lastchance']] }
+  ];
+
+  // 모바일 메뉴에서 숨길 카테고리
+  var HIDE_ON_MOBILE = ['accessories', 'seasonal'];
+
+  function escapeHtml(s) {
+    return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  }
+
+  // ── 데스크탑 네비 재구성 (클릭 이동 유지 + hover 드롭다운) ──
+  function buildDesktopNav() {
+    var nav = document.querySelector('.header__nav');
+    if (!nav || nav.getAttribute('data-nav-built') === '1') return;
+
+    var html = '';
+    NAV_MENU.forEach(function (item) {
+      var subHtml = item.sub.map(function (s) {
+        return '<a href="/category.html?cat=' + item.slug + '&sub=' + s[1] + '">' + escapeHtml(s[0]) + '</a>';
+      }).join('');
+      html += '<div class="nav-item">'
+        + '<a class="nav-item__link" href="/category.html?cat=' + item.slug + '">' + escapeHtml(item.label) + '</a>'
+        + '<div class="nav-dropdown">' + subHtml + '</div>'
+        + '</div>';
+    });
+    nav.innerHTML = html;
+    nav.setAttribute('data-nav-built', '1');
+  }
+
+  // ── 모바일 메뉴: 숨길 카테고리 처리 ──
+  function hideMobileExtra() {
+    var mobile = document.querySelector('.mobile-menu');
+    if (!mobile) return;
+    HIDE_ON_MOBILE.forEach(function (slug) {
+      var link = mobile.querySelector('a[href*="cat=' + slug + '"]');
+      if (link) link.style.display = 'none';
+    });
+  }
+
+  // ── 드롭다운 스타일 주입 ──
+  function injectNavStyles() {
+    if (document.getElementById('common-nav-styles')) return;
+    var st = document.createElement('style');
+    st.id = 'common-nav-styles';
+    st.textContent = '\
+      .header__nav .nav-item { position:relative; display:flex; align-items:center; height:var(--header-height,88px); }\
+      .header__nav .nav-item__link { font-size:11px; font-weight:500; letter-spacing:0.18em; text-transform:uppercase; color:var(--text-primary,#111); white-space:nowrap; }\
+      .header__nav .nav-item:hover .nav-item__link { opacity:.5; }\
+      .nav-dropdown {\
+        position:absolute; top:100%; left:50%;\
+        transform:translateX(-50%) translateY(6px);\
+        min-width:150px; background:var(--bg-main,#F7F5F2);\
+        border:1px solid var(--divider,#D8D3CB); padding:12px 0;\
+        display:flex; flex-direction:column;\
+        opacity:0; visibility:hidden;\
+        transition:opacity .25s ease, transform .25s ease;\
+        z-index:1001; box-shadow:0 12px 30px rgba(0,0,0,0.06);\
+      }\
+      .header__nav .nav-item:hover .nav-dropdown {\
+        opacity:1; visibility:visible;\
+        transform:translateX(-50%) translateY(0);\
+      }\
+      .nav-dropdown a {\
+        font-size:12px; font-weight:400; letter-spacing:0.02em;\
+        color:var(--text-secondary,#444); padding:9px 22px;\
+        white-space:nowrap; text-align:center;\
+        transition:background .2s, color .2s;\
+      }\
+      .nav-dropdown a:hover { color:var(--text-primary,#111); background:var(--bg-secondary,#EFECE6); opacity:1; }\
+    ';
+    document.head.appendChild(st);
+  }
+
+  function initNav() {
+    injectNavStyles();
+    buildDesktopNav();
+    hideMobileExtra();
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initNav);
+  } else {
+    initNav();
+  }
+})();
