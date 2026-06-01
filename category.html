@@ -21,46 +21,11 @@
   --cat-font-body: 'Noto Sans KR', 'Pretendard', sans-serif;
 }
 
-/* CATEGORY NAV */
-.category-nav {
-  border-bottom: 1px solid var(--cat-border);
-  background: var(--cat-bg);
-  position: sticky;
-  top: 60px;
-  z-index: 90;
-}
-.category-nav-inner {
-  max-width: 1400px;
-  margin: 0 auto;
-  padding: 0 40px;
-  display: flex;
-  gap: 0;
-  overflow-x: auto;
-  scrollbar-width: none;
-}
-.category-nav-inner::-webkit-scrollbar { display: none; }
-.cat-tab {
-  padding: 14px 18px;
-  font-size: 11px;
-  font-weight: 500;
-  letter-spacing: 1.5px;
-  text-transform: uppercase;
-  color: var(--cat-text3);
-  text-decoration: none;
-  white-space: nowrap;
-  border-bottom: 2px solid transparent;
-  transition: all 0.3s;
-  cursor: pointer;
-  font-family: var(--cat-font-body);
-}
-.cat-tab:hover { color: var(--cat-text); }
-.cat-tab.active { color: var(--cat-text); border-bottom-color: var(--cat-text); }
-
 /* CATEGORY HERO */
 .category-hero {
   max-width: 1400px;
   margin: 0 auto;
-  padding: 50px 40px 32px;
+  padding: 50px 40px 28px;
   text-align: center;
 }
 .category-hero h1 {
@@ -89,11 +54,54 @@
   animation: catFadeUp 0.8s ease 0.3s forwards;
 }
 
-/* FILTER BAR */
-.filter-bar {
+/* ===== LAYOUT: 왼쪽 사이드바 + 오른쪽 상품 ===== */
+.cat-layout {
   max-width: 1400px;
   margin: 0 auto;
-  padding: 0 40px 28px;
+  padding: 0 40px 80px;
+  display: flex;
+  gap: 40px;
+  align-items: flex-start;
+}
+.cat-sidebar {
+  width: 170px;
+  flex-shrink: 0;
+  position: sticky;
+  top: 100px;
+}
+.cat-sidebar-title {
+  font-family: var(--cat-font-body);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  color: var(--cat-text3);
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--cat-border);
+  margin-bottom: 6px;
+}
+.cat-sidebar-nav { display: flex; flex-direction: column; }
+.cat-tab {
+  padding: 9px 4px;
+  font-size: 13px;
+  font-weight: 400;
+  letter-spacing: 0.3px;
+  color: var(--cat-text2);
+  text-decoration: none;
+  white-space: nowrap;
+  background: none;
+  border: none;
+  text-align: left;
+  cursor: pointer;
+  transition: color 0.2s;
+  font-family: var(--cat-font-body);
+}
+.cat-tab:hover { color: var(--cat-text); }
+.cat-tab.active { color: var(--cat-text); font-weight: 700; }
+.cat-main { flex: 1; min-width: 0; }
+
+/* FILTER BAR */
+.filter-bar {
+  padding: 0 0 24px;
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -133,11 +141,9 @@
 
 /* PRODUCT GRID */
 .cat-product-grid {
-  max-width: 1400px;
-  margin: 0 auto;
-  padding: 0 40px 80px;
+  padding: 0 0 40px;
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(3, 1fr);
   gap: 24px 20px;
 }
 
@@ -215,7 +221,7 @@
 .cat-price-discount { font-size: 12px; font-weight: 700; color: #C4453C; }
 
 /* LOAD MORE */
-.cat-load-more { text-align: center; padding: 0 40px 80px; }
+.cat-load-more { text-align: center; padding: 0 0 40px; }
 .cat-load-more-btn {
   padding: 13px 56px;
   font-size: 11px; font-weight: 500; letter-spacing: 3px; text-transform: uppercase;
@@ -228,7 +234,7 @@
 /* EMPTY / LOADING */
 .cat-empty { grid-column: 1/-1; text-align: center; padding: 80px 0; }
 .cat-empty p { font-size: 14px; color: var(--cat-text3); letter-spacing: 1px; }
-.cat-loading { grid-column: 1/-1; text-align: center; padding: 80px 0; }
+.cat-loading { grid-column: 1/-1; text-align: center; padding: 40px 0; }
 .cat-spinner {
   width: 24px; height: 24px;
   border: 2px solid var(--cat-border); border-top-color: var(--cat-text);
@@ -242,17 +248,21 @@
 /* RESPONSIVE */
 @media (max-width:1024px) { .cat-product-grid { grid-template-columns: repeat(3,1fr); } }
 @media (max-width:768px) {
-  .cat-product-grid { grid-template-columns: repeat(2,1fr); padding: 0 20px 60px; gap: 14px 10px; }
-  .category-nav-inner { padding: 0 20px; }
+  .cat-layout { flex-direction: column; padding: 0 20px 60px; gap: 16px; }
+  .cat-sidebar { width: 100%; position: static; }
+  .cat-sidebar-nav { flex-direction: row; flex-wrap: wrap; gap: 6px; }
+  .cat-tab { padding: 7px 14px; border: 1px solid var(--cat-border); font-size: 12px; }
+  .cat-tab.active { background: var(--cat-text); color: var(--cat-bg); border-color: var(--cat-text); }
+  .cat-product-grid { grid-template-columns: repeat(2,1fr); gap: 14px 10px; }
   .category-hero { padding: 32px 20px 20px; }
   .category-hero h1 { font-size: 26px; letter-spacing: 3px; }
-  .filter-bar { padding: 0 20px 16px; flex-direction: column; gap: 10px; align-items: flex-start; }
+  .filter-bar { flex-direction: column; gap: 10px; align-items: flex-start; }
 }
 </style>
 </head>
 <body>
 
-<!-- ===== HEADER (index.html과 동일) ===== -->
+<!-- ===== HEADER (index.html과 동일 / common-header.js가 메뉴 재구성) ===== -->
 <header class="header">
   <div class="header__logo">
     <a href="/" style="text-decoration:none;color:inherit;">
@@ -264,9 +274,7 @@
     <a href="/category.html?cat=new">New In</a>
     <a href="/category.html?cat=bags">Bags</a>
     <a href="/category.html?cat=jewelry">Jewelry</a>
-    <a href="/category.html?cat=accessories">Accessories</a>
     <a href="/category.html?cat=keyring">Keyring</a>
-    <a href="/category.html?cat=seasonal">Seasonal</a>
     <a href="/category.html?cat=sale">Sale</a>
   </nav>
   <div class="header__actions">
@@ -286,20 +294,11 @@
   <a href="/category.html?cat=new">New In</a>
   <a href="/category.html?cat=bags">Bags</a>
   <a href="/category.html?cat=jewelry">Jewelry</a>
-  <a href="/category.html?cat=accessories">Accessories</a>
   <a href="/category.html?cat=keyring">Keyring</a>
-  <a href="/category.html?cat=seasonal">Seasonal</a>
   <a href="/category.html?cat=sale">Sale</a>
   <a href="/login.html">Login</a>
   <a href="/mypage.html?tab=wishlist">Wishlist</a>
 </div>
-
-<!-- ===== CATEGORY NAV ===== -->
-<nav class="category-nav">
-  <div class="category-nav-inner" id="categoryNav">
-    <div class="cat-loading" style="padding:14px;"><div class="cat-spinner" style="width:14px;height:14px;margin:0 auto;"></div></div>
-  </div>
-</nav>
 
 <!-- ===== CATEGORY HERO ===== -->
 <section class="category-hero">
@@ -308,34 +307,50 @@
   <div class="category-count" id="categoryCount"></div>
 </section>
 
-<!-- ===== FILTER BAR ===== -->
-<div class="filter-bar">
-  <div class="filter-left">
-    <button class="filter-btn active" data-filter="all">ALL</button>
-    <button class="filter-btn" data-filter="made">MADE</button>
-    <button class="filter-btn" data-filter="sale">SALE</button>
-  </div>
-  <div class="filter-right">
-    <select id="sortSelect">
-      <option value="newest">NEWEST</option>
-      <option value="price-low">PRICE: LOW → HIGH</option>
-      <option value="price-high">PRICE: HIGH → LOW</option>
-      <option value="name">NAME: A → Z</option>
-    </select>
-  </div>
-</div>
+<!-- ===== 레이아웃: 왼쪽 사이드바 + 오른쪽 상품 ===== -->
+<div class="cat-layout">
 
-<!-- ===== PRODUCT GRID ===== -->
-<div class="cat-product-grid" id="productGrid">
-  <div class="cat-loading">
-    <div class="cat-spinner"></div>
-    <p style="font-size:12px;color:var(--cat-text3);letter-spacing:1px;">Loading...</p>
-  </div>
-</div>
+  <!-- 왼쪽 사이드바 (카테고리) -->
+  <aside class="cat-sidebar">
+    <div class="cat-sidebar-title">CATEGORY</div>
+    <div class="cat-sidebar-nav" id="categoryNav">
+      <div class="cat-loading" style="padding:14px;"><div class="cat-spinner" style="width:14px;height:14px;margin:0 auto;"></div></div>
+    </div>
+  </aside>
 
-<!-- ===== LOAD MORE ===== -->
-<div class="cat-load-more" id="loadMore" style="display:none;">
-  <button class="cat-load-more-btn" id="loadMoreBtn">VIEW MORE</button>
+  <!-- 오른쪽 상품 영역 -->
+  <div class="cat-main">
+    <!-- FILTER BAR -->
+    <div class="filter-bar">
+      <div class="filter-left">
+        <button class="filter-btn active" data-filter="all">ALL</button>
+        <button class="filter-btn" data-filter="made">MADE</button>
+        <button class="filter-btn" data-filter="sale">SALE</button>
+      </div>
+      <div class="filter-right">
+        <select id="sortSelect">
+          <option value="newest">NEWEST</option>
+          <option value="price-low">PRICE: LOW → HIGH</option>
+          <option value="price-high">PRICE: HIGH → LOW</option>
+          <option value="name">NAME: A → Z</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- PRODUCT GRID -->
+    <div class="cat-product-grid" id="productGrid">
+      <div class="cat-loading">
+        <div class="cat-spinner"></div>
+        <p style="font-size:12px;color:var(--cat-text3);letter-spacing:1px;">Loading...</p>
+      </div>
+    </div>
+
+    <!-- LOAD MORE -->
+    <div class="cat-load-more" id="loadMore" style="display:none;">
+      <button class="cat-load-more-btn" id="loadMoreBtn">VIEW MORE</button>
+    </div>
+  </div>
+
 </div>
 
 <!-- ===== FOOTER (index.html과 동일) ===== -->
@@ -385,6 +400,7 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <script>
 // ─── Supabase 설정 ───
+// ★★ 아래 SUPABASE_ANON = '' 에 본인 anon key를 꼭 넣어주세요! (비우면 화면이 안 떠요) ★★
 const SUPABASE_URL = 'https://ppihvvpplqikclftrwdb.supabase.co';
 const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBwaWh2dnBwbHFpa2NsZnRyd2RiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk3MzE0NTEsImV4cCI6MjA5NTMwNzQ1MX0.shGVcFTQiuYc4u6tdU50x18YMgJdgFUljf8c7QlQU-U';
 const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON);
