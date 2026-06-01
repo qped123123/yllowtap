@@ -407,6 +407,62 @@ body { font-family:var(--font); background:var(--bg); color:var(--text); font-si
           <div class="setting-label">무드 섹션 타이틀</div>
           <input class="form-input" id="sMoodTitle" placeholder="About the Mood">
         </div>
+          <!-- ★ 메인 이미지 관리 (홈 화면) -->
+        <div style="border-top:1px solid var(--border);margin:20px 0;"></div>
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+          <div style="font-size:12px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:var(--accent);">메인 이미지 관리 (홈 화면)</div>
+          <button class="btn btn-primary btn-small" onclick="saveMainImages()">이미지 저장</button>
+        </div>
+        <p style="font-size:11px;color:var(--text-muted);margin-bottom:16px;">홈 화면 카테고리 카드 4개 + 선물 배너 + 키링 스튜디오 이미지. 업로드 후 꼭 위 "이미지 저장"을 눌러주세요.</p>
+ 
+        <div class="setting-row">
+          <div class="setting-label">카테고리 · Bags</div>
+          <div style="display:flex;gap:8px;align-items:center;">
+            <img id="miCatBagsPreview" src="" style="width:54px;height:54px;object-fit:cover;border-radius:4px;background:var(--bg-hover);" onerror="this.style.visibility='hidden'" onload="this.style.visibility='visible'">
+            <input class="form-input" id="miCatBags" placeholder="이미지 URL" style="flex:1;">
+            <label class="btn btn-secondary btn-small" style="cursor:pointer;white-space:nowrap;">📎 업로드<input type="file" id="miCatBagsFile" accept="image/*" style="display:none;"></label>
+          </div>
+        </div>
+        <div class="setting-row">
+          <div class="setting-label">카테고리 · Jewelry</div>
+          <div style="display:flex;gap:8px;align-items:center;">
+            <img id="miCatJewelryPreview" src="" style="width:54px;height:54px;object-fit:cover;border-radius:4px;background:var(--bg-hover);" onerror="this.style.visibility='hidden'" onload="this.style.visibility='visible'">
+            <input class="form-input" id="miCatJewelry" placeholder="이미지 URL" style="flex:1;">
+            <label class="btn btn-secondary btn-small" style="cursor:pointer;white-space:nowrap;">📎 업로드<input type="file" id="miCatJewelryFile" accept="image/*" style="display:none;"></label>
+          </div>
+        </div>
+        <div class="setting-row">
+          <div class="setting-label">카테고리 · Keyring</div>
+          <div style="display:flex;gap:8px;align-items:center;">
+            <img id="miCatKeyringPreview" src="" style="width:54px;height:54px;object-fit:cover;border-radius:4px;background:var(--bg-hover);" onerror="this.style.visibility='hidden'" onload="this.style.visibility='visible'">
+            <input class="form-input" id="miCatKeyring" placeholder="이미지 URL" style="flex:1;">
+            <label class="btn btn-secondary btn-small" style="cursor:pointer;white-space:nowrap;">📎 업로드<input type="file" id="miCatKeyringFile" accept="image/*" style="display:none;"></label>
+          </div>
+        </div>
+        <div class="setting-row">
+          <div class="setting-label">카테고리 · Seasonal</div>
+          <div style="display:flex;gap:8px;align-items:center;">
+            <img id="miCatSeasonalPreview" src="" style="width:54px;height:54px;object-fit:cover;border-radius:4px;background:var(--bg-hover);" onerror="this.style.visibility='hidden'" onload="this.style.visibility='visible'">
+            <input class="form-input" id="miCatSeasonal" placeholder="이미지 URL" style="flex:1;">
+            <label class="btn btn-secondary btn-small" style="cursor:pointer;white-space:nowrap;">📎 업로드<input type="file" id="miCatSeasonalFile" accept="image/*" style="display:none;"></label>
+          </div>
+        </div>
+        <div class="setting-row">
+          <div class="setting-label">선물 배너 (Perfect Gift)</div>
+          <div style="display:flex;gap:8px;align-items:center;">
+            <img id="miPerfectGiftPreview" src="" style="width:54px;height:54px;object-fit:cover;border-radius:4px;background:var(--bg-hover);" onerror="this.style.visibility='hidden'" onload="this.style.visibility='visible'">
+            <input class="form-input" id="miPerfectGift" placeholder="이미지 URL" style="flex:1;">
+            <label class="btn btn-secondary btn-small" style="cursor:pointer;white-space:nowrap;">📎 업로드<input type="file" id="miPerfectGiftFile" accept="image/*" style="display:none;"></label>
+          </div>
+        </div>
+        <div class="setting-row">
+          <div class="setting-label">키링 스튜디오 (DIY)</div>
+          <div style="display:flex;gap:8px;align-items:center;">
+            <img id="miDiyVisualPreview" src="" style="width:54px;height:54px;object-fit:cover;border-radius:4px;background:var(--bg-hover);" onerror="this.style.visibility='hidden'" onload="this.style.visibility='visible'">
+            <input class="form-input" id="miDiyVisual" placeholder="이미지 URL" style="flex:1;">
+            <label class="btn btn-secondary btn-small" style="cursor:pointer;white-space:nowrap;">📎 업로드<input type="file" id="miDiyVisualFile" accept="image/*" style="display:none;"></label>
+          </div>
+        </div>
 
         <!-- ★ 팝업 공지 관리 -->
         <div style="border-top:1px solid var(--border);margin:20px 0;"></div>
@@ -844,7 +900,7 @@ function switchPage(page) {
 
 async function init() {
   await Promise.all([loadPopupNotices(), loadCategories(), loadCollections(), loadProducts(), loadHeroSlides(), loadSettings(), loadInquiries(), loadMembers(), loadOrders(), loadFaqs(), loadAttrDefs()]);
-  bindTagCheckboxes(); bindCustomTagInput(); bindImageUpload(); bindHeroMediaUpload(); bindSettingsImageUpload(); bindPopupNoticeImageUpload();
+  bindTagCheckboxes(); bindCustomTagInput(); bindImageUpload(); bindHeroMediaUpload(); bindSettingsImageUpload(); bindPopupNoticeImageUpload(); loadMainImages(); bindMainImagesUpload();
 }
 
 async function loadCategories() {
@@ -1378,6 +1434,56 @@ async function saveProductScores(productId) {
     scored_by: 'admin'
   }));
   if (rows.length) await sb.from('product_attributes').insert(rows);
+}
+// ══════════════════════════════════════════
+// 메인 이미지 관리 (홈 화면 카테고리/배너)
+// ══════════════════════════════════════════
+const MAIN_IMAGE_KEYS = {
+  miCatBags: 'cat_bags_img',
+  miCatJewelry: 'cat_jewelry_img',
+  miCatKeyring: 'cat_keyring_img',
+  miCatSeasonal: 'cat_seasonal_img',
+  miPerfectGift: 'perfect_gift_img',
+  miDiyVisual: 'diy_visual_img'
+};
+ 
+function loadMainImages() {
+  for (const [inputId, key] of Object.entries(MAIN_IMAGE_KEYS)) {
+    const inp = document.getElementById(inputId);
+    if (inp) inp.value = siteSettings[key] || '';
+    const prev = document.getElementById(inputId + 'Preview');
+    if (prev && siteSettings[key]) { prev.src = siteSettings[key]; prev.style.visibility = 'visible'; }
+  }
+}
+ 
+function bindMainImagesUpload() {
+  for (const inputId of Object.keys(MAIN_IMAGE_KEYS)) {
+    const fileEl = document.getElementById(inputId + 'File');
+    if (!fileEl) continue;
+    fileEl.addEventListener('change', async function(e) {
+      const file = e.target.files[0]; if (!file) return;
+      const fn = 'main/' + Date.now() + '_' + Math.random().toString(36).slice(2, 8) + '.' + file.name.split('.').pop();
+      const { error } = await sb.storage.from('media').upload(fn, file, { upsert: true, contentType: file.type });
+      if (error) { showToast('업로드 실패: ' + error.message, true); return; }
+      const { data: u } = sb.storage.from('media').getPublicUrl(fn);
+      document.getElementById(inputId).value = u.publicUrl;
+      const prev = document.getElementById(inputId + 'Preview');
+      if (prev) { prev.src = u.publicUrl; prev.style.visibility = 'visible'; }
+      e.target.value = '';
+      showToast('업로드 완료 — "이미지 저장"을 눌러주세요');
+    });
+  }
+}
+ 
+async function saveMainImages() {
+  try {
+    for (const [inputId, key] of Object.entries(MAIN_IMAGE_KEYS)) {
+      const val = document.getElementById(inputId).value.trim();
+      await sb.from('site_settings').upsert({ key, value: val, updated_at: new Date().toISOString() }, { onConflict: 'key' });
+      siteSettings[key] = val;
+    }
+    showToast('메인 이미지 저장 완료 — 홈 화면에 반영됩니다');
+  } catch (err) { showToast('저장 실패: ' + err.message, true); }
 }
 // ─── 시작 ───
 checkAuth();
