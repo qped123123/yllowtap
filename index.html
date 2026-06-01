@@ -142,8 +142,29 @@
     color: var(--text-muted); text-transform: uppercase;
   }
 
-  /* 상품 그리드 4열(베스트/신상) — 8개 = 4x2 */
-  .product-grid--4 { grid-template-columns: repeat(4, 1fr); }
+  /* 상품 그리드: 베스트/신상 8개 한 줄 */
+  .product-grid--4 { grid-template-columns: repeat(8, 1fr); gap: 12px; }
+
+  /* 상품카드 찜(♥) 버튼 — 이미지 오른쪽 상단 */
+  #bestGrid .product-card, #newGrid .product-card { position: relative; }
+  .pc-wish {
+    position: absolute; top: 8px; right: 8px; z-index: 3;
+    width: 30px; height: 30px; border-radius: 50%;
+    background: rgba(255,255,255,0.85); backdrop-filter: blur(4px);
+    display: flex; align-items: center; justify-content: center;
+    border: none; cursor: pointer; transition: background .2s, transform .2s;
+  }
+  .pc-wish:hover { background: #fff; transform: scale(1.08); opacity: 1; }
+  .pc-wish svg { width: 15px; height: 15px; stroke: #888; fill: none; stroke-width: 1.6; transition: all .2s; }
+  .pc-wish.active svg { stroke: #E8837C; fill: #E8837C; }
+
+  /* NEW 태그 — 이미지 왼쪽 상단 */
+  .pc-newtag {
+    position: absolute; top: 8px; left: 8px; z-index: 3;
+    background: var(--text-primary); color: #fff;
+    font-size: 9px; font-weight: 600; letter-spacing: 0.1em;
+    padding: 3px 7px;
+  }
 
   /* 05 DIY KEYRING STUDIO */
   .diy-studio {
@@ -205,7 +226,7 @@
   /* 반응형 */
   @media (max-width: 1024px) {
     .cat-shortcut { grid-template-columns: repeat(2, 1fr); }
-    .product-grid--4 { grid-template-columns: repeat(3, 1fr); }
+    .product-grid--4 { grid-template-columns: repeat(4, 1fr); }
     .diy-studio { grid-template-columns: 1fr; }
     .diy-studio__visual { min-height: 280px; order: -1; }
   }
@@ -214,7 +235,7 @@
     .section { padding: 40px 16px; }
     .section__title { font-size: 16px; }
     .cat-shortcut { grid-template-columns: repeat(2, 1fr); gap: 12px; padding: 40px 16px 32px; }
-    .product-grid--4 { grid-template-columns: repeat(2, 1fr); }
+    .product-grid--4 { grid-template-columns: repeat(3, 1fr); }
     .cat-card__label { font-size: 15px; }
     .diy-studio__text { padding: 40px 16px; }
     .diy-studio__title { font-size: 20px; }
@@ -599,21 +620,66 @@ function initSimpleSlider(count) {
 // ══════════════════════════════════════════
 // 상품 카드 — 기존 그대로
 // ══════════════════════════════════════════
-function productCardHTML(p) {
+function productCardHTML(p, opts = {}) {
   const img = getMainImg(p);
   const slug = p.slug || p.id;
   const isSale = p.original_price && p.original_price > p.price;
   const price = isSale
     ? `<span style="text-decoration:line-through;color:#999;font-size:12px;margin-right:6px;">₩ ${p.original_price.toLocaleString()}</span>₩ ${p.price.toLocaleString()}`
     : `₩ ${p.price.toLocaleString()}`;
-  return `<a href="/product.html?slug=${slug}" class="product-card" style="text-decoration:none;color:inherit;">
-    <div class="product-card__img-wrap">
-      ${img ? `<img class="product-card__img" src="${img}" alt="${p.name}" loading="lazy">` : '<div class="product-card__img" style="width:100%;height:100%;background:#EAE7E2;"></div>'}
-    </div>
-    <div class="product-card__brand">${p.brand || 'YLLOWTAP'}</div>
-    <div class="product-card__name">${p.name}</div>
-    <div class="product-card__price">${price}</div>
-  </a>`;
+  const newTag = opts.showNew ? `<span class="pc-newtag">NEW</span>` : '';
+  return `<div class="product-card" data-pid="${p.id}">
+    <a href="/product.html?slug=${slug}" class="product-card__link" style="text-decoration:none;color:inherit;">
+      <div class="product-card__img-wrap">
+        ${img ? `<img class="product-card__img" src="${img}" alt="${p.name}" loading="lazy">` : '<div class="product-card__img" style="width:100%;height:100%;background:#EAE7E2;"></div>'}
+        ${newTag}
+      </div>
+    </a>
+    <button class="pc-wish" data-pid="${p.id}" aria-label="찜" onclick="toggleCardWish(event, '${p.id}', this)">
+      <svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+    </button>
+    <a href="/product.html?slug=${slug}" class="product-card__link" style="text-decoration:none;color:inherit;">
+      <div class="product-card__brand">${p.brand || 'YLLOWTAP'}</div>
+      <div class="product-card__name">${p.name}</div>
+      <div class="product-card__price">${price}</div>
+    </a>
+  </div>`;
+}
+
+// ══════════════════════════════════════════
+// 상품카드 찜(♥) — product.html과 동일한 wishlists 테이블 사용
+// ══════════════════════════════════════════
+let myWishSet = new Set();
+
+async function loadMyWishes() {
+  const { data: { session } } = await sb.auth.getSession();
+  if (!session) return;
+  const { data } = await sb.from('wishlists').select('product_id').eq('user_id', session.user.id);
+  myWishSet = new Set((data || []).map(w => w.product_id));
+  document.querySelectorAll('.pc-wish').forEach(btn => {
+    if (myWishSet.has(btn.dataset.pid)) btn.classList.add('active');
+    else btn.classList.remove('active');
+  });
+}
+
+async function toggleCardWish(e, pid, btn) {
+  e.preventDefault();
+  e.stopPropagation();
+  const { data: { session } } = await sb.auth.getSession();
+  if (!session) {
+    if (confirm('로그인 후 이용할 수 있어요.\n로그인 페이지로 이동할까요?')) window.location.href = '/login.html';
+    return;
+  }
+  const { data: existing } = await sb.from('wishlists').select('id').eq('user_id', session.user.id).eq('product_id', pid).single();
+  if (existing) {
+    await sb.from('wishlists').delete().eq('id', existing.id);
+    btn.classList.remove('active');
+    myWishSet.delete(pid);
+  } else {
+    await sb.from('wishlists').insert({ user_id: session.user.id, product_id: pid });
+    btn.classList.add('active');
+    myWishSet.add(pid);
+  }
 }
 
 function getMainImg(p) {
@@ -678,14 +744,12 @@ async function loadNew() {
     grid.innerHTML = `<p class="empty-state">신상품을 준비 중이에요.<br>(어드민에서 상품에 'new' 태그를 달면 여기에 자동으로 보여요)</p>`;
     return;
   }
-  grid.innerHTML = data.map(productCardHTML).join('');
+  grid.innerHTML = data.map(p => productCardHTML(p, { showNew: true })).join('');
 }
-
-// ══════════════════════════════════════════
-// 초기화
 // ══════════════════════════════════════════
 async function init() {
   await Promise.all([loadHero(), loadSettings(), loadBest(), loadNew(), loadPopup()]);
+  await loadMyWishes();
 }
 init();
 </script>
