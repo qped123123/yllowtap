@@ -111,24 +111,25 @@
 
   /* 히어로 높이 축소(서비스바까지 보이게) + 섹션 컴팩트 */
   .hero { height: 70vh; }
-  .section { padding: 56px var(--side-padding); }
-  .section__header { margin-bottom: 28px; }
-  .section__title { font-size: 18px; font-weight: 600; letter-spacing: -0.01em; color: var(--text-muted); }
-  .view-more { margin-top: 28px; }
+  .section { padding: 40px var(--side-padding); }
+  .section__header { margin-bottom: 20px; }
+  .section__label { font-size: 10px; letter-spacing: 0.15em; }
+  .section__title { font-size: 15px; font-weight: 600; letter-spacing: -0.02em; color: var(--text-muted); }
+  .view-more { margin-top: 20px; }
 
-  /* 상품 이미지 세로 줄이기 (3:4 → 1:1 정사각) */
+  /* 상품 이미지 세로 줄이기 (정사각) */
   #bestGrid .product-card__img-wrap,
-  #newGrid .product-card__img-wrap { aspect-ratio: 1/1; margin-bottom: 12px; }
+  #newGrid .product-card__img-wrap { aspect-ratio: 1/1; margin-bottom: 10px; }
 
   /* 03 CATEGORY SHORTCUT */
   .cat-shortcut {
     display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px;
-    padding: 64px var(--side-padding) 48px;
+    padding: 40px var(--side-padding) 32px;
   }
   .cat-card { display: block; }
   .cat-card__img-wrap {
-    aspect-ratio: 4/5; overflow: hidden;
-    background: var(--bg-secondary); margin-bottom: 14px;
+    aspect-ratio: 1/1; overflow: hidden;
+    background: var(--bg-secondary); margin-bottom: 12px;
   }
   .cat-card__img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.6s var(--ease); }
   .cat-card:hover .cat-card__img { transform: scale(1.04); }
@@ -150,7 +151,7 @@
     align-items: stretch; background: var(--bg-secondary);
   }
   .diy-studio__text {
-    padding: 40px var(--side-padding);
+    padding: 32px var(--side-padding);
     display: flex; flex-direction: column; justify-content: center;
   }
   .diy-studio__title {
@@ -164,12 +165,12 @@
     background: var(--text-primary); color: var(--white);
   }
   .diy-studio__cta:hover { background: var(--accent); color: var(--text-primary); opacity: 1; }
-  .diy-studio__visual { overflow: hidden; min-height: 220px; }
+  .diy-studio__visual { overflow: hidden; min-height: 200px; }
   .diy-studio__visual img { width: 100%; height: 100%; object-fit: cover; }
 
   /* 07 PERFECT GIFT */
   .perfect-gift {
-    position: relative; width: 100%; height: 260px;
+    position: relative; width: 100%; height: 220px;
     background-size: cover; background-position: center; background-color: var(--bg-tertiary);
   }
   .perfect-gift__overlay {
