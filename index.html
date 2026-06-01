@@ -7,6 +7,9 @@
   <title>Yllowtap — Curated Luxury Fashion</title>
   <link rel="stylesheet" href="./css/style.css">
   <style>
+  /* ★ Pretendard 폰트 (로고 'Yllowtap' 제외 전체 통일) — @import는 최상단 필수 */
+  @import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard@1.3.9/dist/web/static/pretendard.min.css');
+
   /* ★ 팝업 공지 스타일 (슬라이드) */
   .popup-overlay {
     position: fixed; inset: 0; z-index: 9999;
@@ -91,14 +94,32 @@
   }
 
   /* ═══════════════════════════════════════════════
-     ★ 메인 신규 섹션 스타일 (index 전용 · 공유 css 미변경)
-     기존 디자인 토큰(var) 그대로 사용
+     ★ 메인 신규 섹션 + 폰트/사이즈 조정 (index 전용)
      ═══════════════════════════════════════════════ */
+
+  /* 폰트 통일: 로고/푸터 브랜드명(Yllowtap)만 Bodoni 유지, 나머지 전부 Pretendard */
+  body,
+  .hero__subtitle, .hero__title, .hero__desc,
+  .mobile-menu a,
+  .section__label, .section__title,
+  .cat-card__label, .cat-card__label span,
+  .diy-studio__title,
+  .perfect-gift__title, .perfect-gift__label, .perfect-gift__desc,
+  .summer-sale__title, .summer-sale__label {
+    font-family: 'Pretendard', 'Apple SD Gothic Neo', 'Malgun Gothic', system-ui, sans-serif;
+  }
+
+  /* 히어로 높이 축소(서비스바까지 보이게) + 섹션 컴팩트 */
+  .hero { height: 70vh; }
+  .section { padding: 72px var(--side-padding); }
+  .section__header { margin-bottom: 32px; }
+  .section__title { font-size: 26px; font-weight: 600; letter-spacing: -0.01em; }
+  .view-more { margin-top: 36px; }
 
   /* 03 CATEGORY SHORTCUT */
   .cat-shortcut {
     display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px;
-    padding: var(--section-gap) var(--side-padding);
+    padding: 64px var(--side-padding) 48px;
   }
   .cat-card { display: block; }
   .cat-card__img-wrap {
@@ -108,11 +129,11 @@
   .cat-card__img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.6s var(--ease); }
   .cat-card:hover .cat-card__img { transform: scale(1.04); }
   .cat-card__label {
-    font-family: var(--font-logo); font-size: 20px; font-weight: 400;
+    font-size: 18px; font-weight: 600;
     color: var(--text-primary); display: flex; flex-direction: column; gap: 4px;
   }
   .cat-card__label span {
-    font-family: var(--font-body); font-size: 11px; letter-spacing: 0.1em;
+    font-size: 11px; font-weight: 500; letter-spacing: 0.1em;
     color: var(--text-muted); text-transform: uppercase;
   }
 
@@ -125,14 +146,13 @@
     align-items: stretch; background: var(--bg-secondary);
   }
   .diy-studio__text {
-    padding: var(--section-gap) var(--side-padding);
+    padding: 56px var(--side-padding);
     display: flex; flex-direction: column; justify-content: center;
   }
   .diy-studio__title {
-    font-family: var(--font-logo); font-size: 38px; font-weight: 400;
-    letter-spacing: -0.02em; margin: 14px 0 18px;
+    font-size: 22px; font-weight: 600;
+    letter-spacing: -0.01em; margin: 12px 0 26px;
   }
-  .diy-studio__desc { font-size: 14px; color: var(--text-secondary); line-height: 1.8; margin-bottom: 32px; }
   .diy-studio__cta {
     display: inline-block; align-self: flex-start;
     height: 50px; line-height: 50px; padding: 0 30px;
@@ -140,12 +160,12 @@
     background: var(--text-primary); color: var(--white);
   }
   .diy-studio__cta:hover { background: var(--accent); color: var(--text-primary); opacity: 1; }
-  .diy-studio__visual { overflow: hidden; min-height: 440px; }
+  .diy-studio__visual { overflow: hidden; min-height: 300px; }
   .diy-studio__visual img { width: 100%; height: 100%; object-fit: cover; }
 
   /* 07 PERFECT GIFT */
   .perfect-gift {
-    position: relative; aspect-ratio: 16/9; max-height: 520px;
+    position: relative; width: 100%; height: 340px;
     background-size: cover; background-position: center; background-color: var(--bg-tertiary);
   }
   .perfect-gift__overlay {
@@ -154,7 +174,7 @@
     text-align: center; padding: 20px;
   }
   .perfect-gift__label { font-size: 11px; letter-spacing: 0.3em; text-transform: uppercase; color: rgba(255,255,255,0.75); margin-bottom: 14px; }
-  .perfect-gift__title { font-family: var(--font-logo); font-size: 40px; font-weight: 400; color: var(--white); margin-bottom: 16px; }
+  .perfect-gift__title { font-size: 26px; font-weight: 600; color: var(--white); margin-bottom: 14px; }
   .perfect-gift__desc { font-size: 14px; color: rgba(255,255,255,0.9); margin-bottom: 32px; }
   .perfect-gift__cta {
     font-size: 11px; letter-spacing: 0.18em; text-transform: uppercase;
@@ -163,9 +183,9 @@
   .perfect-gift__cta:hover { background: rgba(255,255,255,0.15); opacity: 1; }
 
   /* 08 SUMMER SALE */
-  .summer-sale { background: var(--accent); padding: 64px var(--side-padding); text-align: center; }
-  .summer-sale__label { font-size: 11px; letter-spacing: 0.3em; text-transform: uppercase; color: var(--text-primary); opacity: 0.7; margin-bottom: 12px; }
-  .summer-sale__title { font-family: var(--font-logo); font-size: 32px; font-weight: 400; color: var(--text-primary); margin-bottom: 28px; }
+  .summer-sale { background: var(--accent); padding: 44px var(--side-padding); text-align: center; }
+  .summer-sale__label { font-size: 11px; letter-spacing: 0.3em; text-transform: uppercase; color: var(--text-primary); opacity: 0.7; margin-bottom: 10px; }
+  .summer-sale__title { font-size: 24px; font-weight: 300; color: var(--text-primary); margin-bottom: 24px; }
   .summer-sale__cta {
     display: inline-block; height: 50px; line-height: 50px; padding: 0 30px;
     font-size: 11px; font-weight: 500; letter-spacing: 0.18em; text-transform: uppercase;
@@ -184,13 +204,17 @@
     .diy-studio__visual { min-height: 280px; order: -1; }
   }
   @media (max-width: 768px) {
-    .cat-shortcut { grid-template-columns: repeat(2, 1fr); gap: 12px; padding: var(--section-gap) 16px; }
+    .hero { height: 56vh; }
+    .section { padding: 48px 16px; }
+    .section__title { font-size: 22px; }
+    .cat-shortcut { grid-template-columns: repeat(2, 1fr); gap: 12px; padding: 40px 16px 32px; }
     .product-grid--4 { grid-template-columns: repeat(2, 1fr); }
-    .cat-card__label { font-size: 16px; }
-    .diy-studio__title { font-size: 26px; }
-    .perfect-gift { aspect-ratio: 4/3; }
-    .perfect-gift__title { font-size: 26px; }
-    .summer-sale__title { font-size: 22px; }
+    .cat-card__label { font-size: 15px; }
+    .diy-studio__text { padding: 40px 16px; }
+    .diy-studio__title { font-size: 20px; }
+    .perfect-gift { height: 240px; }
+    .perfect-gift__title { font-size: 22px; }
+    .summer-sale__title { font-size: 20px; }
   }
   </style>
 </head>
@@ -332,7 +356,6 @@
   <div class="diy-studio__text">
     <p class="section__label">DIY Keyring Studio</p>
     <h2 class="diy-studio__title">나만의 키링 만들기</h2>
-    <p class="diy-studio__desc">키링 · 체인 · 참 · 리본을 직접 골라<br>세상에 하나뿐인 나만의 키링을 완성하세요.</p>
     <a href="/category.html?cat=keyring" class="diy-studio__cta">커스텀 시작하기</a>
   </div>
   <div class="diy-studio__visual">
