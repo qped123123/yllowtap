@@ -111,10 +111,14 @@
 
   /* 히어로 높이 축소(서비스바까지 보이게) + 섹션 컴팩트 */
   .hero { height: 70vh; }
-  .section { padding: 72px var(--side-padding); }
-  .section__header { margin-bottom: 32px; }
-  .section__title { font-size: 26px; font-weight: 600; letter-spacing: -0.01em; }
-  .view-more { margin-top: 36px; }
+  .section { padding: 56px var(--side-padding); }
+  .section__header { margin-bottom: 28px; }
+  .section__title { font-size: 18px; font-weight: 600; letter-spacing: -0.01em; color: var(--text-muted); }
+  .view-more { margin-top: 28px; }
+
+  /* 상품 이미지 세로 줄이기 (3:4 → 1:1 정사각) */
+  #bestGrid .product-card__img-wrap,
+  #newGrid .product-card__img-wrap { aspect-ratio: 1/1; margin-bottom: 12px; }
 
   /* 03 CATEGORY SHORTCUT */
   .cat-shortcut {
@@ -146,7 +150,7 @@
     align-items: stretch; background: var(--bg-secondary);
   }
   .diy-studio__text {
-    padding: 56px var(--side-padding);
+    padding: 40px var(--side-padding);
     display: flex; flex-direction: column; justify-content: center;
   }
   .diy-studio__title {
@@ -160,12 +164,12 @@
     background: var(--text-primary); color: var(--white);
   }
   .diy-studio__cta:hover { background: var(--accent); color: var(--text-primary); opacity: 1; }
-  .diy-studio__visual { overflow: hidden; min-height: 300px; }
+  .diy-studio__visual { overflow: hidden; min-height: 220px; }
   .diy-studio__visual img { width: 100%; height: 100%; object-fit: cover; }
 
   /* 07 PERFECT GIFT */
   .perfect-gift {
-    position: relative; width: 100%; height: 340px;
+    position: relative; width: 100%; height: 260px;
     background-size: cover; background-position: center; background-color: var(--bg-tertiary);
   }
   .perfect-gift__overlay {
@@ -183,7 +187,7 @@
   .perfect-gift__cta:hover { background: rgba(255,255,255,0.15); opacity: 1; }
 
   /* 08 SUMMER SALE */
-  .summer-sale { background: var(--accent); padding: 44px var(--side-padding); text-align: center; }
+  .summer-sale { background: var(--accent); padding: 32px var(--side-padding); text-align: center; }
   .summer-sale__label { font-size: 11px; letter-spacing: 0.3em; text-transform: uppercase; color: var(--text-primary); opacity: 0.7; margin-bottom: 10px; }
   .summer-sale__title { font-size: 24px; font-weight: 300; color: var(--text-primary); margin-bottom: 24px; }
   .summer-sale__cta {
@@ -205,8 +209,8 @@
   }
   @media (max-width: 768px) {
     .hero { height: 56vh; }
-    .section { padding: 48px 16px; }
-    .section__title { font-size: 22px; }
+    .section { padding: 40px 16px; }
+    .section__title { font-size: 16px; }
     .cat-shortcut { grid-template-columns: repeat(2, 1fr); gap: 12px; padding: 40px 16px 32px; }
     .product-grid--4 { grid-template-columns: repeat(2, 1fr); }
     .cat-card__label { font-size: 15px; }
