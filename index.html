@@ -89,6 +89,109 @@
     .popup-slider-wrap { max-width: 340px; width: 92%; }
     .popup-arrow { width: 30px; height: 30px; font-size: 14px; }
   }
+
+  /* ═══════════════════════════════════════════════
+     ★ 메인 신규 섹션 스타일 (index 전용 · 공유 css 미변경)
+     기존 디자인 토큰(var) 그대로 사용
+     ═══════════════════════════════════════════════ */
+
+  /* 03 CATEGORY SHORTCUT */
+  .cat-shortcut {
+    display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px;
+    padding: var(--section-gap) var(--side-padding);
+  }
+  .cat-card { display: block; }
+  .cat-card__img-wrap {
+    aspect-ratio: 4/5; overflow: hidden;
+    background: var(--bg-secondary); margin-bottom: 14px;
+  }
+  .cat-card__img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.6s var(--ease); }
+  .cat-card:hover .cat-card__img { transform: scale(1.04); }
+  .cat-card__label {
+    font-family: var(--font-logo); font-size: 20px; font-weight: 400;
+    color: var(--text-primary); display: flex; flex-direction: column; gap: 4px;
+  }
+  .cat-card__label span {
+    font-family: var(--font-body); font-size: 11px; letter-spacing: 0.1em;
+    color: var(--text-muted); text-transform: uppercase;
+  }
+
+  /* 상품 그리드 4열(베스트/신상) — 8개 = 4x2 */
+  .product-grid--4 { grid-template-columns: repeat(4, 1fr); }
+
+  /* 05 DIY KEYRING STUDIO */
+  .diy-studio {
+    display: grid; grid-template-columns: 1fr 1fr;
+    align-items: stretch; background: var(--bg-secondary);
+  }
+  .diy-studio__text {
+    padding: var(--section-gap) var(--side-padding);
+    display: flex; flex-direction: column; justify-content: center;
+  }
+  .diy-studio__title {
+    font-family: var(--font-logo); font-size: 38px; font-weight: 400;
+    letter-spacing: -0.02em; margin: 14px 0 18px;
+  }
+  .diy-studio__desc { font-size: 14px; color: var(--text-secondary); line-height: 1.8; margin-bottom: 32px; }
+  .diy-studio__cta {
+    display: inline-block; align-self: flex-start;
+    height: 50px; line-height: 50px; padding: 0 30px;
+    font-size: 11px; font-weight: 500; letter-spacing: 0.18em; text-transform: uppercase;
+    background: var(--text-primary); color: var(--white);
+  }
+  .diy-studio__cta:hover { background: var(--accent); color: var(--text-primary); opacity: 1; }
+  .diy-studio__visual { overflow: hidden; min-height: 440px; }
+  .diy-studio__visual img { width: 100%; height: 100%; object-fit: cover; }
+
+  /* 07 PERFECT GIFT */
+  .perfect-gift {
+    position: relative; aspect-ratio: 16/9; max-height: 520px;
+    background-size: cover; background-position: center; background-color: var(--bg-tertiary);
+  }
+  .perfect-gift__overlay {
+    position: absolute; inset: 0; background: rgba(0,0,0,0.32);
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    text-align: center; padding: 20px;
+  }
+  .perfect-gift__label { font-size: 11px; letter-spacing: 0.3em; text-transform: uppercase; color: rgba(255,255,255,0.75); margin-bottom: 14px; }
+  .perfect-gift__title { font-family: var(--font-logo); font-size: 40px; font-weight: 400; color: var(--white); margin-bottom: 16px; }
+  .perfect-gift__desc { font-size: 14px; color: rgba(255,255,255,0.9); margin-bottom: 32px; }
+  .perfect-gift__cta {
+    font-size: 11px; letter-spacing: 0.18em; text-transform: uppercase;
+    color: var(--white); border: 1px solid rgba(255,255,255,0.6); padding: 15px 34px;
+  }
+  .perfect-gift__cta:hover { background: rgba(255,255,255,0.15); opacity: 1; }
+
+  /* 08 SUMMER SALE */
+  .summer-sale { background: var(--accent); padding: 64px var(--side-padding); text-align: center; }
+  .summer-sale__label { font-size: 11px; letter-spacing: 0.3em; text-transform: uppercase; color: var(--text-primary); opacity: 0.7; margin-bottom: 12px; }
+  .summer-sale__title { font-family: var(--font-logo); font-size: 32px; font-weight: 400; color: var(--text-primary); margin-bottom: 28px; }
+  .summer-sale__cta {
+    display: inline-block; height: 50px; line-height: 50px; padding: 0 30px;
+    font-size: 11px; font-weight: 500; letter-spacing: 0.18em; text-transform: uppercase;
+    background: var(--text-primary); color: var(--white);
+  }
+  .summer-sale__cta:hover { opacity: 0.8; }
+
+  /* 상품 없을 때 안내 */
+  .empty-state { grid-column: 1/-1; text-align: center; color: var(--text-muted); padding: 48px 20px; font-size: 13px; line-height: 1.7; }
+
+  /* 반응형 */
+  @media (max-width: 1024px) {
+    .cat-shortcut { grid-template-columns: repeat(2, 1fr); }
+    .product-grid--4 { grid-template-columns: repeat(3, 1fr); }
+    .diy-studio { grid-template-columns: 1fr; }
+    .diy-studio__visual { min-height: 280px; order: -1; }
+  }
+  @media (max-width: 768px) {
+    .cat-shortcut { grid-template-columns: repeat(2, 1fr); gap: 12px; padding: var(--section-gap) 16px; }
+    .product-grid--4 { grid-template-columns: repeat(2, 1fr); }
+    .cat-card__label { font-size: 16px; }
+    .diy-studio__title { font-size: 26px; }
+    .perfect-gift { aspect-ratio: 4/3; }
+    .perfect-gift__title { font-size: 26px; }
+    .summer-sale__title { font-size: 22px; }
+  }
   </style>
 </head>
 <body>
@@ -105,7 +208,7 @@
   </div>
 </div>
 
-<!-- HEADER -->
+<!-- ═══ 01 HEADER (현재 그대로) ═══ -->
 <header class="header">
   <div class="header__logo">
     <a href="/" style="text-decoration:none;color:inherit;">
@@ -147,7 +250,7 @@
   <a href="/mypage.html?tab=wishlist">Wishlist</a>
 </div>
 
-<!-- ═══ HERO ═══ -->
+<!-- ═══ 02 HERO (현재 그대로) ═══ -->
 <section class="hero">
   <div class="hero__slider" id="heroSlider"></div>
   <div class="hero__pagination" id="heroPagination"></div>
@@ -176,7 +279,7 @@
   </div>
 </section>
 
-<!-- SERVICE BAR -->
+<!-- SERVICE BAR (배송/멤버십/CS 신뢰 바 — 유지) -->
 <div class="service-bar">
   <div class="service-bar__item">
     <svg class="service-bar__icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2"><rect x="1" y="6" width="15" height="13" rx="1"/><path d="M16 10h4l3 4v5h-7V10z"/><circle cx="5.5" cy="19.5" r="2.5"/><circle cx="18.5" cy="19.5" r="2.5"/></svg>
@@ -192,59 +295,79 @@
   </div>
 </div>
 
-<!-- ═══ CURATED FOR YOU ═══ -->
-<div class="divider"></div>
-<section class="section" id="sectionCurated">
-  <div class="section__header">
-    <p class="section__label">Curated For You</p>
-    <h2 class="section__title">당신을 위한 셀렉션</h2>
-  </div>
-  <div class="product-grid" id="curatedGrid"></div>
-  <div class="view-more"><a href="/category.html">View More →</a></div>
-</section>
-
-<!-- ═══ ABOUT THE MOOD ═══ -->
-<section class="mood-section" id="moodSection">
-  <img class="mood-section__img" id="moodImg" src="" alt="About the Mood">
-  <div class="mood-section__overlay">
-    <h2 class="mood-section__title" id="moodTitle">About the Mood</h2>
-    <a href="/category.html" class="mood-section__cta">Explore</a>
-  </div>
-</section>
-
-<!-- TAROT TEASER -->
-<section class="tarot-teaser">
-  <div class="tarot-teaser__inner">
-    <p class="tarot-teaser__label">Members Only</p>
-    <h2 class="tarot-teaser__title">Your Style,<br>Written in the Stars</h2>
-    <p class="tarot-teaser__desc">구매 고객 전용 타로 스타일링.<br>당신의 다음 아이템을 카드가 알려드립니다.</p>
-    <a href="#" class="tarot-teaser__cta">Coming Soon</a>
-  </div>
+<!-- ═══ 03 CATEGORY SHORTCUT ═══ -->
+<section class="cat-shortcut">
+  <a class="cat-card" href="/category.html?cat=bags">
+    <div class="cat-card__img-wrap"><img class="cat-card__img" id="catBagsImg" src="https://images.unsplash.com/photo-1584917865442-de89df76afd3?w=800&q=80" alt="Bags"></div>
+    <div class="cat-card__label">Bags<span>토트백 · 숄더백</span></div>
+  </a>
+  <a class="cat-card" href="/category.html?cat=jewelry">
+    <div class="cat-card__img-wrap"><img class="cat-card__img" id="catJewelryImg" src="https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?w=800&q=80" alt="Jewelry"></div>
+    <div class="cat-card__label">Jewelry<span>반지 · 목걸이</span></div>
+  </a>
+  <a class="cat-card" href="/category.html?cat=keyring">
+    <div class="cat-card__img-wrap"><img class="cat-card__img" id="catKeyringImg" src="https://images.unsplash.com/photo-1606760227091-3dd870d97f1d?w=800&q=80" alt="Keyring"></div>
+    <div class="cat-card__label">Keyring<span>DIY 키링</span></div>
+  </a>
+  <a class="cat-card" href="/category.html?cat=seasonal">
+    <div class="cat-card__img-wrap"><img class="cat-card__img" id="catSeasonalImg" src="https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=800&q=80" alt="Seasonal"></div>
+    <div class="cat-card__label">Seasonal<span>시즌 추천</span></div>
+  </a>
 </section>
 
 <div class="divider"></div>
 
-<!-- ═══ BEST COLLECTION ═══ -->
+<!-- ═══ 04 BEST SELLERS ═══ -->
 <section class="section" id="sectionBest">
   <div class="section__header">
-    <p class="section__label">Best Collection</p>
-    <h2 class="section__title">이번 시즌 베스트</h2>
+    <p class="section__label">Best Sellers</p>
+    <h2 class="section__title">지금 가장 사랑받는 아이템</h2>
   </div>
-  <div class="product-grid" id="bestGrid"></div>
+  <div class="product-grid product-grid--4" id="bestGrid"></div>
   <div class="view-more"><a href="/category.html?cat=best">View More →</a></div>
 </section>
 
-<!-- ═══ FROM THE JOURNAL ═══ -->
-<div class="divider"></div>
-<section class="section" id="sectionJournal">
-  <div class="section__header">
-    <p class="section__label">From The Journal</p>
-    <h2 class="section__title">스타일 인사이트</h2>
+<!-- ═══ 05 DIY KEYRING STUDIO ═══ -->
+<section class="diy-studio">
+  <div class="diy-studio__text">
+    <p class="section__label">DIY Keyring Studio</p>
+    <h2 class="diy-studio__title">나만의 키링 만들기</h2>
+    <p class="diy-studio__desc">키링 · 체인 · 참 · 리본을 직접 골라<br>세상에 하나뿐인 나만의 키링을 완성하세요.</p>
+    <a href="/category.html?cat=keyring" class="diy-studio__cta">커스텀 시작하기</a>
   </div>
-  <div class="journal-grid" id="journalGrid"></div>
+  <div class="diy-studio__visual">
+    <img id="diyVisualImg" src="https://images.unsplash.com/photo-1611591437281-460bfbe1220a?w=1000&q=80" alt="DIY Keyring">
+  </div>
 </section>
 
-<!-- FOOTER -->
+<!-- ═══ 06 NEW ARRIVALS ═══ -->
+<section class="section" id="sectionNew">
+  <div class="section__header">
+    <p class="section__label">New Arrivals</p>
+    <h2 class="section__title">새롭게 입고된 아이템</h2>
+  </div>
+  <div class="product-grid product-grid--4" id="newGrid"></div>
+  <div class="view-more"><a href="/category.html?cat=new">View More →</a></div>
+</section>
+
+<!-- ═══ 07 PERFECT GIFT ═══ -->
+<section class="perfect-gift" id="perfectGiftBg" style="background-image:url('https://images.unsplash.com/photo-1549465220-1a8b9238cd48?w=1600&q=80');">
+  <div class="perfect-gift__overlay">
+    <p class="perfect-gift__label">Perfect Gift</p>
+    <h2 class="perfect-gift__title">선물 추천 아이템</h2>
+    <p class="perfect-gift__desc">선물하기 좋은 가방 · 주얼리 · 키링 큐레이션</p>
+    <a href="/category.html" class="perfect-gift__cta">Gift Collection</a>
+  </div>
+</section>
+
+<!-- ═══ 08 SUMMER SALE ═══ -->
+<section class="summer-sale">
+  <p class="summer-sale__label">Summer Sale</p>
+  <h2 class="summer-sale__title">시즌 오프 최대 30% 할인</h2>
+  <a href="/category.html?cat=sale" class="summer-sale__cta">세일 상품 보러가기</a>
+</section>
+
+<!-- ═══ 09 FOOTER (현재 그대로) ═══ -->
 <footer class="footer">
   <div class="footer__grid">
     <div>
@@ -290,7 +413,7 @@ const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFz
 const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON);
 
 // ══════════════════════════════════════════
-// ★ 팝업 공지 (슬라이드 방식)
+// ★ 팝업 공지 (슬라이드 방식) — 기존 그대로
 // ══════════════════════════════════════════
 let popupCurrent = 0;
 let popupTotal = 0;
@@ -315,7 +438,6 @@ function goPopup(idx) {
     d.classList.toggle('active', i === idx);
   });
   popupCurrent = idx;
-  // 화살표 표시/숨기기
   const leftArr = document.getElementById('popupArrowLeft');
   const rightArr = document.getElementById('popupArrowRight');
   if (leftArr) leftArr.style.display = idx === 0 ? 'none' : 'flex';
@@ -352,14 +474,12 @@ async function loadPopup() {
       </div>`;
     }).join('');
 
-  // 닫기 버튼 (슬라이더 위에 1개)
   const closeBtn = document.createElement('button');
   closeBtn.className = 'popup-slide-close';
   closeBtn.textContent = '✕';
   closeBtn.onclick = closeAllPopups;
   slider.appendChild(closeBtn);
 
-  // 도트
   const dots = document.getElementById('popupDots');
   if (popupTotal > 1) {
     dots.innerHTML = valid.map((_, i) =>
@@ -376,7 +496,7 @@ document.getElementById('popupOverlay').addEventListener('click', function(e) {
 });
 
 // ══════════════════════════════════════════
-// 히어로 슬라이드
+// 히어로 슬라이드 — 기존 그대로
 // ══════════════════════════════════════════
 async function loadHero() {
   const { data } = await sb.from('hero_slides').select('*').eq('is_active', true).order('slide_order');
@@ -448,7 +568,7 @@ function initSimpleSlider(count) {
 }
 
 // ══════════════════════════════════════════
-// 상품 카드
+// 상품 카드 — 기존 그대로
 // ══════════════════════════════════════════
 function productCardHTML(p) {
   const img = getMainImg(p);
@@ -476,55 +596,67 @@ function getMainImg(p) {
 }
 
 // ══════════════════════════════════════════
-// Curated / Best / Mood / Journal
+// 설정(이미지/BGM) — 기존 site_settings 재사용
+// 키가 있으면 교체, 없으면 기본 이미지 유지
 // ══════════════════════════════════════════
-async function loadCurated() {
-  const { data } = await sb.from('products').select('*, product_media(media_url, role, display_order)').eq('is_active', true).order('display_order').limit(5);
-  const grid = document.getElementById('curatedGrid');
-  if (!data?.length) { grid.innerHTML = '<p style="text-align:center;color:#999;padding:40px;grid-column:1/-1;">어드민에서 상품을 등록해주세요.</p>'; return; }
-  grid.innerHTML = data.map(p => productCardHTML(p)).join('');
-}
-
-async function loadBest() {
-  const { data } = await sb.from('products').select('*, product_media(media_url, role, display_order)').eq('is_active', true).contains('tags', ['best']).order('display_order').limit(5);
-  const grid = document.getElementById('bestGrid');
-  if (!data?.length) { document.getElementById('sectionBest').style.display = 'none'; return; }
-  grid.innerHTML = data.map(p => productCardHTML(p)).join('');
-}
-
-async function loadMood() {
+async function loadSettings() {
   const { data } = await sb.from('site_settings').select('*');
-  const settings = {}; (data || []).forEach(r => settings[r.key] = r.value);
-  const moodImg = document.getElementById('moodImg');
-  const moodTitle = document.getElementById('moodTitle');
-  moodImg.src = settings.mood_image_url || 'https://images.unsplash.com/photo-1469334031218-e382a71b716b?w=1920&q=80';
-  if (settings.mood_title) moodTitle.textContent = settings.mood_title;
-  if (settings.bgm_enabled === 'true' && settings.bgm_url) {
+  const s = {}; (data || []).forEach(r => s[r.key] = r.value);
+
+  const swap = (id, key) => { const el = document.getElementById(id); if (el && s[key]) el.src = s[key]; };
+  swap('catBagsImg', 'cat_bags_img');
+  swap('catJewelryImg', 'cat_jewelry_img');
+  swap('catKeyringImg', 'cat_keyring_img');
+  swap('catSeasonalImg', 'cat_seasonal_img');
+  swap('diyVisualImg', 'diy_visual_img');
+
+  const pg = document.getElementById('perfectGiftBg');
+  if (pg && s.perfect_gift_img) pg.style.backgroundImage = `url('${s.perfect_gift_img}')`;
+
+  // 히어로 BGM (기존 기능 유지)
+  if (s.bgm_enabled === 'true' && s.bgm_url) {
     const audio = document.getElementById('heroBgm');
-    audio.querySelector('source').src = settings.bgm_url;
-    audio.volume = parseFloat(settings.bgm_volume) || 0.3;
-    audio.load();
+    if (audio) {
+      audio.querySelector('source').src = s.bgm_url;
+      audio.volume = parseFloat(s.bgm_volume) || 0.3;
+      audio.load();
+    }
   }
 }
 
-async function loadJournal() {
-  const { data } = await sb.from('journal').select('*').eq('is_active', true).order('display_order').limit(3);
-  const grid = document.getElementById('journalGrid');
+// ══════════════════════════════════════════
+// Best Sellers / New Arrivals (태그 기반)
+// 상품에 'best' / 'new' 태그를 달면 자동 노출
+// ══════════════════════════════════════════
+async function loadBest() {
+  const { data } = await sb.from('products')
+    .select('*, product_media(media_url, role, display_order)')
+    .eq('is_active', true).contains('tags', ['best']).order('display_order').limit(8);
+  const grid = document.getElementById('bestGrid');
   if (!data?.length) {
-    grid.innerHTML = `
-      <div class="journal-card"><div class="journal-card__img-wrap"><img class="journal-card__img" src="https://images.unsplash.com/photo-1558171813-4c088753af8f?w=800&q=80" alt="Style Guide"></div><div class="journal-card__category">Style Guide</div><div class="journal-card__title">The Art of Quiet Dressing</div></div>
-      <div class="journal-card"><div class="journal-card__img-wrap"><img class="journal-card__img" src="https://images.unsplash.com/photo-1492707892479-7bc8d5a4ee93?w=800&q=80" alt="Brand Story"></div><div class="journal-card__category">Brand Story</div><div class="journal-card__title">Behind the Collection: SS26</div></div>
-      <div class="journal-card"><div class="journal-card__img-wrap"><img class="journal-card__img" src="https://images.unsplash.com/photo-1483985988355-763728e1935b?w=800&q=80" alt="Trend Report"></div><div class="journal-card__category">Trend Report</div><div class="journal-card__title">2026 Summer: What to Wear</div></div>`;
+    grid.innerHTML = `<p class="empty-state">베스트 상품을 준비 중이에요.<br>(어드민에서 상품에 'best' 태그를 달면 여기에 자동으로 보여요)</p>`;
     return;
   }
-  grid.innerHTML = data.map(j => `<div class="journal-card"><div class="journal-card__img-wrap"><img class="journal-card__img" src="${j.image_url || 'https://images.unsplash.com/photo-1558171813-4c088753af8f?w=800&q=80'}" alt="${j.title}" loading="lazy"></div><div class="journal-card__category">${j.category}</div><div class="journal-card__title">${j.title}</div></div>`).join('');
+  grid.innerHTML = data.map(productCardHTML).join('');
+}
+
+async function loadNew() {
+  const { data } = await sb.from('products')
+    .select('*, product_media(media_url, role, display_order)')
+    .eq('is_active', true).contains('tags', ['new']).order('display_order').limit(8);
+  const grid = document.getElementById('newGrid');
+  if (!data?.length) {
+    grid.innerHTML = `<p class="empty-state">신상품을 준비 중이에요.<br>(어드민에서 상품에 'new' 태그를 달면 여기에 자동으로 보여요)</p>`;
+    return;
+  }
+  grid.innerHTML = data.map(productCardHTML).join('');
 }
 
 // ══════════════════════════════════════════
 // 초기화
 // ══════════════════════════════════════════
 async function init() {
-  await Promise.all([loadHero(), loadCurated(), loadBest(), loadMood(), loadJournal(), loadPopup()]);
+  await Promise.all([loadHero(), loadSettings(), loadBest(), loadNew(), loadPopup()]);
 }
 init();
 </script>
