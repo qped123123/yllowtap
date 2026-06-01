@@ -112,9 +112,9 @@
 
   /* 섹션 헤더 (좌: 제목 / 우: 더보기) */
   .home-head { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 24px; }
-  .home-head__en { font-size: 18px; font-weight: 700; letter-spacing: 0.04em; color: #111; }
-  .home-head__ko { font-size: 13px; color: #777; margin-top: 6px; }
-  .home-more { font-size: 13px; color: #111; white-space: nowrap; }
+  .home-head__en { font-size: 18px; font-weight: 800; line-height: 1; letter-spacing: 0.02em; color: #111; margin: 0; }
+  .home-head__ko { font-size: 13px; line-height: 1.4; font-weight: 400; color: #777; margin-top: 9px; }
+  .home-more { font-size: 13px; line-height: 1; font-weight: 500; color: #111; white-space: nowrap; margin-left: auto; }
   .home-more:hover { opacity: 0.6; }
 
   /* 03 CATEGORY SHORTCUT */
@@ -122,47 +122,47 @@
   .home-cat { display: block; background: #f5f1ea; overflow: hidden; }
   .home-cat__img { width: 100%; height: 190px; object-fit: cover; object-position: center; display: block; transition: transform 0.6s var(--ease); }
   .home-cat:hover .home-cat__img { transform: scale(1.04); }
-  .home-cat__body { padding: 16px 20px 20px; }
-  .home-cat__name { font-family: var(--font-logo); font-size: 24px; font-weight: 400; color: #111; line-height: 1.1; letter-spacing: -0.03em; }
-  .home-cat__go { font-size: 12px; color: #111; margin-top: 14px; font-weight: 400; }
+  .home-cat__body { height: 78px; padding: 18px 20px 20px; background: #f5f1ea; }
+  .home-cat__name { font-family: var(--font-logo); font-size: 24px; font-weight: 400; color: #111; line-height: 1.05; letter-spacing: -0.04em; margin: 0; }
+  .home-cat__go { font-size: 12px; color: #111; margin-top: 12px; font-weight: 400; letter-spacing: -0.02em; }
 
   /* 04 / 06 PRODUCTS (8개 한 줄) */
-  .home-products { display: grid; grid-template-columns: repeat(8, 1fr); gap: 18px; }
-  .home-pcard { position: relative; }
+  .home-products { display: grid; grid-template-columns: repeat(8, minmax(0, 1fr)); gap: 18px; width: 100%; }
+  .home-pcard { position: relative; background: transparent; border: none; box-shadow: none; }
   .home-pcard__imgwrap { position: relative; width: 100%; aspect-ratio: 1/1; background: #f3f0eb; overflow: hidden; }
   .home-pcard__img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.6s var(--ease); }
   .home-pcard:hover .home-pcard__img { transform: scale(1.04); }
   .home-ph { background: #f3f0eb; }
-  .home-pcard__name { margin-top: 10px; font-size: 12px; line-height: 1.4; color: #111; font-weight: 400; }
-  .home-pcard__price { margin-top: 4px; font-size: 12px; color: #111; font-weight: 500; }
-  .home-pcard__price .old { color: #999; text-decoration: line-through; margin-right: 5px; font-weight: 400; }
-  .home-pcard__price .now { color: #111; font-weight: 600; }
+  .home-pcard__name { margin-top: 10px; font-size: 12px; line-height: 1.35; color: #111; font-weight: 400; letter-spacing: -0.01em; }
+  .home-pcard__price { margin-top: 4px; font-size: 12px; line-height: 1.3; color: #111; font-weight: 600; }
+  .home-pcard__price .old { color: #aaa; text-decoration: line-through; margin-right: 5px; font-weight: 400; }
+  .home-pcard__price .now { color: #111; font-weight: 700; }
   .home-wish {
     position: absolute; top: 8px; right: 8px; z-index: 3;
-    width: 28px; height: 28px; border-radius: 50%;
-    background: rgba(255,255,255,0.85); backdrop-filter: blur(4px);
+    width: 26px; height: 26px; border-radius: 50%;
+    background: rgba(255,255,255,0.88);
     display: flex; align-items: center; justify-content: center;
-    border: none; cursor: pointer; transition: background .2s, transform .2s;
+    border: none; cursor: pointer; padding: 0; transition: background .2s, transform .2s;
   }
   .home-wish:hover { background: #fff; transform: scale(1.08); }
-  .home-wish svg { width: 14px; height: 14px; stroke: #888; fill: none; stroke-width: 1.6; transition: all .2s; }
-  .home-wish.active svg { stroke: #E8837C; fill: #E8837C; }
+  .home-wish svg { width: 14px; height: 14px; stroke: #777; fill: none; stroke-width: 1.7; transition: all .2s; }
+  .home-wish.active svg { stroke: #111; fill: #111; }
   .home-newtag {
     position: absolute; top: 0; left: 0; z-index: 3;
-    background: #fff; color: #111; font-size: 10px; font-weight: 700;
-    letter-spacing: 0.04em; padding: 5px 8px;
+    background: #fff; color: #111; font-size: 10px; line-height: 1; font-weight: 700;
+    letter-spacing: 0.04em; padding: 5px 7px;
   }
 
   /* 05 DIY KEYRING STUDIO (전체폭 가로 배너) */
   .home-diy { max-width: 1320px; margin: 64px auto 0; padding: 0 56px; }
-  .home-diy__inner { height: 300px; display: grid; grid-template-columns: 38% 62%; background: #f3f0eb; overflow: hidden; }
-  .home-diy__text { padding: 48px 56px; display: flex; flex-direction: column; justify-content: center; align-items: flex-start; }
-  .home-diy__label { font-size: 11px; font-weight: 700; letter-spacing: 0.12em; margin-bottom: 16px; color: #111; }
-  .home-diy__title { font-size: 32px; line-height: 1.25; font-weight: 400; letter-spacing: -0.03em; color: #111; }
-  .home-diy__desc { font-size: 13px; color: #666; margin-top: 14px; line-height: 1.6; }
-  .home-diy__btn { margin-top: 24px; height: 42px; line-height: 42px; padding: 0 26px; background: #111; color: #fff; font-size: 13px; font-weight: 600; }
-  .home-diy__btn:hover { opacity: 0.85; }
-  .home-diy__img { width: 100%; height: 100%; object-fit: cover; object-position: center center; display: block; }
+  .home-diy__inner { width: 100%; height: 280px; display: grid; grid-template-columns: 38% 62%; background: #f3f0eb; overflow: hidden; }
+  .home-diy__text { padding: 0 48px; display: flex; flex-direction: column; justify-content: center; align-items: flex-start; background: #f3f0eb; }
+  .home-diy__label { font-size: 11px; font-weight: 700; letter-spacing: 0.12em; margin-bottom: 18px; color: #111; }
+  .home-diy__title { font-size: 30px; line-height: 1.25; font-weight: 400; letter-spacing: -0.04em; color: #111; margin: 0; }
+  .home-diy__desc { margin-top: 14px; font-size: 13px; line-height: 1.6; font-weight: 400; color: #666; }
+  .home-diy__btn { margin-top: 22px; width: 150px; height: 42px; display: inline-flex; align-items: center; justify-content: center; background: #111; color: #fff; font-size: 12px; font-weight: 600; letter-spacing: -0.01em; line-height: 1; }
+  .home-diy__btn:hover { background: #333; opacity: 1; }
+  .home-diy__img { width: 100%; height: 280px; object-fit: cover; object-position: center; display: block; }
 
   /* 07 PERFECT GIFT (단일 배너) */
   .home-gift { max-width: 1320px; margin: 64px auto 0; padding: 0 56px; }
@@ -356,14 +356,14 @@
       <div class="home-diy__label">KEYRING STUDIO</div>
       <h2 class="home-diy__title">나만의 키링 만들기</h2>
       <p class="home-diy__desc">취향에 맞게 조합하는 YLLOWTAP 키링 스튜디오</p>
-      <a class="home-diy__btn" href="/category.html?cat=keyring">커스텀 시작하기</a>
+      <a class="home-diy__btn" href="/category.html?cat=keyring">키링 커스텀 시작하기</a>
     </div>
     <img class="home-diy__img" id="diyVisualImg" src="https://images.unsplash.com/photo-1611591437281-460bfbe1220a?w=1200&q=80" alt="DIY Keyring">
   </div>
 </section>
 
 <!-- ═══ 06 NEW ARRIVALS ═══ -->
-<section class="home-section">
+<section class="home-section home-section--new">
   <div class="home-head">
     <div>
       <div class="home-head__en">NEW ARRIVALS</div>
@@ -744,6 +744,6 @@ async function init() {
 }
 init();
 </script>
-<script src="./js/common-header.js?v=4"></script>
+<script src="./js/common-header.js?v=5"></script>
 </body>
 </html>
