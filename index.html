@@ -219,13 +219,14 @@
     .home-products::-webkit-scrollbar { display: none; }
     .home-pcard { scroll-snap-align: start; }
 
-    /* DIY: 모바일은 겹치지 않게 세로 정렬 (SUMMER SALE처럼 깔끔하게) */
-    .home-diy__inner { display: flex; flex-direction: column; height: auto; }
-    .home-diy__img { position: static; inset: auto; width: 100%; height: 160px; order: 2; }
-    .home-diy__text { position: static; width: 100%; padding: 24px 22px; background: #f3f0eb; order: 1; }
-    .home-diy__title { font-size: 24px; }
-    .home-diy__desc { font-size: 12px; }
-    .home-diy__btn { margin-top: 18px; }
+    /* DIY: 모바일도 레이어 유지 (납작하게, 글씨 위 / 이미지 뒤) */
+    .home-diy__inner { display: block; position: relative; height: 190px; }
+    .home-diy__img { position: absolute; inset: 0; width: 100%; height: 100%; order: 0; }
+    .home-diy__text { position: absolute; left: 0; top: 0; bottom: 0; width: 80%; padding: 0 22px; background: linear-gradient(to right, rgba(243,240,235,0.97) 62%, rgba(243,240,235,0) 100%); }
+    .home-diy__label { margin-bottom: 10px; }
+    .home-diy__title { font-size: 23px; }
+    .home-diy__desc { font-size: 12px; margin-top: 8px; }
+    .home-diy__btn { margin-top: 14px; height: 38px; width: 130px; }
 
     /* PERFECT GIFT: 텍스트 상단 겹침 유지(이미지 위), 버튼은 풀폭 하단 */
     .home-gift__inner { height: 200px; aspect-ratio: auto; }
@@ -779,6 +780,6 @@ async function init() {
 }
 init();
 </script>
-<script src="./js/common-header.js?v=8"></script>
+<script src="./js/common-header.js?v=9"></script>
 </body>
 </html>
