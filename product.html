@@ -69,7 +69,7 @@
 .pd-total-label{font-size:12px;font-weight:500;letter-spacing:1px;color:var(--pd-text2)}.pd-total-price{font-size:20px;font-weight:700}
 
 /* BUTTONS */
-.pd-btn-group{display:flex;gap:7px;margin-bottom:14px}
+.pd-btn-group{display:flex;gap:7px;margin-bottom:10px}
 .pd-btn-buy{flex:2;padding:15px;font-size:13px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--pd-text);background:var(--pd-accent);border:none;cursor:pointer;font-family:var(--pd-fb);transition:background .3s}
 .pd-btn-buy:hover{background:var(--pd-accent-dk)}
 .pd-btn-cart{flex:1;padding:15px;font-size:12px;font-weight:500;letter-spacing:1.5px;text-transform:uppercase;color:var(--pd-text);background:none;border:1px solid var(--pd-text);cursor:pointer;font-family:var(--pd-fb);transition:all .3s}
@@ -82,8 +82,8 @@
 .pd-wish-count{font-size:12px;font-weight:500;color:var(--pd-text2)}
 
 /* NOTICES */
-.pd-notices{margin-top:18px;padding:14px;background:var(--pd-white);border:1px solid var(--pd-border-lt)}
-.pd-notice{font-size:12px;color:var(--pd-text2);line-height:1.8;display:flex;align-items:center;gap:7px}
+.pd-notices{margin-top:12px;padding:11px;background:var(--pd-white);border:1px solid var(--pd-border-lt)}
+.pd-notice{font-size:12px;color:var(--pd-text2);line-height:1.6;display:flex;align-items:center;gap:7px}
 .pd-notice-dot{width:4px;height:4px;border-radius:50%;background:var(--pd-accent);flex-shrink:0}
 
 /* EDITORIAL MOOD */
@@ -212,43 +212,43 @@
    ※ 기존 스타일은 그대로 두고 "덧붙이거나" 살짝 덮어쓰는 방식
    ============================================================ */
 
-/* (1) 메인 이미지 축소 + 가운데 정렬 — 모든 상품 공통 */
+/* (1) 메인 이미지 — 크게 (썸네일+메인을 우측 구매영역 쪽으로 정렬) v3 */
 .pd-center{display:flex;flex-direction:column;align-items:center;min-width:0}
-.pd-center .pd-main{width:100%;max-width:440px;margin:0 auto}
+.pd-center .pd-main{width:100%;max-width:560px;margin:0 auto}
 
-/* (EDIT) 가운데 타이틀 — 메인 이미지 위 */
-.pd-edit-head{width:100%;max-width:440px;text-align:center;margin:2px auto 22px}
-.pd-edit-head-over{font-size:10px;font-weight:500;letter-spacing:3px;text-transform:uppercase;color:var(--pd-text3);margin-bottom:10px}
-.pd-edit-head-name{font-family:var(--pd-fd);font-size:30px;font-weight:400;line-height:1.25;margin:0 0 14px}
-.pd-edit-head-divider{width:40px;height:1px;background:var(--pd-text);margin:0 auto 14px;opacity:.7}
-.pd-edit-head-desc{font-size:13px;line-height:1.9;color:var(--pd-text2);word-break:keep-all}
+/* (EDIT) 가운데 타이틀 — 메인 이미지 위 (간격 축소 v3) */
+.pd-edit-head{width:100%;max-width:560px;text-align:center;margin:0 auto 12px}
+.pd-edit-head-over{font-size:10px;font-weight:500;letter-spacing:2px;text-transform:uppercase;color:var(--pd-text3);margin-bottom:6px}
+.pd-edit-head-name{font-family:var(--pd-fd);font-size:30px;font-weight:400;line-height:1.2;margin:0 0 8px}
+.pd-edit-head-divider{width:36px;height:1px;background:var(--pd-text);margin:0 auto 8px;opacity:.7}
+.pd-edit-head-desc{font-size:13px;line-height:1.6;color:var(--pd-text2);word-break:keep-all}
 
 /* (2) 컬러 썸네일 3개 한 줄 (단품) */
 .pd-colors-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;justify-content:initial;flex-wrap:nowrap}
 .pd-color-item img{width:100%;height:auto;aspect-ratio:4/5}
 
-/* (3) 구성 상품 (EDIT) */
-.pd-set{margin-bottom:30px}
-.pd-set-title{font-size:14px;font-weight:600;letter-spacing:.5px;margin-bottom:16px;color:var(--pd-text)}
-.pd-set-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+/* (3) 구성 상품 (EDIT) — 간격 축소 v3 */
+.pd-set{margin-bottom:16px}
+.pd-set-title{font-size:13px;font-weight:600;letter-spacing:0;margin-bottom:9px;color:var(--pd-text)}
+.pd-set-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
 .pd-set-item{text-align:center;text-decoration:none;color:inherit;display:block}
-.pd-set-item-img{width:100%;aspect-ratio:1/1;object-fit:cover;background:#EAE7E2;margin-bottom:8px;display:block}
-.pd-set-item-name{font-size:11px;line-height:1.4;color:var(--pd-text);margin-bottom:2px}
-.pd-set-item-color{font-size:10px;color:var(--pd-text3);margin-bottom:2px}
+.pd-set-item-img{width:100%;aspect-ratio:1/1;object-fit:cover;background:#EAE7E2;margin-bottom:6px;display:block}
+.pd-set-item-name{font-size:11px;line-height:1.3;color:var(--pd-text);margin-bottom:1px}
+.pd-set-item-color{font-size:10px;color:var(--pd-text3);margin-bottom:1px}
 .pd-set-item-price{font-size:11px;font-weight:600;color:var(--pd-text)}
 
-/* (4) 구매 옵션 (EDIT) */
-.pd-buyopt{margin-bottom:24px}
-.pd-buyopt-title{font-size:14px;font-weight:600;letter-spacing:.5px;margin-bottom:14px;color:var(--pd-text)}
-.pd-buyopt-item{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:16px 18px;border:1px solid var(--pd-border);cursor:pointer;margin-bottom:8px;transition:all .25s;background:var(--pd-white)}
+/* (4) 구매 옵션 (EDIT) — 간격/자간 축소 v3 */
+.pd-buyopt{margin-bottom:14px}
+.pd-buyopt-title{font-size:13px;font-weight:600;letter-spacing:0;margin-bottom:8px;color:var(--pd-text)}
+.pd-buyopt-item{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:11px 15px;border:1px solid var(--pd-border);cursor:pointer;margin-bottom:6px;transition:all .25s;background:var(--pd-white)}
 .pd-buyopt-item:hover{border-color:var(--pd-text)}
 .pd-buyopt-item.active{border-color:var(--pd-text);box-shadow:inset 0 0 0 1px var(--pd-text)}
 .pd-buyopt-left{min-width:0}
-.pd-buyopt-name{font-size:13px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:var(--pd-text);display:flex;align-items:center;gap:8px}
+.pd-buyopt-name{font-size:13px;font-weight:600;letter-spacing:.5px;text-transform:uppercase;color:var(--pd-text);display:flex;align-items:center;gap:8px}
 .pd-buyopt-badge{font-size:9px;font-weight:700;letter-spacing:.5px;color:var(--pd-red);background:#FBEBE9;padding:2px 7px;border-radius:2px}
-.pd-buyopt-sub{font-size:11px;color:var(--pd-text2);margin-top:4px}
-.pd-buyopt-right{display:flex;align-items:center;gap:12px;flex-shrink:0}
-.pd-buyopt-price{font-size:14px;font-weight:700;color:var(--pd-text)}
+.pd-buyopt-sub{font-size:11px;color:var(--pd-text2);margin-top:2px}
+.pd-buyopt-right{display:flex;align-items:center;gap:10px;flex-shrink:0}
+.pd-buyopt-price{font-size:14px;font-weight:700;letter-spacing:0;color:var(--pd-text)}
 .pd-buyopt-arrow{font-size:14px;color:var(--pd-text3)}
 
 /* (버튼) EDIT 세로 배치 — 스타일/색은 기존 그대로, 배치만 정리 */
@@ -501,7 +501,7 @@
 </footer>
 
 <!-- 버전 표시 (캐시 확인용) -->
-<div class="pd-ver">product v2</div>
+<div class="pd-ver">product v3</div>
 
 <script src="./js/main.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
@@ -644,18 +644,22 @@ function syncThumbs(){
   if(window.innerWidth<=1024){   // 모바일: 가로 스크롤 → 인라인 스타일 원복
     wrap.style.height=''; thumbs.style.gap='';
     els.forEach(t=>{t.style.height='';t.style.minHeight='';t.style.width='';});
-    if(gallery) gallery.style.gridTemplateColumns='';
+    if(gallery){gallery.style.gridTemplateColumns='';gallery.style.justifyContent='';}
     return;
   }
-  const mainH=main.getBoundingClientRect().height;
-  if(mainH<=0) return;
-  const gap=6, n=10;
-  const thumbH=Math.floor((mainH-gap*(n-1))/n);
-  const thumbW=Math.round(thumbH*0.8);   // 4:5 세로형
-  wrap.style.height=mainH+'px';
+  // v3: 썸네일은 잘 보이게 고정 크기(세로형). 메인은 크게 + 우측(구매영역) 쪽 정렬, 넘치면 썸네일 영역 스크롤
+  const thumbW=84, gap=8;
+  const thumbH=Math.round(thumbW*1.25);   // 4:5 세로형
+  els.forEach(t=>{t.style.width=thumbW+'px';t.style.height=thumbH+'px';t.style.minHeight=thumbH+'px';});
   thumbs.style.gap=gap+'px';
-  els.forEach(t=>{t.style.height=thumbH+'px';t.style.minHeight=thumbH+'px';t.style.width=thumbW+'px';});
-  if(gallery) gallery.style.gridTemplateColumns=(thumbW+10)+'px 1fr';
+  if(gallery){
+    const galleryW=gallery.getBoundingClientRect().width;
+    const colW=Math.max(360,Math.min(560,Math.floor(galleryW-(thumbW+14))));  // 메인 너비
+    gallery.style.gridTemplateColumns=(thumbW+14)+'px '+colW+'px';
+    gallery.style.justifyContent='flex-end';   // 썸네일+메인을 우측 구매영역 쪽으로
+  }
+  const mainH=main.getBoundingClientRect().height;
+  if(mainH>0) wrap.style.height=mainH+'px';
 }
 
 // ══════════════════════════════════════════
