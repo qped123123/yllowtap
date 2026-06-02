@@ -257,7 +257,7 @@
 .pd-btn-group.is-edit .pd-btn-cart{flex:1}
 
 /* (5) Why this edit (EDIT) */
-.pd-why{max-width:1400px;margin:0 auto;padding:50px 40px 80px}
+.pd-why{max-width:1560px;margin:0 auto;padding:50px 40px 80px}
 .pd-why-head{text-align:center;margin-bottom:40px}
 .pd-why-over{font-size:10px;font-weight:500;letter-spacing:4px;text-transform:uppercase;color:var(--pd-text3);margin-bottom:8px}
 .pd-why-title{font-family:var(--pd-fd);font-size:30px;font-weight:400;font-style:italic;letter-spacing:1px}
@@ -484,7 +484,7 @@
 
 <!-- RECOMMEND -->
 <section class="pd-recommend" id="recSec" style="display:none">
-  <div class="pd-rec-head"><div class="pd-rec-over">YOU MAY ALSO LIKE</div><h2 class="pd-rec-title">Recommend Items</h2><p class="pd-rec-sub">이 상품과 함께 구매하는 아이템</p></div>
+  <div class="pd-rec-head"><div class="pd-rec-over">YOU MAY ALSO LIKE</div><h2 class="pd-rec-title">Recommend Items</h2><p class="pd-rec-sub">또 다른 추천 아이템</p></div>
   <div class="pd-rec-grid" id="recGrid"></div>
 </section>
 
@@ -512,7 +512,7 @@
 </footer>
 
 <!-- 버전 표시 (캐시 확인용) -->
-<div class="pd-ver">product v8</div>
+<div class="pd-ver">product v9</div>
 
 <script src="./js/main.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
@@ -650,6 +650,11 @@ function applyMainText(){
   if(!t){ el.style.display='none'; return; }
   el.textContent=t;
   el.className='pd-main-text '+((product.main_image_text_color||'light')==='dark'?'dark':'light');
+  // v9: 폰트 / 크기 적용
+  const font=(product.main_image_text_font||'serif');
+  el.style.fontFamily = font==='sans' ? "'Noto Sans KR',sans-serif" : "'Bodoni Moda',serif";
+  const szMap={small:'18px',medium:'28px',large:'42px'};
+  el.style.fontSize = szMap[product.main_image_text_size||'medium'] || '28px';
   el.style.display='';
 }
 
