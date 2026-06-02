@@ -205,37 +205,44 @@
 
     /* 베스트/신상: 가로 스와이프 (한 화면에 2개 + 살짝 다음것) */
     .home-products {
-      display: grid;
-      grid-auto-flow: column;
-      grid-auto-columns: 42%;
-      grid-template-columns: none;
+      display: grid !important;
+      grid-auto-flow: column !important;
+      grid-auto-columns: 44% !important;
+      grid-template-columns: none !important;
       gap: 12px;
       overflow-x: auto;
       scroll-snap-type: x mandatory;
       -webkit-overflow-scrolling: touch;
-      padding-bottom: 6px;
+      padding-bottom: 8px;
       scrollbar-width: none;
     }
     .home-products::-webkit-scrollbar { display: none; }
     .home-pcard { scroll-snap-align: start; }
 
-    /* DIY: 텍스트 레이어 유지, 높이만 축소 + 막을 더 넓게 */
-    .home-diy__inner { height: 200px; }
-    .home-diy__text { width: 72%; padding: 0 22px; background: linear-gradient(to right, rgba(243,240,235,0.96) 60%, rgba(243,240,235,0) 100%); }
+    /* DIY: 모바일은 겹치지 않게 세로 정렬 (SUMMER SALE처럼 깔끔하게) */
+    .home-diy__inner { display: flex; flex-direction: column; height: auto; }
+    .home-diy__img { position: static; inset: auto; width: 100%; height: 160px; order: 2; }
+    .home-diy__text { position: static; width: 100%; padding: 24px 22px; background: #f3f0eb; order: 1; }
     .home-diy__title { font-size: 24px; }
     .home-diy__desc { font-size: 12px; }
+    .home-diy__btn { margin-top: 18px; }
 
-    /* PERFECT GIFT 텍스트 상단 + 버튼 하단, 박스는 세일과 동일 크기 */
-    .home-gift__inner { height: 220px; aspect-ratio: auto; }
+    /* PERFECT GIFT: 텍스트 상단 겹침 유지(이미지 위), 버튼은 풀폭 하단 */
+    .home-gift__inner { height: 200px; aspect-ratio: auto; }
     .home-gift__txt { left: 20px; top: 22px; }
     .home-gift__en { font-size: 26px; }
-    .home-gift__btn { right: 20px; bottom: 22px; height: 46px; min-width: 150px; padding: 0 20px; }
+    .home-gift__btn { left: 20px; right: 20px; bottom: 20px; min-width: 0; width: auto; height: 48px; padding: 0; }
 
     /* SUMMER SALE: 세로 정렬, 버튼 풀폭 */
     .home-sale__inner { height: auto; flex-direction: column; align-items: flex-start; gap: 14px; padding: 22px 20px; }
-    .home-sale__btn { align-self: stretch; text-align: center; height: 46px; min-width: 0; }
+    .home-sale__btn { align-self: stretch; text-align: center; height: 48px; min-width: 0; }
   }
 
+
+  /* 이미지 fade-in (옛 이미지 깜빡임 방지) */
+  .home-cat__img.is-loading, .home-diy__img.is-loading, .home-gift__img.is-loading { opacity: 0; }
+  .home-cat__img, .home-diy__img, .home-gift__img { transition: opacity 0.4s ease; }
+  .home-cat__img.is-ready, .home-diy__img.is-ready, .home-gift__img.is-ready { opacity: 1; }
   </style>
 </head>
 <body>
@@ -343,19 +350,19 @@
 <section class="home-section home-section--first">
   <div class="home-cats">
     <a class="home-cat" href="/category.html?cat=bags">
-      <img class="home-cat__img" id="catBagsImg" src="https://images.unsplash.com/photo-1584917865442-de89df76afd3?w=800&q=80" alt="Bags">
+      <img class="home-cat__img is-loading" id="catBagsImg" alt="Bags">
       <div class="home-cat__body"><div class="home-cat__name">Bags</div><div class="home-cat__go">바로가기 ›</div></div>
     </a>
     <a class="home-cat" href="/category.html?cat=jewelry">
-      <img class="home-cat__img" id="catJewelryImg" src="https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?w=800&q=80" alt="Jewelry">
+      <img class="home-cat__img is-loading" id="catJewelryImg" alt="Jewelry">
       <div class="home-cat__body"><div class="home-cat__name">Jewelry</div><div class="home-cat__go">바로가기 ›</div></div>
     </a>
     <a class="home-cat" href="/category.html?cat=keyring">
-      <img class="home-cat__img" id="catKeyringImg" src="https://images.unsplash.com/photo-1606760227091-3dd870d97f1d?w=800&q=80" alt="Keyring">
+      <img class="home-cat__img is-loading" id="catKeyringImg" alt="Keyring">
       <div class="home-cat__body"><div class="home-cat__name">Keyring</div><div class="home-cat__go">바로가기 ›</div></div>
     </a>
     <a class="home-cat" href="/category.html?cat=seasonal">
-      <img class="home-cat__img" id="catSeasonalImg" src="https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=800&q=80" alt="Seasonal">
+      <img class="home-cat__img is-loading" id="catSeasonalImg" alt="Seasonal">
       <div class="home-cat__body"><div class="home-cat__name">Seasonal</div><div class="home-cat__go">바로가기 ›</div></div>
     </a>
   </div>
@@ -376,7 +383,7 @@
 <!-- ═══ 05 DIY KEYRING STUDIO ═══ -->
 <section class="home-diy">
   <div class="home-diy__inner">
-    <img class="home-diy__img" id="diyVisualImg" src="https://images.unsplash.com/photo-1611591437281-460bfbe1220a?w=1200&q=80" alt="DIY Keyring">
+    <img class="home-diy__img is-loading" id="diyVisualImg" alt="DIY Keyring">
     <div class="home-diy__text">
       <div class="home-diy__label">KEYRING STUDIO</div>
       <h2 class="home-diy__title">나만의 키링 만들기</h2>
@@ -401,7 +408,7 @@
 <!-- ═══ 07 PERFECT GIFT (단일 배너) ═══ -->
 <section class="home-gift">
   <div class="home-gift__inner">
-    <img class="home-gift__img" id="perfectGiftImg" src="https://images.unsplash.com/photo-1549465220-1a8b9238cd48?w=1600&q=80" alt="Perfect Gift">
+    <img class="home-gift__img is-loading" id="perfectGiftImg" alt="Perfect Gift">
     <div class="home-gift__overlay"></div>
     <div class="home-gift__txt">
       <div class="home-gift__en">PERFECT GIFT</div>
@@ -718,15 +725,20 @@ async function loadSettings() {
   const { data } = await sb.from('site_settings').select('*');
   const s = {}; (data || []).forEach(r => s[r.key] = r.value);
 
-  const swap = (id, key) => { const el = document.getElementById(id); if (el && s[key]) el.src = s[key]; };
+  // 이미지 로드 완료 후 부드럽게 나타나게 (옛 이미지 깜빡임 제거)
+  const swap = (id, key) => {
+    const el = document.getElementById(id);
+    if (!el || !s[key]) return;
+    el.onload = () => { el.classList.remove('is-loading'); el.classList.add('is-ready'); };
+    el.src = s[key];
+    if (el.complete && el.naturalWidth) { el.classList.remove('is-loading'); el.classList.add('is-ready'); }
+  };
   swap('catBagsImg', 'cat_bags_img');
   swap('catJewelryImg', 'cat_jewelry_img');
   swap('catKeyringImg', 'cat_keyring_img');
   swap('catSeasonalImg', 'cat_seasonal_img');
   swap('diyVisualImg', 'diy_visual_img');
-
-  const pg = document.getElementById('perfectGiftImg');
-  if (pg && s.perfect_gift_img) pg.src = s.perfect_gift_img;
+  swap('perfectGiftImg', 'perfect_gift_img');
 
   // 히어로 BGM (기존 기능 유지)
   if (s.bgm_enabled === 'true' && s.bgm_url) {
@@ -767,6 +779,6 @@ async function init() {
 }
 init();
 </script>
-<script src="./js/common-header.js?v=6"></script>
+<script src="./js/common-header.js?v=8"></script>
 </body>
 </html>
