@@ -58,13 +58,13 @@
 .cat-layout {
   max-width: 1400px;
   margin: 0 auto;
-  padding: 0 40px 80px;
+  padding: 30px 40px 80px;
   display: flex;
-  gap: 40px;
+  gap: 48px;
   align-items: flex-start;
 }
 .cat-sidebar {
-  width: 170px;
+  width: 180px;
   flex-shrink: 0;
   position: sticky;
   top: 100px;
@@ -97,7 +97,25 @@
 }
 .cat-tab:hover { color: var(--cat-text); }
 .cat-tab.active { color: var(--cat-text); font-weight: 700; }
+/* 하위메뉴 */
+.cat-submenu { display: flex; flex-direction: column; padding: 2px 0 6px 14px; border-left: 1px solid var(--cat-border); margin: 2px 0 4px 4px; }
+.cat-subtab {
+  padding: 6px 4px;
+  font-size: 12px;
+  font-weight: 400;
+  color: var(--cat-text3);
+  text-decoration: none;
+  cursor: pointer;
+  transition: color 0.2s;
+  font-family: var(--cat-font-body);
+}
+.cat-subtab:hover { color: var(--cat-text); }
+.cat-subtab.active { color: var(--cat-text); font-weight: 600; }
 .cat-main { flex: 1; min-width: 0; }
+.cat-head { margin-bottom: 24px; }
+.cat-head h1 { font-family: var(--cat-font-display); font-size: 30px; font-weight: 400; letter-spacing: 3px; text-transform: uppercase; margin-bottom: 6px; }
+.cat-head p { font-size: 13px; color: var(--cat-text2); letter-spacing: 0.5px; }
+.cat-head .category-count { margin-top: 6px; font-size: 11px; color: var(--cat-text3); letter-spacing: 1.5px; }
 
 /* FILTER BAR */
 .filter-bar {
@@ -143,8 +161,8 @@
 .cat-product-grid {
   padding: 0 0 40px;
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 24px 20px;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 22px 18px;
 }
 
 .cat-product-card {
@@ -167,7 +185,7 @@
 .cat-card-img {
   position: relative;
   width: 100%;
-  aspect-ratio: 3/4;
+  aspect-ratio: 1/1;
   overflow: hidden;
   background: #EAE7E2;
   margin-bottom: 12px;
@@ -248,14 +266,17 @@
 /* RESPONSIVE */
 @media (max-width:1024px) { .cat-product-grid { grid-template-columns: repeat(3,1fr); } }
 @media (max-width:768px) {
-  .cat-layout { flex-direction: column; padding: 0 20px 60px; gap: 16px; }
+  .cat-layout { flex-direction: column; padding: 20px 20px 60px; gap: 16px; }
   .cat-sidebar { width: 100%; position: static; }
-  .cat-sidebar-nav { flex-direction: row; flex-wrap: wrap; gap: 6px; }
+  .cat-sidebar-nav { flex-direction: row; flex-wrap: wrap; gap: 6px; align-items: flex-start; }
   .cat-tab { padding: 7px 14px; border: 1px solid var(--cat-border); font-size: 12px; }
   .cat-tab.active { background: var(--cat-text); color: var(--cat-bg); border-color: var(--cat-text); }
+  /* 모바일 하위메뉴: 전체 폭 차지하고 가로로 나열 */
+  .cat-submenu { flex-basis: 100%; flex-direction: row; flex-wrap: wrap; border-left: none; border-top: 1px solid var(--cat-border); margin: 4px 0 0; padding: 8px 0 0; gap: 6px; }
+  .cat-subtab { padding: 6px 12px; border: 1px solid var(--cat-border); font-size: 12px; }
+  .cat-subtab.active { background: var(--cat-text); color: var(--cat-bg); border-color: var(--cat-text); }
   .cat-product-grid { grid-template-columns: repeat(2,1fr); gap: 14px 10px; }
-  .category-hero { padding: 32px 20px 20px; }
-  .category-hero h1 { font-size: 26px; letter-spacing: 3px; }
+  .cat-head h1 { font-size: 24px; letter-spacing: 2px; }
   .filter-bar { flex-direction: column; gap: 10px; align-items: flex-start; }
 }
 </style>
@@ -301,12 +322,6 @@
 </div>
 
 <!-- ===== CATEGORY HERO ===== -->
-<section class="category-hero">
-  <h1 id="categoryTitle">ALL</h1>
-  <p id="categoryDesc">Curated selection of quiet luxury essentials</p>
-  <div class="category-count" id="categoryCount"></div>
-</section>
-
 <!-- ===== 레이아웃: 왼쪽 사이드바 + 오른쪽 상품 ===== -->
 <div class="cat-layout">
 
@@ -320,6 +335,12 @@
 
   <!-- 오른쪽 상품 영역 -->
   <div class="cat-main">
+    <!-- 제목 영역 (왼쪽 정렬) -->
+    <div class="cat-head">
+      <h1 id="categoryTitle">ALL</h1>
+      <p id="categoryDesc">Curated selection of quiet luxury essentials</p>
+      <div class="category-count" id="categoryCount"></div>
+    </div>
     <!-- FILTER BAR -->
     <div class="filter-bar">
       <div class="filter-left">
@@ -406,6 +427,7 @@ const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFz
 const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON);
 
 let currentCategory = 'all';
+let currentSub = '';          // 현재 선택된 하위메뉴 (태그 또는 카테고리 slug)
 let currentFilter = 'all';
 let currentSort = 'newest';
 let allProducts = [];
@@ -414,26 +436,72 @@ const PAGE_SIZE = 20;
 let currentPage = 1;
 let searchQuery = '';
 
+// ─── 카테고리별 하위메뉴 정의 ───
+// type 'tag'  : 상품 tags 로 필터 (예: 토트백 → tote)
+// type 'cat'  : 상품 category 로 필터 (New In / Sale 안에서 백/쥬얼리/키링)
+const SUBMENUS = {
+  bags:    [ {label:'토트백', type:'tag', value:'tote'}, {label:'숄더백', type:'tag', value:'shoulder'}, {label:'미니백', type:'tag', value:'mini'} ],
+  jewelry: [ {label:'반지', type:'tag', value:'ring'}, {label:'목걸이', type:'tag', value:'necklace'}, {label:'귀걸이', type:'tag', value:'earring'}, {label:'팔찌', type:'tag', value:'bracelet'} ],
+  keyring: [ {label:'커스텀 키링', type:'tag', value:'custom'}, {label:'완제품 키링', type:'tag', value:'ready'} ],
+  new:     [ {label:'Bags', type:'cat', value:'bags'}, {label:'Jewelry', type:'cat', value:'jewelry'}, {label:'Keyring', type:'cat', value:'keyring'} ],
+  sale:    [ {label:'Bags', type:'cat', value:'bags'}, {label:'Jewelry', type:'cat', value:'jewelry'}, {label:'Keyring', type:'cat', value:'keyring'} ],
+};
+// ALL/MADE/SALE 필터 버튼을 보여줄 카테고리 (백/쥬얼리/키링/시즌)
+const SHOW_FILTER_CATS = ['bags','jewelry','keyring','seasonal'];
+
 function getCategoryFromURL() {
   const params = new URLSearchParams(window.location.search);
   searchQuery = params.get('search') || '';
+  currentSub = params.get('sub') || '';
   return params.get('cat') || 'all';
 }
 
 async function loadCategories() {
   const { data } = await sb.from('categories').select('*').eq('is_active', true).order('display_order');
   categories = data || [];
+  renderSidebar();
+}
+
+function renderSidebar() {
   const nav = document.getElementById('categoryNav');
-  nav.innerHTML = categories.map(cat =>
-    `<a class="cat-tab${cat.slug === currentCategory ? ' active' : ''}" href="/category.html?cat=${cat.slug}" data-slug="${cat.slug}">${cat.name}</a>`
-  ).join('');
+  let html = '';
+  categories.forEach(cat => {
+    const isActive = cat.slug === currentCategory;
+    html += `<a class="cat-tab${isActive ? ' active' : ''}" href="/category.html?cat=${cat.slug}" data-slug="${cat.slug}">${cat.name}</a>`;
+    // 현재 선택된 카테고리이고 하위메뉴가 있으면 그 아래 하위메뉴 표시
+    if (isActive && SUBMENUS[cat.slug]) {
+      html += '<div class="cat-submenu">';
+      SUBMENUS[cat.slug].forEach(sub => {
+        const subActive = currentSub === (sub.type + ':' + sub.value);
+        html += `<a class="cat-subtab${subActive ? ' active' : ''}" href="#" data-subkey="${sub.type}:${sub.value}">${sub.label}</a>`;
+      });
+      html += '</div>';
+    }
+  });
+  nav.innerHTML = html;
+
+  // 큰 카테고리 클릭
   nav.querySelectorAll('.cat-tab').forEach(tab => {
     tab.addEventListener('click', (e) => {
       e.preventDefault();
       currentCategory = tab.dataset.slug;
+      currentSub = '';
       currentPage = 1;
       history.pushState(null, '', `/category.html?cat=${currentCategory}`);
+      renderSidebar();
       updateCategoryUI();
+      renderProducts();
+    });
+  });
+  // 하위메뉴 클릭
+  nav.querySelectorAll('.cat-subtab').forEach(tab => {
+    tab.addEventListener('click', (e) => {
+      e.preventDefault();
+      const key = tab.dataset.subkey;
+      currentSub = (currentSub === key) ? '' : key;  // 다시 누르면 해제
+      currentPage = 1;
+      history.pushState(null, '', `/category.html?cat=${currentCategory}${currentSub ? '&sub=' + currentSub : ''}`);
+      renderSidebar();
       renderProducts();
     });
   });
@@ -449,6 +517,9 @@ function updateCategoryUI() {
     document.getElementById('categoryTitle').textContent = cat ? cat.name : 'ALL';
     document.getElementById('categoryDesc').textContent = cat?.description || 'Curated selection of quiet luxury essentials';
   }
+  // ALL/MADE/SALE 필터바는 백/쥬얼리/키링/시즌에서만 표시
+  const filterBar = document.querySelector('.filter-left');
+  if (filterBar) filterBar.style.display = SHOW_FILTER_CATS.includes(currentCategory) ? 'flex' : 'none';
 }
 
 async function loadProducts() {
@@ -477,6 +548,18 @@ function renderProducts() {
     else if (currentCategory === 'sale') filtered = filtered.filter(p => p.original_price && p.original_price > p.price);
     else filtered = filtered.filter(p => p.category?.toLowerCase() === currentCategory);
   }
+
+  // 하위메뉴 필터 (currentSub = "tag:tote" 또는 "cat:bags")
+  if (currentSub) {
+    const [subType, subVal] = currentSub.split(':');
+    if (subType === 'tag') {
+      filtered = filtered.filter(p => p.tags?.includes(subVal));
+    } else if (subType === 'cat') {
+      // New In / Sale 안에서 카테고리로 한 번 더 좁히기 (이미 위에서 new/sale 조건 적용됨)
+      filtered = filtered.filter(p => p.category?.toLowerCase() === subVal);
+    }
+  }
+
   if (currentFilter === 'made') filtered = filtered.filter(p => p.tags?.includes('made'));
   else if (currentFilter === 'sale') filtered = filtered.filter(p => p.original_price && p.original_price > p.price);
 
