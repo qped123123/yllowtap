@@ -218,6 +218,7 @@
     }
     .home-products::-webkit-scrollbar { display: none; }
     .home-pcard { scroll-snap-align: start; }
+    .home-nav-arrows { display: flex; }  /* 모바일에서 화살표 표시 */
 
     /* DIY: 모바일도 레이어 유지 (납작하게, 글씨 위 / 이미지 뒤) */
     .home-diy__inner { display: block; position: relative; height: 190px; }
@@ -226,7 +227,7 @@
     .home-diy__label { margin-bottom: 10px; }
     .home-diy__title { font-size: 23px; }
     .home-diy__desc { font-size: 12px; margin-top: 8px; }
-    .home-diy__btn { margin-top: 14px; height: 38px; width: 130px; }
+    .home-diy__btn { margin-top: 14px; height: 44px; width: auto; padding: 0 22px; }
 
     /* PERFECT GIFT: 텍스트 상단 겹침 유지(이미지 위), 버튼은 풀폭 하단 */
     .home-gift__inner { height: 200px; aspect-ratio: auto; }
@@ -244,6 +245,12 @@
   .home-cat__img.is-loading, .home-diy__img.is-loading, .home-gift__img.is-loading { opacity: 0; }
   .home-cat__img, .home-diy__img, .home-gift__img { transition: opacity 0.4s ease; }
   .home-cat__img.is-ready, .home-diy__img.is-ready, .home-gift__img.is-ready { opacity: 1; }
+
+  /* 상품 스와이프 화살표 */
+  .home-head__right { display: flex; align-items: center; gap: 14px; margin-left: auto; }
+  .home-nav-arrows { display: none; gap: 6px; }
+  .home-arrow { width: 30px; height: 30px; border: 1px solid #ddd; background: #fff; color: #111; font-size: 16px; line-height: 1; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all .2s; padding: 0; }
+  .home-arrow:hover { background: #111; color: #fff; border-color: #111; }
   </style>
 </head>
 <body>
@@ -376,7 +383,13 @@
       <div class="home-head__en">BEST SELLERS</div>
       <div class="home-head__ko">지금 가장 사랑받는 아이템</div>
     </div>
-    <a class="home-more" href="/category.html?cat=best">더보기 ›</a>
+    <div class="home-head__right">
+      <div class="home-nav-arrows">
+        <button class="home-arrow" type="button" onclick="scrollProducts('bestGrid',-1)" aria-label="이전">‹</button>
+        <button class="home-arrow" type="button" onclick="scrollProducts('bestGrid',1)" aria-label="다음">›</button>
+      </div>
+      <a class="home-more" href="/category.html?cat=best">더보기 ›</a>
+    </div>
   </div>
   <div class="home-products" id="bestGrid"></div>
 </section>
@@ -401,7 +414,13 @@
       <div class="home-head__en">NEW ARRIVALS</div>
       <div class="home-head__ko">새롭게 입고된 아이템</div>
     </div>
-    <a class="home-more" href="/category.html?cat=new">더보기 ›</a>
+    <div class="home-head__right">
+      <div class="home-nav-arrows">
+        <button class="home-arrow" type="button" onclick="scrollProducts('newGrid',-1)" aria-label="이전">‹</button>
+        <button class="home-arrow" type="button" onclick="scrollProducts('newGrid',1)" aria-label="다음">›</button>
+      </div>
+      <a class="home-more" href="/category.html?cat=new">더보기 ›</a>
+    </div>
   </div>
   <div class="home-products" id="newGrid"></div>
 </section>
@@ -756,6 +775,15 @@ async function loadSettings() {
 // Best Sellers / New Arrivals (태그 기반)
 // 상품에 'best' / 'new' 태그를 달면 자동 노출
 // ══════════════════════════════════════════
+// 상품 가로 스크롤 (화살표)
+function scrollProducts(gridId, dir) {
+  const grid = document.getElementById(gridId);
+  if (!grid) return;
+  const card = grid.querySelector('.home-pcard');
+  const step = card ? (card.getBoundingClientRect().width + 12) * 2 : 300;
+  grid.scrollBy({ left: dir * step, behavior: 'smooth' });
+}
+
 async function loadBest() {
   const { data } = await sb.from('products')
     .select('*, product_media(media_url, role, display_order)')
@@ -780,6 +808,6 @@ async function init() {
 }
 init();
 </script>
-<script src="./js/common-header.js?v=9"></script>
+<script src="./js/common-header.js?v=10"></script>
 </body>
 </html>
