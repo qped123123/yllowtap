@@ -102,7 +102,6 @@
 .cat-tab:hover { color: var(--cat-text); }
 .cat-tab.active { color: var(--cat-text); font-weight: 700; }
 /* 하위메뉴 */
-.cat-submenu { display: flex; flex-direction: column; padding: 2px 0 8px 0; margin: 0; }
 .cat-subtab {
   padding: 7px 4px;
   font-size: 12px;
@@ -500,24 +499,30 @@ async function loadCategories() {
 function renderSidebar() {
   const nav = document.getElementById('categoryNav');
   let html = '<div class="cat-maintabs">';
-  let subItems = '';
+  let subItemsPC = '';      // PC용: 그냥 '전체'
+  let subItemsMo = '';      // 모바일용: '[카테고리] 전체'
+  let activeName = '';
   categories.filter(cat => !HIDDEN_CATS.includes(cat.slug)).forEach(cat => {
     const isActive = cat.slug === currentCategory;
     html += `<a class="cat-tab${isActive ? ' active' : ''}" href="/category.html?cat=${cat.slug}" data-slug="${cat.slug}">${cat.name}</a>`;
-    // 선택된 카테고리의 하위메뉴 (전체 + 항목)
     if (isActive && SUBMENUS[cat.slug]) {
-      subItems += `<a class="cat-subtab${!currentSub ? ' active' : ''}" href="#" data-subkey="">전체</a>`;
+      activeName = cat.name;
+      // 항목들 (공통)
+      let items = '';
       SUBMENUS[cat.slug].forEach(sub => {
         const key = sub.type + ':' + sub.value;
-        subItems += `<a class="cat-subtab${currentSub === key ? ' active' : ''}" href="#" data-subkey="${key}">${sub.label}</a>`;
+        items += `<a class="cat-subtab${currentSub === key ? ' active' : ''}" href="#" data-subkey="${key}">${sub.label}</a>`;
       });
+      // PC: 전체 / 모바일: [카테고리] 전체
+      subItemsPC = `<a class="cat-subtab${!currentSub ? ' active' : ''}" href="#" data-subkey="">전체</a>` + items;
+      subItemsMo = `<a class="cat-subtab${!currentSub ? ' active' : ''}" href="#" data-subkey="">${cat.name} 전체</a>` + items;
       // PC용: 선택 카테고리 바로 아래 인라인 삽입
-      html += '<div class="cat-submenu cat-submenu--pc">' + subItems + '</div>';
+      html += '<div class="cat-submenu cat-submenu--pc">' + subItemsPC + '</div>';
     }
   });
   html += '</div>';
-  // 모바일용: 큰 카테고리 줄 다음(맨 아래) 가로줄
-  if (subItems) html += '<div class="cat-submenu cat-submenu--mobile">' + subItems + '</div>';
+  // 모바일용: 맨 아래 가로줄
+  if (subItemsMo) html += '<div class="cat-submenu cat-submenu--mobile">' + subItemsMo + '</div>';
   nav.innerHTML = html;
 
   // 큰 카테고리 클릭
@@ -721,6 +726,6 @@ async function toggleCatWish(productId,btn){
 init();
 </script>
 <script src="./js/common-header.js"></script>
-<div style="position:fixed;bottom:6px;right:8px;font-size:9px;color:rgba(0,0,0,0.25);z-index:9999;pointer-events:none;font-family:monospace;">cat-v6</div>
+<div style="position:fixed;bottom:6px;right:8px;font-size:9px;color:rgba(0,0,0,0.25);z-index:9999;pointer-events:none;font-family:monospace;">cat-v7</div>
 </body>
 </html>
