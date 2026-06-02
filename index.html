@@ -593,6 +593,51 @@ async function loadHero() {
 
   if (typeof initHeroSlider === 'function') initHeroSlider();
   else initSimpleSlider(slides.length);
+
+  // 히어로 슬라이드별 음원 셋업
+  window.__heroSlides = slides;
+  setupHeroAudio();
+}
+
+// 히어로 슬라이드 음원 재생/음소거 (슬라이드의 bgm_url 사용)
+function setupHeroAudio(){
+  const btn=document.getElementById('audioToggleBtn');
+  const audio=document.getElementById('heroBgm');
+  if(!btn||!audio) return;
+  function activeIndex(){
+    let idx=0;
+    document.querySelectorAll('.hero__slide').forEach((el,i)=>{ if(el.classList.contains('active')) idx=i; });
+    return idx;
+  }
+  function bgmUrlAt(i){ return (window.__heroSlides||[])[i]?.bgm_url || ''; }
+  function setSrc(url){
+    if(!url) return false;
+    const src=audio.querySelector('source');
+    if(audio.dataset.cur!==url){ src.src=url; audio.dataset.cur=url; audio.load(); }
+    return true;
+  }
+  // 슬라이드 전환 시 재생 중이면 그 슬라이드 음원으로 교체
+  window.__heroSyncBgm=function(){
+    if(!window.__heroAudioOn) return;
+    if(setSrc(bgmUrlAt(activeIndex()))) audio.play().catch(()=>{});
+  };
+  if(btn.__bound) return; btn.__bound=true;
+  window.__heroAudioOn=false;
+  btn.addEventListener('click',()=>{
+    if(!window.__heroAudioOn){
+      const ok=setSrc(bgmUrlAt(activeIndex()));
+      audio.volume=0.4;
+      if(ok){ audio.play().catch(()=>{}); }
+      window.__heroAudioOn=true;
+      document.getElementById('audioOffIcon').style.display='none';
+      document.getElementById('audioOnIcon').style.display='';
+    } else {
+      audio.pause();
+      window.__heroAudioOn=false;
+      document.getElementById('audioOnIcon').style.display='none';
+      document.getElementById('audioOffIcon').style.display='';
+    }
+  });
 }
 
 function initSimpleSlider(count) {
@@ -606,6 +651,7 @@ function initSimpleSlider(count) {
     current = (current + 1) % count;
     slides[current].classList.add('active');
     dots[current].classList.add('active');
+    if (window.__heroSyncBgm) window.__heroSyncBgm();
   }, 5000);
   dots.forEach((dot, i) => {
     dot.addEventListener('click', () => {
@@ -614,6 +660,7 @@ function initSimpleSlider(count) {
       current = i;
       slides[current].classList.add('active');
       dots[current].classList.add('active');
+      if (window.__heroSyncBgm) window.__heroSyncBgm();
     });
   });
 }
