@@ -218,7 +218,6 @@
     }
     .home-products::-webkit-scrollbar { display: none; }
     .home-pcard { scroll-snap-align: start; }
-    .home-nav-arrows { display: flex; }  /* 모바일에서 화살표 표시 */
 
     /* DIY: 모바일도 레이어 유지 (납작하게, 글씨 위 / 이미지 뒤) */
     .home-diy__inner { display: block; position: relative; height: 190px; }
@@ -227,7 +226,7 @@
     .home-diy__label { margin-bottom: 10px; }
     .home-diy__title { font-size: 23px; }
     .home-diy__desc { font-size: 12px; margin-top: 8px; }
-    .home-diy__btn { margin-top: 14px; height: 44px; width: auto; padding: 0 22px; }
+    .home-diy__btn { margin-top: 14px; height: 44px; width: auto; min-width: 150px; padding: 0 24px; font-size: 13px; }
 
     /* PERFECT GIFT: 텍스트 상단 겹침 유지(이미지 위), 버튼은 풀폭 하단 */
     .home-gift__inner { height: 200px; aspect-ratio: auto; }
@@ -248,7 +247,7 @@
 
   /* 상품 스와이프 화살표 */
   .home-head__right { display: flex; align-items: center; gap: 14px; margin-left: auto; }
-  .home-nav-arrows { display: none; gap: 6px; }
+  .home-nav-arrows { display: flex; gap: 6px; }
   .home-arrow { width: 30px; height: 30px; border: 1px solid #ddd; background: #fff; color: #111; font-size: 16px; line-height: 1; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all .2s; padding: 0; }
   .home-arrow:hover { background: #111; color: #fff; border-color: #111; }
   </style>
@@ -809,5 +808,6 @@ async function init() {
 init();
 </script>
 <script src="./js/common-header.js?v=10"></script>
+<div style="position:fixed;bottom:6px;right:8px;font-size:9px;color:rgba(0,0,0,0.25);z-index:9999;pointer-events:none;font-family:monospace;">v10</div>
 </body>
 </html>
