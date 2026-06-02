@@ -158,10 +158,10 @@
   .home-diy { max-width: 1320px; margin: 64px auto 0; padding: 0 56px; }
   .home-diy__inner { position: relative; width: 100%; height: 280px; overflow: hidden; background: #f3f0eb; }
   .home-diy__img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: center; display: block; z-index: 1; }
-  .home-diy__text { position: absolute; left: 0; top: 0; bottom: 0; z-index: 2; width: 56%; padding: 0 48px; display: flex; flex-direction: column; justify-content: center; align-items: flex-start; background: linear-gradient(to right, rgba(243,240,235,0.95) 55%, rgba(243,240,235,0) 100%); }
+  .home-diy__text { position: absolute; left: 0; top: 0; bottom: 0; z-index: 2; width: 64%; padding: 0 48px; display: flex; flex-direction: column; justify-content: center; align-items: flex-start; background: linear-gradient(to right, rgba(243,240,235,0.95) 65%, rgba(243,240,235,0) 100%); }
   .home-diy__label { font-size: 11px; font-weight: 700; letter-spacing: 0.12em; margin-bottom: 18px; color: #111; }
   .home-diy__title { font-size: 30px; line-height: 1.25; font-weight: 400; letter-spacing: -0.04em; color: #111; margin: 0; }
-  .home-diy__desc { margin-top: 14px; font-size: 13px; line-height: 1.6; font-weight: 400; color: #666; }
+  .home-diy__desc { margin-top: 14px; font-size: 13px; line-height: 1.6; font-weight: 400; color: #666; max-width: 320px; }
   .home-diy__btn { margin-top: 22px; width: 150px; height: 42px; display: inline-flex; align-items: center; justify-content: center; background: #111; color: #fff; font-size: 12px; font-weight: 600; letter-spacing: -0.01em; line-height: 1; }
   .home-diy__btn:hover { background: #333; opacity: 1; }
 
@@ -222,7 +222,7 @@
     /* DIY: 모바일도 레이어 유지 (납작하게, 글씨 위 / 이미지 뒤) */
     .home-diy__inner { display: block; position: relative; height: 190px; }
     .home-diy__img { position: absolute; inset: 0; width: 100%; height: 100%; order: 0; }
-    .home-diy__text { position: absolute; left: 0; top: 0; bottom: 0; width: 80%; padding: 0 22px; background: linear-gradient(to right, rgba(243,240,235,0.97) 62%, rgba(243,240,235,0) 100%); }
+    .home-diy__text { position: absolute; left: 0; top: 0; bottom: 0; width: 88%; padding: 0 22px; background: linear-gradient(to right, rgba(243,240,235,0.97) 72%, rgba(243,240,235,0) 100%); }
     .home-diy__label { margin-bottom: 10px; }
     .home-diy__title { font-size: 23px; }
     .home-diy__desc { font-size: 12px; margin-top: 8px; }
@@ -245,10 +245,18 @@
   .home-cat__img, .home-diy__img, .home-gift__img { transition: opacity 0.4s ease; }
   .home-cat__img.is-ready, .home-diy__img.is-ready, .home-gift__img.is-ready { opacity: 1; }
 
-  /* 상품 스와이프 화살표 */
-  .home-head__right { display: flex; align-items: center; gap: 14px; margin-left: auto; }
-  .home-nav-arrows { display: flex; gap: 6px; }
-  .home-arrow { width: 30px; height: 30px; border: 1px solid #ddd; background: #fff; color: #111; font-size: 16px; line-height: 1; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all .2s; padding: 0; }
+  /* 상품 캐러셀 + 양옆 화살표 */
+  .home-carousel { position: relative; }
+  .home-arrow {
+    position: absolute; top: 0; /* 이미지 세로 중앙에 맞춤(아래 JS/transform) */
+    width: 38px; height: 38px; border: 1px solid #e2ddd5; background: rgba(255,255,255,0.95);
+    color: #111; font-size: 18px; line-height: 1; border-radius: 50%; cursor: pointer;
+    display: flex; align-items: center; justify-content: center; transition: all .2s; padding: 0;
+    z-index: 5; box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    transform: translateY(0);
+  }
+  .home-arrow--prev { left: -8px; }
+  .home-arrow--next { right: -8px; }
   .home-arrow:hover { background: #111; color: #fff; border-color: #111; }
   </style>
 </head>
@@ -382,15 +390,13 @@
       <div class="home-head__en">BEST SELLERS</div>
       <div class="home-head__ko">지금 가장 사랑받는 아이템</div>
     </div>
-    <div class="home-head__right">
-      <div class="home-nav-arrows">
-        <button class="home-arrow" type="button" onclick="scrollProducts('bestGrid',-1)" aria-label="이전">‹</button>
-        <button class="home-arrow" type="button" onclick="scrollProducts('bestGrid',1)" aria-label="다음">›</button>
-      </div>
-      <a class="home-more" href="/category.html?cat=best">더보기 ›</a>
-    </div>
+    <a class="home-more" href="/category.html?cat=best">더보기 ›</a>
   </div>
-  <div class="home-products" id="bestGrid"></div>
+  <div class="home-carousel">
+    <button class="home-arrow home-arrow--prev" type="button" onclick="scrollProducts('bestGrid',-1)" aria-label="이전">‹</button>
+    <div class="home-products" id="bestGrid"></div>
+    <button class="home-arrow home-arrow--next" type="button" onclick="scrollProducts('bestGrid',1)" aria-label="다음">›</button>
+  </div>
 </section>
 
 <!-- ═══ 05 DIY KEYRING STUDIO ═══ -->
@@ -413,15 +419,13 @@
       <div class="home-head__en">NEW ARRIVALS</div>
       <div class="home-head__ko">새롭게 입고된 아이템</div>
     </div>
-    <div class="home-head__right">
-      <div class="home-nav-arrows">
-        <button class="home-arrow" type="button" onclick="scrollProducts('newGrid',-1)" aria-label="이전">‹</button>
-        <button class="home-arrow" type="button" onclick="scrollProducts('newGrid',1)" aria-label="다음">›</button>
-      </div>
-      <a class="home-more" href="/category.html?cat=new">더보기 ›</a>
-    </div>
+    <a class="home-more" href="/category.html?cat=new">더보기 ›</a>
   </div>
-  <div class="home-products" id="newGrid"></div>
+  <div class="home-carousel">
+    <button class="home-arrow home-arrow--prev" type="button" onclick="scrollProducts('newGrid',-1)" aria-label="이전">‹</button>
+    <div class="home-products" id="newGrid"></div>
+    <button class="home-arrow home-arrow--next" type="button" onclick="scrollProducts('newGrid',1)" aria-label="다음">›</button>
+  </div>
 </section>
 
 <!-- ═══ 07 PERFECT GIFT (단일 배너) ═══ -->
@@ -783,6 +787,17 @@ function scrollProducts(gridId, dir) {
   grid.scrollBy({ left: dir * step, behavior: 'smooth' });
 }
 
+// 화살표를 상품 이미지의 세로 중앙에 위치
+function positionArrows() {
+  document.querySelectorAll('.home-carousel').forEach(car => {
+    const imgwrap = car.querySelector('.home-pcard__imgwrap');
+    if (!imgwrap) return;
+    const center = imgwrap.offsetTop + imgwrap.offsetHeight / 2 - 19; // 19 = 화살표 높이 절반
+    car.querySelectorAll('.home-arrow').forEach(a => { a.style.top = center + 'px'; });
+  });
+}
+window.addEventListener('resize', positionArrows);
+
 async function loadBest() {
   const { data } = await sb.from('products')
     .select('*, product_media(media_url, role, display_order)')
@@ -803,11 +818,12 @@ async function loadNew() {
 // ══════════════════════════════════════════
 async function init() {
   await Promise.all([loadHero(), loadSettings(), loadBest(), loadNew(), loadPopup()]);
+  setTimeout(positionArrows, 200);
   await loadMyWishes();
 }
 init();
 </script>
-<script src="./js/common-header.js?v=10"></script>
-<div style="position:fixed;bottom:6px;right:8px;font-size:9px;color:rgba(0,0,0,0.25);z-index:9999;pointer-events:none;font-family:monospace;">v10</div>
+<script src="./js/common-header.js?v=11"></script>
+<div style="position:fixed;bottom:6px;right:8px;font-size:9px;color:rgba(0,0,0,0.25);z-index:9999;pointer-events:none;font-family:monospace;">v11</div>
 </body>
 </html>
