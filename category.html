@@ -56,12 +56,12 @@
 
 /* ===== LAYOUT: 왼쪽 사이드바 + 오른쪽 상품 ===== */
 .cat-layout {
-  max-width: 1400px;
-  margin: 0 auto;
-  padding: 30px 40px 80px;
+  max-width: 100%;
+  margin: 0;
+  padding: 30px 56px 80px;
   display: flex;
   justify-content: flex-start;
-  gap: 48px;
+  gap: 56px;
   align-items: flex-start;
 }
 .cat-sidebar {
@@ -99,9 +99,9 @@
 .cat-tab:hover { color: var(--cat-text); }
 .cat-tab.active { color: var(--cat-text); font-weight: 700; }
 /* 하위메뉴 */
-.cat-submenu { display: flex; flex-direction: column; padding: 2px 0 6px 14px; border-left: 1px solid var(--cat-border); margin: 2px 0 4px 4px; }
+.cat-submenu { display: flex; flex-direction: column; padding: 2px 0 8px 0; margin: 0; }
 .cat-subtab {
-  padding: 6px 4px;
+  padding: 7px 4px 7px 16px;
   font-size: 12px;
   font-weight: 400;
   color: var(--cat-text3);
@@ -339,7 +339,7 @@
     <!-- 제목 영역 (왼쪽 정렬) -->
     <div class="cat-head">
       <h1 id="categoryTitle">ALL</h1>
-      <p id="categoryDesc">Curated selection of quiet luxury essentials</p>
+      <p id="categoryDesc"></p>
       <div class="category-count" id="categoryCount"></div>
     </div>
     <!-- FILTER BAR -->
@@ -519,7 +519,7 @@ function updateCategoryUI() {
   } else {
     const cat = categories.find(c => c.slug === currentCategory);
     document.getElementById('categoryTitle').textContent = cat ? cat.name : 'ALL';
-    document.getElementById('categoryDesc').textContent = cat?.description || 'Curated selection of quiet luxury essentials';
+    document.getElementById('categoryDesc').textContent = '';
   }
   // ALL/MADE/SALE 필터바는 백/쥬얼리/키링/시즌에서만 표시
   const filterBar = document.querySelector('.filter-left');
@@ -685,5 +685,6 @@ async function toggleCatWish(productId,btn){
 init();
 </script>
 <script src="./js/common-header.js"></script>
+<div style="position:fixed;bottom:6px;right:8px;font-size:9px;color:rgba(0,0,0,0.25);z-index:9999;pointer-events:none;font-family:monospace;">cat-v3</div>
 </body>
 </html>
