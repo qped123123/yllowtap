@@ -125,7 +125,7 @@
 .filter-bar {
   padding: 0 0 24px;
   display: flex;
-  justify-content: space-between;
+  justify-content: flex-end;
   align-items: center;
 }
 .filter-left { display: flex; gap: 10px; }
@@ -371,13 +371,8 @@
       <h1 id="categoryTitle">ALL</h1>
       <p id="categoryDesc"></p>
     </div>
-    <!-- FILTER BAR -->
+    <!-- FILTER BAR (정렬만) -->
     <div class="filter-bar">
-      <div class="filter-left">
-        <button class="filter-btn active" data-filter="all">ALL</button>
-        <button class="filter-btn" data-filter="made">MADE</button>
-        <button class="filter-btn" data-filter="sale">SALE</button>
-      </div>
       <div class="filter-right">
         <span class="category-count" id="categoryCount"></span>
         <select id="sortSelect">
@@ -563,9 +558,6 @@ function updateCategoryUI() {
     document.getElementById('categoryTitle').textContent = cat ? cat.name : 'ALL';
     document.getElementById('categoryDesc').textContent = '';
   }
-  // ALL/MADE/SALE 필터바는 백/쥬얼리/키링/시즌에서만 표시
-  const filterBar = document.querySelector('.filter-left');
-  if (filterBar) filterBar.style.display = SHOW_FILTER_CATS.includes(currentCategory) ? 'flex' : 'none';
 }
 
 async function loadProducts() {
@@ -727,6 +719,6 @@ async function toggleCatWish(productId,btn){
 init();
 </script>
 <script src="./js/common-header.js"></script>
-<div style="position:fixed;bottom:6px;right:8px;font-size:9px;color:rgba(0,0,0,0.25);z-index:9999;pointer-events:none;font-family:monospace;">cat-v8</div>
+<div style="position:fixed;bottom:6px;right:8px;font-size:9px;color:rgba(0,0,0,0.25);z-index:9999;pointer-events:none;font-family:monospace;">cat-v9</div>
 </body>
 </html>
