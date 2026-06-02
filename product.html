@@ -512,7 +512,7 @@
 </footer>
 
 <!-- 버전 표시 (캐시 확인용) -->
-<div class="pd-ver">product v9</div>
+<div class="pd-ver">product v11</div>
 
 <script src="./js/main.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
@@ -564,7 +564,7 @@ async function render(){
   if(blocks?.length){
     document.getElementById('detailBlocks').innerHTML=blocks.map(b=>{
       if(b.block_type==='image'&&b.image_url)return`<div style="max-width:800px;margin:0 auto 20px;"><img src="${b.image_url}" alt="" style="width:100%;display:block;border-radius:4px;" loading="lazy"></div>`;
-      if(b.block_type==='text'&&b.text_content){const sz={'small':'12px','medium':'14px','large':'18px','xlarge':'24px'};return`<div style="max-width:700px;margin:0 auto 30px;padding:0 20px;font-size:${sz[b.font_size]||'14px'};line-height:2;color:var(--pd-text2,#555);text-align:${b.text_align||'center'};font-weight:${b.font_weight||'normal'};word-break:keep-all;">${b.text_content.replace(/\n/g,'<br>')}</div>`;}
+      if(b.block_type==='text'&&b.text_content){const sz={'small':'12px','medium':'14px','large':'18px','xlarge':'24px'};const ffMap={'serif':"'Bodoni Moda',serif",'sans':"'Noto Sans KR',sans-serif"};const ff=ffMap[b.font_family]||'inherit';const col=(b.text_color&&b.text_color.trim())?b.text_color:'var(--pd-text2,#555)';return`<div style="max-width:700px;margin:0 auto 30px;padding:0 20px;font-size:${sz[b.font_size]||'14px'};line-height:2;color:${col};text-align:${b.text_align||'center'};font-weight:${b.font_weight||'normal'};font-family:${ff};word-break:keep-all;">${b.text_content.replace(/\n/g,'<br>')}</div>`;}
       return'';
     }).join('');
   }
@@ -772,7 +772,13 @@ async function loadSetItems(){
     const href=it.link_product_id?`/product.html?slug=${it.link_product_id}`:'javascript:void(0)';
     const price=it.item_price?`<div class="pd-set-item-price">₩${Number(it.item_price).toLocaleString()}</div>`:'';
     const color=it.item_color?`<div class="pd-set-item-color">${it.item_color}</div>`:'';
-    return `<a class="pd-set-item" href="${href}">${img}<div class="pd-set-item-name">${it.item_name}</div>${color}${price}</a>`;
+    // v11: 구성상품 이름 글씨체/크기/색
+    const ffMap={serif:"'Bodoni Moda',serif",sans:"'Noto Sans KR',sans-serif"};
+    const nf=ffMap[it.name_font]||'inherit';
+    const ns={small:'10px',medium:'11px',large:'13px'}[it.name_size]||'11px';
+    const nc=(it.name_color&&it.name_color.trim())?it.name_color:'var(--pd-text)';
+    const nameStyle=`font-family:${nf};font-size:${ns};color:${nc};`;
+    return `<a class="pd-set-item" href="${href}">${img}<div class="pd-set-item-name" style="${nameStyle}">${it.item_name}</div>${color}${price}</a>`;
   }).join('');
 }
 
@@ -827,7 +833,17 @@ async function loadEditReasons(){
     const img=r.image_url
       ?`<img class="pd-why-card-img" src="${r.image_url}" alt="${r.subtitle||''}" loading="lazy">`
       :`<div class="pd-why-card-img"></div>`;
-    return `<div class="pd-why-card">${img}<div class="pd-why-card-sub">${r.subtitle||''}</div><div class="pd-why-card-desc">${(r.description||'').replace(/\n/g,'<br>')}</div></div>`;
+    // v11: Why 카드 제목/설명 글씨체/크기/색
+    const ffMap={serif:"'Bodoni Moda',serif",sans:"'Noto Sans KR',sans-serif"};
+    const sf=ffMap[r.sub_font]||'var(--pd-fd)';
+    const ss={small:'14px',medium:'16px',large:'20px'}[r.sub_size]||'16px';
+    const sc=(r.sub_color&&r.sub_color.trim())?r.sub_color:'var(--pd-text)';
+    const df=ffMap[r.desc_font]||'inherit';
+    const ds={small:'11px',medium:'12px',large:'14px'}[r.desc_size]||'12px';
+    const dc=(r.desc_color&&r.desc_color.trim())?r.desc_color:'var(--pd-text2)';
+    const subStyle=`font-family:${sf};font-size:${ss};color:${sc};`;
+    const descStyle=`font-family:${df};font-size:${ds};color:${dc};`;
+    return `<div class="pd-why-card">${img}<div class="pd-why-card-sub" style="${subStyle}">${r.subtitle||''}</div><div class="pd-why-card-desc" style="${descStyle}">${(r.description||'').replace(/\n/g,'<br>')}</div></div>`;
   }).join('');
 }
 
