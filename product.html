@@ -205,6 +205,89 @@
   .pd-review-summary{flex-direction:column;gap:16px}
   .pd-rf-row{grid-template-columns:1fr}
 }
+
+/* ============================================================
+   v1 추가 — 메인이미지 축소 / 세로썸네일 / 컬러 3열 /
+   구성상품 / 구매옵션 / Why this edit (EDIT 레이아웃)
+   ※ 기존 스타일은 그대로 두고 "덧붙이거나" 살짝 덮어쓰는 방식
+   ============================================================ */
+
+/* (1) 메인 이미지 축소 + 가운데 정렬 — 모든 상품 공통 */
+.pd-center{display:flex;flex-direction:column;align-items:center;min-width:0}
+.pd-center .pd-main{width:100%;max-width:440px;margin:0 auto}
+
+/* (EDIT) 가운데 타이틀 — 메인 이미지 위 */
+.pd-edit-head{width:100%;max-width:440px;text-align:center;margin:2px auto 22px}
+.pd-edit-head-over{font-size:10px;font-weight:500;letter-spacing:3px;text-transform:uppercase;color:var(--pd-text3);margin-bottom:10px}
+.pd-edit-head-name{font-family:var(--pd-fd);font-size:30px;font-weight:400;line-height:1.25;margin:0 0 14px}
+.pd-edit-head-divider{width:40px;height:1px;background:var(--pd-text);margin:0 auto 14px;opacity:.7}
+.pd-edit-head-desc{font-size:13px;line-height:1.9;color:var(--pd-text2);word-break:keep-all}
+
+/* (2) 컬러 썸네일 3개 한 줄 (단품) */
+.pd-colors-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;justify-content:initial;flex-wrap:nowrap}
+.pd-color-item img{width:100%;height:auto;aspect-ratio:4/5}
+
+/* (3) 구성 상품 (EDIT) */
+.pd-set{margin-bottom:30px}
+.pd-set-title{font-size:14px;font-weight:600;letter-spacing:.5px;margin-bottom:16px;color:var(--pd-text)}
+.pd-set-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+.pd-set-item{text-align:center;text-decoration:none;color:inherit;display:block}
+.pd-set-item-img{width:100%;aspect-ratio:1/1;object-fit:cover;background:#EAE7E2;margin-bottom:8px;display:block}
+.pd-set-item-name{font-size:11px;line-height:1.4;color:var(--pd-text);margin-bottom:2px}
+.pd-set-item-color{font-size:10px;color:var(--pd-text3);margin-bottom:2px}
+.pd-set-item-price{font-size:11px;font-weight:600;color:var(--pd-text)}
+
+/* (4) 구매 옵션 (EDIT) */
+.pd-buyopt{margin-bottom:24px}
+.pd-buyopt-title{font-size:14px;font-weight:600;letter-spacing:.5px;margin-bottom:14px;color:var(--pd-text)}
+.pd-buyopt-item{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:16px 18px;border:1px solid var(--pd-border);cursor:pointer;margin-bottom:8px;transition:all .25s;background:var(--pd-white)}
+.pd-buyopt-item:hover{border-color:var(--pd-text)}
+.pd-buyopt-item.active{background:var(--pd-text);border-color:var(--pd-text)}
+.pd-buyopt-item.active .pd-buyopt-name,
+.pd-buyopt-item.active .pd-buyopt-sub,
+.pd-buyopt-item.active .pd-buyopt-price,
+.pd-buyopt-item.active .pd-buyopt-arrow{color:#fff}
+.pd-buyopt-left{min-width:0}
+.pd-buyopt-name{font-size:13px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:var(--pd-text);display:flex;align-items:center;gap:8px}
+.pd-buyopt-badge{font-size:9px;font-weight:700;letter-spacing:.5px;color:var(--pd-red);background:#FBEBE9;padding:2px 7px;border-radius:2px}
+.pd-buyopt-item.active .pd-buyopt-badge{background:var(--pd-accent);color:var(--pd-text)}
+.pd-buyopt-sub{font-size:11px;color:var(--pd-text2);margin-top:4px}
+.pd-buyopt-right{display:flex;align-items:center;gap:12px;flex-shrink:0}
+.pd-buyopt-price{font-size:14px;font-weight:700;color:var(--pd-text)}
+.pd-buyopt-arrow{font-size:14px;color:var(--pd-text3)}
+
+/* (버튼) EDIT 세로 배치 — 스타일/색은 기존 그대로, 배치만 정리 */
+.pd-btn-group.is-edit{flex-wrap:wrap}
+.pd-btn-group.is-edit .pd-btn-buy{flex:1 0 100%}
+.pd-btn-group.is-edit .pd-btn-cart{flex:1}
+
+/* (5) Why this edit (EDIT) */
+.pd-why{max-width:1400px;margin:0 auto;padding:50px 40px 80px}
+.pd-why-head{text-align:center;margin-bottom:40px}
+.pd-why-over{font-size:10px;font-weight:500;letter-spacing:4px;text-transform:uppercase;color:var(--pd-text3);margin-bottom:8px}
+.pd-why-title{font-family:var(--pd-fd);font-size:30px;font-weight:400;font-style:italic;letter-spacing:1px}
+.pd-why-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:18px}
+.pd-why-card{border:1px solid var(--pd-border-lt);padding:16px;background:var(--pd-white)}
+.pd-why-card-img{width:100%;aspect-ratio:4/3;object-fit:cover;background:#EAE7E2;margin-bottom:14px;display:block}
+.pd-why-card-sub{font-family:var(--pd-fd);font-size:16px;font-weight:400;margin-bottom:8px;color:var(--pd-text)}
+.pd-why-card-desc{font-size:12px;line-height:1.7;color:var(--pd-text2);word-break:keep-all}
+
+/* 버전 배지 */
+.pd-ver{position:fixed;right:10px;bottom:10px;z-index:9999;font-size:10px;color:#bbb;font-family:monospace;background:rgba(255,255,255,.72);padding:2px 7px;border-radius:3px;pointer-events:none}
+
+/* v1 반응형 */
+@media(max-width:1024px){
+  .pd-why-grid{grid-template-columns:repeat(2,1fr)}
+}
+@media(max-width:768px){
+  .pd-center .pd-main,.pd-edit-head{max-width:100%}
+  .pd-edit-head-name{font-size:24px}
+  .pd-set-grid{grid-template-columns:repeat(2,1fr)}
+  .pd-why{padding:40px 20px 50px}
+  .pd-why-grid{grid-template-columns:repeat(2,1fr)}
+  .pd-why-title{font-size:24px}
+  .pd-color-item img{width:100%;height:auto}
+}
 </style>
 </head>
 <body>
@@ -238,27 +321,48 @@
 <section class="pd-top pd-fade">
   <div class="pd-gallery" id="gallery">
     <div class="pd-thumbs-wrap"><div class="pd-thumbs" id="thumbs"></div></div>
-    <div class="pd-main" id="mainWrap">
-      <img id="mainImg" src="" alt="">
-      <div class="pd-img-counter" id="imgCounter"></div>
+    <div class="pd-center">
+      <!-- EDIT 전용: 가운데 타이틀 (기본 숨김) -->
+      <div class="pd-edit-head" id="editHead" style="display:none">
+        <div class="pd-edit-head-over" id="editHeadOver"></div>
+        <h1 class="pd-edit-head-name" id="editHeadName"></h1>
+        <div class="pd-edit-head-divider"></div>
+        <p class="pd-edit-head-desc" id="editHeadDesc"></p>
+      </div>
+      <div class="pd-main" id="mainWrap">
+        <img id="mainImg" src="" alt="">
+        <div class="pd-img-counter" id="imgCounter"></div>
+      </div>
     </div>
   </div>
   <div class="pd-info">
     <div class="pd-info-brand" id="pBrand">YLLOWTAP</div>
     <h1 class="pd-info-name" id="pName"></h1>
     <p class="pd-info-subtitle" id="pSub"></p>
-    <div class="pd-info-price">
+    <div class="pd-info-price" id="pInfoPrice">
       <span class="pd-price-now" id="pPrice"></span>
       <span class="pd-price-old" id="pOrig" style="display:none"></span>
       <span class="pd-price-off" id="pDisc" style="display:none"></span>
     </div>
+
+    <!-- EDIT 전용: 구성 상품 (기본 숨김) -->
+    <div class="pd-set" id="setSec" style="display:none">
+      <div class="pd-set-title">구성 상품</div>
+      <div class="pd-set-grid" id="setGrid"></div>
+    </div>
+    <!-- EDIT 전용: 구매 옵션 (기본 숨김) -->
+    <div class="pd-buyopt" id="buyoptSec" style="display:none">
+      <div class="pd-buyopt-title">구매 옵션</div>
+      <div id="buyoptList"></div>
+    </div>
+
+    <!-- STANDARD 전용: 옵션/컬러/수량/합계 -->
     <div id="optsArea"></div>
-    <!-- COLOR PREVIEW -->
     <div class="pd-colors" id="colorSec" style="display:none">
       <div class="pd-colors-title">Colors</div>
       <div class="pd-colors-grid" id="colorGrid"></div>
     </div>
-    <div class="pd-qty-row">
+    <div class="pd-qty-row" id="qtyRow">
       <div class="pd-opt-label">QUANTITY</div>
       <div class="pd-qty-box">
         <button class="pd-qty-btn" id="qtyM">−</button>
@@ -266,10 +370,12 @@
         <button class="pd-qty-btn" id="qtyP">+</button>
       </div>
     </div>
-    <div class="pd-total"><span class="pd-total-label">TOTAL PRICE</span><span class="pd-total-price" id="totalP">0원</span></div>
-    <div class="pd-btn-group">
-      <button class="pd-btn-buy" onclick="buyNow()">BUY IT NOW</button>
-      <button class="pd-btn-cart" onclick="addToCart()">CART</button>
+    <div class="pd-total" id="totalRow"><span class="pd-total-label">TOTAL PRICE</span><span class="pd-total-price" id="totalP">0원</span></div>
+
+    <!-- 공통: 버튼 (디자인/색 기존 그대로 유지, 라벨만 EDIT에서 동적) -->
+    <div class="pd-btn-group" id="btnGroup">
+      <button class="pd-btn-buy" id="buyBtn" onclick="buyNow()">BUY IT NOW</button>
+      <button class="pd-btn-cart" id="cartBtn" onclick="addToCart()">CART</button>
       <button class="pd-btn-wish" id="wishBtn" onclick="toggleWishlist()"><svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg><span class="pd-wish-count" id="wishCount"></span></button>
     </div>
     <div class="pd-notices">
@@ -280,7 +386,7 @@
   </div>
 </section>
 
-<!-- EDITORIAL MOOD -->
+<!-- EDITORIAL MOOD (STANDARD) -->
 <section class="pd-editorial" id="editSec" style="display:none">
   <div class="pd-editorial-head">
     <div class="pd-editorial-over">THE MOOD</div>
@@ -288,6 +394,15 @@
     <p class="pd-editorial-desc" id="editDesc"></p>
   </div>
   <div class="pd-editorial-grid" id="editGrid"></div>
+</section>
+
+<!-- WHY THIS EDIT (EDIT) -->
+<section class="pd-why" id="whySec" style="display:none">
+  <div class="pd-why-head">
+    <div class="pd-why-over">CURATION NOTE</div>
+    <h2 class="pd-why-title">Why this edit?</h2>
+  </div>
+  <div class="pd-why-grid" id="whyGrid"></div>
 </section>
 
 <!-- DETAIL TABS -->
@@ -373,6 +488,9 @@
   <div class="footer__bottom"><div class="footer__copy">© 2026 Yllowtap. All rights reserved.</div><div class="footer__social"><a href="https://www.instagram.com/" target="_blank">Instagram</a><a href="https://www.youtube.com/" target="_blank">YouTube</a><a href="https://pinterest.com" target="_blank">Pinterest</a></div></div>
 </footer>
 
+<!-- 버전 표시 (캐시 확인용) -->
+<div class="pd-ver">product v1</div>
+
 <script src="./js/main.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <script>
@@ -382,8 +500,10 @@ const sb=window.supabase.createClient(SUPABASE_URL,SUPABASE_ANON);
 
 let product=null,qty=1,allGalleryImgs=[],currentImgIdx=0,rfRating=5,rfImageUrls=[];
 let colorImages=[];
+let buyOptions=[],selectedBuyOption=null;   // v1: 구매옵션 상태
 
 function getSlug(){return new URLSearchParams(window.location.search).get('slug')}
+function isEdit(){return product && product.product_layout==='edit'}
 
 // ══════════════════════════════════════════
 // LOAD PRODUCT
@@ -396,7 +516,7 @@ async function loadProduct(){
   if(error||!data){alert('상품을 찾을 수 없습니다.');return}
   product=data;
   await render();
-  await Promise.all([loadColorImages(),loadRecs(),loadReviews()]);
+  await Promise.all([loadColorImages(),loadRecs(),loadReviews(),loadSetItems(),loadPurchaseOptions(),loadEditReasons()]);
   hideLoading();
 }
 
@@ -423,10 +543,35 @@ async function render(){
     }).join('');
   }
   document.getElementById('detailHTML').innerHTML=p.description_detail||'<p style="color:var(--pd-text3);text-align:center;padding:36px 0;">상세 정보가 등록되지 않았습니다.</p>';
+
+  // v1: EDIT 레이아웃이면 화면 구성 전환
+  if(isEdit()) setupEditLayout();
 }
 
 // ══════════════════════════════════════════
-// GALLERY — 스크롤 가능 + 카운터
+// v1: EDIT 레이아웃 전환
+// ══════════════════════════════════════════
+function setupEditLayout(){
+  const p=product;
+  // 가운데 타이틀 표시
+  document.getElementById('editHead').style.display='';
+  document.getElementById('editHeadOver').textContent=p.edit_overline||p.brand||'YLLOWTAP EDIT';
+  document.getElementById('editHeadName').textContent=p.name;
+  document.getElementById('editHeadDesc').textContent=p.subtitle||p.mood_description||'';
+  // 우측 기존 단품용 요소 숨김 (정보는 가운데/구매옵션으로 이동)
+  ['pBrand','pName','pSub','pInfoPrice','optsArea','colorSec','qtyRow','totalRow'].forEach(id=>{
+    const el=document.getElementById(id); if(el) el.style.display='none';
+  });
+  // 메인 이미지 정사각 (세트 무드)
+  document.getElementById('mainWrap').style.aspectRatio='1 / 1';
+  // 버튼: 세로 배치 + 라벨 한글화 (스타일/색은 기존 유지)
+  document.getElementById('btnGroup').classList.add('is-edit');
+  document.getElementById('buyBtn').textContent='구매하기';
+  document.getElementById('cartBtn').textContent='장바구니 담기';
+}
+
+// ══════════════════════════════════════════
+// GALLERY — 스크롤 가능 + 카운터 (화살표 없음)
 // ══════════════════════════════════════════
 function renderGallery(){
   const media=(product.product_media||[]).sort((a,b)=>a.display_order-b.display_order);
@@ -454,7 +599,7 @@ function setMainImage(idx){
 }
 
 // ══════════════════════════════════════════
-// OPTIONS + COLOR IMAGES
+// OPTIONS + COLOR IMAGES (STANDARD)
 // ══════════════════════════════════════════
 function renderOpts(){
   const opts=product.options||[];
@@ -466,6 +611,7 @@ function renderOpts(){
 }
 
 async function loadColorImages(){
+  if(isEdit()) return;   // v1: EDIT 상품은 컬러 썸네일 미사용
   const{data}=await sb.from('product_option_images').select('*').eq('product_id',product.id).order('display_order');
   colorImages=data||[];
   if(!colorImages.length) return;
@@ -507,9 +653,80 @@ function onOptionChange(sel){
 }
 
 // ══════════════════════════════════════════
-// EDITORIAL
+// v1: 구성 상품 (EDIT)
+// ══════════════════════════════════════════
+async function loadSetItems(){
+  if(!isEdit()) return;
+  const{data}=await sb.from('product_set_items').select('*').eq('product_id',product.id).order('display_order');
+  if(!data||!data.length) return;
+  document.getElementById('setSec').style.display='';
+  document.getElementById('setGrid').innerHTML=data.map(it=>{
+    const img=it.item_image_url
+      ?`<img class="pd-set-item-img" src="${it.item_image_url}" alt="${it.item_name}" loading="lazy">`
+      :`<div class="pd-set-item-img"></div>`;
+    const href=it.link_product_id?`/product.html?slug=${it.link_product_id}`:'javascript:void(0)';
+    const price=it.item_price?`<div class="pd-set-item-price">₩${Number(it.item_price).toLocaleString()}</div>`:'';
+    const color=it.item_color?`<div class="pd-set-item-color">${it.item_color}</div>`:'';
+    return `<a class="pd-set-item" href="${href}">${img}<div class="pd-set-item-name">${it.item_name}</div>${color}${price}</a>`;
+  }).join('');
+}
+
+// ══════════════════════════════════════════
+// v1: 구매 옵션 (EDIT)
+// ══════════════════════════════════════════
+async function loadPurchaseOptions(){
+  if(!isEdit()) return;
+  const{data}=await sb.from('product_purchase_options').select('*').eq('product_id',product.id).order('display_order');
+  if(!data||!data.length) return;
+  buyOptions=data;
+  document.getElementById('buyoptSec').style.display='';
+  document.getElementById('buyoptList').innerHTML=data.map((o,i)=>`
+    <div class="pd-buyopt-item" data-i="${i}" onclick="selectPurchaseOption(${i})">
+      <div class="pd-buyopt-left">
+        <div class="pd-buyopt-name">${o.option_title}${o.badge_text?`<span class="pd-buyopt-badge">${o.badge_text}</span>`:''}</div>
+        ${o.sub_description?`<div class="pd-buyopt-sub">${o.sub_description}</div>`:''}
+      </div>
+      <div class="pd-buyopt-right">
+        <div class="pd-buyopt-price">₩${Number(o.price).toLocaleString()}</div>
+        <div class="pd-buyopt-arrow">→</div>
+      </div>
+    </div>`).join('');
+  // 기본 선택: is_best 우선, 없으면 첫 번째
+  let def=data.findIndex(o=>o.is_best);
+  if(def<0) def=0;
+  selectPurchaseOption(def);
+}
+
+function selectPurchaseOption(idx){
+  selectedBuyOption=buyOptions[idx];
+  document.querySelectorAll('.pd-buyopt-item').forEach((b,i)=>b.classList.toggle('active',i===idx));
+  const buyBtn=document.getElementById('buyBtn');
+  if(buyBtn&&selectedBuyOption) buyBtn.textContent=`${selectedBuyOption.option_title} 구매하기`;
+  updateTotal();
+}
+
+// ══════════════════════════════════════════
+// v1: Why this edit (EDIT)
+// ══════════════════════════════════════════
+async function loadEditReasons(){
+  if(!isEdit()) return;
+  const{data}=await sb.from('product_edit_reasons').select('*').eq('product_id',product.id).order('display_order');
+  if(!data||!data.length) return;
+  document.getElementById('whySec').style.display='';
+  const ed=document.getElementById('editSec'); if(ed) ed.style.display='none';   // 무드 섹션은 숨김
+  document.getElementById('whyGrid').innerHTML=data.map(r=>{
+    const img=r.image_url
+      ?`<img class="pd-why-card-img" src="${r.image_url}" alt="${r.subtitle||''}" loading="lazy">`
+      :`<div class="pd-why-card-img"></div>`;
+    return `<div class="pd-why-card">${img}<div class="pd-why-card-sub">${r.subtitle||''}</div><div class="pd-why-card-desc">${(r.description||'').replace(/\n/g,'<br>')}</div></div>`;
+  }).join('');
+}
+
+// ══════════════════════════════════════════
+// EDITORIAL (STANDARD)
 // ══════════════════════════════════════════
 function renderEditorial(){
+  if(isEdit()) return;   // v1: EDIT 상품은 Why this edit 사용
   const p=product;
   const moodImgs=(p.product_media||[]).filter(m=>m.role==='mood'||m.role==='editorial').sort((a,b)=>a.display_order-b.display_order);
   if(!moodImgs.length&&!p.mood_title) return;
@@ -667,7 +884,15 @@ function getMainImg(p){
   return p.image_url;
 }
 
-function updateTotal(){if(product) document.getElementById('totalP').textContent=(product.price*qty).toLocaleString()+'원'}
+// ══════════════════════════════════════════
+// TOTAL (v1: EDIT면 선택한 구매옵션 가격 반영)
+// ══════════════════════════════════════════
+function updateTotal(){
+  if(!product) return;
+  let unit=product.price;
+  if(isEdit()&&selectedBuyOption) unit=selectedBuyOption.price;
+  document.getElementById('totalP').textContent=(unit*qty).toLocaleString()+'원';
+}
 function hideLoading(){const l=document.getElementById('pageLoading');l.classList.add('hide');setTimeout(()=>l.remove(),500)}
 
 document.getElementById('qtyM').addEventListener('click',()=>{if(qty>1){qty--;document.getElementById('qtyN').textContent=qty;updateTotal()}});
@@ -681,18 +906,34 @@ document.querySelectorAll('.pd-tab').forEach(tab=>{
 });
 
 // ══════════════════════════════════════════
-// BUY IT NOW — 장바구니에 담고 바로 주문서로
+// 옵션 수집 (v1: EDIT면 구매옵션 포함)
 // ══════════════════════════════════════════
-async function buyNow(){
-  if(!product)return;
+function collectOptions(){
   const opts={};
   document.querySelectorAll('.pd-opt-select').forEach(sel=>{
     if(sel.value) opts[sel.dataset.opt]=sel.value;
   });
+  // 단품 필수옵션 체크
   const requiredOpts=product.options||[];
   for(const o of requiredOpts){
-    if(!opts[o.name]){alert(`${o.name}을(를) 선택해주세요.`);return;}
+    if(!opts[o.name]){alert(`${o.name}을(를) 선택해주세요.`);return null;}
   }
+  // EDIT 구매옵션
+  if(isEdit()){
+    if(!selectedBuyOption){alert('구매 옵션을 선택해주세요.');return null;}
+    opts['구매옵션']=selectedBuyOption.option_title;
+    opts['_option_price']=selectedBuyOption.price;   // 결제단계에서 사용할 가격
+  }
+  return opts;
+}
+
+// ══════════════════════════════════════════
+// BUY IT NOW — 장바구니에 담고 바로 주문서로
+// ══════════════════════════════════════════
+async function buyNow(){
+  if(!product)return;
+  const opts=collectOptions();
+  if(opts===null) return;
 
   const{data:{session}}=await sb.auth.getSession();
   if(!session){alert('로그인이 필요합니다.');window.location.href='/login.html';return;}
@@ -717,16 +958,8 @@ async function buyNow(){
 // ══════════════════════════════════════════
 async function addToCart(){
   if(!product)return;
-  // 옵션 수집
-  const opts={};
-  document.querySelectorAll('.pd-opt-select').forEach(sel=>{
-    if(sel.value) opts[sel.dataset.opt]=sel.value;
-  });
-  // 필수 옵션 체크
-  const requiredOpts=product.options||[];
-  for(const o of requiredOpts){
-    if(!opts[o.name]){alert(`${o.name}을(를) 선택해주세요.`);return;}
-  }
+  const opts=collectOptions();
+  if(opts===null) return;
 
   const{data:{session}}=await sb.auth.getSession();
   let cartId;
