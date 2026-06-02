@@ -16,12 +16,12 @@
 }
 
 /* BREADCRUMB */
-.pd-breadcrumb{max-width:1400px;margin:0 auto;padding:76px 40px 14px;font-size:11px;color:var(--pd-text3);letter-spacing:1px}
+.pd-breadcrumb{max-width:1560px;margin:0 auto;padding:76px 30px 14px;font-size:11px;color:var(--pd-text3);letter-spacing:1px}
 .pd-breadcrumb a{color:var(--pd-text3);text-decoration:none;transition:color .3s}.pd-breadcrumb a:hover{color:var(--pd-text)}
 .pd-breadcrumb span{margin:0 7px}
 
 /* PRODUCT TOP */
-.pd-top{max-width:1400px;margin:0 auto;padding:6px 40px 0;display:grid;grid-template-columns:1fr 420px;gap:56px;align-items:start}
+.pd-top{max-width:1560px;margin:0 auto;padding:6px 30px 0;display:grid;grid-template-columns:1fr 420px;gap:40px;align-items:start}
 
 /* GALLERY — 개선: 스크롤 가능 + 카운터 */
 .pd-gallery{display:grid;grid-template-columns:76px 1fr;gap:10px;position:sticky;top:76px}
@@ -280,6 +280,8 @@
 
 /* (v2) 썸네일 세로형 기본 비율 (높이/너비는 JS가 메인 이미지에 맞춰 계산) */
 .pd-thumb{aspect-ratio:4/5}
+/* (v5) 썸네일 더 있을 때 '내려보기' 힌트 */
+.pd-thumbs-hint{position:absolute;left:0;right:4px;bottom:0;height:30px;display:flex;align-items:flex-end;justify-content:center;font-size:18px;line-height:1;color:var(--pd-text2);background:linear-gradient(transparent,var(--pd-bg) 85%);pointer-events:none;opacity:0;transition:opacity .3s;z-index:3}
 
 /* 버전 배지 */
 .pd-ver{position:fixed;right:10px;bottom:10px;z-index:9999;font-size:10px;color:#bbb;font-family:monospace;background:rgba(255,255,255,.72);padding:2px 7px;border-radius:3px;pointer-events:none}
@@ -329,7 +331,7 @@
 <!-- PRODUCT TOP -->
 <section class="pd-top pd-fade">
   <div class="pd-gallery" id="gallery">
-    <div class="pd-thumbs-wrap"><div class="pd-thumbs" id="thumbs"></div></div>
+    <div class="pd-thumbs-wrap"><div class="pd-thumbs" id="thumbs"></div><div class="pd-thumbs-hint" id="thumbsHint">⌄</div></div>
     <div class="pd-center">
       <!-- EDIT 전용: 가운데 타이틀 (기본 숨김) -->
       <div class="pd-edit-head" id="editHead" style="display:none">
@@ -501,7 +503,7 @@
 </footer>
 
 <!-- 버전 표시 (캐시 확인용) -->
-<div class="pd-ver">product v4</div>
+<div class="pd-ver">product v5</div>
 
 <script src="./js/main.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
@@ -530,6 +532,9 @@ async function loadProduct(){
   await render();
   await Promise.all([loadColorImages(),loadRecs(),loadReviews(),loadSetItems(),loadPurchaseOptions(),loadEditReasons()]);
   hideLoading();
+  // v5: 우측 정보(구성상품/구매옵션 등)가 다 그려진 뒤 메인 높이를 맞춤
+  setTimeout(syncThumbs,60);
+  setTimeout(syncThumbs,300);
 }
 
 async function render(){
@@ -639,26 +644,43 @@ function syncThumbs(){
   const wrap=document.querySelector('.pd-thumbs-wrap');
   const thumbs=document.getElementById('thumbs');
   const gallery=document.getElementById('gallery');
+  const info=document.querySelector('.pd-info');
   if(!main||!wrap||!thumbs) return;
   const els=thumbs.querySelectorAll('.pd-thumb');
   if(window.innerWidth<=1024){   // 모바일: 가로 스크롤 → 인라인 스타일 원복
     wrap.style.height=''; thumbs.style.gap='';
     els.forEach(t=>{t.style.height='';t.style.minHeight='';t.style.width='';});
     if(gallery){gallery.style.gridTemplateColumns='';gallery.style.justifyContent='';}
+    main.style.width=''; main.style.height=''; main.style.maxWidth='';
+    updateThumbHint();
     return;
   }
-  // v3: 썸네일은 잘 보이게 고정 크기(세로형). 메인은 크게 + 우측(구매영역) 쪽 정렬, 넘치면 썸네일 영역 스크롤
+  // v5: EDIT 메인 이미지를 우측 정보 높이에 맞춤 (가로 라인 정렬, 정사각)
+  if(isEdit()&&info){
+    const infoH=Math.round(info.getBoundingClientRect().height);
+    if(infoH>0){ main.style.maxWidth='none'; main.style.width=infoH+'px'; main.style.height=infoH+'px'; }
+  }
+  // 썸네일: 잘 보이게 고정 크기(세로형). 왼쪽 정렬. 넘치면 세로 스크롤
   const thumbW=84, gap=8;
   const thumbH=Math.round(thumbW*1.25);   // 4:5 세로형
   els.forEach(t=>{t.style.width=thumbW+'px';t.style.height=thumbH+'px';t.style.minHeight=thumbH+'px';});
   thumbs.style.gap=gap+'px';
   if(gallery){
-    // 썸네일은 왼쪽 끝(로고 라인), 메인은 남는 공간 가운데에 크게 (양옆 여백 통일)
     gallery.style.gridTemplateColumns=(thumbW+14)+'px 1fr';
     gallery.style.justifyContent='';
   }
   const mainH=main.getBoundingClientRect().height;
   if(mainH>0) wrap.style.height=mainH+'px';
+  updateThumbHint();
+}
+
+// v5: 썸네일이 영역보다 많으면 '내려보기' 힌트 표시
+function updateThumbHint(){
+  const thumbs=document.getElementById('thumbs');
+  const hint=document.getElementById('thumbsHint');
+  if(!thumbs||!hint) return;
+  const more=(thumbs.scrollHeight-thumbs.clientHeight>4)&&(thumbs.scrollTop+thumbs.clientHeight<thumbs.scrollHeight-4);
+  hint.style.opacity=more?'1':'0';
 }
 
 // ══════════════════════════════════════════
@@ -1115,6 +1137,7 @@ async function recordView(){
 
 document.getElementById('mainImg').addEventListener('load',syncThumbs);
 window.addEventListener('resize',syncThumbs);
+document.getElementById('thumbs').addEventListener('scroll',updateThumbHint);
 loadProduct().then(()=>{recordView();loadWishCount();});
 </script>
 <script src="./js/common-header.js"></script>
