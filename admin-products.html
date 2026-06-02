@@ -725,7 +725,14 @@ body { font-family:var(--font); background:var(--bg); color:var(--text); font-si
           </select>
         </div>
       </div>
-
+      <div class="form-section">
+        <div class="form-section-title">메인 이미지 텍스트 (선택)</div>
+        <p style="font-size:11px;color:var(--text-muted);margin-bottom:12px;">대표 이미지 위에 얹히는 글자예요. 비우면 텍스트 없이 이미지만 나와요. (예: SUMMER VOYAGE)</p>
+        <div class="form-row">
+          <div class="form-group"><label class="form-label">텍스트 (줄바꿈 가능)</label><textarea class="form-textarea" id="fMainText" style="min-height:50px;" placeholder="비우면 텍스트 없이 이미지만"></textarea></div>
+          <div class="form-group"><label class="form-label">텍스트 색상</label><select class="form-select" id="fMainTextColor"><option value="light">밝게 (흰색)</option><option value="dark">어둡게 (검정)</option></select></div>
+        </div>
+      </div>
       <div class="form-section">
         <div class="form-section-title">에디토리얼 설명</div>
         <div class="form-row full"><div class="form-group"><label class="form-label">에디토리얼 카피</label><textarea class="form-textarea" id="fEditorial" placeholder="도시적인 실루엣과 부드러운 텍스처를 담은 가벼운 재킷."></textarea></div></div>
@@ -951,7 +958,7 @@ function getMainImg(p) {
 
 function openProductForm() { editingProductId = null; document.getElementById('productFormTitle').textContent = '새 상품 등록'; document.getElementById('productDeleteBtn').style.display = 'none'; resetProductForm(); document.getElementById('productModal').classList.add('show'); }
 function closeProductForm() { document.getElementById('productModal').classList.remove('show'); }
-function resetProductForm() { ['fName','fSubtitle','fSlug','fPrice','fOriginalPrice','fEditorial','fMoodTitle','fMoodDesc','fDetail'].forEach(id => document.getElementById(id).value = ''); document.getElementById('fCategory').value = ''; document.getElementById('fCollection').value = ''; document.getElementById('fOrder').value = '0'; document.getElementById('fActive').value = 'true'; formImages=[]; formPresetTags=[]; formCustomTags=[]; formOptions=[]; formRecommends=[]; formColorImages=[]; formDetailBlocks=[]; formScores={}; renderProductFormAll(); renderScoreSliders(); }
+function resetProductForm() { ['fName','fSubtitle','fSlug','fPrice','fOriginalPrice','fEditorial','fMoodTitle','fMoodDesc','fDetail','fMainText'].forEach(id => document.getElementById(id).value = ''); document.getElementById('fMainTextColor').value='light'; document.getElementById('fCategory').value = ''; document.getElementById('fCollection').value = ''; document.getElementById('fOrder').value = '0'; document.getElementById('fActive').value = 'true'; formImages=[]; formPresetTags=[]; formCustomTags=[]; formOptions=[]; formRecommends=[]; formColorImages=[]; formDetailBlocks=[]; formScores={}; renderProductFormAll(); renderScoreSliders(); }
 function renderProductFormAll() { renderImages(); renderPresetTags(); renderCustomTags(); renderOptions(); renderRecommends(); renderColorImages(); renderDetailBlocks(); }
 
 async function editProduct(id) {
@@ -967,6 +974,7 @@ async function editProduct(id) {
   document.getElementById('fEditorial').value = p.description_editorial||'';
   document.getElementById('fMoodTitle').value = p.mood_title||''; document.getElementById('fMoodDesc').value = p.mood_description||'';
   document.getElementById('fDetail').value = p.description_detail||'';
+  document.getElementById('fMainText').value = p.main_image_text||''; document.getElementById('fMainTextColor').value = p.main_image_text_color||'light';
   formImages = (p.product_media||[]).map(m=>({id:m.id,url:m.media_url,role:m.role,isNew:false,display_order:m.display_order,mediaType:m.media_type||'image'})).sort((a,b)=>a.display_order-b.display_order);
   const pk = ['best','new','made','seasonal'];
   formPresetTags = (p.tags||[]).filter(t=>pk.includes(t));
@@ -1043,7 +1051,7 @@ document.getElementById('fCategory').addEventListener('change', renderScoreSlide
 async function saveProduct() {
   const name=document.getElementById('fName').value.trim(),slug=document.getElementById('fSlug').value.trim(),category=document.getElementById('fCategory').value,price=parseInt(document.getElementById('fPrice').value)||0;
   if(!name){showToast('상품명 입력',true);return;} if(!slug){showToast('슬러그 입력',true);return;} if(!category){showToast('카테고리 선택',true);return;} if(!price){showToast('가격 입력',true);return;}
-  const d={brand:'YLLOWTAP',name,subtitle:document.getElementById('fSubtitle').value.trim()||null,slug,category,section:'curated',price,original_price:parseInt(document.getElementById('fOriginalPrice').value)||null,display_order:parseInt(document.getElementById('fOrder').value)||0,collection_id:document.getElementById('fCollection').value||null,is_active:document.getElementById('fActive').value==='true',description_editorial:document.getElementById('fEditorial').value.trim()||null,mood_title:document.getElementById('fMoodTitle').value.trim()||null,mood_description:document.getElementById('fMoodDesc').value.trim()||null,description_detail:document.getElementById('fDetail').value.trim()||null,tags:[...formPresetTags,...formCustomTags],options:formOptions.filter(o=>o.name),image_url:formImages.length?(formImages.find(m=>m.role==='main')?.url||formImages[0].url):null};
+  const d={brand:'YLLOWTAP',name,subtitle:document.getElementById('fSubtitle').value.trim()||null,slug,category,section:'curated',price,original_price:parseInt(document.getElementById('fOriginalPrice').value)||null,display_order:parseInt(document.getElementById('fOrder').value)||0,collection_id:document.getElementById('fCollection').value||null,is_active:document.getElementById('fActive').value==='true',description_editorial:document.getElementById('fEditorial').value.trim()||null,mood_title:document.getElementById('fMoodTitle').value.trim()||null,mood_description:document.getElementById('fMoodDesc').value.trim()||null,description_detail:document.getElementById('fDetail').value.trim()||null,tags:[...formPresetTags,...formCustomTags],options:formOptions.filter(o=>o.name),main_image_text:document.getElementById('fMainText').value.trim()||null,main_image_text_color:document.getElementById('fMainTextColor').value,image_url:formImages.length?(formImages.find(m=>m.role==='main')?.url||formImages[0].url):null};
   let pid; try {
     if(editingProductId){const{error}=await sb.from('products').update(d).eq('id',editingProductId);if(error)throw error;pid=editingProductId;}
     else{const{data,error}=await sb.from('products').insert(d).select().single();if(error)throw error;pid=data.id;}
