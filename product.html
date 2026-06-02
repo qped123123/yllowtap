@@ -299,6 +299,15 @@
   .pd-why-title{font-size:24px}
   .pd-color-item img{width:100%;height:auto}
 }
+
+/* v8: 컬러 옵션 한 줄(일렬) 배치 — 개수 많으면 가로 스크롤 */
+.pd-colors-grid{display:flex;flex-wrap:nowrap;gap:12px;justify-content:center;overflow-x:auto;padding-bottom:6px;-webkit-overflow-scrolling:touch}
+.pd-color-item{flex:0 0 auto;width:120px}
+.pd-color-item img{width:120px;height:150px;object-fit:cover;aspect-ratio:auto}
+@media(max-width:768px){
+  .pd-color-item{width:96px}
+  .pd-color-item img{width:96px;height:120px}
+}
 </style>
 </head>
 <body>
@@ -503,7 +512,7 @@
 </footer>
 
 <!-- 버전 표시 (캐시 확인용) -->
-<div class="pd-ver">product v7</div>
+<div class="pd-ver">product v8</div>
 
 <script src="./js/main.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
