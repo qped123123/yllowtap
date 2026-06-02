@@ -503,7 +503,7 @@
 </footer>
 
 <!-- 버전 표시 (캐시 확인용) -->
-<div class="pd-ver">product v5</div>
+<div class="pd-ver">product v6</div>
 
 <script src="./js/main.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
@@ -593,6 +593,12 @@ function setupEditLayout(){
 function renderGallery(){
   const media=(product.product_media||[]).sort((a,b)=>a.display_order-b.display_order);
   allGalleryImgs=media.filter(m=>(m.media_type||'image')==='image'&&m.role!=='mood');
+  // v6: '대표(main)' 역할 이미지를 맨 앞(처음 뜨는 메인)으로
+  allGalleryImgs.sort((a,b)=>{
+    const am=a.role==='main'?0:1, bm=b.role==='main'?0:1;
+    if(am!==bm) return am-bm;
+    return (a.display_order||0)-(b.display_order||0);
+  });
   if(!allGalleryImgs.length&&product.image_url) allGalleryImgs.push({media_url:product.image_url,role:'main',alt_text:product.name});
   if(!allGalleryImgs.length) return;
   currentImgIdx=0;
