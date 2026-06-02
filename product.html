@@ -242,15 +242,10 @@
 .pd-buyopt-title{font-size:14px;font-weight:600;letter-spacing:.5px;margin-bottom:14px;color:var(--pd-text)}
 .pd-buyopt-item{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:16px 18px;border:1px solid var(--pd-border);cursor:pointer;margin-bottom:8px;transition:all .25s;background:var(--pd-white)}
 .pd-buyopt-item:hover{border-color:var(--pd-text)}
-.pd-buyopt-item.active{background:var(--pd-text);border-color:var(--pd-text)}
-.pd-buyopt-item.active .pd-buyopt-name,
-.pd-buyopt-item.active .pd-buyopt-sub,
-.pd-buyopt-item.active .pd-buyopt-price,
-.pd-buyopt-item.active .pd-buyopt-arrow{color:#fff}
+.pd-buyopt-item.active{border-color:var(--pd-text);box-shadow:inset 0 0 0 1px var(--pd-text)}
 .pd-buyopt-left{min-width:0}
 .pd-buyopt-name{font-size:13px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:var(--pd-text);display:flex;align-items:center;gap:8px}
 .pd-buyopt-badge{font-size:9px;font-weight:700;letter-spacing:.5px;color:var(--pd-red);background:#FBEBE9;padding:2px 7px;border-radius:2px}
-.pd-buyopt-item.active .pd-buyopt-badge{background:var(--pd-accent);color:var(--pd-text)}
 .pd-buyopt-sub{font-size:11px;color:var(--pd-text2);margin-top:4px}
 .pd-buyopt-right{display:flex;align-items:center;gap:12px;flex-shrink:0}
 .pd-buyopt-price{font-size:14px;font-weight:700;color:var(--pd-text)}
@@ -271,6 +266,20 @@
 .pd-why-card-img{width:100%;aspect-ratio:4/3;object-fit:cover;background:#EAE7E2;margin-bottom:14px;display:block}
 .pd-why-card-sub{font-family:var(--pd-fd);font-size:16px;font-weight:400;margin-bottom:8px;color:var(--pd-text)}
 .pd-why-card-desc{font-size:12px;line-height:1.7;color:var(--pd-text2);word-break:keep-all}
+
+/* (v2) 메인 이미지 텍스트 레이어 — 레이어1(텍스트) 위, 레이어2(이미지) 아래 */
+.pd-main-text{position:absolute;inset:0;z-index:2;display:flex;align-items:center;justify-content:center;text-align:center;font-family:var(--pd-fd);font-size:clamp(20px,3.2vw,36px);font-weight:400;letter-spacing:2px;line-height:1.35;padding:24px;pointer-events:none;white-space:pre-line}
+.pd-main-text.light{color:#fff;text-shadow:0 1px 14px rgba(0,0,0,.35)}
+.pd-main-text.dark{color:#1a1a1a}
+
+/* (v2) 메인 이미지 좌우 화살표 (hover 시 노출) */
+.pd-main-nav{position:absolute;top:50%;transform:translateY(-50%);width:36px;height:36px;border:none;background:rgba(255,255,255,.82);color:#111;font-size:22px;line-height:1;cursor:pointer;display:flex;align-items:center;justify-content:center;border-radius:50%;transition:background .2s,opacity .2s;z-index:4;opacity:0;pointer-events:none}
+.pd-main:hover .pd-main-nav{opacity:1;pointer-events:auto}
+.pd-main-nav.prev{left:10px}.pd-main-nav.next{right:10px}
+.pd-main-nav:hover{background:#fff}
+
+/* (v2) 썸네일 세로형 기본 비율 (높이/너비는 JS가 메인 이미지에 맞춰 계산) */
+.pd-thumb{aspect-ratio:4/5}
 
 /* 버전 배지 */
 .pd-ver{position:fixed;right:10px;bottom:10px;z-index:9999;font-size:10px;color:#bbb;font-family:monospace;background:rgba(255,255,255,.72);padding:2px 7px;border-radius:3px;pointer-events:none}
@@ -331,6 +340,9 @@
       </div>
       <div class="pd-main" id="mainWrap">
         <img id="mainImg" src="" alt="">
+        <div class="pd-main-text" id="mainText" style="display:none"></div>
+        <button class="pd-main-nav prev" id="navPrev" onclick="navImg(-1)" aria-label="이전 이미지">‹</button>
+        <button class="pd-main-nav next" id="navNext" onclick="navImg(1)" aria-label="다음 이미지">›</button>
         <div class="pd-img-counter" id="imgCounter"></div>
       </div>
     </div>
@@ -489,7 +501,7 @@
 </footer>
 
 <!-- 버전 표시 (캐시 확인용) -->
-<div class="pd-ver">product v1</div>
+<div class="pd-ver">product v2</div>
 
 <script src="./js/main.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
@@ -532,7 +544,7 @@ async function render(){
     document.getElementById('pOrig').textContent=p.original_price.toLocaleString()+'원';document.getElementById('pOrig').style.display='';
     document.getElementById('pDisc').textContent=Math.round((1-p.price/p.original_price)*100)+'%';document.getElementById('pDisc').style.display='';
   }
-  updateTotal();renderGallery();renderOpts();renderEditorial();
+  updateTotal();renderGallery();renderOpts();renderEditorial();applyMainText();
   // 상세 블록 로드
   const{data:blocks}=await sb.from('product_detail_blocks').select('*').eq('product_id',p.id).order('display_order');
   if(blocks?.length){
@@ -585,6 +597,11 @@ function renderGallery(){
   th.querySelectorAll('.pd-thumb').forEach(t=>{
     t.addEventListener('click',()=>{setMainImage(parseInt(t.dataset.i))});
   });
+  // v2: 이미지 2장 이상일 때만 좌우 화살표 노출
+  const multi=allGalleryImgs.length>1;
+  document.getElementById('navPrev').style.display=multi?'':'none';
+  document.getElementById('navNext').style.display=multi?'':'none';
+  syncThumbs();
 }
 
 function setMainImage(idx){
@@ -596,6 +613,49 @@ function setMainImage(idx){
   // 썸네일 스크롤 위치 조정
   const thumb=document.querySelectorAll('.pd-thumb')[idx];
   if(thumb) thumb.scrollIntoView({behavior:'smooth',block:'nearest'});
+}
+
+// v2: 메인 이미지 좌우 화살표 네비
+function navImg(d){
+  if(!allGalleryImgs.length) return;
+  const idx=(currentImgIdx+d+allGalleryImgs.length)%allGalleryImgs.length;
+  setMainImage(idx);
+}
+
+// v2: 메인 이미지 위 텍스트 레이어 (어드민 입력값. 비면 이미지만)
+function applyMainText(){
+  const el=document.getElementById('mainText');
+  if(!el) return;
+  const t=(product.main_image_text||'').trim();
+  if(!t){ el.style.display='none'; return; }
+  el.textContent=t;
+  el.className='pd-main-text '+((product.main_image_text_color||'light')==='dark'?'dark':'light');
+  el.style.display='';
+}
+
+// v2: 썸네일을 메인 이미지 높이에 맞춰 10개 배치 (데스크탑). 11개↑면 스크롤.
+function syncThumbs(){
+  const main=document.getElementById('mainWrap');
+  const wrap=document.querySelector('.pd-thumbs-wrap');
+  const thumbs=document.getElementById('thumbs');
+  const gallery=document.getElementById('gallery');
+  if(!main||!wrap||!thumbs) return;
+  const els=thumbs.querySelectorAll('.pd-thumb');
+  if(window.innerWidth<=1024){   // 모바일: 가로 스크롤 → 인라인 스타일 원복
+    wrap.style.height=''; thumbs.style.gap='';
+    els.forEach(t=>{t.style.height='';t.style.minHeight='';t.style.width='';});
+    if(gallery) gallery.style.gridTemplateColumns='';
+    return;
+  }
+  const mainH=main.getBoundingClientRect().height;
+  if(mainH<=0) return;
+  const gap=6, n=10;
+  const thumbH=Math.floor((mainH-gap*(n-1))/n);
+  const thumbW=Math.round(thumbH*0.8);   // 4:5 세로형
+  wrap.style.height=mainH+'px';
+  thumbs.style.gap=gap+'px';
+  els.forEach(t=>{t.style.height=thumbH+'px';t.style.minHeight=thumbH+'px';t.style.width=thumbW+'px';});
+  if(gallery) gallery.style.gridTemplateColumns=(thumbW+10)+'px 1fr';
 }
 
 // ══════════════════════════════════════════
@@ -1050,6 +1110,8 @@ async function recordView(){
   }catch(e){}
 }
 
+document.getElementById('mainImg').addEventListener('load',syncThumbs);
+window.addEventListener('resize',syncThumbs);
 loadProduct().then(()=>{recordView();loadWishCount();});
 </script>
 <script src="./js/common-header.js"></script>
