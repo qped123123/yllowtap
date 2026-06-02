@@ -60,6 +60,7 @@
   margin: 0 auto;
   padding: 30px 40px 80px;
   display: flex;
+  justify-content: flex-start;
   gap: 48px;
   align-items: flex-start;
 }
@@ -440,12 +441,15 @@ let searchQuery = '';
 // type 'tag'  : 상품 tags 로 필터 (예: 토트백 → tote)
 // type 'cat'  : 상품 category 로 필터 (New In / Sale 안에서 백/쥬얼리/키링)
 const SUBMENUS = {
+  best:    [ {label:'Bags', type:'cat', value:'bags'}, {label:'Jewelry', type:'cat', value:'jewelry'}, {label:'Keyring', type:'cat', value:'keyring'} ],
   bags:    [ {label:'토트백', type:'tag', value:'tote'}, {label:'숄더백', type:'tag', value:'shoulder'}, {label:'미니백', type:'tag', value:'mini'} ],
   jewelry: [ {label:'반지', type:'tag', value:'ring'}, {label:'목걸이', type:'tag', value:'necklace'}, {label:'귀걸이', type:'tag', value:'earring'}, {label:'팔찌', type:'tag', value:'bracelet'} ],
   keyring: [ {label:'커스텀 키링', type:'tag', value:'custom'}, {label:'완제품 키링', type:'tag', value:'ready'} ],
   new:     [ {label:'Bags', type:'cat', value:'bags'}, {label:'Jewelry', type:'cat', value:'jewelry'}, {label:'Keyring', type:'cat', value:'keyring'} ],
   sale:    [ {label:'Bags', type:'cat', value:'bags'}, {label:'Jewelry', type:'cat', value:'jewelry'}, {label:'Keyring', type:'cat', value:'keyring'} ],
 };
+// 사이드바에서 숨길 카테고리 (DB에 있어도 안 보이게)
+const HIDDEN_CATS = ['accessories'];
 // ALL/MADE/SALE 필터 버튼을 보여줄 카테고리 (백/쥬얼리/키링/시즌)
 const SHOW_FILTER_CATS = ['bags','jewelry','keyring','seasonal'];
 
@@ -465,7 +469,7 @@ async function loadCategories() {
 function renderSidebar() {
   const nav = document.getElementById('categoryNav');
   let html = '';
-  categories.forEach(cat => {
+  categories.filter(cat => !HIDDEN_CATS.includes(cat.slug)).forEach(cat => {
     const isActive = cat.slug === currentCategory;
     html += `<a class="cat-tab${isActive ? ' active' : ''}" href="/category.html?cat=${cat.slug}" data-slug="${cat.slug}">${cat.name}</a>`;
     // 현재 선택된 카테고리이고 하위메뉴가 있으면 그 아래 하위메뉴 표시
