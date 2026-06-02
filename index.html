@@ -162,7 +162,7 @@
   .home-diy__label { font-size: 11px; font-weight: 700; letter-spacing: 0.12em; margin-bottom: 18px; color: #111; }
   .home-diy__title { font-size: 30px; line-height: 1.25; font-weight: 400; letter-spacing: -0.04em; color: #111; margin: 0; }
   .home-diy__desc { margin-top: 14px; font-size: 13px; line-height: 1.6; font-weight: 400; color: #666; max-width: 320px; }
-  .home-diy__btn { margin-top: 22px; width: 150px; height: 42px; display: inline-flex; align-items: center; justify-content: center; background: #111; color: #fff; font-size: 12px; font-weight: 600; letter-spacing: -0.01em; line-height: 1; }
+  .home-diy__btn { margin-top: 22px; min-width: 200px; height: 46px; padding: 0 28px; display: inline-flex; align-items: center; justify-content: center; background: #111; color: #fff; font-size: 13px; font-weight: 600; letter-spacing: -0.01em; line-height: 1; text-decoration: none; }
   .home-diy__btn:hover { background: #333; opacity: 1; }
 
   /* 07 PERFECT GIFT (단일 배너) */
@@ -216,6 +216,8 @@
       padding-bottom: 8px;
       scrollbar-width: none;
     }
+    .home-carousel { padding: 0 34px; }
+    .home-arrow { width: 30px; height: 30px; font-size: 15px; }
     .home-products::-webkit-scrollbar { display: none; }
     .home-pcard { scroll-snap-align: start; }
 
@@ -226,7 +228,7 @@
     .home-diy__label { margin-bottom: 10px; }
     .home-diy__title { font-size: 23px; }
     .home-diy__desc { font-size: 12px; margin-top: 8px; }
-    .home-diy__btn { margin-top: 14px; height: 44px; width: auto; min-width: 150px; padding: 0 24px; font-size: 13px; }
+    .home-diy__btn { margin-top: 16px; align-self: stretch; width: 100%; height: 48px; padding: 0; font-size: 13px; }
 
     /* PERFECT GIFT: 텍스트 상단 겹침 유지(이미지 위), 버튼은 풀폭 하단 */
     .home-gift__inner { height: 200px; aspect-ratio: auto; }
@@ -246,7 +248,7 @@
   .home-cat__img.is-ready, .home-diy__img.is-ready, .home-gift__img.is-ready { opacity: 1; }
 
   /* 상품 캐러셀 + 양옆 화살표 */
-  .home-carousel { position: relative; }
+  .home-carousel { position: relative; padding: 0 46px; }
   .home-arrow {
     position: absolute; top: 0; /* 이미지 세로 중앙에 맞춤(아래 JS/transform) */
     width: 38px; height: 38px; border: 1px solid #e2ddd5; background: rgba(255,255,255,0.95);
@@ -255,8 +257,8 @@
     z-index: 5; box-shadow: 0 2px 8px rgba(0,0,0,0.08);
     transform: translateY(0);
   }
-  .home-arrow--prev { left: -8px; }
-  .home-arrow--next { right: -8px; }
+  .home-arrow--prev { left: 0; }
+  .home-arrow--next { right: 0; }
   .home-arrow:hover { background: #111; color: #fff; border-color: #111; }
   </style>
 </head>
@@ -823,7 +825,7 @@ async function init() {
 }
 init();
 </script>
-<script src="./js/common-header.js?v=11"></script>
-<div style="position:fixed;bottom:6px;right:8px;font-size:9px;color:rgba(0,0,0,0.25);z-index:9999;pointer-events:none;font-family:monospace;">v11</div>
+<script src="./js/common-header.js?v=13"></script>
+<div style="position:fixed;bottom:6px;right:8px;font-size:9px;color:rgba(0,0,0,0.25);z-index:9999;pointer-events:none;font-family:monospace;">v13</div>
 </body>
 </html>
