@@ -733,6 +733,29 @@ body { font-family:var(--font); background:var(--bg); color:var(--text); font-si
           <div class="form-group"><label class="form-label">텍스트 색상</label><select class="form-select" id="fMainTextColor"><option value="light">밝게 (흰색)</option><option value="dark">어둡게 (검정)</option></select></div>
         </div>
       </div>
+      <!-- ★ 에디트/세트 관리 (상세페이지용) -->
+      <div class="form-section">
+        <div class="form-section-title">상품 타입 · 에디트/세트</div>
+        <div class="form-row">
+          <div class="form-group"><label class="form-label">상품 타입</label><select class="form-select" id="fLayout" onchange="toggleEditFields()"><option value="standard">일반 단품</option><option value="edit">에디트 · 세트</option></select><span class="form-hint">'에디트·세트'면 아래 항목이 상세페이지에 노출돼요</span></div>
+          <div class="form-group"><label class="form-label">에디트 라벨 (상단 작은 글씨)</label><input class="form-input" id="fEditOverline" placeholder="YELLOWTAP EDIT 01"></div>
+        </div>
+        <div id="editFieldsWrap" style="display:none;">
+          <div class="form-row">
+            <div class="form-group"><label class="form-label">메인 이미지 텍스트 (선택)</label><textarea class="form-textarea" id="fMainText" style="min-height:48px;" placeholder="대표 이미지 위 글자. 비우면 이미지만"></textarea></div>
+            <div class="form-group"><label class="form-label">텍스트 색상</label><select class="form-select" id="fMainTextColor"><option value="light">밝게(흰색)</option><option value="dark">어둡게(검정)</option></select></div>
+          </div>
+          <div style="font-size:11px;font-weight:600;color:var(--text);margin:18px 0 8px;">구성 상품</div>
+          <div id="setItemArea"></div>
+          <button class="btn btn-secondary btn-small" onclick="addSetItem()">+ 구성상품 추가</button>
+          <div style="font-size:11px;font-weight:600;color:var(--text);margin:18px 0 8px;">구매 옵션</div>
+          <div id="buyOptArea"></div>
+          <button class="btn btn-secondary btn-small" onclick="addBuyOpt()">+ 구매옵션 추가</button>
+          <div style="font-size:11px;font-weight:600;color:var(--text);margin:18px 0 8px;">Why this edit 카드</div>
+          <div id="editReasonArea"></div>
+          <button class="btn btn-secondary btn-small" onclick="addEditReason()">+ Why 카드 추가</button>
+        </div>
+      </div>
       <div class="form-section">
         <div class="form-section-title">에디토리얼 설명</div>
         <div class="form-row full"><div class="form-group"><label class="form-label">에디토리얼 카피</label><textarea class="form-textarea" id="fEditorial" placeholder="도시적인 실루엣과 부드러운 텍스처를 담은 가벼운 재킷."></textarea></div></div>
@@ -958,7 +981,7 @@ function getMainImg(p) {
 
 function openProductForm() { editingProductId = null; document.getElementById('productFormTitle').textContent = '새 상품 등록'; document.getElementById('productDeleteBtn').style.display = 'none'; resetProductForm(); document.getElementById('productModal').classList.add('show'); }
 function closeProductForm() { document.getElementById('productModal').classList.remove('show'); }
-function resetProductForm() { ['fName','fSubtitle','fSlug','fPrice','fOriginalPrice','fEditorial','fMoodTitle','fMoodDesc','fDetail','fMainText'].forEach(id => document.getElementById(id).value = ''); document.getElementById('fMainTextColor').value='light'; document.getElementById('fCategory').value = ''; document.getElementById('fCollection').value = ''; document.getElementById('fOrder').value = '0'; document.getElementById('fActive').value = 'true'; formImages=[]; formPresetTags=[]; formCustomTags=[]; formOptions=[]; formRecommends=[]; formColorImages=[]; formDetailBlocks=[]; formScores={}; renderProductFormAll(); renderScoreSliders(); }
+function resetProductForm() { ['fName','fSubtitle','fSlug','fPrice','fOriginalPrice','fEditorial','fMoodTitle','fMoodDesc','fDetail','fMainText'].forEach(id => document.getElementById(id).value = ''); document.getElementById('fMainTextColor').value='light'; document.getElementById('fCategory').value = ''; document.getElementById('fCollection').value = ''; document.getElementById('fOrder').value = '0'; document.getElementById('fActive').value = 'true'; formImages=[]; formPresetTags=[]; formCustomTags=[]; formOptions=[]; formRecommends=[]; formColorImages=[]; formDetailBlocks=[]; formScores={}; formSetItems=[]; formBuyOptions=[]; formEditReasons=[]; document.getElementById('fLayout').value='standard'; document.getElementById('fEditOverline').value=''; document.getElementById('fMainText').value=''; document.getElementById('fMainTextColor').value='light'; renderProductFormAll(); renderScoreSliders(); renderSetItems(); renderBuyOpts(); renderEditReasons(); toggleEditFields(); }
 function renderProductFormAll() { renderImages(); renderPresetTags(); renderCustomTags(); renderOptions(); renderRecommends(); renderColorImages(); renderDetailBlocks(); }
 
 async function editProduct(id) {
@@ -986,6 +1009,12 @@ async function editProduct(id) {
   formColorImages = (ci||[]).map(c=>({id:c.id, option_value:c.option_value, image_url:c.image_url}));
   await loadDetailBlocks(id);
   await loadProductScores(id);
+  document.getElementById('fLayout').value = p.product_layout || 'standard';
+  document.getElementById('fEditOverline').value = p.edit_overline || '';
+  document.getElementById('fMainText').value = p.main_image_text || '';
+  document.getElementById('fMainTextColor').value = p.main_image_text_color || 'light';
+  await loadEditData(id);
+  renderSetItems(); renderBuyOpts(); renderEditReasons(); toggleEditFields();
   renderProductFormAll(); renderScoreSliders(); document.getElementById('productModal').classList.add('show');
 }
 
@@ -1051,7 +1080,7 @@ document.getElementById('fCategory').addEventListener('change', renderScoreSlide
 async function saveProduct() {
   const name=document.getElementById('fName').value.trim(),slug=document.getElementById('fSlug').value.trim(),category=document.getElementById('fCategory').value,price=parseInt(document.getElementById('fPrice').value)||0;
   if(!name){showToast('상품명 입력',true);return;} if(!slug){showToast('슬러그 입력',true);return;} if(!category){showToast('카테고리 선택',true);return;} if(!price){showToast('가격 입력',true);return;}
-  const d={brand:'YLLOWTAP',name,subtitle:document.getElementById('fSubtitle').value.trim()||null,slug,category,section:'curated',price,original_price:parseInt(document.getElementById('fOriginalPrice').value)||null,display_order:parseInt(document.getElementById('fOrder').value)||0,collection_id:document.getElementById('fCollection').value||null,is_active:document.getElementById('fActive').value==='true',description_editorial:document.getElementById('fEditorial').value.trim()||null,mood_title:document.getElementById('fMoodTitle').value.trim()||null,mood_description:document.getElementById('fMoodDesc').value.trim()||null,description_detail:document.getElementById('fDetail').value.trim()||null,tags:[...formPresetTags,...formCustomTags],options:formOptions.filter(o=>o.name),main_image_text:document.getElementById('fMainText').value.trim()||null,main_image_text_color:document.getElementById('fMainTextColor').value,image_url:formImages.length?(formImages.find(m=>m.role==='main')?.url||formImages[0].url):null};
+  const d={brand:'YLLOWTAP',name,subtitle:document.getElementById('fSubtitle').value.trim()||null,slug,category,section:'curated',price,original_price:parseInt(document.getElementById('fOriginalPrice').value)||null,display_order:parseInt(document.getElementById('fOrder').value)||0,collection_id:document.getElementById('fCollection').value||null,is_active:document.getElementById('fActive').value==='true',description_editorial:document.getElementById('fEditorial').value.trim()||null,mood_title:document.getElementById('fMoodTitle').value.trim()||null,mood_description:document.getElementById('fMoodDesc').value.trim()||null,description_detail:document.getElementById('fDetail').value.trim()||null,tags:[...formPresetTags,...formCustomTags],options:formOptions.filter(o=>o.name),main_image_text:document.getElementById('fMainText').value.trim()||null,main_image_text_color:document.getElementById('fMainTextColor').value,product_layout:document.getElementById('fLayout').value,edit_overline:document.getElementById('fEditOverline').value.trim()||null,main_image_text:document.getElementById('fMainText').value.trim()||null,main_image_text_color:document.getElementById('fMainTextColor').value,image_url:formImages.length?(formImages.find(m=>m.role==='main')?.url||formImages[0].url):null};
   let pid; try {
     if(editingProductId){const{error}=await sb.from('products').update(d).eq('id',editingProductId);if(error)throw error;pid=editingProductId;}
     else{const{data,error}=await sb.from('products').insert(d).select().single();if(error)throw error;pid=data.id;}
@@ -1063,6 +1092,7 @@ async function saveProduct() {
     if(formColorImages.length){const colorOpt=formOptions.find(o=>['컬러','색상','Color','color'].includes(o.name));if(colorOpt){await sb.from('product_option_images').insert(formColorImages.map((ci,i)=>({product_id:pid,option_name:colorOpt.name,option_value:ci.option_value,image_url:ci.image_url,display_order:i})));}}
     await saveDetailBlocks(pid);
     await saveProductScores(pid);
+    await saveEditData(pid);
     showToast(editingProductId?'수정 완료':'등록 완료');closeProductForm();await loadProducts();
   } catch(err) { if(err.message?.includes('duplicate')&&err.message?.includes('slug'))showToast('중복된 슬러그',true);else showToast('저장 실패: '+err.message,true); }
 }
@@ -1492,6 +1522,66 @@ async function saveMainImages() {
     }
     showToast('메인 이미지 저장 완료 — 홈 화면에 반영됩니다');
   } catch (err) { showToast('저장 실패: ' + err.message, true); }
+}
+// ══════════════════════════════════════════
+// 에디트/세트 관리 (구성상품 / 구매옵션 / Why this edit)
+// ══════════════════════════════════════════
+let formSetItems=[], formBuyOptions=[], formEditReasons=[];
+
+function toggleEditFields(){
+  const w=document.getElementById('editFieldsWrap');
+  if(w) w.style.display = document.getElementById('fLayout').value==='edit' ? '' : 'none';
+}
+
+function renderSetItems(){
+  const a=document.getElementById('setItemArea'); if(!a) return;
+  if(!formSetItems.length){a.innerHTML='<div style="font-size:11px;color:var(--text-muted);padding:8px 0;">+ 버튼으로 구성상품을 추가하세요</div>';return;}
+  a.innerHTML=formSetItems.map((it,i)=>`<div style="display:grid;grid-template-columns:64px 1fr 1fr 90px 60px;gap:8px;align-items:center;padding:8px;margin-bottom:6px;background:var(--bg-input);border:1px solid var(--border);border-radius:var(--radius);">${it.item_image_url?`<img src="${it.item_image_url}" style="width:64px;height:64px;object-fit:cover;border-radius:4px;">`:`<label class="btn btn-secondary btn-small" style="cursor:pointer;text-align:center;">📎<input type="file" accept="image/*" style="display:none;" onchange="uploadSetImg(this,${i})"></label>`}<input class="form-input" value="${(it.item_name||'').replace(/"/g,'&quot;')}" placeholder="상품명" style="font-size:11px;" onchange="formSetItems[${i}].item_name=this.value"><input class="form-input" value="${(it.item_color||'').replace(/"/g,'&quot;')}" placeholder="컬러(선택)" style="font-size:11px;" onchange="formSetItems[${i}].item_color=this.value"><input class="form-input" type="number" value="${it.item_price||''}" placeholder="가격" style="font-size:11px;" onchange="formSetItems[${i}].item_price=parseInt(this.value)||null"><div style="display:flex;gap:3px;">${i>0?`<button class="btn btn-secondary btn-small" onclick="moveSet(${i},-1)">↑</button>`:''}<button class="btn btn-small" style="background:var(--red);color:#fff;border:none;" onclick="removeSet(${i})">×</button></div></div>`).join('');
+}
+function addSetItem(){formSetItems.push({item_name:'',item_color:'',item_price:null,item_image_url:''});renderSetItems();}
+function removeSet(i){formSetItems.splice(i,1);renderSetItems();}
+function moveSet(i,d){const t=i+d;if(t<0||t>=formSetItems.length)return;[formSetItems[i],formSetItems[t]]=[formSetItems[t],formSetItems[i]];renderSetItems();}
+async function uploadSetImg(input,i){const f=input.files[0];if(!f)return;const fn=`setitems/${Date.now()}_${Math.random().toString(36).slice(2,8)}.${f.name.split('.').pop()}`;const{error}=await sb.storage.from('media').upload(fn,f,{upsert:true,contentType:f.type});if(error){showToast('업로드 실패',true);return;}const{data:u}=sb.storage.from('media').getPublicUrl(fn);formSetItems[i].item_image_url=u.publicUrl;renderSetItems();input.value='';}
+
+function renderBuyOpts(){
+  const a=document.getElementById('buyOptArea'); if(!a) return;
+  if(!formBuyOptions.length){a.innerHTML='<div style="font-size:11px;color:var(--text-muted);padding:8px 0;">+ 버튼으로 구매옵션 추가 (예: BAG ONLY / YELLOWTAP EDIT / COMPLETE SET)</div>';return;}
+  a.innerHTML=formBuyOptions.map((o,i)=>`<div style="display:grid;grid-template-columns:1fr 1fr 90px 80px 50px 50px;gap:8px;align-items:center;padding:8px;margin-bottom:6px;background:var(--bg-input);border:1px solid var(--border);border-radius:var(--radius);"><input class="form-input" value="${(o.option_title||'').replace(/"/g,'&quot;')}" placeholder="옵션명" style="font-size:11px;" onchange="formBuyOptions[${i}].option_title=this.value"><input class="form-input" value="${(o.sub_description||'').replace(/"/g,'&quot;')}" placeholder="설명" style="font-size:11px;" onchange="formBuyOptions[${i}].sub_description=this.value"><input class="form-input" type="number" value="${o.price||''}" placeholder="가격" style="font-size:11px;" onchange="formBuyOptions[${i}].price=parseInt(this.value)||0"><input class="form-input" value="${(o.badge_text||'').replace(/"/g,'&quot;')}" placeholder="배지" style="font-size:11px;" onchange="formBuyOptions[${i}].badge_text=this.value||null"><label style="font-size:10px;display:flex;align-items:center;gap:3px;color:var(--text-dim);"><input type="checkbox" ${o.is_best?'checked':''} onchange="setBestOpt(${i},this.checked)">기본</label><div style="display:flex;gap:3px;">${i>0?`<button class="btn btn-secondary btn-small" onclick="moveOpt(${i},-1)">↑</button>`:''}<button class="btn btn-small" style="background:var(--red);color:#fff;border:none;" onclick="removeOpt(${i})">×</button></div></div>`).join('');
+}
+function addBuyOpt(){formBuyOptions.push({option_title:'',sub_description:'',price:0,badge_text:null,is_best:formBuyOptions.length===0});renderBuyOpts();}
+function removeOpt(i){formBuyOptions.splice(i,1);renderBuyOpts();}
+function moveOpt(i,d){const t=i+d;if(t<0||t>=formBuyOptions.length)return;[formBuyOptions[i],formBuyOptions[t]]=[formBuyOptions[t],formBuyOptions[i]];renderBuyOpts();}
+function setBestOpt(i,checked){formBuyOptions.forEach((o,j)=>o.is_best=(j===i&&checked));renderBuyOpts();}
+
+function renderEditReasons(){
+  const a=document.getElementById('editReasonArea'); if(!a) return;
+  if(!formEditReasons.length){a.innerHTML='<div style="font-size:11px;color:var(--text-muted);padding:8px 0;">+ 버튼으로 카드를 추가하세요</div>';return;}
+  a.innerHTML=formEditReasons.map((r,i)=>`<div style="display:grid;grid-template-columns:64px 1fr 60px;gap:8px;align-items:start;padding:8px;margin-bottom:6px;background:var(--bg-input);border:1px solid var(--border);border-radius:var(--radius);">${r.image_url?`<img src="${r.image_url}" style="width:64px;height:64px;object-fit:cover;border-radius:4px;">`:`<label class="btn btn-secondary btn-small" style="cursor:pointer;text-align:center;">📎<input type="file" accept="image/*" style="display:none;" onchange="uploadReasonImg(this,${i})"></label>`}<div style="display:flex;flex-direction:column;gap:6px;"><input class="form-input" value="${(r.subtitle||'').replace(/"/g,'&quot;')}" placeholder="소제목" style="font-size:11px;" onchange="formEditReasons[${i}].subtitle=this.value"><textarea class="form-textarea" style="min-height:44px;font-size:11px;" placeholder="설명" onchange="formEditReasons[${i}].description=this.value">${r.description||''}</textarea></div><div style="display:flex;gap:3px;">${i>0?`<button class="btn btn-secondary btn-small" onclick="moveReason(${i},-1)">↑</button>`:''}<button class="btn btn-small" style="background:var(--red);color:#fff;border:none;" onclick="removeReason(${i})">×</button></div></div>`).join('');
+}
+function addEditReason(){formEditReasons.push({image_url:'',subtitle:'',description:''});renderEditReasons();}
+function removeReason(i){formEditReasons.splice(i,1);renderEditReasons();}
+function moveReason(i,d){const t=i+d;if(t<0||t>=formEditReasons.length)return;[formEditReasons[i],formEditReasons[t]]=[formEditReasons[t],formEditReasons[i]];renderEditReasons();}
+async function uploadReasonImg(input,i){const f=input.files[0];if(!f)return;const fn=`whyedit/${Date.now()}_${Math.random().toString(36).slice(2,8)}.${f.name.split('.').pop()}`;const{error}=await sb.storage.from('media').upload(fn,f,{upsert:true,contentType:f.type});if(error){showToast('업로드 실패',true);return;}const{data:u}=sb.storage.from('media').getPublicUrl(fn);formEditReasons[i].image_url=u.publicUrl;renderEditReasons();input.value='';}
+
+async function loadEditData(productId){
+  const r=await Promise.all([
+    sb.from('product_set_items').select('*').eq('product_id',productId).order('display_order'),
+    sb.from('product_purchase_options').select('*').eq('product_id',productId).order('display_order'),
+    sb.from('product_edit_reasons').select('*').eq('product_id',productId).order('display_order')
+  ]);
+  formSetItems=(r[0].data||[]).map(x=>({item_name:x.item_name,item_color:x.item_color,item_price:x.item_price,item_image_url:x.item_image_url}));
+  formBuyOptions=(r[1].data||[]).map(x=>({option_title:x.option_title,sub_description:x.sub_description,price:x.price,badge_text:x.badge_text,is_best:x.is_best}));
+  formEditReasons=(r[2].data||[]).map(x=>({image_url:x.image_url,subtitle:x.subtitle,description:x.description}));
+}
+async function saveEditData(productId){
+  await Promise.all([
+    sb.from('product_set_items').delete().eq('product_id',productId),
+    sb.from('product_purchase_options').delete().eq('product_id',productId),
+    sb.from('product_edit_reasons').delete().eq('product_id',productId)
+  ]);
+  if(formSetItems.length) await sb.from('product_set_items').insert(formSetItems.map((it,i)=>({product_id:productId,item_name:it.item_name||'',item_color:it.item_color||null,item_price:it.item_price||null,item_image_url:it.item_image_url||null,display_order:i})));
+  if(formBuyOptions.length) await sb.from('product_purchase_options').insert(formBuyOptions.map((o,i)=>({product_id:productId,option_title:o.option_title||'',sub_description:o.sub_description||null,price:o.price||0,badge_text:o.badge_text||null,is_best:!!o.is_best,display_order:i})));
+  if(formEditReasons.length) await sb.from('product_edit_reasons').insert(formEditReasons.map((r,i)=>({product_id:productId,image_url:r.image_url||null,subtitle:r.subtitle||null,description:r.description||null,display_order:i})));
 }
 // ─── 시작 ───
 checkAuth();
