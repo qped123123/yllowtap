@@ -101,7 +101,7 @@
 /* 하위메뉴 */
 .cat-submenu { display: flex; flex-direction: column; padding: 2px 0 8px 0; margin: 0; }
 .cat-subtab {
-  padding: 7px 4px 7px 16px;
+  padding: 7px 4px;
   font-size: 12px;
   font-weight: 400;
   color: var(--cat-text3);
@@ -113,10 +113,11 @@
 .cat-subtab:hover { color: var(--cat-text); }
 .cat-subtab.active { color: var(--cat-text); font-weight: 600; }
 .cat-main { flex: 1; min-width: 0; }
-.cat-head { margin-bottom: 24px; }
+.cat-head { margin-bottom: 24px; padding-top: 8px; }
 .cat-head h1 { font-family: var(--cat-font-display); font-size: 30px; font-weight: 400; letter-spacing: 3px; text-transform: uppercase; margin-bottom: 6px; }
 .cat-head p { font-size: 13px; color: var(--cat-text2); letter-spacing: 0.5px; }
-.cat-head .category-count { margin-top: 6px; font-size: 11px; color: var(--cat-text3); letter-spacing: 1.5px; }
+.filter-right { display: flex; align-items: center; gap: 16px; }
+.filter-right .category-count { font-size: 11px; color: var(--cat-text3); letter-spacing: 1.5px; white-space: nowrap; }
 
 /* FILTER BAR */
 .filter-bar {
@@ -340,7 +341,6 @@
     <div class="cat-head">
       <h1 id="categoryTitle">ALL</h1>
       <p id="categoryDesc"></p>
-      <div class="category-count" id="categoryCount"></div>
     </div>
     <!-- FILTER BAR -->
     <div class="filter-bar">
@@ -350,6 +350,7 @@
         <button class="filter-btn" data-filter="sale">SALE</button>
       </div>
       <div class="filter-right">
+        <span class="category-count" id="categoryCount"></span>
         <select id="sortSelect">
           <option value="newest">NEWEST</option>
           <option value="price-low">PRICE: LOW → HIGH</option>
@@ -447,6 +448,7 @@ const SUBMENUS = {
   keyring: [ {label:'커스텀 키링', type:'tag', value:'custom'}, {label:'완제품 키링', type:'tag', value:'ready'} ],
   new:     [ {label:'Bags', type:'cat', value:'bags'}, {label:'Jewelry', type:'cat', value:'jewelry'}, {label:'Keyring', type:'cat', value:'keyring'} ],
   sale:    [ {label:'Bags', type:'cat', value:'bags'}, {label:'Jewelry', type:'cat', value:'jewelry'}, {label:'Keyring', type:'cat', value:'keyring'} ],
+  seasonal:[ {label:'Bags', type:'cat', value:'bags'}, {label:'Jewelry', type:'cat', value:'jewelry'}, {label:'Keyring', type:'cat', value:'keyring'} ],
 };
 // 사이드바에서 숨길 카테고리 (DB에 있어도 안 보이게)
 const HIDDEN_CATS = ['accessories'];
@@ -685,6 +687,6 @@ async function toggleCatWish(productId,btn){
 init();
 </script>
 <script src="./js/common-header.js"></script>
-<div style="position:fixed;bottom:6px;right:8px;font-size:9px;color:rgba(0,0,0,0.25);z-index:9999;pointer-events:none;font-family:monospace;">cat-v3</div>
+<div style="position:fixed;bottom:6px;right:8px;font-size:9px;color:rgba(0,0,0,0.25);z-index:9999;pointer-events:none;font-family:monospace;">cat-v4</div>
 </body>
 </html>
