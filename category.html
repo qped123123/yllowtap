@@ -299,14 +299,15 @@
   }
   .cat-submenu::-webkit-scrollbar { display: none; }
   .cat-subtab {
-    padding: 11px 12px; font-size: 12px; white-space: nowrap; flex-shrink: 0;
+    padding: 11px 12px; font-size: 13px; white-space: nowrap; flex-shrink: 0;
     border: none; border-bottom: 2px solid transparent; color: var(--cat-text3);
   }
   .cat-subtab.active { background: none; color: var(--cat-text); font-weight: 700; border-bottom: 2px solid var(--cat-text); }
 
   .cat-main { padding: 20px 20px 0; }
   .cat-product-grid { grid-template-columns: repeat(2,1fr); gap: 14px 10px; }
-  .cat-head h1 { font-size: 24px; letter-spacing: 2px; }
+  .cat-head h1 { display: none; }
+  .cat-head { margin-bottom: 0; padding-top: 0; }
   .filter-bar { flex-direction: column; gap: 10px; align-items: flex-start; }
 }
 </style>
@@ -556,7 +557,7 @@ function updateCategoryUI() {
   document.querySelectorAll('.cat-tab').forEach(tab => tab.classList.toggle('active', tab.dataset.slug === currentCategory));
   if (searchQuery) {
     document.getElementById('categoryTitle').textContent = `"${searchQuery}" 검색 결과`;
-    document.getElementById('categoryDesc').textContent = '';
+    document.getElementById('categoryDesc').textContent = `"${searchQuery}" 검색 결과`;
   } else {
     const cat = categories.find(c => c.slug === currentCategory);
     document.getElementById('categoryTitle').textContent = cat ? cat.name : 'ALL';
@@ -726,6 +727,6 @@ async function toggleCatWish(productId,btn){
 init();
 </script>
 <script src="./js/common-header.js"></script>
-<div style="position:fixed;bottom:6px;right:8px;font-size:9px;color:rgba(0,0,0,0.25);z-index:9999;pointer-events:none;font-family:monospace;">cat-v7</div>
+<div style="position:fixed;bottom:6px;right:8px;font-size:9px;color:rgba(0,0,0,0.25);z-index:9999;pointer-events:none;font-family:monospace;">cat-v8</div>
 </body>
 </html>
