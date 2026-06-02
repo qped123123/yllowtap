@@ -81,6 +81,8 @@
   margin-bottom: 6px;
 }
 .cat-sidebar-nav { display: flex; flex-direction: column; }
+.cat-row { display: flex; flex-direction: column; }
+.cat-row--sub { padding: 2px 0 8px 12px; }
 .cat-tab {
   padding: 9px 4px;
   font-size: 13px;
@@ -268,15 +270,59 @@
 /* RESPONSIVE */
 @media (max-width:1024px) { .cat-product-grid { grid-template-columns: repeat(3,1fr); } }
 @media (max-width:768px) {
-  .cat-layout { flex-direction: column; padding: 20px 20px 60px; gap: 16px; }
+  .cat-layout { flex-direction: column; padding: 0 0 60px; gap: 0; }
+  /* 사이드바를 상단 가로 탭으로 전환 */
   .cat-sidebar { width: 100%; position: static; }
-  .cat-sidebar-nav { flex-direction: row; flex-wrap: wrap; gap: 6px; align-items: flex-start; }
-  .cat-tab { padding: 7px 14px; border: 1px solid var(--cat-border); font-size: 12px; }
-  .cat-tab.active { background: var(--cat-text); color: var(--cat-bg); border-color: var(--cat-text); }
-  /* 모바일 하위메뉴: 전체 폭 차지하고 가로로 나열 */
-  .cat-submenu { flex-basis: 100%; flex-direction: row; flex-wrap: wrap; border-left: none; border-top: 1px solid var(--cat-border); margin: 4px 0 0; padding: 8px 0 0; gap: 6px; }
-  .cat-subtab { padding: 6px 12px; border: 1px solid var(--cat-border); font-size: 12px; }
-  .cat-subtab.active { background: var(--cat-text); color: var(--cat-bg); border-color: var(--cat-text); }
+  .cat-sidebar-title { display: none; }  /* 모바일에선 CATEGORY 라벨 숨김 */
+  .cat-sidebar-nav { gap: 0; }
+
+  /* 가로 스크롤 줄 */
+  .cat-row {
+    flex-direction: row;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    gap: 4px;
+    padding: 0 16px;
+  }
+  .cat-row::-webkit-scrollbar { display: none; }
+  .cat-row--main { border-bottom: 1px solid var(--cat-border); }
+  .cat-row--sub { background: #faf8f5; padding-top: 8px; padding-bottom: 8px; }
+
+  /* 큰 카테고리 탭 (밑줄형) */
+  .cat-tab {
+    padding: 14px 12px;
+    font-size: 13px;
+    white-space: nowrap;
+    border: none;
+    border-bottom: 2px solid transparent;
+    color: var(--cat-text2);
+  }
+  .cat-tab.active {
+    background: none;
+    color: var(--cat-text);
+    font-weight: 700;
+    border-bottom: 2px solid var(--cat-text);
+  }
+
+  /* 하위 탭 (밑줄형, 살짝 작게) */
+  .cat-subtab {
+    padding: 10px 10px;
+    font-size: 12px;
+    white-space: nowrap;
+    border: none;
+    border-bottom: 2px solid transparent;
+    color: var(--cat-text3);
+  }
+  .cat-subtab.active {
+    background: none;
+    color: var(--cat-text);
+    font-weight: 700;
+    border-bottom: 2px solid var(--cat-text);
+  }
+
+  .cat-main { padding: 20px 20px 0; }
   .cat-product-grid { grid-template-columns: repeat(2,1fr); gap: 14px 10px; }
   .cat-head h1 { font-size: 24px; letter-spacing: 2px; }
   .filter-bar { flex-direction: column; gap: 10px; align-items: flex-start; }
@@ -470,20 +516,27 @@ async function loadCategories() {
 
 function renderSidebar() {
   const nav = document.getElementById('categoryNav');
-  let html = '';
+  // 1줄: 큰 카테고리
+  let html = '<div class="cat-row cat-row--main">';
   categories.filter(cat => !HIDDEN_CATS.includes(cat.slug)).forEach(cat => {
     const isActive = cat.slug === currentCategory;
     html += `<a class="cat-tab${isActive ? ' active' : ''}" href="/category.html?cat=${cat.slug}" data-slug="${cat.slug}">${cat.name}</a>`;
-    // 현재 선택된 카테고리이고 하위메뉴가 있으면 그 아래 하위메뉴 표시
-    if (isActive && SUBMENUS[cat.slug]) {
-      html += '<div class="cat-submenu">';
-      SUBMENUS[cat.slug].forEach(sub => {
-        const subActive = currentSub === (sub.type + ':' + sub.value);
-        html += `<a class="cat-subtab${subActive ? ' active' : ''}" href="#" data-subkey="${sub.type}:${sub.value}">${sub.label}</a>`;
-      });
-      html += '</div>';
-    }
   });
+  html += '</div>';
+
+  // 2줄: 현재 카테고리의 하위 (전체 + 항목들) — 하위가 있을 때만
+  const subs = SUBMENUS[currentCategory];
+  if (subs) {
+    html += '<div class="cat-row cat-row--sub">';
+    // '전체' = 하위 해제
+    html += `<a class="cat-subtab${!currentSub ? ' active' : ''}" href="#" data-subkey="">전체</a>`;
+    subs.forEach(sub => {
+      const key = sub.type + ':' + sub.value;
+      const subActive = currentSub === key;
+      html += `<a class="cat-subtab${subActive ? ' active' : ''}" href="#" data-subkey="${key}">${sub.label}</a>`;
+    });
+    html += '</div>';
+  }
   nav.innerHTML = html;
 
   // 큰 카테고리 클릭
@@ -504,7 +557,7 @@ function renderSidebar() {
     tab.addEventListener('click', (e) => {
       e.preventDefault();
       const key = tab.dataset.subkey;
-      currentSub = (currentSub === key) ? '' : key;  // 다시 누르면 해제
+      currentSub = key;   // 빈 문자열이면 '전체'(해제)
       currentPage = 1;
       history.pushState(null, '', `/category.html?cat=${currentCategory}${currentSub ? '&sub=' + currentSub : ''}`);
       renderSidebar();
@@ -687,6 +740,6 @@ async function toggleCatWish(productId,btn){
 init();
 </script>
 <script src="./js/common-header.js"></script>
-<div style="position:fixed;bottom:6px;right:8px;font-size:9px;color:rgba(0,0,0,0.25);z-index:9999;pointer-events:none;font-family:monospace;">cat-v4</div>
+<div style="position:fixed;bottom:6px;right:8px;font-size:9px;color:rgba(0,0,0,0.25);z-index:9999;pointer-events:none;font-family:monospace;">cat-v5</div>
 </body>
 </html>
