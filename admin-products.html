@@ -721,7 +721,7 @@ body { font-family:var(--font); background:var(--bg); color:var(--text); font-si
         <div style="margin-top:12px;display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
           <label class="btn btn-secondary btn-small" style="display:inline-flex;align-items:center;gap:6px;cursor:pointer;">📎 파일 업로드<input type="file" id="imageFileInput" accept="image/png,image/jpeg,image/gif,image/webp,video/mp4" multiple style="display:none;"></label>
           <select id="imageRoleSelect" class="form-select" style="display:inline-block;width:auto;padding:6px 10px;font-size:11px;">
-            <option value="main">대표 이미지</option><option value="editorial">감성 컷</option><option value="detail">디테일</option><option value="fabric">소재 확대</option><option value="mood">무드 섹션</option>
+            <option value="main">대표 이미지 (처음 뜨는 메인)</option><option value="detail">추가 이미지 (왼쪽 썸네일)</option><option value="mood">무드 컷 (에디토리얼 섹션)</option>
           </select>
         </div>
       </div>
@@ -911,7 +911,7 @@ const SUPABASE_URL = 'https://ppihvvpplqikclftrwdb.supabase.co';
 const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBwaWh2dnBwbHFpa2NsZnRyd2RiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk3MzE0NTEsImV4cCI6MjA5NTMwNzQ1MX0.shGVcFTQiuYc4u6tdU50x18YMgJdgFUljf8c7QlQU-U';
 const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON);
 
-const ROLE_LABELS = { main:'대표', editorial:'감성', detail:'디테일', fabric:'소재', mood:'무드' };
+const ROLE_LABELS = { main:'대표', editorial:'추가', detail:'추가', fabric:'추가', mood:'무드컷' };
 
 let allProducts = [], categories = [], collections = [];
 let heroSlides = [], siteSettings = {};
@@ -1536,7 +1536,10 @@ function toggleEditFields(){
 function renderSetItems(){
   const a=document.getElementById('setItemArea'); if(!a) return;
   if(!formSetItems.length){a.innerHTML='<div style="font-size:11px;color:var(--text-muted);padding:8px 0;">+ 버튼으로 구성상품을 추가하세요</div>';return;}
-  a.innerHTML=formSetItems.map((it,i)=>`<div style="display:grid;grid-template-columns:64px 1fr 1fr 90px 60px;gap:8px;align-items:center;padding:8px;margin-bottom:6px;background:var(--bg-input);border:1px solid var(--border);border-radius:var(--radius);">${it.item_image_url?`<img src="${it.item_image_url}" style="width:64px;height:64px;object-fit:cover;border-radius:4px;">`:`<label class="btn btn-secondary btn-small" style="cursor:pointer;text-align:center;">📎<input type="file" accept="image/*" style="display:none;" onchange="uploadSetImg(this,${i})"></label>`}<input class="form-input" value="${(it.item_name||'').replace(/"/g,'&quot;')}" placeholder="상품명" style="font-size:11px;" onchange="formSetItems[${i}].item_name=this.value"><input class="form-input" value="${(it.item_color||'').replace(/"/g,'&quot;')}" placeholder="컬러(선택)" style="font-size:11px;" onchange="formSetItems[${i}].item_color=this.value"><input class="form-input" type="number" value="${it.item_price||''}" placeholder="가격" style="font-size:11px;" onchange="formSetItems[${i}].item_price=parseInt(this.value)||null"><div style="display:flex;gap:3px;">${i>0?`<button class="btn btn-secondary btn-small" onclick="moveSet(${i},-1)">↑</button>`:''}<button class="btn btn-small" style="background:var(--red);color:#fff;border:none;" onclick="removeSet(${i})">×</button></div></div>`).join('');
+  a.innerHTML=formSetItems.map((it,i)=>{
+    const sel=allProducts.map(p=>`<option value="${p.id}" ${it.link_product_id===p.id?'selected':''}>${(p.name||'').replace(/"/g,'&quot;')}</option>`).join('');
+    return `<div style="display:grid;grid-template-columns:56px 1fr 84px 80px 1.2fr 48px;gap:6px;align-items:center;padding:8px;margin-bottom:6px;background:var(--bg-input);border:1px solid var(--border);border-radius:var(--radius);">${it.item_image_url?`<img src="${it.item_image_url}" style="width:56px;height:56px;object-fit:cover;border-radius:4px;">`:`<label class="btn btn-secondary btn-small" style="cursor:pointer;text-align:center;">📎<input type="file" accept="image/*" style="display:none;" onchange="uploadSetImg(this,${i})"></label>`}<input class="form-input" value="${(it.item_name||'').replace(/"/g,'&quot;')}" placeholder="상품명" style="font-size:11px;" onchange="formSetItems[${i}].item_name=this.value"><input class="form-input" value="${(it.item_color||'').replace(/"/g,'&quot;')}" placeholder="컬러" style="font-size:11px;" onchange="formSetItems[${i}].item_color=this.value"><input class="form-input" type="number" value="${it.item_price||''}" placeholder="가격" style="font-size:11px;" onchange="formSetItems[${i}].item_price=parseInt(this.value)||null"><select class="form-select" style="font-size:11px;" onchange="formSetItems[${i}].link_product_id=this.value||null"><option value="">🔗 클릭 시 이동할 상품</option>${sel}</select><div style="display:flex;gap:3px;">${i>0?`<button class="btn btn-secondary btn-small" onclick="moveSet(${i},-1)">↑</button>`:''}<button class="btn btn-small" style="background:var(--red);color:#fff;border:none;" onclick="removeSet(${i})">×</button></div></div>`;
+  }).join('');
 }
 function addSetItem(){formSetItems.push({item_name:'',item_color:'',item_price:null,item_image_url:''});renderSetItems();}
 function removeSet(i){formSetItems.splice(i,1);renderSetItems();}
@@ -1569,7 +1572,7 @@ async function loadEditData(productId){
     sb.from('product_purchase_options').select('*').eq('product_id',productId).order('display_order'),
     sb.from('product_edit_reasons').select('*').eq('product_id',productId).order('display_order')
   ]);
-  formSetItems=(r[0].data||[]).map(x=>({item_name:x.item_name,item_color:x.item_color,item_price:x.item_price,item_image_url:x.item_image_url}));
+  formSetItems=(r[0].data||[]).map(x=>({item_name:x.item_name,item_color:x.item_color,item_price:x.item_price,item_image_url:x.item_image_url,link_product_id:x.link_product_id}));
   formBuyOptions=(r[1].data||[]).map(x=>({option_title:x.option_title,sub_description:x.sub_description,price:x.price,badge_text:x.badge_text,is_best:x.is_best}));
   formEditReasons=(r[2].data||[]).map(x=>({image_url:x.image_url,subtitle:x.subtitle,description:x.description}));
 }
@@ -1579,7 +1582,7 @@ async function saveEditData(productId){
     sb.from('product_purchase_options').delete().eq('product_id',productId),
     sb.from('product_edit_reasons').delete().eq('product_id',productId)
   ]);
-  if(formSetItems.length) await sb.from('product_set_items').insert(formSetItems.map((it,i)=>({product_id:productId,item_name:it.item_name||'',item_color:it.item_color||null,item_price:it.item_price||null,item_image_url:it.item_image_url||null,display_order:i})));
+  if(formSetItems.length) await sb.from('product_set_items').insert(formSetItems.map((it,i)=>({product_id:productId,item_name:it.item_name||'',item_color:it.item_color||null,item_price:it.item_price||null,item_image_url:it.item_image_url||null,link_product_id:it.link_product_id||null,display_order:i})));
   if(formBuyOptions.length) await sb.from('product_purchase_options').insert(formBuyOptions.map((o,i)=>({product_id:productId,option_title:o.option_title||'',sub_description:o.sub_description||null,price:o.price||0,badge_text:o.badge_text||null,is_best:!!o.is_best,display_order:i})));
   if(formEditReasons.length) await sb.from('product_edit_reasons').insert(formEditReasons.map((r,i)=>({product_id:productId,image_url:r.image_url||null,subtitle:r.subtitle||null,description:r.description||null,display_order:i})));
 }
