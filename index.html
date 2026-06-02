@@ -119,12 +119,13 @@
 
   /* 03 CATEGORY SHORTCUT */
   .home-cats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 24px; }
-  .home-cat { display: block; background: #f5f1ea; overflow: hidden; }
-  .home-cat__img { width: 100%; height: 190px; object-fit: cover; object-position: center; display: block; transition: transform 0.6s var(--ease); }
+  .home-cat { position: relative; display: block; background: #f5f1ea; overflow: hidden; height: 300px; }
+  .home-cat__img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: center; display: block; z-index: 1; transition: transform 0.6s var(--ease); }
   .home-cat:hover .home-cat__img { transform: scale(1.04); }
-  .home-cat__body { height: 78px; padding: 18px 20px 20px; background: #f5f1ea; }
+  /* 글씨 가독성용 밝은 막 (하단) */
+  .home-cat__body { position: absolute; left: 0; right: 0; bottom: 0; z-index: 2; padding: 22px 22px 20px; background: linear-gradient(to top, rgba(247,245,242,0.96) 30%, rgba(247,245,242,0.6) 70%, rgba(247,245,242,0) 100%); }
   .home-cat__name { font-family: var(--font-logo); font-size: 24px; font-weight: 400; color: #111; line-height: 1.05; letter-spacing: -0.04em; margin: 0; }
-  .home-cat__go { font-size: 12px; color: #111; margin-top: 12px; font-weight: 400; letter-spacing: -0.02em; }
+  .home-cat__go { font-size: 12px; color: #111; margin-top: 10px; font-weight: 400; letter-spacing: -0.02em; }
 
   /* 04 / 06 PRODUCTS (8개 한 줄) */
   .home-products { display: grid; grid-template-columns: repeat(8, minmax(0, 1fr)); gap: 18px; width: 100%; }
@@ -155,22 +156,22 @@
 
   /* 05 DIY KEYRING STUDIO (전체폭 가로 배너) */
   .home-diy { max-width: 1320px; margin: 64px auto 0; padding: 0 56px; }
-  .home-diy__inner { width: 100%; height: 280px; display: grid; grid-template-columns: 38% 62%; background: #f3f0eb; overflow: hidden; }
-  .home-diy__text { padding: 0 48px; display: flex; flex-direction: column; justify-content: center; align-items: flex-start; background: #f3f0eb; }
+  .home-diy__inner { position: relative; width: 100%; height: 280px; overflow: hidden; background: #f3f0eb; }
+  .home-diy__img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: center; display: block; z-index: 1; }
+  .home-diy__text { position: absolute; left: 0; top: 0; bottom: 0; z-index: 2; width: 56%; padding: 0 48px; display: flex; flex-direction: column; justify-content: center; align-items: flex-start; background: linear-gradient(to right, rgba(243,240,235,0.95) 55%, rgba(243,240,235,0) 100%); }
   .home-diy__label { font-size: 11px; font-weight: 700; letter-spacing: 0.12em; margin-bottom: 18px; color: #111; }
   .home-diy__title { font-size: 30px; line-height: 1.25; font-weight: 400; letter-spacing: -0.04em; color: #111; margin: 0; }
   .home-diy__desc { margin-top: 14px; font-size: 13px; line-height: 1.6; font-weight: 400; color: #666; }
   .home-diy__btn { margin-top: 22px; width: 150px; height: 42px; display: inline-flex; align-items: center; justify-content: center; background: #111; color: #fff; font-size: 12px; font-weight: 600; letter-spacing: -0.01em; line-height: 1; }
   .home-diy__btn:hover { background: #333; opacity: 1; }
-  .home-diy__img { width: 100%; height: 280px; object-fit: cover; object-position: center; display: block; }
 
   /* 07 PERFECT GIFT (단일 배너) */
   .home-gift { max-width: 1320px; margin: 64px auto 0; padding: 0 56px; }
   .home-gift__inner { position: relative; width: 100%; height: 260px; overflow: hidden; background: #e9dfcf; }
   .home-gift__img { width: 100%; height: 100%; object-fit: cover; object-position: center; }
   .home-gift__overlay { position: absolute; inset: 0; background: linear-gradient(to right, rgba(0,0,0,0.38), rgba(0,0,0,0.05)); }
-  .home-gift__txt { position: absolute; left: 48px; bottom: 42px; color: #fff; }
-  .home-gift__en { font-size: 16px; font-weight: 700; letter-spacing: 0.04em; }
+  .home-gift__txt { position: absolute; left: 48px; top: 38px; color: #fff; z-index: 2; }
+  .home-gift__en { font-family: var(--font-logo); font-size: 34px; line-height: 1; font-weight: 400; letter-spacing: -0.04em; }
   .home-gift__ko { margin-top: 8px; font-size: 30px; line-height: 1.25; font-weight: 600; letter-spacing: -0.04em; }
   .home-gift__btn { position: absolute; right: 48px; bottom: 42px; height: 46px; min-width: 170px; padding: 0 28px; display: inline-flex; align-items: center; justify-content: center; background: #111; color: #fff; font-size: 13px; font-weight: 600; letter-spacing: -0.01em; text-decoration: none; }
   .home-gift__btn:hover { opacity: 0.85; }
@@ -190,8 +191,6 @@
     .home-section, .home-diy, .home-gift, .home-sale { padding: 0 40px; }
     .home-cats { grid-template-columns: repeat(2, 1fr); }
     .home-products { grid-template-columns: repeat(4, 1fr); }
-    .home-diy__inner { grid-template-columns: 1fr; height: auto; }
-    .home-diy__img { height: 200px; order: -1; }
     .home-gift__inner { aspect-ratio: 16/8; }
   }
   @media (max-width: 768px) {
@@ -201,15 +200,40 @@
     .home-section--first { margin-top: 36px; }
     .home-head__en { font-size: 16px; }
     .home-cats { grid-template-columns: repeat(2, 1fr); gap: 14px; }
+    .home-cat { height: 220px; }
     .home-cat__name { font-size: 18px; }
-    .home-products { grid-template-columns: repeat(2, 1fr); gap: 12px; }
-    .home-diy__text { padding: 28px 22px; }
-    .home-diy__title { font-size: 26px; }
-    .home-gift__txt { left: 20px; bottom: 20px; }
-    .home-gift__ko { font-size: 24px; }
-    .home-gift__btn { right: 20px; bottom: 20px; padding: 0 18px; }
+
+    /* 베스트/신상: 가로 스와이프 (한 화면에 2개 + 살짝 다음것) */
+    .home-products {
+      display: grid;
+      grid-auto-flow: column;
+      grid-auto-columns: 42%;
+      grid-template-columns: none;
+      gap: 12px;
+      overflow-x: auto;
+      scroll-snap-type: x mandatory;
+      -webkit-overflow-scrolling: touch;
+      padding-bottom: 6px;
+      scrollbar-width: none;
+    }
+    .home-products::-webkit-scrollbar { display: none; }
+    .home-pcard { scroll-snap-align: start; }
+
+    /* DIY: 텍스트 레이어 유지, 높이만 축소 + 막을 더 넓게 */
+    .home-diy__inner { height: 200px; }
+    .home-diy__text { width: 72%; padding: 0 22px; background: linear-gradient(to right, rgba(243,240,235,0.96) 60%, rgba(243,240,235,0) 100%); }
+    .home-diy__title { font-size: 24px; }
+    .home-diy__desc { font-size: 12px; }
+
+    /* PERFECT GIFT 텍스트 상단 + 버튼 하단, 박스는 세일과 동일 크기 */
+    .home-gift__inner { height: 220px; aspect-ratio: auto; }
+    .home-gift__txt { left: 20px; top: 22px; }
+    .home-gift__en { font-size: 26px; }
+    .home-gift__btn { right: 20px; bottom: 22px; height: 46px; min-width: 150px; padding: 0 20px; }
+
+    /* SUMMER SALE: 세로 정렬, 버튼 풀폭 */
     .home-sale__inner { height: auto; flex-direction: column; align-items: flex-start; gap: 14px; padding: 22px 20px; }
-    .home-sale__btn { align-self: stretch; text-align: center; }
+    .home-sale__btn { align-self: stretch; text-align: center; height: 46px; min-width: 0; }
   }
 
   </style>
@@ -352,13 +376,13 @@
 <!-- ═══ 05 DIY KEYRING STUDIO ═══ -->
 <section class="home-diy">
   <div class="home-diy__inner">
+    <img class="home-diy__img" id="diyVisualImg" src="https://images.unsplash.com/photo-1611591437281-460bfbe1220a?w=1200&q=80" alt="DIY Keyring">
     <div class="home-diy__text">
       <div class="home-diy__label">KEYRING STUDIO</div>
       <h2 class="home-diy__title">나만의 키링 만들기</h2>
       <p class="home-diy__desc">취향에 맞게 조합하는 YLLOWTAP 키링 스튜디오</p>
       <a class="home-diy__btn" href="/category.html?cat=keyring">키링 커스텀 시작하기</a>
     </div>
-    <img class="home-diy__img" id="diyVisualImg" src="https://images.unsplash.com/photo-1611591437281-460bfbe1220a?w=1200&q=80" alt="DIY Keyring">
   </div>
 </section>
 
@@ -743,6 +767,6 @@ async function init() {
 }
 init();
 </script>
-<script src="./js/common-header.js?v=5"></script>
+<script src="./js/common-header.js?v=6"></script>
 </body>
 </html>
