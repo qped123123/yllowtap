@@ -26,7 +26,7 @@
 /* GALLERY — 개선: 스크롤 가능 + 카운터 */
 .pd-gallery{display:grid;grid-template-columns:76px 1fr;gap:10px;position:sticky;top:76px}
 .pd-thumbs-wrap{position:relative;height:600px}
-.pd-thumbs{display:flex;flex-direction:column;gap:7px;height:100%;overflow-y:auto;scrollbar-width:thin;scrollbar-color:var(--pd-border) transparent;padding-right:4px}
+.pd-thumbs{display:flex;flex-direction:column;gap:7px;height:100%;overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;scrollbar-width:thin;scrollbar-color:var(--pd-border) transparent;padding-right:4px}
 .pd-thumbs::-webkit-scrollbar{width:3px}.pd-thumbs::-webkit-scrollbar-thumb{background:var(--pd-border);border-radius:3px}
 .pd-thumb{width:76px;min-height:95px;height:95px;object-fit:cover;cursor:pointer;border:2px solid transparent;transition:border-color .3s,opacity .3s;opacity:.5;flex-shrink:0}
 .pd-thumb.active,.pd-thumb:hover{border-color:var(--pd-text);opacity:1}
@@ -214,10 +214,10 @@
 
 /* (1) 메인 이미지 — 크게 (썸네일+메인을 우측 구매영역 쪽으로 정렬) v3 */
 .pd-center{display:flex;flex-direction:column;align-items:center;min-width:0}
-.pd-center .pd-main{width:100%;max-width:560px;margin:0 auto}
+.pd-center .pd-main{width:100%;max-width:600px;margin:0 auto}
 
 /* (EDIT) 가운데 타이틀 — 메인 이미지 위 (간격 축소 v3) */
-.pd-edit-head{width:100%;max-width:560px;text-align:center;margin:0 auto 12px}
+.pd-edit-head{width:100%;max-width:600px;text-align:center;margin:0 auto 12px}
 .pd-edit-head-over{font-size:10px;font-weight:500;letter-spacing:2px;text-transform:uppercase;color:var(--pd-text3);margin-bottom:6px}
 .pd-edit-head-name{font-family:var(--pd-fd);font-size:30px;font-weight:400;line-height:1.2;margin:0 0 8px}
 .pd-edit-head-divider{width:36px;height:1px;background:var(--pd-text);margin:0 auto 8px;opacity:.7}
@@ -501,7 +501,7 @@
 </footer>
 
 <!-- 버전 표시 (캐시 확인용) -->
-<div class="pd-ver">product v3</div>
+<div class="pd-ver">product v4</div>
 
 <script src="./js/main.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
@@ -653,10 +653,9 @@ function syncThumbs(){
   els.forEach(t=>{t.style.width=thumbW+'px';t.style.height=thumbH+'px';t.style.minHeight=thumbH+'px';});
   thumbs.style.gap=gap+'px';
   if(gallery){
-    const galleryW=gallery.getBoundingClientRect().width;
-    const colW=Math.max(360,Math.min(560,Math.floor(galleryW-(thumbW+14))));  // 메인 너비
-    gallery.style.gridTemplateColumns=(thumbW+14)+'px '+colW+'px';
-    gallery.style.justifyContent='flex-end';   // 썸네일+메인을 우측 구매영역 쪽으로
+    // 썸네일은 왼쪽 끝(로고 라인), 메인은 남는 공간 가운데에 크게 (양옆 여백 통일)
+    gallery.style.gridTemplateColumns=(thumbW+14)+'px 1fr';
+    gallery.style.justifyContent='';
   }
   const mainH=main.getBoundingClientRect().height;
   if(mainH>0) wrap.style.height=mainH+'px';
