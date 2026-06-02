@@ -503,7 +503,7 @@
 </footer>
 
 <!-- 버전 표시 (캐시 확인용) -->
-<div class="pd-ver">product v6</div>
+<div class="pd-ver">product v7</div>
 
 <script src="./js/main.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
@@ -768,7 +768,11 @@ async function loadSetItems(){
 async function loadPurchaseOptions(){
   if(!isEdit()) return;
   const{data}=await sb.from('product_purchase_options').select('*').eq('product_id',product.id).order('display_order');
-  if(!data||!data.length) return;
+  if(!data||!data.length){
+    // v7: 에디트인데 구매옵션이 비어있으면 기본 가격/수량/합계 UI를 다시 보여줌 (우측이 비지 않게)
+    ['pInfoPrice','qtyRow','totalRow'].forEach(id=>{const el=document.getElementById(id);if(el)el.style.display='';});
+    return;
+  }
   buyOptions=data;
   document.getElementById('buyoptSec').style.display='';
   document.getElementById('buyoptList').innerHTML=data.map((o,i)=>`
@@ -1009,8 +1013,8 @@ function collectOptions(){
   for(const o of requiredOpts){
     if(!opts[o.name]){alert(`${o.name}을(를) 선택해주세요.`);return null;}
   }
-  // EDIT 구매옵션
-  if(isEdit()){
+  // EDIT 구매옵션 (옵션이 있을 때만 선택 강제, 없으면 기본 가격으로 구매)
+  if(isEdit()&&buyOptions.length){
     if(!selectedBuyOption){alert('구매 옵션을 선택해주세요.');return null;}
     opts['구매옵션']=selectedBuyOption.option_title;
     opts['_option_price']=selectedBuyOption.price;   // 결제단계에서 사용할 가격
