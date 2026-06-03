@@ -24,7 +24,7 @@
 .pd-top{max-width:1560px;margin:0 auto;padding:6px 30px 0;display:grid;grid-template-columns:1fr 420px;gap:40px;align-items:start}
 
 /* GALLERY — 개선: 스크롤 가능 + 카운터 */
-.pd-gallery{display:grid;grid-template-columns:76px 1fr;gap:10px;position:sticky;top:76px}
+.pd-gallery{display:grid;grid-template-columns:76px 1fr;gap:10px}
 .pd-thumbs-wrap{position:relative;height:600px}
 .pd-thumbs{display:flex;flex-direction:column;gap:7px;height:100%;overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;scrollbar-width:thin;scrollbar-color:var(--pd-border) transparent;padding-right:4px}
 .pd-thumbs::-webkit-scrollbar{width:3px}.pd-thumbs::-webkit-scrollbar-thumb{background:var(--pd-border);border-radius:3px}
@@ -35,7 +35,9 @@
 .pd-img-counter{position:absolute;bottom:12px;right:12px;background:rgba(0,0,0,.5);color:#fff;font-size:11px;padding:4px 10px;border-radius:3px;letter-spacing:1px}
 
 /* PRODUCT INFO */
-.pd-info{padding:6px 0 60px}
+.pd-info{padding:6px 0 60px;position:sticky;top:76px;align-self:start}
+.pd-col-left{grid-column:1;min-width:0}
+.pd-col-left .pd-editorial,.pd-col-left .pd-why,.pd-col-left .pd-detail{max-width:none;margin:0;padding-left:0;padding-right:0}
 .pd-info-brand{font-size:11px;font-weight:500;letter-spacing:2px;text-transform:uppercase;color:var(--pd-text3);margin-bottom:7px}
 .pd-info-name{font-family:var(--pd-fd);font-size:26px;font-weight:400;line-height:1.3;margin-bottom:4px}
 .pd-info-subtitle{font-size:13px;color:var(--pd-text2);line-height:1.6;margin-bottom:22px}
@@ -202,6 +204,8 @@
 /* RESPONSIVE */
 @media(max-width:1024px){
   .pd-top{grid-template-columns:1fr;gap:28px}
+  .pd-info{position:static}
+  .pd-col-left .pd-editorial,.pd-col-left .pd-why,.pd-col-left .pd-detail{padding-left:0;padding-right:0}
   .pd-gallery{position:static;grid-template-columns:1fr}
   .pd-thumbs-wrap{height:auto}
   .pd-thumbs{flex-direction:row;overflow-x:auto;overflow-y:hidden;order:2;height:auto}
@@ -316,13 +320,13 @@
 
 /* 버전 배지 */
 .pd-ver{display:none;position:fixed;right:10px;bottom:10px;z-index:9999;font-size:10px;color:#bbb;font-family:monospace;background:rgba(255,255,255,.72);padding:2px 7px;border-radius:3px;pointer-events:none}
-.pd-buybar{position:fixed;left:0;right:0;bottom:0;background:rgba(255,255,255,.97);border-top:1px solid var(--pd-border);box-shadow:0 -2px 16px rgba(0,0,0,.06);z-index:200;transform:translateY(120%);transition:transform .35s cubic-bezier(.25,0,.15,1);backdrop-filter:blur(8px)}
+.pd-buybar{display:none;position:fixed;left:0;right:0;bottom:0;background:rgba(255,255,255,.97);border-top:1px solid var(--pd-border);box-shadow:0 -2px 16px rgba(0,0,0,.06);z-index:200;transform:translateY(120%);transition:transform .35s cubic-bezier(.25,0,.15,1);backdrop-filter:blur(8px)}
 .pd-buybar.show{transform:translateY(0)}
 .pd-buybar-inner{max-width:1560px;margin:0 auto;padding:14px 30px;display:flex;align-items:center;justify-content:flex-end;gap:10px}
 .pd-buybar-wish{width:48px;height:48px;flex-shrink:0;border:1px solid var(--pd-border);background:#fff;cursor:pointer;font-size:17px;color:var(--pd-text);display:flex;align-items:center;justify-content:center}
 .pd-buybar-cart{padding:0 30px;height:48px;flex-shrink:0;border:1px solid var(--pd-text);background:#fff;cursor:pointer;font-size:13px;font-weight:600;color:var(--pd-text);letter-spacing:.5px}
 .pd-buybar-buy{padding:0 56px;height:48px;flex-shrink:0;border:none;background:var(--pd-accent);cursor:pointer;font-size:13px;font-weight:700;color:var(--pd-text);letter-spacing:.5px}
-@media(max-width:768px){.pd-buybar-inner{padding:9px 14px;gap:8px;justify-content:stretch}.pd-buybar-cart{padding:0 16px;height:44px}.pd-buybar-buy{flex:1;padding:0 18px;height:44px}.pd-buybar-wish{width:44px;height:44px}}
+@media(max-width:768px){.pd-buybar{display:block}.pd-buybar-inner{padding:9px 14px;gap:8px;justify-content:stretch}.pd-buybar-cart{padding:0 16px;height:44px}.pd-buybar-buy{flex:1;padding:0 18px;height:44px}.pd-buybar-wish{width:44px;height:44px}}
 
 /* v1 반응형 */
 @media(max-width:1024px){
@@ -377,6 +381,7 @@
 
 <!-- PRODUCT TOP -->
 <section class="pd-top pd-fade">
+  <div class="pd-col-left">
   <div class="pd-gallery" id="gallery">
     <div class="pd-thumbs-wrap"><div class="pd-thumbs" id="thumbs"></div><div class="pd-thumbs-hint" id="thumbsHint">⌄</div></div>
     <div class="pd-center">
@@ -396,61 +401,6 @@
       </div>
     </div>
   </div>
-  <div class="pd-info">
-    <div class="pd-info-brand" id="pBrand">YLLOWTAP</div>
-    <h1 class="pd-info-name" id="pName"></h1>
-    <p class="pd-info-subtitle" id="pSub"></p>
-    <div class="pd-info-price" id="pInfoPrice">
-      <span class="pd-price-now" id="pPrice"></span>
-      <span class="pd-price-old" id="pOrig" style="display:none"></span>
-      <span class="pd-price-off" id="pDisc" style="display:none"></span>
-    </div>
-    <div class="pd-coupon" id="couponPanel" style="display:none">
-      <div class="pd-coupon-title" id="couponTitle"></div>
-      <div class="pd-coupon-desc" id="couponDesc"></div>
-    </div>
-
-    <!-- EDIT 전용: 구성 상품 (기본 숨김) -->
-    <div class="pd-set" id="setSec" style="display:none">
-      <div class="pd-set-title">구성 상품</div>
-      <div class="pd-set-grid" id="setGrid"></div>
-    </div>
-    <!-- EDIT 전용: 구매 옵션 (기본 숨김) -->
-    <div class="pd-buyopt" id="buyoptSec" style="display:none">
-      <div class="pd-buyopt-title">구매 옵션</div>
-      <div id="buyoptList"></div>
-    </div>
-
-    <!-- STANDARD 전용: 옵션/컬러/수량/합계 -->
-    <div id="optsArea"></div>
-    <div class="pd-colors" id="colorSec" style="display:none">
-      <div class="pd-colors-title">Colors</div>
-      <div class="pd-colors-grid" id="colorGrid"></div>
-    </div>
-    <div class="pd-qty-row" id="qtyRow">
-      <div class="pd-opt-label">QUANTITY</div>
-      <div class="pd-qty-box">
-        <button class="pd-qty-btn" id="qtyM">−</button>
-        <div class="pd-qty-num" id="qtyN">1</div>
-        <button class="pd-qty-btn" id="qtyP">+</button>
-      </div>
-    </div>
-    <div class="pd-total" id="totalRow"><span class="pd-total-label">TOTAL PRICE</span><span class="pd-total-price" id="totalP">0원</span></div>
-
-    <!-- 공통: 버튼 (디자인/색 기존 그대로 유지, 라벨만 EDIT에서 동적) -->
-    <div class="pd-btn-group" id="btnGroup">
-      <button class="pd-btn-buy" id="buyBtn" onclick="buyNow()">BUY IT NOW</button>
-      <button class="pd-btn-cart" id="cartBtn" onclick="addToCart()">CART</button>
-      <button class="pd-btn-wish" id="wishBtn" onclick="toggleWishlist()"><svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg><span class="pd-wish-count" id="wishCount"></span></button>
-    </div>
-    <div class="pd-notices" id="pdNotices">
-      <div class="pd-notice"><span class="pd-notice-dot"></span>무료 배송 · 5만원 이상 구매 시</div>
-      <div class="pd-notice"><span class="pd-notice-dot"></span>교환/반품 · 수령 후 7일 이내</div>
-      <div class="pd-notice"><span class="pd-notice-dot"></span>결제 혜택 · 최대 10% 적립</div>
-    </div>
-  </div>
-</section>
-
 <!-- EDITORIAL MOOD (STANDARD) -->
 <section class="pd-editorial" id="editSec" style="display:none">
   <div class="pd-editorial-head">
@@ -519,6 +469,61 @@
   </div>
   <div class="pd-panel" id="panel-qna"><div class="pd-content" style="text-align:center;padding:50px 0;"><p style="color:var(--pd-text3);">문의 내역이 없습니다.</p></div></div>
 </section>
+  </div>
+  <div class="pd-info">
+    <div class="pd-info-brand" id="pBrand">YLLOWTAP</div>
+    <h1 class="pd-info-name" id="pName"></h1>
+    <p class="pd-info-subtitle" id="pSub"></p>
+    <div class="pd-info-price" id="pInfoPrice">
+      <span class="pd-price-now" id="pPrice"></span>
+      <span class="pd-price-old" id="pOrig" style="display:none"></span>
+      <span class="pd-price-off" id="pDisc" style="display:none"></span>
+    </div>
+    <div class="pd-coupon" id="couponPanel" style="display:none">
+      <div class="pd-coupon-title" id="couponTitle"></div>
+      <div class="pd-coupon-desc" id="couponDesc"></div>
+    </div>
+
+    <!-- EDIT 전용: 구성 상품 (기본 숨김) -->
+    <div class="pd-set" id="setSec" style="display:none">
+      <div class="pd-set-title">구성 상품</div>
+      <div class="pd-set-grid" id="setGrid"></div>
+    </div>
+    <!-- EDIT 전용: 구매 옵션 (기본 숨김) -->
+    <div class="pd-buyopt" id="buyoptSec" style="display:none">
+      <div class="pd-buyopt-title">구매 옵션</div>
+      <div id="buyoptList"></div>
+    </div>
+
+    <!-- STANDARD 전용: 옵션/컬러/수량/합계 -->
+    <div id="optsArea"></div>
+    <div class="pd-colors" id="colorSec" style="display:none">
+      <div class="pd-colors-title">Colors</div>
+      <div class="pd-colors-grid" id="colorGrid"></div>
+    </div>
+    <div class="pd-qty-row" id="qtyRow">
+      <div class="pd-opt-label">QUANTITY</div>
+      <div class="pd-qty-box">
+        <button class="pd-qty-btn" id="qtyM">−</button>
+        <div class="pd-qty-num" id="qtyN">1</div>
+        <button class="pd-qty-btn" id="qtyP">+</button>
+      </div>
+    </div>
+    <div class="pd-total" id="totalRow"><span class="pd-total-label">TOTAL PRICE</span><span class="pd-total-price" id="totalP">0원</span></div>
+
+    <!-- 공통: 버튼 (디자인/색 기존 그대로 유지, 라벨만 EDIT에서 동적) -->
+    <div class="pd-btn-group" id="btnGroup">
+      <button class="pd-btn-buy" id="buyBtn" onclick="buyNow()">BUY IT NOW</button>
+      <button class="pd-btn-cart" id="cartBtn" onclick="addToCart()">CART</button>
+      <button class="pd-btn-wish" id="wishBtn" onclick="toggleWishlist()"><svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg><span class="pd-wish-count" id="wishCount"></span></button>
+    </div>
+    <div class="pd-notices" id="pdNotices">
+      <div class="pd-notice"><span class="pd-notice-dot"></span>무료 배송 · 5만원 이상 구매 시</div>
+      <div class="pd-notice"><span class="pd-notice-dot"></span>교환/반품 · 수령 후 7일 이내</div>
+      <div class="pd-notice"><span class="pd-notice-dot"></span>결제 혜택 · 최대 10% 적립</div>
+    </div>
+  </div>
+</section>
 
 <!-- RECOMMEND -->
 <section class="pd-recommend" id="recSec" style="display:none">
@@ -561,7 +566,7 @@
 </footer>
 
 <!-- 버전 표시 (캐시 확인용) -->
-<div class="pd-ver">product v30</div>
+<div class="pd-ver">product v31</div>
 
 <script src="./js/main.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
