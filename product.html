@@ -566,7 +566,7 @@
 </footer>
 
 <!-- 버전 표시 (캐시 확인용) -->
-<div class="pd-ver">product v31</div>
+<div class="pd-ver">product v32</div>
 
 <script src="./js/main.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
@@ -1217,16 +1217,24 @@ function collectOptions(){
   document.querySelectorAll('.pd-opt-select').forEach(sel=>{
     if(sel.value) opts[sel.dataset.opt]=sel.value;
   });
-  // 단품 필수옵션 체크
+  // 단품 필수옵션 체크 (실제 드롭다운이 화면에 있을 때만 — 새 컬러옵션은 구매옵션에서 처리)
   const requiredOpts=product.options||[];
   for(const o of requiredOpts){
-    if(!opts[o.name]){alert(`${o.name}을(를) 선택해주세요.`);return null;}
+    const hasSelect=document.querySelector(`.pd-opt-select[data-opt="${o.name}"]`);
+    if(hasSelect && !opts[o.name]){alert(`${o.name}을(를) 선택해주세요.`);return null;}
   }
   // EDIT 구매옵션 (옵션이 있을 때만 선택 강제, 없으면 기본 가격으로 구매)
   if(isEdit()&&buyOptions.length){
     if(!selectedBuyOption){alert('구매 옵션을 선택해주세요.');return null;}
     opts['구매옵션']=selectedBuyOption.option_title;
     opts['_option_price']=selectedBuyOption.price;   // 결제단계에서 사용할 가격
+    // 선택한 옵션이 컬러(single)면 현재 선택된 컬러를 자동으로 담기
+    const oi=buyOptions.indexOf(selectedBuyOption);
+    if(selectedBuyOption.select_mode==='single'&&Array.isArray(selectedBuyOption.items)&&selectedBuyOption.items.length){
+      const ci=(window.__colorSel&&window.__colorSel[oi]!=null)?window.__colorSel[oi]:0;
+      const cit=selectedBuyOption.items[ci];
+      if(cit&&cit.color_name) opts['컬러']=cit.color_name;
+    }
   }
   return opts;
 }
