@@ -796,12 +796,19 @@ body { font-family:var(--font); background:var(--bg); color:var(--text); font-si
         </div>
       </div>
       <div class="form-section">
-        <div class="form-section-title">추천 상품</div>
-        <p style="font-size:11px;color:var(--text-muted);margin-bottom:12px;">상세페이지 맨 아래 <strong style="color:var(--accent)">Recommend Items (YOU MAY ALSO LIKE)</strong> 섹션에 노출돼요. 비워두면 같은 카테고리에서 자동 추천돼요.</p>
+        <div class="form-section-title">추천 상품 ① 함께 보면 좋은 아이템</div>
+        <p style="font-size:11px;color:var(--text-muted);margin-bottom:12px;">상세페이지 <strong style="color:var(--accent)">함께 보면 좋은 아이템</strong> 섹션에 노출돼요. 비워두면 같은 카테고리에서 자동 추천돼요.</p>
         <div class="recommend-list" id="recommendList"></div>
-        <div style="display:flex;gap:8px;align-items:center;">
+        <div style="display:flex;gap:8px;align-items:center;margin-bottom:20px;">
           <select class="form-select" id="recommendSelect" style="flex:1;"><option value="">추천할 상품 선택</option></select>
           <button class="btn btn-secondary btn-small" onclick="addRecommend()">추가</button>
+        </div>
+        <div class="form-section-title">추천 상품 ② Quietly Coveted (사랑받는 아이템)</div>
+        <p style="font-size:11px;color:var(--text-muted);margin-bottom:12px;">상세페이지 <strong style="color:var(--accent)">Quietly Coveted</strong> 섹션에 노출돼요. 비워두면 다른 상품이 자동으로 떠요.</p>
+        <div class="recommend-list" id="recommendList2"></div>
+        <div style="display:flex;gap:8px;align-items:center;">
+          <select class="form-select" id="recommendSelect2" style="flex:1;"><option value="">추천할 상품 선택</option></select>
+          <button class="btn btn-secondary btn-small" onclick="addRecommend2()">추가</button>
         </div>
       </div>
     </div>
@@ -922,7 +929,7 @@ const ROLE_LABELS = { main:'대표', editorial:'추가', detail:'추가', fabric
 let allProducts = [], categories = [], collections = [];
 let heroSlides = [], siteSettings = {};
 let editingProductId = null;
-let formImages = [], formPresetTags = [], formCustomTags = [], formOptions = [], formRecommends = [];
+let formImages = [], formPresetTags = [], formCustomTags = [], formOptions = [], formRecommends = [], formRecommends2 = [];
 let formColorImages = [];
 let editingHeroId = null;
 
@@ -987,8 +994,8 @@ function getMainImg(p) {
 
 function openProductForm() { editingProductId = null; document.getElementById('productFormTitle').textContent = '새 상품 등록'; document.getElementById('productDeleteBtn').style.display = 'none'; resetProductForm(); document.getElementById('productModal').classList.add('show'); }
 function closeProductForm() { document.getElementById('productModal').classList.remove('show'); }
-function resetProductForm() { ['fName','fSubtitle','fSlug','fPrice','fOriginalPrice','fEditorial','fMoodTitle','fMoodDesc','fDetail','fMainText'].forEach(id => document.getElementById(id).value = ''); document.getElementById('fMainTextColor').value='light'; document.getElementById('fCategory').value = ''; document.getElementById('fCollection').value = ''; document.getElementById('fOrder').value = '0'; document.getElementById('fActive').value = 'true'; formImages=[]; formPresetTags=[]; formCustomTags=[]; formOptions=[]; formRecommends=[]; formColorImages=[]; formDetailBlocks=[]; formScores={}; formSetItems=[]; formBuyOptions=[]; formEditReasons=[]; document.getElementById('fLayout').value='standard'; document.getElementById('fEditOverline').value=''; document.getElementById('fMainText').value=''; document.getElementById('fMainTextColor').value='light'; if(document.getElementById('fMainTextFont'))document.getElementById('fMainTextFont').value='serif'; if(document.getElementById('fMainTextSize'))document.getElementById('fMainTextSize').value='medium'; renderProductFormAll(); renderScoreSliders(); renderSetItems(); renderBuyOpts(); renderEditReasons(); toggleEditFields(); }
-function renderProductFormAll() { renderImages(); renderPresetTags(); renderCustomTags(); renderOptions(); renderRecommends(); renderColorImages(); renderDetailBlocks(); }
+function resetProductForm() { ['fName','fSubtitle','fSlug','fPrice','fOriginalPrice','fEditorial','fMoodTitle','fMoodDesc','fDetail','fMainText'].forEach(id => document.getElementById(id).value = ''); document.getElementById('fMainTextColor').value='light'; document.getElementById('fCategory').value = ''; document.getElementById('fCollection').value = ''; document.getElementById('fOrder').value = '0'; document.getElementById('fActive').value = 'true'; formImages=[]; formPresetTags=[]; formCustomTags=[]; formOptions=[]; formRecommends=[]; formRecommends2=[]; formColorImages=[]; formDetailBlocks=[]; formScores={}; formSetItems=[]; formBuyOptions=[]; formEditReasons=[]; document.getElementById('fLayout').value='standard'; document.getElementById('fEditOverline').value=''; document.getElementById('fMainText').value=''; document.getElementById('fMainTextColor').value='light'; if(document.getElementById('fMainTextFont'))document.getElementById('fMainTextFont').value='serif'; if(document.getElementById('fMainTextSize'))document.getElementById('fMainTextSize').value='medium'; renderProductFormAll(); renderScoreSliders(); renderSetItems(); renderBuyOpts(); renderEditReasons(); toggleEditFields(); }
+function renderProductFormAll() { renderImages(); renderPresetTags(); renderCustomTags(); renderOptions(); renderRecommends(); renderRecommends2(); renderColorImages(); renderDetailBlocks(); }
 
 async function editProduct(id) {
   const p = allProducts.find(x=>x.id===id); if (!p) return;
@@ -1011,8 +1018,9 @@ async function editProduct(id) {
   formPresetTags = (p.tags||[]).filter(t=>pk.includes(t));
   formCustomTags = (p.tags||[]).filter(t=>!pk.includes(t));
   formOptions = JSON.parse(JSON.stringify(p.options||[]));
-  const { data:recs } = await sb.from('recommended_products').select('recommended_product_id').eq('source_product_id',id).order('display_order');
-  formRecommends = (recs||[]).map(r=>r.recommended_product_id);
+  const { data:recs } = await sb.from('recommended_products').select('recommended_product_id,rec_section').eq('source_product_id',id).order('display_order');
+  formRecommends = (recs||[]).filter(r=>(r.rec_section||1)!==2).map(r=>r.recommended_product_id);
+  formRecommends2 = (recs||[]).filter(r=>r.rec_section===2).map(r=>r.recommended_product_id);
   const { data:ci } = await sb.from('product_option_images').select('*').eq('product_id',id).order('display_order');
   formColorImages = (ci||[]).map(c=>({id:c.id, option_value:c.option_value, image_url:c.image_url}));
   await loadDetailBlocks(id);
@@ -1061,10 +1069,13 @@ function renderOptions() { document.getElementById('optionBuilder').innerHTML=fo
 function addOption(){formOptions.push({name:'',values:[]});renderOptions();}
 function removeOption(i){formOptions.splice(i,1);renderOptions();}
 
-function updateRecommendSelect() { document.getElementById('recommendSelect').innerHTML='<option value="">추천할 상품 선택</option>'+allProducts.map(p=>`<option value="${p.id}">${p.name}</option>`).join(''); }
+function updateRecommendSelect() { const opts='<option value="">추천할 상품 선택</option>'+allProducts.map(p=>`<option value="${p.id}">${p.name}</option>`).join(''); document.getElementById('recommendSelect').innerHTML=opts; const s2=document.getElementById('recommendSelect2'); if(s2)s2.innerHTML=opts; }
 function renderRecommends() { document.getElementById('recommendList').innerHTML=formRecommends.map((rid,i)=>{const p=allProducts.find(x=>x.id===rid);if(!p)return'';const img=getMainImg(p);return`<div class="recommend-chip">${img?`<img src="${img}">`:''}${p.name}<span class="tag-remove" onclick="removeRecommend(${i})">×</span></div>`;}).join(''); }
 function addRecommend() { const id=document.getElementById('recommendSelect').value; if(!id||formRecommends.includes(id))return; if(id===editingProductId){showToast('자기 자신 불가',true);return;} formRecommends.push(id);renderRecommends();document.getElementById('recommendSelect').value=''; }
 function removeRecommend(i){formRecommends.splice(i,1);renderRecommends();}
+function renderRecommends2() { const el=document.getElementById('recommendList2'); if(!el)return; el.innerHTML=formRecommends2.map((rid,i)=>{const p=allProducts.find(x=>x.id===rid);if(!p)return'';const img=getMainImg(p);return`<div class="recommend-chip">${img?`<img src="${img}">`:''}${p.name}<span class="tag-remove" onclick="removeRecommend2(${i})">×</span></div>`;}).join(''); }
+function addRecommend2() { const id=document.getElementById('recommendSelect2').value; if(!id||formRecommends2.includes(id))return; if(id===editingProductId){showToast('자기 자신 불가',true);return;} formRecommends2.push(id);renderRecommends2();document.getElementById('recommendSelect2').value=''; }
+function removeRecommend2(i){formRecommends2.splice(i,1);renderRecommends2();}
 
 function renderColorImages() {
   const area=document.getElementById('colorImageArea');
@@ -1095,7 +1106,8 @@ async function saveProduct() {
     await sb.from('product_media').delete().eq('product_id',pid);
     if(formImages.length){await sb.from('product_media').insert(formImages.map((img,i)=>({product_id:pid,media_url:img.url,media_type:img.mediaType||'image',role:img.role,display_order:i})));}
     await sb.from('recommended_products').delete().eq('source_product_id',pid);
-    if(formRecommends.length){await sb.from('recommended_products').insert(formRecommends.map((rid,i)=>({source_product_id:pid,recommended_product_id:rid,display_order:i})));}
+    const recRows=[...formRecommends.map((rid,i)=>({source_product_id:pid,recommended_product_id:rid,rec_section:1,display_order:i})),...formRecommends2.map((rid,i)=>({source_product_id:pid,recommended_product_id:rid,rec_section:2,display_order:i}))];
+    if(recRows.length){await sb.from('recommended_products').insert(recRows);}
    await sb.from('product_option_images').delete().eq('product_id',pid);
     if(formColorImages.length){const colorOpt=formOptions.find(o=>['컬러','색상','Color','color'].includes(o.name));if(colorOpt){await sb.from('product_option_images').insert(formColorImages.map((ci,i)=>({product_id:pid,option_name:colorOpt.name,option_value:ci.option_value,image_url:ci.image_url,display_order:i})));}}
     await saveDetailBlocks(pid);
