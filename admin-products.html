@@ -415,6 +415,11 @@ body { font-family:var(--font); background:var(--bg); color:var(--text); font-si
         <div class="setting-row"><div class="setting-label">배송 안내</div><input class="form-input" id="sDefNoticeShipping" placeholder="무료 배송 · 5만원 이상 구매 시"></div>
         <div class="setting-row"><div class="setting-label">교환/반품 안내</div><input class="form-input" id="sDefNoticeExchange" placeholder="교환 · 반품 · 수령 후 7일 이내"></div>
         <div class="setting-row"><div class="setting-label">적립/결제 혜택</div><input class="form-input" id="sDefNoticeReward" placeholder="적립 혜택 · 구매 금액의 최대 10%"></div>
+        <div class="setting-row"><div class="setting-label">쿠폰 카드 배경색</div><input type="color" id="sCouponBg" value="#FBF8EC" style="width:60px;height:32px;padding:2px;border:1px solid var(--border);border-radius:5px;background:var(--bg-hover);cursor:pointer;"></div>
+        <div class="setting-row"><div class="setting-label">쿠폰 카드 글자색</div><input type="color" id="sCouponColor" value="#111111" style="width:60px;height:32px;padding:2px;border:1px solid var(--border);border-radius:5px;background:var(--bg-hover);cursor:pointer;"></div>
+        <div class="setting-row"><div class="setting-label">쿠폰 카드 글씨체</div><select class="form-select" id="sCouponFont" style="width:160px;"><option value="sans">고딕 (Noto Sans)</option><option value="serif">세리프 (Bodoni)</option></select></div>
+        <div class="setting-row"><div class="setting-label">쿠폰 카드 글자 크기</div><select class="form-select" id="sCouponSize" style="width:120px;"><option value="small">소</option><option value="medium">중</option><option value="large">대</option></select></div>
+        <div class="setting-row" style="align-items:flex-start;"><div class="setting-label" style="padding-top:4px;">공통 혜택 제외 카테고리</div><div id="sExcludeCats" style="display:flex;flex-wrap:wrap;gap:10px;"></div></div>
           <!-- ★ 메인 이미지 관리 (홈 화면) -->
         <div style="border-top:1px solid var(--border);margin:20px 0;"></div>
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
@@ -790,7 +795,7 @@ body { font-family:var(--font); background:var(--bg); color:var(--text); font-si
       </div>
 
       <div class="form-section">
-        <div class="form-section-title">쿠폰 · 이벤트 · 혜택 안내</div>
+        <div style="display:none;"><div class="form-section-title">쿠폰 · 이벤트 · 혜택 안내</div>
         <p style="font-size:11px;color:var(--text-muted);margin-bottom:12px;">상세페이지 가격 밑 쿠폰 패널 + 혜택 안내(배송/교환/적립)예요. 비우면 기본 문구가 떠요.</p>
         <div class="form-group"><label class="form-label">쿠폰/이벤트 제목 (비우면 패널 안 뜸)</label><input class="form-input" id="fCouponTitle" placeholder="예: 첫 구매 10% 쿠폰"></div>
         <div class="form-group"><label class="form-label">쿠폰/이벤트 설명</label><textarea class="form-textarea" id="fCouponDesc" style="min-height:46px;" placeholder="예: 회원가입 시 자동 발급 · 결제 시 적용"></textarea></div>
@@ -798,7 +803,7 @@ body { font-family:var(--font); background:var(--bg); color:var(--text); font-si
           <div class="form-group"><label class="form-label">배송 안내</label><input class="form-input" id="fNoticeShipping" placeholder="무료 배송 · 5만원 이상 구매 시"></div>
           <div class="form-group"><label class="form-label">교환/반품 안내</label><input class="form-input" id="fNoticeExchange" placeholder="교환/반품 · 수령 후 7일 이내"></div>
         </div>
-        <div class="form-group"><label class="form-label">적립/결제 혜택</label><input class="form-input" id="fNoticeReward" placeholder="결제 혜택 · 최대 10% 적립"></div>
+        <div class="form-group"><label class="form-label">적립/결제 혜택</label><input class="form-input" id="fNoticeReward" placeholder="결제 혜택 · 최대 10% 적립"></div></div>
         <div class="form-section-title">컬러별 이미지</div>
         <p style="font-size:11px;color:var(--text-muted);margin-bottom:12px;">옵션에 "컬러" 항목이 있으면 각 컬러별 대표 이미지를 등록하세요. 상세페이지 Colors 섹션에 표시됩니다.</p>
         <div id="colorImageArea"></div>
@@ -969,6 +974,7 @@ async function loadCategories() {
   document.getElementById('fCategory').innerHTML = '<option value="">선택</option>' +
     categories.filter(c => !['all','best','new','sale'].includes(c.slug))
     .map(c => `<option value="${c.slug}">${c.name}</option>`).join('');
+  if(typeof renderExcludeCats==='function') renderExcludeCats();
 }
 async function loadCollections() {
   const { data } = await sb.from('collections').select('*').eq('is_active', true).order('display_order');
@@ -1173,8 +1179,22 @@ async function loadSettings() {
     document.getElementById('sDefNoticeShipping').value=siteSettings.default_notice_shipping||'';
     document.getElementById('sDefNoticeExchange').value=siteSettings.default_notice_exchange||'';
     document.getElementById('sDefNoticeReward').value=siteSettings.default_notice_reward||'';
+    document.getElementById('sCouponBg').value=siteSettings.default_coupon_bg||'#FBF8EC';
+    document.getElementById('sCouponColor').value=siteSettings.default_coupon_text_color||'#111111';
+    document.getElementById('sCouponFont').value=siteSettings.default_coupon_font||'sans';
+    document.getElementById('sCouponSize').value=siteSettings.default_coupon_size||'medium';
   }
+  excludeCats=(siteSettings.default_notice_exclude||'').split(',').map(s=>s.trim()).filter(Boolean);
+  renderExcludeCats();
 }
+let excludeCats=[];
+function renderExcludeCats(){
+  const el=document.getElementById('sExcludeCats'); if(!el)return;
+  const cats=(categories||[]).filter(c=>!['all','best','new'].includes(c.slug));
+  if(!cats.length){el.innerHTML='<span style="font-size:11px;color:var(--text-muted);">카테고리 없음</span>';return;}
+  el.innerHTML=cats.map(c=>`<label style="font-size:11px;display:flex;align-items:center;gap:3px;color:var(--text-dim);"><input type="checkbox" ${excludeCats.includes(c.slug)?'checked':''} onchange="toggleExcludeCat('${c.slug}',this.checked)">${c.name}</label>`).join('');
+}
+function toggleExcludeCat(slug,ch){ if(ch){if(!excludeCats.includes(slug))excludeCats.push(slug);}else{excludeCats=excludeCats.filter(s=>s!==slug);} }
 
 function bindSettingsImageUpload() {
   document.getElementById('sMoodImageFile').addEventListener('change',async function(e){
@@ -1367,6 +1387,11 @@ async function saveSettings() {
     {key:'default_notice_shipping',value:document.getElementById('sDefNoticeShipping')?.value||''},
     {key:'default_notice_exchange',value:document.getElementById('sDefNoticeExchange')?.value||''},
     {key:'default_notice_reward',value:document.getElementById('sDefNoticeReward')?.value||''},
+    {key:'default_coupon_bg',value:document.getElementById('sCouponBg')?.value||'#FBF8EC'},
+    {key:'default_coupon_text_color',value:document.getElementById('sCouponColor')?.value||'#111111'},
+    {key:'default_coupon_font',value:document.getElementById('sCouponFont')?.value||'sans'},
+    {key:'default_coupon_size',value:document.getElementById('sCouponSize')?.value||'medium'},
+    {key:'default_notice_exclude',value:excludeCats.join(',')},
   ];
   try { for(const item of items){await sb.from('site_settings').upsert({key:item.key,value:item.value,updated_at:new Date().toISOString()},{onConflict:'key'});} showToast('설정 저장 완료'); }
   catch(err){showToast('저장 실패: '+err.message,true);}

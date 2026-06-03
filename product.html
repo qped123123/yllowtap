@@ -543,7 +543,7 @@
 </footer>
 
 <!-- 버전 표시 (캐시 확인용) -->
-<div class="pd-ver">product v19</div>
+<div class="pd-ver">product v20</div>
 
 <script src="./js/main.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
@@ -606,23 +606,39 @@ async function render(){
   // v1: EDIT 레이아웃이면 화면 구성 전환
   if(isEdit()) setupEditLayout();
 }
-// 쿠폰/이벤트 패널 + 혜택 안내 (상품값 > 사이트 공통값 > 기본문구)
+// 쿠폰/이벤트 패널 + 혜택 안내 — 사이트 공통값으로만 표시 (상품별 입력 사용 안 함)
 async function applyCouponNotices(p){
-  if(!p) return;
   let cfg={};
-  try{ const{data}=await sb.from('site_settings').select('key,value').in('key',['default_coupon_title','default_coupon_desc','default_notice_shipping','default_notice_exchange','default_notice_reward']); (data||[]).forEach(r=>cfg[r.key]=r.value); }catch(e){}
-  const pick=(prod,common)=>{ if(prod&&prod.trim())return prod.trim(); if(common&&common.trim())return common.trim(); return ''; };
-  const cTitle=pick(p.coupon_title,cfg.default_coupon_title);
-  const cDesc=pick(p.coupon_desc,cfg.default_coupon_desc);
-  if(cTitle){
-    document.getElementById('couponTitle').textContent=cTitle;
-    const dEl=document.getElementById('couponDesc');
-    dEl.textContent=cDesc; dEl.style.display=cDesc?'':'none';
-    document.getElementById('couponPanel').style.display='';
+  try{ const{data}=await sb.from('site_settings').select('key,value').in('key',['default_coupon_title','default_coupon_desc','default_notice_shipping','default_notice_exchange','default_notice_reward','default_coupon_bg','default_coupon_text_color','default_coupon_font','default_coupon_size','default_notice_exclude']); (data||[]).forEach(r=>cfg[r.key]=r.value); }catch(e){}
+  // 제외 카테고리면 쿠폰/혜택 모두 표시 안 함
+  const excl=(cfg.default_notice_exclude||'').split(',').map(s=>s.trim()).filter(Boolean);
+  if(p&&p.category&&excl.includes(p.category)){
+    const cp=document.getElementById('couponPanel'); if(cp)cp.style.display='none';
+    const wr=document.getElementById('pdNotices'); if(wr)wr.innerHTML='';
+    return;
   }
-  const ship=pick(p.notice_shipping,cfg.default_notice_shipping)||'무료 배송 · 5만원 이상 구매 시';
-  const exc=pick(p.notice_exchange,cfg.default_notice_exchange)||'교환/반품 · 수령 후 7일 이내';
-  const rew=pick(p.notice_reward,cfg.default_notice_reward)||'결제 혜택 · 최대 10% 적립';
+  // 쿠폰/이벤트 패널 (공통값)
+  const cTitle=(cfg.default_coupon_title||'').trim();
+  const cDesc=(cfg.default_coupon_desc||'').trim();
+  if(cTitle){
+    const panel=document.getElementById('couponPanel');
+    const tEl=document.getElementById('couponTitle'), dEl=document.getElementById('couponDesc');
+    tEl.textContent=cTitle; dEl.textContent=cDesc; dEl.style.display=cDesc?'':'none';
+    // 카드 색/폰트/크기
+    if(cfg.default_coupon_bg) panel.style.background=cfg.default_coupon_bg;
+    const ffMap={serif:"'Bodoni Moda',serif",sans:"'Noto Sans KR',sans-serif"};
+    const ff=ffMap[cfg.default_coupon_font]||'';
+    const tSize={small:'12px',medium:'13px',large:'15px'}[cfg.default_coupon_size]||'13px';
+    const dSize={small:'11px',medium:'12px',large:'13px'}[cfg.default_coupon_size]||'12px';
+    if(ff){tEl.style.fontFamily=ff;dEl.style.fontFamily=ff;}
+    if(cfg.default_coupon_text_color){tEl.style.color=cfg.default_coupon_text_color;dEl.style.color=cfg.default_coupon_text_color;}
+    tEl.style.fontSize=tSize; dEl.style.fontSize=dSize;
+    panel.style.display='';
+  }
+  // 혜택 안내 (공통값 > 기본문구)
+  const ship=(cfg.default_notice_shipping||'').trim()||'무료 배송 · 5만원 이상 구매 시';
+  const exc=(cfg.default_notice_exchange||'').trim()||'교환/반품 · 수령 후 7일 이내';
+  const rew=(cfg.default_notice_reward||'').trim()||'결제 혜택 · 최대 10% 적립';
   const wrap=document.getElementById('pdNotices');
   if(wrap) wrap.innerHTML=[ship,exc,rew].filter(t=>t&&t.trim()).map(t=>`<div class="pd-notice"><span class="pd-notice-dot"></span>${t}</div>`).join('');
 }
