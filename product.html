@@ -242,6 +242,11 @@
 .pd-edit-head-name{font-family:var(--pd-fd);font-size:30px;font-weight:400;line-height:1.2;margin:0 0 8px}
 .pd-edit-head-divider{width:36px;height:1px;background:var(--pd-text);margin:0 auto 8px;opacity:.7}
 .pd-edit-head-desc{font-size:13px;line-height:1.6;color:var(--pd-text2);word-break:keep-all}
+.pd-edit-head-price{display:flex;align-items:baseline;justify-content:center;gap:9px;margin-top:16px;flex-wrap:wrap}
+.pd-eh-sale{align-self:center;background:#E05545;color:#fff;font-size:10px;font-weight:700;padding:3px 8px;border-radius:3px;letter-spacing:.5px}
+.pd-eh-orig{font-size:13px;color:var(--pd-text3);text-decoration:line-through}
+.pd-eh-now{font-size:21px;font-weight:700;color:var(--pd-text)}
+.pd-eh-disc{font-size:15px;font-weight:700;color:#E05545}
 
 /* (2) 컬러 썸네일 3개 한 줄 (단품) */
 .pd-colors-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;justify-content:initial;flex-wrap:nowrap}
@@ -335,7 +340,7 @@
 .pd-thumbs-hint{position:absolute;left:0;right:4px;bottom:0;height:30px;display:flex;align-items:flex-end;justify-content:center;font-size:18px;line-height:1;color:var(--pd-text2);background:linear-gradient(transparent,var(--pd-bg) 85%);pointer-events:none;opacity:0;transition:opacity .3s;z-index:3}
 
 /* 버전 배지 */
-.pd-ver{display:none;position:fixed;right:10px;bottom:10px;z-index:9999;font-size:10px;color:#bbb;font-family:monospace;background:rgba(255,255,255,.72);padding:2px 7px;border-radius:3px;pointer-events:none}
+.pd-ver{position:fixed;right:10px;bottom:10px;z-index:9999;font-size:10px;color:#bbb;font-family:monospace;background:rgba(255,255,255,.72);padding:2px 7px;border-radius:3px;pointer-events:none}
 .pd-buybar{display:none;position:fixed;left:0;right:0;bottom:0;background:rgba(255,255,255,.97);border-top:1px solid var(--pd-border);box-shadow:0 -2px 16px rgba(0,0,0,.06);z-index:200;transform:translateY(120%);transition:transform .35s cubic-bezier(.25,0,.15,1);backdrop-filter:blur(8px)}
 .pd-buybar.show{transform:translateY(0)}
 .pd-buybar-inner{max-width:1560px;margin:0 auto;padding:14px 30px;display:flex;align-items:center;justify-content:flex-end;gap:10px}
@@ -407,6 +412,7 @@
         <h1 class="pd-edit-head-name" id="editHeadName"></h1>
         <div class="pd-edit-head-divider"></div>
         <p class="pd-edit-head-desc" id="editHeadDesc"></p>
+        <div class="pd-edit-head-price" id="editHeadPrice" style="display:none"></div>
       </div>
       <div class="pd-main" id="mainWrap">
         <img id="mainImg" src="" alt="">
@@ -586,7 +592,7 @@
 </footer>
 
 <!-- 버전 표시 (캐시 확인용) -->
-<div class="pd-ver">product v39</div>
+<div class="pd-ver">product v41</div>
 
 <script src="./js/main.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
@@ -750,6 +756,20 @@ function setupEditLayout(){
   document.getElementById('editHeadOver').textContent=p.edit_overline||p.brand||'YLLOWTAP EDIT';
   document.getElementById('editHeadName').textContent=p.name;
   document.getElementById('editHeadDesc').textContent=p.subtitle||p.mood_description||'';
+  // 세일/할인가 표시 (리스트와 동일하게 — 할인 중이면 SALE 배지 + 원가 취소선)
+  const ep=document.getElementById('editHeadPrice');
+  if(ep){
+    if(p.original_price&&Number(p.original_price)>Number(p.price)){
+      const disc=Math.round((1-p.price/p.original_price)*100);
+      ep.innerHTML=`<span class="pd-eh-sale">SALE</span><span class="pd-eh-orig">${Number(p.original_price).toLocaleString()}원</span><span class="pd-eh-now">${Number(p.price).toLocaleString()}원</span><span class="pd-eh-disc">${disc}%</span>`;
+      ep.style.display='';
+    } else if(Number(p.price)>0){
+      ep.innerHTML=`<span class="pd-eh-now">${Number(p.price).toLocaleString()}원</span>`;
+      ep.style.display='';
+    } else {
+      ep.style.display='none';
+    }
+  }
   // 우측 기존 단품용 요소 숨김 (정보는 가운데/구매옵션으로 이동)
   ['pBrand','pName','pSub','pInfoPrice','optsArea','colorSec','qtyRow','totalRow'].forEach(id=>{
     const el=document.getElementById(id); if(el) el.style.display='none';
