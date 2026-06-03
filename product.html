@@ -523,7 +523,7 @@
 </footer>
 
 <!-- 버전 표시 (캐시 확인용) -->
-<div class="pd-ver">product v12</div>
+<div class="pd-ver">product v13</div>
 
 <script src="./js/main.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
@@ -823,22 +823,40 @@ function selectPurchaseOption(idx){
   updateTotal();
 }
 
-// 구매옵션 아래 구성품 컬러 펼침 (3개씩 스와이프)
+// 구매옵션 아래 펼침 — 단일(single)=색상 / 여러선택(multi)=구성품 카드
 function renderOptExpand(idx, el){
   const opt=buyOptions[idx]; if(!opt||!el) return;
   const items=window.__setItems||[];
   let comps=(Array.isArray(opt.component_indexes)?opt.component_indexes:[]).map(ci=>items[ci]).filter(Boolean);
   if(!comps.length) comps=items; // 지정 안 했으면 전체 구성품
-  comps=comps.filter(c=>Array.isArray(c.colors)&&c.colors.length); // 색상 있는 것만
-  if(!comps.length){ el.innerHTML='<div style="font-size:11px;color:var(--pd-text3);padding:2px 0;">이 옵션에 표시할 색상이 없어요.</div>'; return; }
-  if(!window.__colorSel) window.__colorSel={};
-  window.__colorSel[idx]=window.__colorSel[idx]||{};
-  el.innerHTML=comps.map((c,ci)=>{
-    const colors=c.colors;
-    const selCi=(window.__colorSel[idx][ci]!=null)?window.__colorSel[idx][ci]:0;
-    const cells=colors.map((col,coli)=>`<div class="pd-color-cell${coli===selCi?' sel':''}" onclick="selectCompColor(${idx},${ci},${coli})">${col.image_url?`<img src="${col.image_url}" alt="${(col.name||'').replace(/"/g,'&quot;')}">`:'<div style="width:100%;aspect-ratio:1/1;background:#EAE7E2;border-radius:6px;"></div>'}<div class="pd-color-cell-name">${col.name||''}</div></div>`).join('');
-    return `<div class="pd-comp-block"><div class="pd-comp-label">${c.item_name||''}</div><div class="pd-color-swipe">${cells}</div></div>`;
-  }).join('');
+
+  if(opt.select_mode==='single'){
+    // ── 색상만 (이미지 + 컬러명, 금액 없이) ──
+    const withColor=comps.filter(c=>Array.isArray(c.colors)&&c.colors.length);
+    if(!withColor.length){ el.innerHTML='<div style="font-size:11px;color:var(--pd-text3);padding:2px 0;">이 옵션에 표시할 색상이 없어요. (어드민에서 구성품에 색상을 등록하고, 이 옵션에 그 구성품을 체크하세요)</div>'; return; }
+    if(!window.__colorSel) window.__colorSel={};
+    window.__colorSel[idx]=window.__colorSel[idx]||{};
+    el.innerHTML=withColor.map((c,ci)=>{
+      const colors=c.colors;
+      const selCi=(window.__colorSel[idx][ci]!=null)?window.__colorSel[idx][ci]:0;
+      const cells=colors.map((col,coli)=>`<div class="pd-color-cell${coli===selCi?' sel':''}" onclick="selectCompColor(${idx},${ci},${coli})">${col.image_url?`<img src="${col.image_url}" alt="${(col.name||'').replace(/"/g,'&quot;')}">`:'<div style="width:100%;aspect-ratio:1/1;background:#EAE7E2;border-radius:6px;"></div>'}<div class="pd-color-cell-name">${col.name||''}</div></div>`).join('');
+      return `<div class="pd-comp-block"><div class="pd-comp-label">${c.item_name||''}</div><div class="pd-color-swipe">${cells}</div></div>`;
+    }).join('');
+  } else {
+    // ── 구성품 카드 (이미지 + 상품명 + 금액 + 상품 링크) ──
+    if(!comps.length){ el.innerHTML='<div style="font-size:11px;color:var(--pd-text3);padding:2px 0;">표시할 구성품이 없어요.</div>'; return; }
+    el.innerHTML=`<div class="pd-set-grid">${comps.map(c=>{
+      const img=c.item_image_url?`<img class="pd-set-item-img" src="${c.item_image_url}" alt="${(c.item_name||'').replace(/"/g,'&quot;')}" loading="lazy">`:'<div class="pd-set-item-img"></div>';
+      const href=c.link_product_id?`/product.html?slug=${c.link_product_id}`:'javascript:void(0)';
+      const price=c.item_price?`<div class="pd-set-item-price">₩${Number(c.item_price).toLocaleString()}</div>`:'';
+      const color=c.item_color?`<div class="pd-set-item-color">${c.item_color}</div>`:'';
+      const ffMap={serif:"'Bodoni Moda',serif",sans:"'Noto Sans KR',sans-serif"};
+      const nf=ffMap[c.name_font]||'inherit';
+      const ns={small:'10px',medium:'11px',large:'13px'}[c.name_size]||'11px';
+      const nc=(c.name_color&&c.name_color.trim())?c.name_color:'var(--pd-text)';
+      return `<a class="pd-set-item" href="${href}">${img}<div class="pd-set-item-name" style="font-family:${nf};font-size:${ns};color:${nc};">${c.item_name||''}</div>${color}${price}</a>`;
+    }).join('')}</div>`;
+  }
 }
 function selectCompColor(idx,ci,coli){
   if(!window.__colorSel)window.__colorSel={};
