@@ -265,7 +265,8 @@
 .pd-sel-label{font-size:11px;font-weight:600;letter-spacing:.5px;color:var(--pd-text2)}
 .pd-sel-total{font-size:16px;font-weight:700;color:var(--pd-text)}
 .pd-sel-strip{display:flex;gap:10px;overflow-x:auto;padding-bottom:4px;-webkit-overflow-scrolling:touch}
-.pd-sel-cell{flex:0 0 auto;width:72px;text-align:center}
+.pd-sel-cell{position:relative;flex:0 0 auto;width:72px;text-align:center}
+.pd-sel-x{position:absolute;top:-6px;right:-6px;width:20px;height:20px;border-radius:50%;background:var(--pd-text);color:#fff;border:none;font-size:14px;line-height:1;cursor:pointer;z-index:2;display:flex;align-items:center;justify-content:center;box-shadow:0 1px 4px rgba(0,0,0,.3)}
 .pd-sel-cell img,.pd-sel-noimg{width:72px;height:72px;object-fit:cover;border-radius:6px;background:#EAE7E2;display:block}
 .pd-sel-cell-name{font-size:10px;color:var(--pd-text2);margin-top:4px;line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .pd-sel-cell-price{font-size:10px;font-weight:600;color:var(--pd-text);margin-top:1px}
@@ -585,7 +586,7 @@
 </footer>
 
 <!-- 버전 표시 (캐시 확인용) -->
-<div class="pd-ver">product v36</div>
+<div class="pd-ver">product v37</div>
 
 <script src="./js/main.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
@@ -952,7 +953,7 @@ async function loadPurchaseOptions(){
         ${o.sub_description?`<div class="pd-buyopt-sub">${o.sub_description}</div>`:''}
       </div>
       <div class="pd-buyopt-right">
-        <div class="pd-buyopt-price">₩${Number(o.price).toLocaleString()}</div>
+        <div class="pd-buyopt-price" id="optPrice-${i}">₩${Number(o.price).toLocaleString()}</div>
         <div class="pd-buyopt-arrow">→</div>
       </div>
     </div>
@@ -1006,7 +1007,7 @@ function renderOptExpand(idx, el){
     }).join('')}</div>`;
   }
 }
-// 항목 체크/해제 토글 → 다시 그리고 총액 갱신
+// 항목 체크/해제 토글 → 다시 그리고 옵션가격·총액·요약 갱신
 function toggleOptItem(idx,j){
   if(!window.__selItems) window.__selItems={};
   if(!window.__selItems[idx]) window.__selItems[idx]=new Set();
@@ -1014,6 +1015,35 @@ function toggleOptItem(idx,j){
   if(s.has(j)) s.delete(j); else s.add(j);
   const el=document.getElementById('optExpand-'+idx);
   if(el) renderOptExpand(idx,el);
+  updateOptionPrices();
+  updateTotal();
+}
+// 각 옵션 옆 가격 = 옵션기본가 + 그 옵션에서 체크한 항목 가격 합
+function updateOptionPrices(){
+  buyOptions.forEach((o,i)=>{
+    const el=document.getElementById('optPrice-'+i); if(!el) return;
+    let sum=Number(o.price)||0;
+    const s=(window.__selItems&&window.__selItems[i])?window.__selItems[i]:null;
+    if(s&&Array.isArray(o.items)) s.forEach(j=>{const it=o.items[j];if(it&&Number(it.price)>0)sum+=Number(it.price);});
+    el.textContent='₩'+Number(sum).toLocaleString();
+  });
+}
+// 모든 옵션에서 체크한 항목 + 해당 옵션 기본가 총합
+function allSelectedTotal(){
+  let t=0;
+  buyOptions.forEach((o,i)=>{
+    const s=(window.__selItems&&window.__selItems[i])?window.__selItems[i]:null;
+    if(!s||!s.size) return;
+    t+=Number(o.price)||0;
+    if(Array.isArray(o.items)) s.forEach(j=>{const it=o.items[j];if(it&&Number(it.price)>0)t+=Number(it.price);});
+  });
+  return t;
+}
+// "선택한 항목"에서 직접 제거
+function removeSelItem(oi,ji){
+  if(window.__selItems&&window.__selItems[oi]) window.__selItems[oi].delete(ji);
+  const el=document.getElementById('optExpand-'+oi); if(el) renderOptExpand(oi,el);
+  updateOptionPrices();
   updateTotal();
 }
 
@@ -1231,31 +1261,31 @@ function selectedItemsExtra(){
 }
 function updateTotal(){
   if(!product) return;
-  let unit=product.price;
-  if(isEdit()&&selectedBuyOption) unit=selectedBuyOption.price;
-  const total=(unit*qty)+selectedItemsExtra();
-  document.getElementById('totalP').textContent=Number(total).toLocaleString()+'원';
+  let total;
+  if(isEdit()&&buyOptions.length){ total=allSelectedTotal(); }
+  else { total=(product.price||0)*qty; }
+  const tp=document.getElementById('totalP'); if(tp) tp.textContent=Number(total).toLocaleString()+'원';
   renderSelSummary(total);
 }
-// 장바구니 밑 "선택한 항목" 요약 — 선택 이미지 슬라이드 + 합산 금액
+// 장바구니 밑 "선택한 항목" — 모든 옵션에서 고른 걸 통합, 이미지 슬라이드 + 합산 + 개별 제거
 function renderSelSummary(total){
   const box=document.getElementById('selSummary'); if(!box) return;
   const strip=document.getElementById('selStrip'), tot=document.getElementById('selTotal');
   const picks=[];
-  if(isEdit()&&selectedBuyOption){
-    const oi=buyOptions.indexOf(selectedBuyOption);
-    const s=(window.__selItems&&window.__selItems[oi])?[...window.__selItems[oi]]:[];
-    s.forEach(j=>{ const it=selectedBuyOption.items[j]; if(it) picks.push(it); });
-  }
+  buyOptions.forEach((o,i)=>{
+    const s=(window.__selItems&&window.__selItems[i])?[...window.__selItems[i]]:[];
+    s.forEach(j=>{ const it=(o.items||[])[j]; if(it) picks.push({oi:i,ji:j,it}); });
+  });
   if(!picks.length){ box.style.display='none'; return; }
   box.style.display='';
-  strip.innerHTML=picks.map(it=>{
+  strip.innerHTML=picks.map(p=>{
+    const it=p.it;
     const img=it.image_url?`<img src="${it.image_url}" alt="${(it.color_name||it.name||'').replace(/"/g,'&quot;')}">`:'<div class="pd-sel-noimg"></div>';
     const nm=it.color_name||it.name||'';
     const pr=Number(it.price)>0?`<div class="pd-sel-cell-price">+₩${Number(it.price).toLocaleString()}</div>`:'';
-    return `<div class="pd-sel-cell">${img}<div class="pd-sel-cell-name">${nm}</div>${pr}</div>`;
+    return `<div class="pd-sel-cell"><button class="pd-sel-x" onclick="removeSelItem(${p.oi},${p.ji})" aria-label="제거">×</button>${img}<div class="pd-sel-cell-name">${nm}</div>${pr}</div>`;
   }).join('');
-  if(tot){ const t=(total!=null)?total:((isEdit()&&selectedBuyOption?selectedBuyOption.price:product.price)*qty+selectedItemsExtra()); tot.textContent='₩'+Number(t).toLocaleString(); }
+  if(tot){ const t=(total!=null)?total:allSelectedTotal(); tot.textContent='₩'+Number(t).toLocaleString(); }
 }
 function hideLoading(){const l=document.getElementById('pageLoading');l.classList.add('hide');setTimeout(()=>l.remove(),500)}
 
