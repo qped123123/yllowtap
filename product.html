@@ -566,7 +566,7 @@
 </footer>
 
 <!-- 버전 표시 (캐시 확인용) -->
-<div class="pd-ver">product v32</div>
+<div class="pd-ver">product v33</div>
 
 <script src="./js/main.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
@@ -1217,11 +1217,11 @@ function collectOptions(){
   document.querySelectorAll('.pd-opt-select').forEach(sel=>{
     if(sel.value) opts[sel.dataset.opt]=sel.value;
   });
-  // 단품 필수옵션 체크 (실제 드롭다운이 화면에 있을 때만 — 새 컬러옵션은 구매옵션에서 처리)
-  const requiredOpts=product.options||[];
+  // 단품 필수옵션 체크 — EDIT 상품은 구매옵션만 쓰므로 구식 옵션 검증 스킵
+  const requiredOpts=isEdit()?[]:(product.options||[]);
   for(const o of requiredOpts){
-    const hasSelect=document.querySelector(`.pd-opt-select[data-opt="${o.name}"]`);
-    if(hasSelect && !opts[o.name]){alert(`${o.name}을(를) 선택해주세요.`);return null;}
+    const sel=document.querySelector(`.pd-opt-select[data-opt="${o.name}"]`);
+    if(sel && sel.offsetParent!==null && !opts[o.name]){alert(`${o.name}을(를) 선택해주세요.`);return null;}
   }
   // EDIT 구매옵션 (옵션이 있을 때만 선택 강제, 없으면 기본 가격으로 구매)
   if(isEdit()&&buyOptions.length){
