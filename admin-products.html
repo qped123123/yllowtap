@@ -416,6 +416,7 @@ body { font-family:var(--font); background:var(--bg); color:var(--text); font-si
         <div class="setting-row"><div class="setting-label">교환/반품 안내</div><input class="form-input" id="sDefNoticeExchange" placeholder="교환 · 반품 · 수령 후 7일 이내"></div>
         <div class="setting-row"><div class="setting-label">적립/결제 혜택</div><input class="form-input" id="sDefNoticeReward" placeholder="적립 혜택 · 구매 금액의 최대 10%"></div>
         <div class="setting-row"><div class="setting-label">쿠폰 카드 배경색</div><input type="color" id="sCouponBg" value="#FBF8EC" style="width:60px;height:32px;padding:2px;border:1px solid var(--border);border-radius:5px;background:var(--bg-hover);cursor:pointer;"></div>
+        <div class="setting-row"><div class="setting-label">쿠폰 카드 테두리색</div><input type="color" id="sCouponBorder" value="#F4D84E" style="width:60px;height:32px;padding:2px;border:1px solid var(--border);border-radius:5px;background:var(--bg-hover);cursor:pointer;"></div>
         <div class="setting-row"><div class="setting-label">쿠폰 카드 글자색</div><input type="color" id="sCouponColor" value="#111111" style="width:60px;height:32px;padding:2px;border:1px solid var(--border);border-radius:5px;background:var(--bg-hover);cursor:pointer;"></div>
         <div class="setting-row"><div class="setting-label">쿠폰 카드 글씨체</div><select class="form-select" id="sCouponFont" style="width:160px;"><option value="sans">고딕 (Noto Sans)</option><option value="serif">세리프 (Bodoni)</option></select></div>
         <div class="setting-row"><div class="setting-label">쿠폰 카드 글자 크기</div><select class="form-select" id="sCouponSize" style="width:120px;"><option value="small">소</option><option value="medium">중</option><option value="large">대</option></select></div>
@@ -1180,6 +1181,7 @@ async function loadSettings() {
     document.getElementById('sDefNoticeExchange').value=siteSettings.default_notice_exchange||'';
     document.getElementById('sDefNoticeReward').value=siteSettings.default_notice_reward||'';
     document.getElementById('sCouponBg').value=siteSettings.default_coupon_bg||'#FBF8EC';
+    document.getElementById('sCouponBorder').value=siteSettings.default_coupon_border||'#F4D84E';
     document.getElementById('sCouponColor').value=siteSettings.default_coupon_text_color||'#111111';
     document.getElementById('sCouponFont').value=siteSettings.default_coupon_font||'sans';
     document.getElementById('sCouponSize').value=siteSettings.default_coupon_size||'medium';
@@ -1388,6 +1390,7 @@ async function saveSettings() {
     {key:'default_notice_exchange',value:document.getElementById('sDefNoticeExchange')?.value||''},
     {key:'default_notice_reward',value:document.getElementById('sDefNoticeReward')?.value||''},
     {key:'default_coupon_bg',value:document.getElementById('sCouponBg')?.value||'#FBF8EC'},
+    {key:'default_coupon_border',value:document.getElementById('sCouponBorder')?.value||'#F4D84E'},
     {key:'default_coupon_text_color',value:document.getElementById('sCouponColor')?.value||'#111111'},
     {key:'default_coupon_font',value:document.getElementById('sCouponFont')?.value||'sans'},
     {key:'default_coupon_size',value:document.getElementById('sCouponSize')?.value||'medium'},

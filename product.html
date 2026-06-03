@@ -543,7 +543,7 @@
 </footer>
 
 <!-- 버전 표시 (캐시 확인용) -->
-<div class="pd-ver">product v20</div>
+<div class="pd-ver">product v22</div>
 
 <script src="./js/main.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
@@ -609,10 +609,13 @@ async function render(){
 // 쿠폰/이벤트 패널 + 혜택 안내 — 사이트 공통값으로만 표시 (상품별 입력 사용 안 함)
 async function applyCouponNotices(p){
   let cfg={};
-  try{ const{data}=await sb.from('site_settings').select('key,value').in('key',['default_coupon_title','default_coupon_desc','default_notice_shipping','default_notice_exchange','default_notice_reward','default_coupon_bg','default_coupon_text_color','default_coupon_font','default_coupon_size','default_notice_exclude']); (data||[]).forEach(r=>cfg[r.key]=r.value); }catch(e){}
+  try{ const{data}=await sb.from('site_settings').select('key,value').in('key',['default_coupon_title','default_coupon_desc','default_notice_shipping','default_notice_exchange','default_notice_reward','default_coupon_bg','default_coupon_border','default_coupon_text_color','default_coupon_font','default_coupon_size','default_notice_exclude']); (data||[]).forEach(r=>cfg[r.key]=r.value); }catch(e){}
   // 제외 카테고리면 쿠폰/혜택 모두 표시 안 함
   const excl=(cfg.default_notice_exclude||'').split(',').map(s=>s.trim()).filter(Boolean);
-  if(p&&p.category&&excl.includes(p.category)){
+  const cats=[];
+  if(p&&p.category) cats.push(p.category);
+  if(p&&p.original_price&&Number(p.price)<Number(p.original_price)) cats.push('sale'); // 할인 중이면 세일로 간주
+  if(cats.some(c=>excl.includes(c))){
     const cp=document.getElementById('couponPanel'); if(cp)cp.style.display='none';
     const wr=document.getElementById('pdNotices'); if(wr)wr.innerHTML='';
     return;
@@ -626,6 +629,7 @@ async function applyCouponNotices(p){
     tEl.textContent=cTitle; dEl.textContent=cDesc; dEl.style.display=cDesc?'':'none';
     // 카드 색/폰트/크기
     if(cfg.default_coupon_bg) panel.style.background=cfg.default_coupon_bg;
+    if(cfg.default_coupon_border) panel.style.borderColor=cfg.default_coupon_border;
     const ffMap={serif:"'Bodoni Moda',serif",sans:"'Noto Sans KR',sans-serif"};
     const ff=ffMap[cfg.default_coupon_font]||'';
     const tSize={small:'12px',medium:'13px',large:'15px'}[cfg.default_coupon_size]||'13px';
