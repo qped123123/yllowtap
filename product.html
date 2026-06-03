@@ -266,7 +266,7 @@
 .pd-sel-total{font-size:16px;font-weight:700;color:var(--pd-text)}
 .pd-sel-strip{display:flex;gap:10px;overflow-x:auto;padding-bottom:4px;-webkit-overflow-scrolling:touch}
 .pd-sel-cell{position:relative;flex:0 0 auto;width:72px;text-align:center}
-.pd-sel-x{position:absolute;top:-6px;right:-6px;width:20px;height:20px;border-radius:50%;background:var(--pd-text);color:#fff;border:none;font-size:14px;line-height:1;cursor:pointer;z-index:2;display:flex;align-items:center;justify-content:center;box-shadow:0 1px 4px rgba(0,0,0,.3)}
+.pd-sel-x{position:absolute;top:4px;right:4px;width:20px;height:20px;border-radius:50%;background:rgba(17,17,17,.85);color:#fff;border:none;font-size:14px;line-height:1;cursor:pointer;z-index:2;display:flex;align-items:center;justify-content:center;box-shadow:0 1px 4px rgba(0,0,0,.3)}
 .pd-sel-cell img,.pd-sel-noimg{width:72px;height:72px;object-fit:cover;border-radius:6px;background:#EAE7E2;display:block}
 .pd-sel-cell-name{font-size:10px;color:var(--pd-text2);margin-top:4px;line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .pd-sel-cell-price{font-size:10px;font-weight:600;color:var(--pd-text);margin-top:1px}
@@ -380,7 +380,7 @@
     <a href="/category.html?cat=accessories">Accessories</a><a href="/category.html?cat=keyring">Keyring</a>
     <a href="/category.html?cat=seasonal">Seasonal</a><a href="/category.html?cat=sale">Sale</a>
   </nav>
-  <div class="header__actions"><a href="/login.html">Login</a><a href="/mypage.html?tab=wishlist">Wishlist</a><a href="/cart.html">Bag (0)</a>
+  <div class="header__actions"><a href="/login.html">Login</a><a href="/mypage.html?tab=wishlist">Wishlist</a><a href="/cart.html">Bag (<span id="bagCount">0</span>)</a>
     <button class="header__hamburger" aria-label="메뉴 열기"><span></span><span></span><span></span></button></div>
 </header>
 <div class="mobile-menu">
@@ -586,7 +586,7 @@
 </footer>
 
 <!-- 버전 표시 (캐시 확인용) -->
-<div class="pd-ver">product v37</div>
+<div class="pd-ver">product v38</div>
 
 <script src="./js/main.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
@@ -647,6 +647,7 @@ async function render(){
   applyCouponNotices(product);
   loadGuide();
   setupBuyBar();
+  updateBagCount();
 
   // v1: EDIT 레이아웃이면 화면 구성 전환
   if(isEdit()) setupEditLayout();
@@ -1391,7 +1392,27 @@ async function addToCart(){
 
   if(confirm('장바구니에 담았습니다!\n장바구니로 이동하시겠습니까?')){
     window.location.href='/cart.html';
+  } else {
+    updateBagCount();
   }
+}
+// 헤더 Bag (N) 숫자 갱신 — 로그인/비로그인(게스트) 모두
+async function updateBagCount(){
+  const el=document.getElementById('bagCount'); if(!el) return;
+  try{
+    let cartId=null;
+    const{data:{session}}=await sb.auth.getSession();
+    if(session){
+      const{data}=await sb.from('carts').select('id').eq('user_id',session.user.id).single();
+      if(data) cartId=data.id;
+    }else{
+      const gid=localStorage.getItem('yllowtap_guest_id');
+      if(gid){ const{data}=await sb.from('carts').select('id').eq('guest_id',gid).single(); if(data) cartId=data.id; }
+    }
+    if(!cartId){ el.textContent='0'; return; }
+    const{data:items}=await sb.from('cart_items').select('id').eq('cart_id',cartId);
+    el.textContent=String((items||[]).length);
+  }catch(e){ /* 무시 */ }
 }
 
 // ══════════════════════════════════════════
