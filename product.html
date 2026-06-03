@@ -586,7 +586,7 @@
 </footer>
 
 <!-- 버전 표시 (캐시 확인용) -->
-<div class="pd-ver">product v38</div>
+<div class="pd-ver">product v39</div>
 
 <script src="./js/main.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
@@ -1396,23 +1396,9 @@ async function addToCart(){
     updateBagCount();
   }
 }
-// 헤더 Bag (N) 숫자 갱신 — 로그인/비로그인(게스트) 모두
+// 헤더 Bag (N) 숫자 갱신 — 공통 헤더(common-header.js)가 헤더를 그리므로 그쪽 함수에 위임
 async function updateBagCount(){
-  const el=document.getElementById('bagCount'); if(!el) return;
-  try{
-    let cartId=null;
-    const{data:{session}}=await sb.auth.getSession();
-    if(session){
-      const{data}=await sb.from('carts').select('id').eq('user_id',session.user.id).single();
-      if(data) cartId=data.id;
-    }else{
-      const gid=localStorage.getItem('yllowtap_guest_id');
-      if(gid){ const{data}=await sb.from('carts').select('id').eq('guest_id',gid).single(); if(data) cartId=data.id; }
-    }
-    if(!cartId){ el.textContent='0'; return; }
-    const{data:items}=await sb.from('cart_items').select('id').eq('cart_id',cartId);
-    el.textContent=String((items||[]).length);
-  }catch(e){ /* 무시 */ }
+  try{ if(window.refreshCartCount) window.refreshCartCount(); }catch(e){}
 }
 
 // ══════════════════════════════════════════

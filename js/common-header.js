@@ -159,6 +159,9 @@
 
       // 햄버거 복원
       if (hamburger) actions.appendChild(hamburger);
+
+      // 비로그인(게스트)도 장바구니 수량 표시
+      updateCartCount();
     }
 
     // 햄버거 이벤트 재바인딩
@@ -232,21 +235,36 @@
     window.location.href = '/category.html?search=' + encodeURIComponent(query);
   }
 
-  // ── 카트 수량 업데이트 ──
+  // ── 카트 수량 업데이트 (로그인 + 비로그인 게스트 모두) ──
   async function updateCartCount() {
     try {
-      var result = await getSb().auth.getUser();
+      var supa = getSb(); if (!supa) return;
+      var result = await supa.auth.getUser();
       var user = result.data.user;
-      if (!user) return;
-      var cartsResult = await getSb().from('carts').select('id').eq('user_id', user.id);
-      var carts = cartsResult.data;
-      if (!carts || !carts.length) return;
-      var countResult = await getSb().from('cart_items').select('*', { count: 'exact', head: true }).eq('cart_id', carts[0].id);
-      var count = countResult.count;
+      var cartId = null;
+
+      if (user) {
+        var cartsResult = await supa.from('carts').select('id').eq('user_id', user.id);
+        if (cartsResult.data && cartsResult.data.length) cartId = cartsResult.data[0].id;
+      } else {
+        var gid = localStorage.getItem('yllowtap_guest_id');
+        if (gid) {
+          var gc = await supa.from('carts').select('id').eq('guest_id', gid);
+          if (gc.data && gc.data.length) cartId = gc.data[0].id;
+        }
+      }
+
       var cartLink = document.getElementById('headerCartLink');
-      if (cartLink) cartLink.textContent = 'Bag' + (count ? ' (' + count + ')' : '');
+      if (!cartLink) return;
+      if (!cartId) { cartLink.textContent = 'Bag (0)'; return; }
+
+      var countResult = await supa.from('cart_items').select('*', { count: 'exact', head: true }).eq('cart_id', cartId);
+      var count = countResult.count || 0;
+      cartLink.textContent = 'Bag (' + count + ')';
     } catch (e) {}
   }
+  // 다른 페이지 스크립트(예: product.html addToCart)에서 담은 직후 부를 수 있게 노출
+  window.refreshCartCount = updateCartCount;
 
   // ── 햄버거 메뉴 바인딩 ──
   function bindHamburger() {
