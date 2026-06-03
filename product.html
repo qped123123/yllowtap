@@ -117,8 +117,8 @@
 .pd-acc-item.open .pd-acc-ico{transform:rotate(180deg)}
 .pd-acc-body{max-height:0;overflow:hidden;transition:max-height .4s ease}
 .pd-acc-item.open .pd-acc-body{max-height:1200px}
-.pd-acc-body-inner{font-size:13px;color:var(--pd-text2);line-height:1.75;padding:0 4px 18px;white-space:pre-line}
-.pd-content{font-size:14px;line-height:1.9;color:var(--pd-text2)}
+.pd-acc-body-inner{font-size:13px;color:var(--pd-text2);line-height:1.75;padding:0 4px 18px;white-space:pre-line;word-break:keep-all}
+.pd-content{font-size:14px;line-height:1.9;color:var(--pd-text2);word-break:keep-all}
 .pd-content h3{font-size:13px;font-weight:600;letter-spacing:1px;color:var(--pd-text);margin:28px 0 10px}.pd-content h3:first-child{margin-top:0}
 .pd-content table{width:100%;border-collapse:collapse;margin:14px 0}
 .pd-content table th,.pd-content table td{padding:10px 14px;text-align:left;font-size:13px;border-bottom:1px solid var(--pd-border-lt)}
@@ -315,14 +315,14 @@
 .pd-thumbs-hint{position:absolute;left:0;right:4px;bottom:0;height:30px;display:flex;align-items:flex-end;justify-content:center;font-size:18px;line-height:1;color:var(--pd-text2);background:linear-gradient(transparent,var(--pd-bg) 85%);pointer-events:none;opacity:0;transition:opacity .3s;z-index:3}
 
 /* 버전 배지 */
-.pd-ver{position:fixed;right:10px;bottom:10px;z-index:9999;font-size:10px;color:#bbb;font-family:monospace;background:rgba(255,255,255,.72);padding:2px 7px;border-radius:3px;pointer-events:none}
-.pd-buybar{position:fixed;right:0;bottom:0;left:auto;width:min(720px,52vw);background:rgba(255,255,255,.97);border-top:1px solid var(--pd-border);border-left:1px solid var(--pd-border);box-shadow:-3px -3px 18px rgba(0,0,0,.06);z-index:200;transform:translateY(120%);transition:transform .35s cubic-bezier(.25,0,.15,1);backdrop-filter:blur(8px);border-top-left-radius:12px}
+.pd-ver{display:none;position:fixed;right:10px;bottom:10px;z-index:9999;font-size:10px;color:#bbb;font-family:monospace;background:rgba(255,255,255,.72);padding:2px 7px;border-radius:3px;pointer-events:none}
+.pd-buybar{position:fixed;left:0;right:0;bottom:0;background:rgba(255,255,255,.97);border-top:1px solid var(--pd-border);box-shadow:0 -2px 16px rgba(0,0,0,.06);z-index:200;transform:translateY(120%);transition:transform .35s cubic-bezier(.25,0,.15,1);backdrop-filter:blur(8px)}
 .pd-buybar.show{transform:translateY(0)}
-.pd-buybar-inner{padding:14px 30px;display:flex;align-items:center;gap:10px}
+.pd-buybar-inner{max-width:1560px;margin:0 auto;padding:14px 30px;display:flex;align-items:center;justify-content:flex-end;gap:10px}
 .pd-buybar-wish{width:48px;height:48px;flex-shrink:0;border:1px solid var(--pd-border);background:#fff;cursor:pointer;font-size:17px;color:var(--pd-text);display:flex;align-items:center;justify-content:center}
-.pd-buybar-cart{padding:0 26px;height:48px;flex-shrink:0;border:1px solid var(--pd-text);background:#fff;cursor:pointer;font-size:13px;font-weight:600;color:var(--pd-text);letter-spacing:.5px}
-.pd-buybar-buy{flex:1;height:48px;border:none;background:var(--pd-accent);cursor:pointer;font-size:13px;font-weight:700;color:var(--pd-text);letter-spacing:.5px}
-@media(max-width:768px){.pd-buybar{left:0;right:0;width:auto;border-left:none;border-top-left-radius:0}.pd-buybar-inner{padding:9px 14px;gap:8px}.pd-buybar-cart{padding:0 14px;height:44px}.pd-buybar-buy{height:44px}.pd-buybar-wish{width:44px;height:44px}}
+.pd-buybar-cart{padding:0 30px;height:48px;flex-shrink:0;border:1px solid var(--pd-text);background:#fff;cursor:pointer;font-size:13px;font-weight:600;color:var(--pd-text);letter-spacing:.5px}
+.pd-buybar-buy{padding:0 56px;height:48px;flex-shrink:0;border:none;background:var(--pd-accent);cursor:pointer;font-size:13px;font-weight:700;color:var(--pd-text);letter-spacing:.5px}
+@media(max-width:768px){.pd-buybar-inner{padding:9px 14px;gap:8px;justify-content:stretch}.pd-buybar-cart{padding:0 16px;height:44px}.pd-buybar-buy{flex:1;padding:0 18px;height:44px}.pd-buybar-wish{width:44px;height:44px}}
 
 /* v1 반응형 */
 @media(max-width:1024px){
@@ -561,7 +561,7 @@
 </footer>
 
 <!-- 버전 표시 (캐시 확인용) -->
-<div class="pd-ver">product v28</div>
+<div class="pd-ver">product v30</div>
 
 <script src="./js/main.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
