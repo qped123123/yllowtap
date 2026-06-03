@@ -83,6 +83,9 @@
 
 /* NOTICES */
 .pd-notices{margin-top:12px;padding:11px;background:var(--pd-white);border:1px solid var(--pd-border-lt)}
+.pd-coupon{margin:-8px 0 26px;padding:14px 16px;background:#FBF8EC;border:1px solid var(--pd-accent);border-radius:8px}
+.pd-coupon-title{font-size:13px;font-weight:700;color:var(--pd-text);letter-spacing:.2px;margin-bottom:3px}
+.pd-coupon-desc{font-size:12px;color:var(--pd-text2);line-height:1.55;white-space:pre-line}
 .pd-notice{font-size:12px;color:var(--pd-text2);line-height:1.6;display:flex;align-items:center;gap:7px}
 .pd-notice-dot{width:4px;height:4px;border-radius:50%;background:var(--pd-accent);flex-shrink:0}
 
@@ -387,6 +390,10 @@
       <span class="pd-price-old" id="pOrig" style="display:none"></span>
       <span class="pd-price-off" id="pDisc" style="display:none"></span>
     </div>
+    <div class="pd-coupon" id="couponPanel" style="display:none">
+      <div class="pd-coupon-title" id="couponTitle"></div>
+      <div class="pd-coupon-desc" id="couponDesc"></div>
+    </div>
 
     <!-- EDIT 전용: 구성 상품 (기본 숨김) -->
     <div class="pd-set" id="setSec" style="display:none">
@@ -421,7 +428,7 @@
       <button class="pd-btn-cart" id="cartBtn" onclick="addToCart()">CART</button>
       <button class="pd-btn-wish" id="wishBtn" onclick="toggleWishlist()"><svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg><span class="pd-wish-count" id="wishCount"></span></button>
     </div>
-    <div class="pd-notices">
+    <div class="pd-notices" id="pdNotices">
       <div class="pd-notice"><span class="pd-notice-dot"></span>무료 배송 · 5만원 이상 구매 시</div>
       <div class="pd-notice"><span class="pd-notice-dot"></span>교환/반품 · 수령 후 7일 이내</div>
       <div class="pd-notice"><span class="pd-notice-dot"></span>결제 혜택 · 최대 10% 적립</div>
@@ -536,7 +543,7 @@
 </footer>
 
 <!-- 버전 표시 (캐시 확인용) -->
-<div class="pd-ver">product v17</div>
+<div class="pd-ver">product v18</div>
 
 <script src="./js/main.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
@@ -594,9 +601,26 @@ async function render(){
   }
   document.getElementById('detailHTML').innerHTML=p.description_detail||'<p style="color:var(--pd-text3);text-align:center;padding:36px 0;">상세 정보가 등록되지 않았습니다.</p>';
   setTimeout(checkDetailHeight,400); window.addEventListener('load',checkDetailHeight);
+  applyCouponNotices(product);
 
   // v1: EDIT 레이아웃이면 화면 구성 전환
   if(isEdit()) setupEditLayout();
+}
+// 쿠폰/이벤트 패널 + 혜택 안내
+function applyCouponNotices(p){
+  if(!p) return;
+  if(p.coupon_title&&p.coupon_title.trim()){
+    document.getElementById('couponTitle').textContent=p.coupon_title;
+    const dEl=document.getElementById('couponDesc');
+    dEl.textContent=p.coupon_desc||'';
+    dEl.style.display=(p.coupon_desc&&p.coupon_desc.trim())?'':'none';
+    document.getElementById('couponPanel').style.display='';
+  }
+  const ship=(p.notice_shipping&&p.notice_shipping.trim())?p.notice_shipping:'무료 배송 · 5만원 이상 구매 시';
+  const exc=(p.notice_exchange&&p.notice_exchange.trim())?p.notice_exchange:'교환/반품 · 수령 후 7일 이내';
+  const rew=(p.notice_reward&&p.notice_reward.trim())?p.notice_reward:'결제 혜택 · 최대 10% 적립';
+  const wrap=document.getElementById('pdNotices');
+  if(wrap) wrap.innerHTML=[ship,exc,rew].filter(t=>t&&t.trim()).map(t=>`<div class="pd-notice"><span class="pd-notice-dot"></span>${t}</div>`).join('');
 }
 // 상품설명 더보기/접기
 function checkDetailHeight(){
