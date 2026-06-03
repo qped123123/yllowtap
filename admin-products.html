@@ -421,6 +421,13 @@ body { font-family:var(--font); background:var(--bg); color:var(--text); font-si
         <div class="setting-row"><div class="setting-label">쿠폰 카드 글씨체</div><select class="form-select" id="sCouponFont" style="width:160px;"><option value="sans">고딕 (Noto Sans)</option><option value="serif">세리프 (Bodoni)</option></select></div>
         <div class="setting-row"><div class="setting-label">쿠폰 카드 글자 크기</div><select class="form-select" id="sCouponSize" style="width:120px;"><option value="small">소</option><option value="medium">중</option><option value="large">대</option></select></div>
         <div class="setting-row" style="align-items:flex-start;"><div class="setting-label" style="padding-top:4px;">공통 혜택 제외 카테고리</div><div id="sExcludeCats" style="display:flex;flex-wrap:wrap;gap:10px;"></div></div>
+        <div style="border-top:1px solid var(--border);margin:20px 0;"></div>
+        <div style="font-size:12px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:var(--accent);margin-bottom:6px;">구매안내 (상세페이지 '구매안내' 탭 · 전 상품 공통)</div>
+        <p style="font-size:11px;color:var(--text-muted);margin-bottom:12px;">상세페이지 구매안내 탭에 아코디언으로 떠요. 줄바꿈은 엔터 · HTML 태그도 가능. 비우면 기본 문구가 떠요.</p>
+        <div class="setting-row" style="align-items:flex-start;"><div class="setting-label" style="padding-top:4px;">배송 안내</div><textarea class="form-input" id="sGuideShipping" style="min-height:54px;resize:vertical;line-height:1.5;" placeholder="주문 후 1~3일 이내 출고됩니다."></textarea></div>
+        <div class="setting-row" style="align-items:flex-start;"><div class="setting-label" style="padding-top:4px;">교환 · 반품</div><textarea class="form-input" id="sGuideExchange" style="min-height:54px;resize:vertical;line-height:1.5;" placeholder="수령 후 7일 이내 신청 가능합니다."></textarea></div>
+        <div class="setting-row" style="align-items:flex-start;"><div class="setting-label" style="padding-top:4px;">환불 안내</div><textarea class="form-input" id="sGuideRefund" style="min-height:54px;resize:vertical;line-height:1.5;" placeholder="반품 확인 후 3~5영업일 내 환불됩니다."></textarea></div>
+        <div class="setting-row" style="align-items:flex-start;"><div class="setting-label" style="padding-top:4px;">상품정보 제공고시</div><textarea class="form-input" id="sGuideLegal" style="min-height:54px;resize:vertical;line-height:1.5;" placeholder="소재·치수·원산지 등 안내"></textarea></div>
           <!-- ★ 메인 이미지 관리 (홈 화면) -->
         <div style="border-top:1px solid var(--border);margin:20px 0;"></div>
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
@@ -1188,6 +1195,12 @@ async function loadSettings() {
   }
   excludeCats=(siteSettings.default_notice_exclude||'').split(',').map(s=>s.trim()).filter(Boolean);
   renderExcludeCats();
+  if(document.getElementById('sGuideShipping')){
+    document.getElementById('sGuideShipping').value=siteSettings.guide_shipping||'';
+    document.getElementById('sGuideExchange').value=siteSettings.guide_exchange||'';
+    document.getElementById('sGuideRefund').value=siteSettings.guide_refund||'';
+    document.getElementById('sGuideLegal').value=siteSettings.guide_legal||'';
+  }
 }
 let excludeCats=[];
 function renderExcludeCats(){
@@ -1395,6 +1408,10 @@ async function saveSettings() {
     {key:'default_coupon_font',value:document.getElementById('sCouponFont')?.value||'sans'},
     {key:'default_coupon_size',value:document.getElementById('sCouponSize')?.value||'medium'},
     {key:'default_notice_exclude',value:excludeCats.join(',')},
+    {key:'guide_shipping',value:document.getElementById('sGuideShipping')?.value||''},
+    {key:'guide_exchange',value:document.getElementById('sGuideExchange')?.value||''},
+    {key:'guide_refund',value:document.getElementById('sGuideRefund')?.value||''},
+    {key:'guide_legal',value:document.getElementById('sGuideLegal')?.value||''},
   ];
   try { for(const item of items){await sb.from('site_settings').upsert({key:item.key,value:item.value,updated_at:new Date().toISOString()},{onConflict:'key'});} showToast('설정 저장 완료'); }
   catch(err){showToast('저장 실패: '+err.message,true);}

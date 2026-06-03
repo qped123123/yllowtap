@@ -110,6 +110,14 @@
 .pd-detail-wrap.collapsed::after{content:'';position:absolute;left:0;right:0;bottom:0;height:140px;background:linear-gradient(rgba(255,255,255,0),var(--pd-white));pointer-events:none}
 .pd-detail-more{display:none;width:100%;margin-top:14px;padding:13px 0;font-size:12px;letter-spacing:1px;color:var(--pd-text);background:none;border:1px solid var(--pd-border);border-radius:6px;cursor:pointer;font-family:var(--pd-fb);transition:border-color .2s}
 .pd-detail-more:hover{border-color:var(--pd-text)}
+.pd-acc{border-top:1px solid var(--pd-border)}
+.pd-acc-item{border-bottom:1px solid var(--pd-border)}
+.pd-acc-head{display:flex;justify-content:space-between;align-items:center;padding:17px 4px;cursor:pointer;font-size:14px;font-weight:500;color:var(--pd-text);letter-spacing:.3px}
+.pd-acc-ico{font-size:14px;color:var(--pd-text3);transition:transform .3s}
+.pd-acc-item.open .pd-acc-ico{transform:rotate(180deg)}
+.pd-acc-body{max-height:0;overflow:hidden;transition:max-height .4s ease}
+.pd-acc-item.open .pd-acc-body{max-height:1200px}
+.pd-acc-body-inner{font-size:13px;color:var(--pd-text2);line-height:1.75;padding:0 4px 18px;white-space:pre-line}
 .pd-content{font-size:14px;line-height:1.9;color:var(--pd-text2)}
 .pd-content h3{font-size:13px;font-weight:600;letter-spacing:1px;color:var(--pd-text);margin:28px 0 10px}.pd-content h3:first-child{margin-top:0}
 .pd-content table{width:100%;border-collapse:collapse;margin:14px 0}
@@ -465,11 +473,7 @@
   </div>
   <div class="pd-panel active" id="panel-detail"><div class="pd-detail-wrap collapsed" id="detailWrap"><div id="detailBlocks" style="margin-bottom:40px;"></div><div class="pd-content" id="detailHTML"></div></div><button class="pd-detail-more" id="detailMoreBtn" onclick="toggleDetailMore()">상품정보 펼쳐보기 ▾</button></div>
   <div class="pd-panel" id="panel-guide">
-    <div class="pd-content">
-      <h3>배송 안내</h3><p>주문 후 1~3일 이내 출고. MADE 제품은 5~7일 소요.</p>
-      <h3>교환 및 반품</h3><p>수령 후 7일 이내 가능. 착용 흔적 시 불가.</p>
-      <h3>사이즈 안내</h3><p>상세 사이즈는 상품별 상세정보 참고. 1~2cm 오차 가능.</p>
-    </div>
+    <div class="pd-acc" id="guideAcc"></div>
   </div>
   <!-- REVIEW PANEL -->
   <div class="pd-panel" id="panel-review">
@@ -543,7 +547,7 @@
 </footer>
 
 <!-- 버전 표시 (캐시 확인용) -->
-<div class="pd-ver">product v23</div>
+<div class="pd-ver">product v24</div>
 
 <script src="./js/main.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
@@ -602,9 +606,23 @@ async function render(){
   document.getElementById('detailHTML').innerHTML=p.description_detail||'<p style="color:var(--pd-text3);text-align:center;padding:36px 0;">상세 정보가 등록되지 않았습니다.</p>';
   setTimeout(checkDetailHeight,400); window.addEventListener('load',checkDetailHeight);
   applyCouponNotices(product);
+  loadGuide();
 
   // v1: EDIT 레이아웃이면 화면 구성 전환
   if(isEdit()) setupEditLayout();
+}
+// 구매안내 아코디언 (사이트 공통값)
+async function loadGuide(){
+  let cfg={};
+  try{ const{data}=await sb.from('site_settings').select('key,value').in('key',['guide_shipping','guide_exchange','guide_refund','guide_legal']); (data||[]).forEach(r=>cfg[r.key]=r.value); }catch(e){}
+  const items=[
+    {t:'배송 안내', c:cfg.guide_shipping||'주문 후 1~3일 이내 출고됩니다. (주문 폭주 시 지연될 수 있어요)'},
+    {t:'교환 · 반품', c:cfg.guide_exchange||'상품 수령 후 7일 이내 신청 가능합니다. 착용·사용 흔적이 있는 경우 불가합니다.'},
+    {t:'환불 안내', c:cfg.guide_refund||'반품 상품 확인 후 영업일 기준 3~5일 이내 환불됩니다.'},
+    {t:'상품정보 제공고시', c:cfg.guide_legal||'소재·치수·원산지 등 상세 정보는 상세정보 탭을 참고해 주세요.'},
+  ];
+  const el=document.getElementById('guideAcc'); if(!el) return;
+  el.innerHTML=items.map((it,i)=>`<div class="pd-acc-item${i===0?' open':''}"><div class="pd-acc-head" onclick="this.parentNode.classList.toggle('open')">${it.t}<span class="pd-acc-ico">⌄</span></div><div class="pd-acc-body"><div class="pd-acc-body-inner">${(it.c||'').replace(/\n/g,'<br>')}</div></div></div>`).join('');
 }
 // 쿠폰/이벤트 패널 + 혜택 안내 — 사이트 공통값으로만 표시 (상품별 입력 사용 안 함)
 async function applyCouponNotices(p){
