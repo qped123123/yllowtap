@@ -543,7 +543,7 @@
 </footer>
 
 <!-- 버전 표시 (캐시 확인용) -->
-<div class="pd-ver">product v18</div>
+<div class="pd-ver">product v19</div>
 
 <script src="./js/main.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
@@ -606,19 +606,23 @@ async function render(){
   // v1: EDIT 레이아웃이면 화면 구성 전환
   if(isEdit()) setupEditLayout();
 }
-// 쿠폰/이벤트 패널 + 혜택 안내
-function applyCouponNotices(p){
+// 쿠폰/이벤트 패널 + 혜택 안내 (상품값 > 사이트 공통값 > 기본문구)
+async function applyCouponNotices(p){
   if(!p) return;
-  if(p.coupon_title&&p.coupon_title.trim()){
-    document.getElementById('couponTitle').textContent=p.coupon_title;
+  let cfg={};
+  try{ const{data}=await sb.from('site_settings').select('key,value').in('key',['default_coupon_title','default_coupon_desc','default_notice_shipping','default_notice_exchange','default_notice_reward']); (data||[]).forEach(r=>cfg[r.key]=r.value); }catch(e){}
+  const pick=(prod,common)=>{ if(prod&&prod.trim())return prod.trim(); if(common&&common.trim())return common.trim(); return ''; };
+  const cTitle=pick(p.coupon_title,cfg.default_coupon_title);
+  const cDesc=pick(p.coupon_desc,cfg.default_coupon_desc);
+  if(cTitle){
+    document.getElementById('couponTitle').textContent=cTitle;
     const dEl=document.getElementById('couponDesc');
-    dEl.textContent=p.coupon_desc||'';
-    dEl.style.display=(p.coupon_desc&&p.coupon_desc.trim())?'':'none';
+    dEl.textContent=cDesc; dEl.style.display=cDesc?'':'none';
     document.getElementById('couponPanel').style.display='';
   }
-  const ship=(p.notice_shipping&&p.notice_shipping.trim())?p.notice_shipping:'무료 배송 · 5만원 이상 구매 시';
-  const exc=(p.notice_exchange&&p.notice_exchange.trim())?p.notice_exchange:'교환/반품 · 수령 후 7일 이내';
-  const rew=(p.notice_reward&&p.notice_reward.trim())?p.notice_reward:'결제 혜택 · 최대 10% 적립';
+  const ship=pick(p.notice_shipping,cfg.default_notice_shipping)||'무료 배송 · 5만원 이상 구매 시';
+  const exc=pick(p.notice_exchange,cfg.default_notice_exchange)||'교환/반품 · 수령 후 7일 이내';
+  const rew=pick(p.notice_reward,cfg.default_notice_reward)||'결제 혜택 · 최대 10% 적립';
   const wrap=document.getElementById('pdNotices');
   if(wrap) wrap.innerHTML=[ship,exc,rew].filter(t=>t&&t.trim()).map(t=>`<div class="pd-notice"><span class="pd-notice-dot"></span>${t}</div>`).join('');
 }

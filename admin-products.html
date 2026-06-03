@@ -407,6 +407,14 @@ body { font-family:var(--font); background:var(--bg); color:var(--text); font-si
           <div class="setting-label">무드 섹션 타이틀</div>
           <input class="form-input" id="sMoodTitle" placeholder="About the Mood">
         </div>
+        <div style="border-top:1px solid var(--border);margin:20px 0;"></div>
+        <div style="font-size:12px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:var(--accent);margin-bottom:6px;">공통 쿠폰 · 혜택 (전 상품 기본값)</div>
+        <p style="font-size:11px;color:var(--text-muted);margin-bottom:12px;">여기 한 번 넣으면 모든 상품 상세에 떠요. 특정 상품만 다르게 하려면 그 상품 편집에서 따로 입력하세요(거기서 비우면 이 값이 떠요).</p>
+        <div class="setting-row"><div class="setting-label">쿠폰/이벤트 제목</div><input class="form-input" id="sDefCouponTitle" placeholder="예: FIRST ORDER · 첫 구매 10% 쿠폰"></div>
+        <div class="setting-row"><div class="setting-label">쿠폰/이벤트 설명</div><input class="form-input" id="sDefCouponDesc" placeholder="예: 회원가입 시 자동 발급 · 결제 시 적용"></div>
+        <div class="setting-row"><div class="setting-label">배송 안내</div><input class="form-input" id="sDefNoticeShipping" placeholder="무료 배송 · 5만원 이상 구매 시"></div>
+        <div class="setting-row"><div class="setting-label">교환/반품 안내</div><input class="form-input" id="sDefNoticeExchange" placeholder="교환 · 반품 · 수령 후 7일 이내"></div>
+        <div class="setting-row"><div class="setting-label">적립/결제 혜택</div><input class="form-input" id="sDefNoticeReward" placeholder="적립 혜택 · 구매 금액의 최대 10%"></div>
           <!-- ★ 메인 이미지 관리 (홈 화면) -->
         <div style="border-top:1px solid var(--border);margin:20px 0;"></div>
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
@@ -1159,6 +1167,13 @@ async function loadSettings() {
   document.getElementById('sBgmVolume').value=siteSettings.bgm_volume||'0.3';
   document.getElementById('sMoodImage').value=siteSettings.mood_image_url||'';
   document.getElementById('sMoodTitle').value=siteSettings.mood_title||'About the Mood';
+  if(document.getElementById('sDefCouponTitle')){
+    document.getElementById('sDefCouponTitle').value=siteSettings.default_coupon_title||'';
+    document.getElementById('sDefCouponDesc').value=siteSettings.default_coupon_desc||'';
+    document.getElementById('sDefNoticeShipping').value=siteSettings.default_notice_shipping||'';
+    document.getElementById('sDefNoticeExchange').value=siteSettings.default_notice_exchange||'';
+    document.getElementById('sDefNoticeReward').value=siteSettings.default_notice_reward||'';
+  }
 }
 
 function bindSettingsImageUpload() {
@@ -1347,6 +1362,11 @@ async function saveSettings() {
     {key:'bgm_volume',value:document.getElementById('sBgmVolume').value},
     {key:'mood_image_url',value:document.getElementById('sMoodImage').value},
     {key:'mood_title',value:document.getElementById('sMoodTitle').value},
+    {key:'default_coupon_title',value:document.getElementById('sDefCouponTitle')?.value||''},
+    {key:'default_coupon_desc',value:document.getElementById('sDefCouponDesc')?.value||''},
+    {key:'default_notice_shipping',value:document.getElementById('sDefNoticeShipping')?.value||''},
+    {key:'default_notice_exchange',value:document.getElementById('sDefNoticeExchange')?.value||''},
+    {key:'default_notice_reward',value:document.getElementById('sDefNoticeReward')?.value||''},
   ];
   try { for(const item of items){await sb.from('site_settings').upsert({key:item.key,value:item.value,updated_at:new Date().toISOString()},{onConflict:'key'});} showToast('설정 저장 완료'); }
   catch(err){showToast('저장 실패: '+err.message,true);}
