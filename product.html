@@ -102,6 +102,11 @@
 .pd-tab{padding:14px 22px;font-size:12px;font-weight:500;letter-spacing:1.5px;color:var(--pd-text3);cursor:pointer;border-bottom:2px solid transparent;transition:all .3s;background:none;border-top:none;border-left:none;border-right:none;font-family:var(--pd-fb)}
 .pd-tab:hover{color:var(--pd-text)}.pd-tab.active{color:var(--pd-text);border-bottom-color:var(--pd-text)}
 .pd-panel{display:none;max-width:800px;margin:0 auto}.pd-panel.active{display:block}
+.pd-detail-wrap{position:relative}
+.pd-detail-wrap.collapsed{max-height:900px;overflow:hidden}
+.pd-detail-wrap.collapsed::after{content:'';position:absolute;left:0;right:0;bottom:0;height:140px;background:linear-gradient(rgba(255,255,255,0),var(--pd-white));pointer-events:none}
+.pd-detail-more{display:none;width:100%;margin-top:14px;padding:13px 0;font-size:12px;letter-spacing:1px;color:var(--pd-text);background:none;border:1px solid var(--pd-border);border-radius:6px;cursor:pointer;font-family:var(--pd-fb);transition:border-color .2s}
+.pd-detail-more:hover{border-color:var(--pd-text)}
 .pd-content{font-size:14px;line-height:1.9;color:var(--pd-text2)}
 .pd-content h3{font-size:13px;font-weight:600;letter-spacing:1px;color:var(--pd-text);margin:28px 0 10px}.pd-content h3:first-child{margin-top:0}
 .pd-content table{width:100%;border-collapse:collapse;margin:14px 0}
@@ -451,7 +456,7 @@
     <button class="pd-tab" data-tab="review">사용후기 <span id="revCnt">(0)</span></button>
     <button class="pd-tab" data-tab="qna">상품문의 <span id="qnaCnt">(0)</span></button>
   </div>
-  <div class="pd-panel active" id="panel-detail"><div id="detailBlocks" style="margin-bottom:40px;"></div><div class="pd-content" id="detailHTML"></div></div>
+  <div class="pd-panel active" id="panel-detail"><div class="pd-detail-wrap collapsed" id="detailWrap"><div id="detailBlocks" style="margin-bottom:40px;"></div><div class="pd-content" id="detailHTML"></div></div><button class="pd-detail-more" id="detailMoreBtn" onclick="toggleDetailMore()">상품정보 펼쳐보기 ▾</button></div>
   <div class="pd-panel" id="panel-guide">
     <div class="pd-content">
       <h3>배송 안내</h3><p>주문 후 1~3일 이내 출고. MADE 제품은 5~7일 소요.</p>
@@ -499,8 +504,12 @@
 
 <!-- RECOMMEND -->
 <section class="pd-recommend" id="recSec" style="display:none">
-  <div class="pd-rec-head"><div class="pd-rec-over">YOU MAY ALSO LIKE</div><h2 class="pd-rec-title">Recommend Items</h2><p class="pd-rec-sub">또 다른 추천 아이템</p></div>
+  <div class="pd-rec-head"><div class="pd-rec-over">YOU MAY ALSO LIKE</div><h2 class="pd-rec-title">Recommend Items</h2><p class="pd-rec-sub">함께 보면 좋은 아이템</p></div>
   <div class="pd-rec-grid" id="recGrid"></div>
+</section>
+<section class="pd-recommend" id="recSec2" style="display:none;border-top:none;padding-top:0;">
+  <div class="pd-rec-head"><div class="pd-rec-over">QUIETLY COVETED</div><h2 class="pd-rec-title">Quietly Coveted</h2><p class="pd-rec-sub">사랑받는 아이템</p></div>
+  <div class="pd-rec-grid" id="recGrid2"></div>
 </section>
 
 <!-- JOURNAL LINK -->
@@ -527,7 +536,7 @@
 </footer>
 
 <!-- 버전 표시 (캐시 확인용) -->
-<div class="pd-ver">product v15</div>
+<div class="pd-ver">product v16</div>
 
 <script src="./js/main.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
@@ -584,9 +593,23 @@ async function render(){
     }).join('');
   }
   document.getElementById('detailHTML').innerHTML=p.description_detail||'<p style="color:var(--pd-text3);text-align:center;padding:36px 0;">상세 정보가 등록되지 않았습니다.</p>';
+  setTimeout(checkDetailHeight,400); window.addEventListener('load',checkDetailHeight);
 
   // v1: EDIT 레이아웃이면 화면 구성 전환
   if(isEdit()) setupEditLayout();
+}
+// 상품설명 더보기/접기
+function checkDetailHeight(){
+  const wrap=document.getElementById('detailWrap'),btn=document.getElementById('detailMoreBtn');
+  if(!wrap||!btn)return;
+  if(wrap.scrollHeight>920){ btn.style.display='block'; }
+  else { btn.style.display='none'; wrap.classList.remove('collapsed'); }
+}
+function toggleDetailMore(){
+  const wrap=document.getElementById('detailWrap'),btn=document.getElementById('detailMoreBtn');
+  if(!wrap||!btn)return;
+  if(wrap.classList.contains('collapsed')){ wrap.classList.remove('collapsed'); btn.textContent='접기 ▴'; }
+  else { wrap.classList.add('collapsed'); btn.textContent='상품정보 펼쳐보기 ▾'; wrap.scrollIntoView({behavior:'smooth',block:'start'}); }
 }
 
 // ══════════════════════════════════════════
@@ -1034,12 +1057,14 @@ async function loadRecs(){
   let items=[];
   if(recs?.length){const{data}=await sb.from('products').select('*,product_media(media_url,role,display_order)').in('id',recs.map(r=>r.recommended_product_id)).eq('is_active',true);items=data||[]}
   else{const{data}=await sb.from('products').select('*,product_media(media_url,role,display_order)').eq('category',product.category).eq('is_active',true).neq('id',product.id).limit(4).order('display_order');items=data||[]}
-  if(!items.length) return;
-  document.getElementById('recSec').style.display='';
-  document.getElementById('recGrid').innerHTML=items.map(p=>{
-    const img=getMainImg(p);
-    return`<a class="pd-rec-card" href="/product.html?slug=${p.slug||p.id}"><div class="pd-rec-card-img">${img?`<img src="${img}" alt="${p.name}" loading="lazy">`:'<div style="width:100%;height:100%;background:#EAE7E2"></div>'}</div><div class="pd-rec-brand">${p.brand||'YLLOWTAP'}</div><div class="pd-rec-name">${p.name}</div><div class="pd-rec-price">${p.price.toLocaleString()}원</div></a>`;
-  }).join('');
+  const card=p=>{const img=getMainImg(p);return`<a class="pd-rec-card" href="/product.html?slug=${p.slug||p.id}"><div class="pd-rec-card-img">${img?`<img src="${img}" alt="${p.name}" loading="lazy">`:'<div style="width:100%;height:100%;background:#EAE7E2"></div>'}</div><div class="pd-rec-brand">${p.brand||'YLLOWTAP'}</div><div class="pd-rec-name">${p.name}</div><div class="pd-rec-price">${p.price.toLocaleString()}원</div></a>`;};
+  if(items.length){document.getElementById('recSec').style.display='';document.getElementById('recGrid').innerHTML=items.map(card).join('');}
+  // 섹션2: Quietly Coveted (현재 상품·섹션1 제외한 다른 아이템)
+  try{
+    const{data:all}=await sb.from('products').select('*,product_media(media_url,role,display_order)').eq('is_active',true).limit(24);
+    const loved=(all||[]).filter(p=>p.id!==product.id&&!items.some(it=>it.id===p.id)).slice(0,4);
+    if(loved.length){document.getElementById('recSec2').style.display='';document.getElementById('recGrid2').innerHTML=loved.map(card).join('');}
+  }catch(e){}
 }
 
 function getMainImg(p){
