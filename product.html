@@ -237,7 +237,7 @@
 .pd-set-item-color{font-size:10px;color:var(--pd-text3);margin-bottom:1px}
 .pd-set-item-price{font-size:11px;font-weight:600;color:var(--pd-text)}
 /* 컬러옵션: 구매옵션 펼침 + 컬러 3개씩 스와이프 */
-.pd-opt-expand{display:none;padding:18px 16px 10px;background:#FBFAF8;border:1.5px solid var(--pd-text);border-top:none;margin:0 0 6px;border-radius:0 0 7px 7px}
+.pd-opt-expand{display:none;padding:18px 16px 10px;background:#FBFAF8;border:1px solid var(--pd-border);margin:5px 0 8px;border-radius:7px}
 .pd-opt-expand.active{display:block}
 .pd-opt-expand .pd-set-grid{gap:14px}
 .pd-opt-expand .pd-set-item-name{margin-bottom:3px;letter-spacing:.2px}
@@ -257,7 +257,7 @@
 .pd-buyopt-title{font-size:13px;font-weight:600;letter-spacing:0;margin-bottom:8px;color:var(--pd-text)}
 .pd-buyopt-item{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:11px 15px;border:1.5px solid var(--pd-border);border-radius:7px;cursor:pointer;margin-bottom:6px;transition:border-color .2s,background .2s;background:var(--pd-white)}
 .pd-buyopt-item:hover{border-color:var(--pd-text)}
-.pd-buyopt-item.active{border-color:var(--pd-text);box-shadow:none;border-bottom-color:transparent;border-bottom-left-radius:0;border-bottom-right-radius:0;margin-bottom:0}
+.pd-buyopt-item.active{border-color:var(--pd-text);box-shadow:none;margin-bottom:0}
 .pd-buyopt-left{min-width:0}
 .pd-buyopt-name{font-size:13px;font-weight:600;letter-spacing:.5px;text-transform:uppercase;color:var(--pd-text);display:flex;align-items:center;gap:8px}
 .pd-buyopt-badge{font-size:9px;font-weight:700;letter-spacing:.5px;color:var(--pd-red);background:#FBEBE9;padding:2px 7px;border-radius:2px}
@@ -527,7 +527,7 @@
 </footer>
 
 <!-- 버전 표시 (캐시 확인용) -->
-<div class="pd-ver">product v14</div>
+<div class="pd-ver">product v15</div>
 
 <script src="./js/main.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
@@ -830,42 +830,30 @@ function selectPurchaseOption(idx){
 // 구매옵션 아래 펼침 — 단일(single)=색상 / 여러선택(multi)=구성품 카드
 function renderOptExpand(idx, el){
   const opt=buyOptions[idx]; if(!opt||!el) return;
-  const items=window.__setItems||[];
-  let comps=(Array.isArray(opt.component_indexes)?opt.component_indexes:[]).map(ci=>items[ci]).filter(Boolean);
-  if(!comps.length) comps=items; // 지정 안 했으면 전체 구성품
+  const items=Array.isArray(opt.items)?opt.items:[];
+  if(!items.length){ el.innerHTML='<div style="font-size:11px;color:var(--pd-text3);padding:2px 0;">이 옵션에 등록된 항목이 없어요.</div>'; return; }
 
   if(opt.select_mode==='single'){
-    // ── 색상만 (이미지 + 컬러명, 금액 없이) ──
-    const withColor=comps.filter(c=>Array.isArray(c.colors)&&c.colors.length);
-    if(!withColor.length){ el.innerHTML='<div style="font-size:11px;color:var(--pd-text3);padding:2px 0;">이 옵션에 표시할 색상이 없어요. (어드민에서 구성품에 색상을 등록하고, 이 옵션에 그 구성품을 체크하세요)</div>'; return; }
+    // ── 색상: 이미지 + 컬러명 (금액 없이) ──
     if(!window.__colorSel) window.__colorSel={};
-    window.__colorSel[idx]=window.__colorSel[idx]||{};
-    el.innerHTML=withColor.map((c,ci)=>{
-      const colors=c.colors;
-      const selCi=(window.__colorSel[idx][ci]!=null)?window.__colorSel[idx][ci]:0;
-      const cells=colors.map((col,coli)=>`<div class="pd-color-cell${coli===selCi?' sel':''}" onclick="selectCompColor(${idx},${ci},${coli})">${col.image_url?`<img src="${col.image_url}" alt="${(col.name||'').replace(/"/g,'&quot;')}">`:'<div style="width:100%;aspect-ratio:1/1;background:#EAE7E2;border-radius:6px;"></div>'}<div class="pd-color-cell-name">${col.name||''}</div></div>`).join('');
-      return `<div class="pd-comp-block"><div class="pd-comp-label">${c.item_name||''}</div><div class="pd-color-swipe">${cells}</div></div>`;
-    }).join('');
+    if(window.__colorSel[idx]==null) window.__colorSel[idx]=0;
+    const sel=window.__colorSel[idx];
+    const cells=items.map((it,j)=>`<div class="pd-color-cell${j===sel?' sel':''}" onclick="selectCompColor(${idx},${j})">${it.image_url?`<img src="${it.image_url}" alt="${(it.color_name||'').replace(/"/g,'&quot;')}">`:'<div style="width:100%;aspect-ratio:1/1;background:#EAE7E2;border-radius:6px;"></div>'}<div class="pd-color-cell-name">${it.color_name||''}</div></div>`).join('');
+    el.innerHTML=`<div class="pd-comp-block"><div class="pd-color-swipe">${cells}</div></div>`;
   } else {
-    // ── 구성품 카드 (이미지 + 상품명 + 금액 + 상품 링크) ──
-    if(!comps.length){ el.innerHTML='<div style="font-size:11px;color:var(--pd-text3);padding:2px 0;">표시할 구성품이 없어요.</div>'; return; }
-    el.innerHTML=`<div class="pd-set-grid">${comps.map(c=>{
-      const img=c.item_image_url?`<img class="pd-set-item-img" src="${c.item_image_url}" alt="${(c.item_name||'').replace(/"/g,'&quot;')}" loading="lazy">`:'<div class="pd-set-item-img"></div>';
-      const href=c.link_product_id?`/product.html?slug=${c.link_product_id}`:'javascript:void(0)';
-      const price=c.item_price?`<div class="pd-set-item-price">₩${Number(c.item_price).toLocaleString()}</div>`:'';
-      const color=c.item_color?`<div class="pd-set-item-color">${c.item_color}</div>`:'';
-      const ffMap={serif:"'Bodoni Moda',serif",sans:"'Noto Sans KR',sans-serif"};
-      const nf=ffMap[c.name_font]||'inherit';
-      const ns={small:'10px',medium:'11px',large:'13px'}[c.name_size]||'11px';
-      const nc=(c.name_color&&c.name_color.trim())?c.name_color:'var(--pd-text)';
-      return `<a class="pd-set-item" href="${href}">${img}<div class="pd-set-item-name" style="font-family:${nf};font-size:${ns};color:${nc};">${c.item_name||''}</div>${color}${price}</a>`;
+    // ── 구성품 카드: 이미지 + 상품명 + 컬러명 + 금액 + (상품명 클릭 시 이동) ──
+    el.innerHTML=`<div class="pd-set-grid">${items.map(it=>{
+      const img=it.image_url?`<img class="pd-set-item-img" src="${it.image_url}" alt="${(it.name||'').replace(/"/g,'&quot;')}" loading="lazy">`:'<div class="pd-set-item-img"></div>';
+      const href=it.link_product_id?`/product.html?slug=${it.link_product_id}`:'javascript:void(0)';
+      const price=it.price?`<div class="pd-set-item-price">₩${Number(it.price).toLocaleString()}</div>`:'';
+      const color=it.color_name?`<div class="pd-set-item-color">${it.color_name}</div>`:'';
+      return `<a class="pd-set-item" href="${href}">${img}<div class="pd-set-item-name">${it.name||''}</div>${color}${price}</a>`;
     }).join('')}</div>`;
   }
 }
-function selectCompColor(idx,ci,coli){
+function selectCompColor(idx,coli){
   if(!window.__colorSel)window.__colorSel={};
-  window.__colorSel[idx]=window.__colorSel[idx]||{};
-  window.__colorSel[idx][ci]=coli;
+  window.__colorSel[idx]=coli;
   const el=document.getElementById('optExpand-'+idx);
   if(el) renderOptExpand(idx,el);
 }
