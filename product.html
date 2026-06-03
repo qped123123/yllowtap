@@ -316,13 +316,13 @@
 
 /* 버전 배지 */
 .pd-ver{position:fixed;right:10px;bottom:10px;z-index:9999;font-size:10px;color:#bbb;font-family:monospace;background:rgba(255,255,255,.72);padding:2px 7px;border-radius:3px;pointer-events:none}
-.pd-buybar{position:fixed;right:0;bottom:0;left:auto;background:rgba(255,255,255,.97);border-top:1px solid var(--pd-border);border-left:1px solid var(--pd-border);box-shadow:-3px -3px 18px rgba(0,0,0,.06);z-index:200;transform:translateY(120%);transition:transform .35s cubic-bezier(.25,0,.15,1);backdrop-filter:blur(8px);border-top-left-radius:12px}
+.pd-buybar{position:fixed;right:0;bottom:0;left:auto;width:min(720px,52vw);background:rgba(255,255,255,.97);border-top:1px solid var(--pd-border);border-left:1px solid var(--pd-border);box-shadow:-3px -3px 18px rgba(0,0,0,.06);z-index:200;transform:translateY(120%);transition:transform .35s cubic-bezier(.25,0,.15,1);backdrop-filter:blur(8px);border-top-left-radius:12px}
 .pd-buybar.show{transform:translateY(0)}
-.pd-buybar-inner{padding:14px 28px;display:flex;align-items:center;gap:8px}
-.pd-buybar-wish{width:46px;height:46px;border:1px solid var(--pd-border);background:#fff;cursor:pointer;font-size:17px;color:var(--pd-text);display:flex;align-items:center;justify-content:center}
-.pd-buybar-cart{padding:0 22px;height:46px;border:1px solid var(--pd-text);background:#fff;cursor:pointer;font-size:13px;font-weight:600;color:var(--pd-text);letter-spacing:.5px}
-.pd-buybar-buy{padding:0 32px;height:46px;border:none;background:var(--pd-accent);cursor:pointer;font-size:13px;font-weight:700;color:var(--pd-text);letter-spacing:.5px}
-@media(max-width:768px){.pd-buybar{left:0;right:0;border-left:none;border-top-left-radius:0}.pd-buybar-inner{padding:9px 14px;gap:8px}.pd-buybar-cart{padding:0 14px;height:44px}.pd-buybar-buy{flex:1;padding:0 18px;height:44px}.pd-buybar-wish{width:44px;height:44px}}
+.pd-buybar-inner{padding:14px 30px;display:flex;align-items:center;gap:10px}
+.pd-buybar-wish{width:48px;height:48px;flex-shrink:0;border:1px solid var(--pd-border);background:#fff;cursor:pointer;font-size:17px;color:var(--pd-text);display:flex;align-items:center;justify-content:center}
+.pd-buybar-cart{padding:0 26px;height:48px;flex-shrink:0;border:1px solid var(--pd-text);background:#fff;cursor:pointer;font-size:13px;font-weight:600;color:var(--pd-text);letter-spacing:.5px}
+.pd-buybar-buy{flex:1;height:48px;border:none;background:var(--pd-accent);cursor:pointer;font-size:13px;font-weight:700;color:var(--pd-text);letter-spacing:.5px}
+@media(max-width:768px){.pd-buybar{left:0;right:0;width:auto;border-left:none;border-top-left-radius:0}.pd-buybar-inner{padding:9px 14px;gap:8px}.pd-buybar-cart{padding:0 14px;height:44px}.pd-buybar-buy{height:44px}.pd-buybar-wish{width:44px;height:44px}}
 
 /* v1 반응형 */
 @media(max-width:1024px){
@@ -561,7 +561,7 @@
 </footer>
 
 <!-- 버전 표시 (캐시 확인용) -->
-<div class="pd-ver">product v27</div>
+<div class="pd-ver">product v28</div>
 
 <script src="./js/main.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
@@ -671,7 +671,7 @@ async function applyCouponNotices(p){
   if(p&&p.original_price&&Number(p.price)<Number(p.original_price)) cats.push('sale'); // 할인 중이면 세일로 간주
   if(cats.some(c=>excl.includes(c))){
     const cp=document.getElementById('couponPanel'); if(cp)cp.style.display='none';
-    const wr=document.getElementById('pdNotices'); if(wr)wr.innerHTML='';
+    const wr=document.getElementById('pdNotices'); if(wr){wr.innerHTML='';wr.style.display='none';}
     return;
   }
   // 쿠폰/이벤트 패널 (공통값)
@@ -698,7 +698,7 @@ async function applyCouponNotices(p){
   const exc=(cfg.default_notice_exchange||'').trim()||'교환/반품 · 수령 후 7일 이내';
   const rew=(cfg.default_notice_reward||'').trim()||'결제 혜택 · 최대 10% 적립';
   const wrap=document.getElementById('pdNotices');
-  if(wrap) wrap.innerHTML=[ship,exc,rew].filter(t=>t&&t.trim()).map(t=>`<div class="pd-notice"><span class="pd-notice-dot"></span>${t}</div>`).join('');
+  if(wrap){ const html=[ship,exc,rew].filter(t=>t&&t.trim()).map(t=>`<div class="pd-notice"><span class="pd-notice-dot"></span>${t}</div>`).join(''); wrap.innerHTML=html; wrap.style.display=html?'':'none'; }
 }
 // 상품설명 더보기/접기
 function checkDetailHeight(){
