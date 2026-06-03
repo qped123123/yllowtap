@@ -316,17 +316,13 @@
 
 /* 버전 배지 */
 .pd-ver{position:fixed;right:10px;bottom:10px;z-index:9999;font-size:10px;color:#bbb;font-family:monospace;background:rgba(255,255,255,.72);padding:2px 7px;border-radius:3px;pointer-events:none}
-.pd-buybar{position:fixed;left:0;right:0;bottom:0;background:rgba(255,255,255,.97);border-top:1px solid var(--pd-border);box-shadow:0 -2px 16px rgba(0,0,0,.06);z-index:200;transform:translateY(110%);transition:transform .35s cubic-bezier(.25,0,.15,1);backdrop-filter:blur(8px)}
+.pd-buybar{position:fixed;right:0;bottom:0;left:auto;background:rgba(255,255,255,.97);border-top:1px solid var(--pd-border);border-left:1px solid var(--pd-border);box-shadow:-3px -3px 18px rgba(0,0,0,.06);z-index:200;transform:translateY(120%);transition:transform .35s cubic-bezier(.25,0,.15,1);backdrop-filter:blur(8px);border-top-left-radius:12px}
 .pd-buybar.show{transform:translateY(0)}
-.pd-buybar-inner{max-width:1560px;margin:0 auto;padding:12px 30px;display:flex;align-items:center;justify-content:space-between;gap:20px}
-.pd-buybar-info{min-width:0}
-.pd-buybar-name{font-size:13px;font-weight:600;color:var(--pd-text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.pd-buybar-price{font-size:15px;font-weight:700;color:var(--pd-text);margin-top:2px}
-.pd-buybar-actions{display:flex;gap:8px;align-items:center;flex-shrink:0}
+.pd-buybar-inner{padding:14px 28px;display:flex;align-items:center;gap:8px}
 .pd-buybar-wish{width:46px;height:46px;border:1px solid var(--pd-border);background:#fff;cursor:pointer;font-size:17px;color:var(--pd-text);display:flex;align-items:center;justify-content:center}
 .pd-buybar-cart{padding:0 22px;height:46px;border:1px solid var(--pd-text);background:#fff;cursor:pointer;font-size:13px;font-weight:600;color:var(--pd-text);letter-spacing:.5px}
 .pd-buybar-buy{padding:0 32px;height:46px;border:none;background:var(--pd-accent);cursor:pointer;font-size:13px;font-weight:700;color:var(--pd-text);letter-spacing:.5px}
-@media(max-width:768px){.pd-buybar-inner{padding:9px 14px;gap:10px}.pd-buybar-name{font-size:12px}.pd-buybar-price{font-size:14px}.pd-buybar-cart{padding:0 14px;height:44px}.pd-buybar-buy{padding:0 18px;height:44px;flex:1}.pd-buybar-wish{width:44px;height:44px}}
+@media(max-width:768px){.pd-buybar{left:0;right:0;border-left:none;border-top-left-radius:0}.pd-buybar-inner{padding:9px 14px;gap:8px}.pd-buybar-cart{padding:0 14px;height:44px}.pd-buybar-buy{flex:1;padding:0 18px;height:44px}.pd-buybar-wish{width:44px;height:44px}}
 
 /* v1 반응형 */
 @media(max-width:1024px){
@@ -544,15 +540,9 @@
 <!-- FOOTER -->
 <div class="pd-buybar" id="buyBar">
   <div class="pd-buybar-inner">
-    <div class="pd-buybar-info">
-      <div class="pd-buybar-name" id="buyBarName"></div>
-      <div class="pd-buybar-price" id="buyBarPrice"></div>
-    </div>
-    <div class="pd-buybar-actions">
-      <button class="pd-buybar-wish" onclick="toggleWishlist()" aria-label="찜">♡</button>
-      <button class="pd-buybar-cart" onclick="addToCart()">장바구니</button>
-      <button class="pd-buybar-buy" onclick="buyNow()">구매하기</button>
-    </div>
+    <button class="pd-buybar-wish" onclick="toggleWishlist()" aria-label="찜">♡</button>
+    <button class="pd-buybar-cart" onclick="addToCart()">장바구니</button>
+    <button class="pd-buybar-buy" onclick="buyNow()">구매하기</button>
   </div>
 </div>
 <footer class="footer">
@@ -571,7 +561,7 @@
 </footer>
 
 <!-- 버전 표시 (캐시 확인용) -->
-<div class="pd-ver">product v26</div>
+<div class="pd-ver">product v27</div>
 
 <script src="./js/main.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
