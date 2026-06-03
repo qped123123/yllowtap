@@ -195,6 +195,9 @@
   }
   @media (max-width: 768px) {
     .hero { height: 56vh; }
+    /* ★ A-1: 모바일에서 히어로 영상 전체 보이게 (가로 잘림 방지) */
+    .hero, .hero__slide { background: #15120f; }
+    .hero__media { object-fit: contain; object-position: center; }
     .home-section, .home-diy, .home-gift { padding: 0 20px; margin-top: 48px; }
     .home-sale { padding: 0 20px; margin: 28px auto 48px; }
     .home-section--first { margin-top: 36px; }
