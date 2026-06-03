@@ -543,7 +543,7 @@
 </footer>
 
 <!-- 버전 표시 (캐시 확인용) -->
-<div class="pd-ver">product v22</div>
+<div class="pd-ver">product v23</div>
 
 <script src="./js/main.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
@@ -626,7 +626,7 @@ async function applyCouponNotices(p){
   if(cTitle){
     const panel=document.getElementById('couponPanel');
     const tEl=document.getElementById('couponTitle'), dEl=document.getElementById('couponDesc');
-    tEl.textContent=cTitle; dEl.textContent=cDesc; dEl.style.display=cDesc?'':'none';
+    tEl.textContent=cTitle; dEl.innerHTML=cDesc.replace(/\n/g,'<br>'); dEl.style.display=cDesc?'':'none';
     // 카드 색/폰트/크기
     if(cfg.default_coupon_bg) panel.style.background=cfg.default_coupon_bg;
     if(cfg.default_coupon_border) panel.style.borderColor=cfg.default_coupon_border;
