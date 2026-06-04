@@ -235,10 +235,7 @@ button { font-family:var(--font-body); cursor:pointer; border:none; background:n
   .header__hamburger { display:flex; }
   .product-grid { grid-template-columns:repeat(3,1fr); }
   .hero__title { font-size:42px; }
-  .service-bar { grid-template-columns:repeat(2,1fr); }
-  .service-bar__item:nth-child(2) { border-right:none; }
-  .service-bar__item:nth-child(1),
-  .service-bar__item:nth-child(2) { border-bottom:1px solid var(--divider); }
+  .service-bar { grid-template-columns:repeat(3,1fr); }
   .footer__grid { grid-template-columns:repeat(3,1fr); }
 }
 
