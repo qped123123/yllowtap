@@ -760,8 +760,8 @@ body { font-family:var(--font); background:var(--bg); color:var(--text); font-si
       </div>
       <!-- ★ 에디트/세트 관리 (상세페이지용) -->
       <div class="form-section">
-        <div class="form-section-title">상품 타입 · 에디트/세트</div>
-        <div class="form-row">
+        <div class="form-section-title" style="display:none">상품 타입 · 에디트/세트</div>
+        <div class="form-row" style="display:none">
           <div class="form-group"><label class="form-label">상품 타입</label><select class="form-select" id="fLayout" onchange="toggleEditFields()"><option value="standard">일반 단품</option><option value="edit">에디트 · 세트</option></select><span class="form-hint">'에디트·세트'면 아래 항목이 상세페이지에 노출돼요</span></div>
           <div class="form-group"><label class="form-label">에디트 라벨 (상단 작은 글씨)</label><input class="form-input" id="fEditOverline" placeholder="YELLOWTAP EDIT 01"></div>
         </div>
