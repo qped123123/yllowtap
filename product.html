@@ -762,8 +762,8 @@ function setupEditLayout(){
   ['optsArea','colorSec'].forEach(id=>{
     const el=document.getElementById(id); if(el) el.style.display='none';
   });
-  // 메인 이미지 정사각 (세트 무드)
-  document.getElementById('mainWrap').style.aspectRatio='1 / 1';
+  // 메인 이미지: 일반 상품과 동일 비율(3/4)·크기 유지 — 인라인 정사각 제거
+  document.getElementById('mainWrap').style.aspectRatio='';
   // 버튼: 세로 배치 + 라벨 한글화 (스타일/색은 기존 유지)
   document.getElementById('btnGroup').classList.add('is-edit');
   document.getElementById('buyBtn').textContent='구매하기';
