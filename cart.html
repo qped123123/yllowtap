@@ -15,7 +15,7 @@
 
 /* CART ITEMS */
 .cart-items{background:#fff;border:1px solid #E5E1DC}
-.cart-item{display:grid;grid-template-columns:100px 1fr 120px 100px 40px;gap:16px;padding:20px 24px;align-items:center;border-bottom:1px solid #F0EDE8}
+.cart-item{display:grid;grid-template-columns:100px 1fr 120px 100px 40px;gap:16px;padding:20px 24px;align-items:center;border-bottom:1px solid #F0EDE8;position:relative}
 .cart-item:last-child{border-bottom:none}
 .cart-item-img{width:100px;height:125px;object-fit:cover;background:#EAE7E2}
 .cart-item-brand{font-size:10px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:#888;margin-bottom:3px}
@@ -218,9 +218,13 @@
   .cart-header h1{font-size:24px}
   .cart-item{grid-template-columns:80px 1fr;gap:12px;padding:16px}
   .cart-item-img{width:80px;height:100px}
-  .cart-item-price,.cart-qty,.cart-remove{grid-column:2}
+  .cart-item-price,.cart-qty{grid-column:2}
   .cart-item-price{text-align:left}
   .cart-item-original{text-align:left}
+  /* 비교·삭제(×)를 YLLOWTAP 로고 줄에 맞춰 상단 우측으로 */
+  .cart-remove-cell{position:absolute;top:12px;right:10px;margin:0}
+  .cart-remove{font-size:22px;color:#999;width:28px;height:28px}
+  .cart-compare-cell{position:absolute;top:14px;right:46px;margin:0}
   .compare-products{gap:10px;padding:0 16px 16px}
   .compare-section{padding:0 16px}
   .compare-actions{padding:0 16px}
@@ -334,6 +338,7 @@ let cartItems=[];
 let FREE_SHIPPING=50000;
 let SHIPPING_FEE=3000;
 let scoredProductIds=new Set();
+let comparableCats=new Set();
 let lockedCat=null;
 const CAT_LABEL={bags:'가방',jewelry:'쥬얼리',keyring:'키링',accessories:'액세서리',seasonal:'시즌',best:'베스트',new:'신상',sale:'세일'};
 function catLabel(c){return CAT_LABEL[c]||c||'같은 카테고리';}
@@ -415,6 +420,15 @@ function renderCart(){
     gmap[cat].rows.push({item,i});
   });
 
+  // 비교 가능한 카테고리 = 점수 있는 '서로 다른 상품'이 2개 이상인 카테고리만
+  const catScored={};
+  cartItems.forEach(it=>{
+    const p=it.products; if(!p||!scoredProductIds.has(p.id))return;
+    const c=p.category||'기타';
+    (catScored[c]=catScored[c]||new Set()).add(p.id);
+  });
+  comparableCats=new Set(Object.keys(catScored).filter(c=>catScored[c].size>=2));
+
   const el=document.getElementById('cartItems');
   el.innerHTML=groups.map(g=>{
     const head=`<div class="cart-cat-header"><span>${catLabel(g.cat)}</span><span class="cnt">(${g.rows.length})</span><span class="lock"></span></div>`;
@@ -451,8 +465,8 @@ function cartItemHTML(item,i){
         ${isSale?`<div class="cart-item-original">${p.original_price.toLocaleString()}원</div>`:''}
         <div class="cart-item-price">${((opts._line_price||p.price)*item.quantity).toLocaleString()}원</div>
       </div>
-      <div style="text-align:center;"><label style="font-size:10px;color:#999;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:2px;"><input type="checkbox" class="compare-check" data-idx="${i}" data-cat="${p.category}" data-pid="${p.id}" data-noscore="${scoredProductIds.has(p.id)?'0':'1'}" ${scoredProductIds.has(p.id)?'':'disabled title="비교 점수가 아직 없어요"'} onchange="updateCompareCheck()"><span>비교</span></label></div>
-      <div><button class="cart-remove" onclick="removeItem(${i})">×</button></div>
+      <div class="cart-compare-cell" style="text-align:center;">${(scoredProductIds.has(p.id)&&comparableCats.has(p.category||'기타'))?`<label style="font-size:10px;color:#999;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:2px;"><input type="checkbox" class="compare-check" data-idx="${i}" data-cat="${p.category}" data-pid="${p.id}" data-noscore="0" onchange="updateCompareCheck()"><span>비교</span></label>`:''}</div>
+      <div class="cart-remove-cell"><button class="cart-remove" onclick="removeItem(${i})">×</button></div>
     </div>`;
 }
 
@@ -591,10 +605,14 @@ function updateCompareCheck() {
   // 상단 배너 문구 전환
   const hint = document.getElementById('compareHint');
   if (hint) {
-    if (lockedCat) {
+    if (comparableCats.size === 0) {
+      hint.style.display = 'none';            // 비교 가능한 상품이 없으면 안내도 숨김
+    } else if (lockedCat) {
+      hint.style.display = '';
       hint.textContent = `🔒 ${catLabel(lockedCat)}끼리만 비교돼요 · 다른 카테고리는 잠겨요`;
       hint.classList.add('locked');
     } else {
+      hint.style.display = '';
       hint.textContent = '비교할 상품에 체크하면 나란히 비교할 수 있어요';
       hint.classList.remove('locked');
     }
