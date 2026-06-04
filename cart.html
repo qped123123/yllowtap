@@ -275,7 +275,7 @@
     <div>
       <div class="cart-items">
         <div class="cart-select-bar">
-          <label><input type="checkbox" id="selectAll" onchange="toggleSelectAll()"> 전체 선택</label>
+          <label><input type="checkbox" id="selectAll" checked onchange="toggleSelectAll()"> 전체 선택</label>
           <button class="cart-delete-selected" onclick="deleteSelected()">선택 삭제</button>
         </div>
         <div id="compareHint" class="cart-compare-hint">비교할 상품에 체크하면 나란히 비교할 수 있어요</div>
@@ -366,7 +366,7 @@ async function loadCart(){
   if(!cart)return;
   cartId=cart.id;
   const{data:items}=await sb.from('cart_items').select('*,products(*,product_media(media_url,role,display_order))').eq('cart_id',cartId).order('added_at');
-  cartItems=(items||[]).map(item=>({...item,checked:false}));
+  cartItems=(items||[]).map(item=>({...item,checked:true}));
   // 비교 점수(product_attributes)가 입력된 상품만 비교 대상 → id 집합 미리 조회
   const _pids=[...new Set(cartItems.map(it=>it.products?.id).filter(Boolean))];
   if(_pids.length){
@@ -476,7 +476,7 @@ function cartItemHTML(item,i){
 
 function updateSummary(){
   let subtotal=0, discount=0;
-  cartItems.forEach(item=>{
+  cartItems.filter(item=>item.checked).forEach(item=>{
     const p=item.products;
     if(!p)return;
     const lp=(item.selected_options&&item.selected_options._line_price)||p.price;
@@ -511,10 +511,12 @@ function toggleSelectAll(){
   const checked=document.getElementById('selectAll').checked;
   cartItems.forEach(item=>item.checked=checked);
   document.querySelectorAll('.cart-sel-check').forEach(cb=>cb.checked=checked);
+  updateSummary();
 }
 function toggleItemSelect(idx,checked){
   if(cartItems[idx]) cartItems[idx].checked=checked;
   syncSelectAll();
+  updateSummary();
 }
 function syncSelectAll(){
   const sa=document.getElementById('selectAll'); if(!sa) return;
@@ -531,7 +533,10 @@ async function deleteSelected(){
 
 function goCheckout(){
   if(!cartItems.length){alert('장바구니가 비어있습니다.');return;}
-  window.location.href='/checkout.html';
+  const sel=cartItems.filter(i=>i.checked);
+  if(!sel.length){alert('주문할 상품을 선택해주세요.');return;}
+  const ids=[...new Set(sel.map(i=>i.products?.id).filter(Boolean))];
+  window.location.href='/checkout.html?selected='+ids.join(',');
 }
 
 function getMainImg(p){

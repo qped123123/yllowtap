@@ -195,7 +195,7 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <script>
 const SUPABASE_URL='https://ppihvvpplqikclftrwdb.supabase.co';
-const SUPABASE_ANON='';
+const SUPABASE_ANON='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBwaWh2dnBwbHFpa2NsZnRyd2RiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk3MzE0NTEsImV4cCI6MjA5NTMwNzQ1MX0.shGVcFTQiuYc4u6tdU50x18YMgJdgFUljf8c7QlQU-U';
 const sb=window.supabase.createClient(SUPABASE_URL,SUPABASE_ANON);
 
 function searchAddress(){
@@ -242,7 +242,8 @@ async function loadCartItems(){
   const params=new URLSearchParams(window.location.search);
   const selectedId=params.get('selected');
   if(selectedId){
-    cartItems=cartItems.filter(item=>item.products?.id===selectedId);
+    const ids=selectedId.split(',').map(x=>x.trim()).filter(Boolean);
+    cartItems=cartItems.filter(item=>ids.includes(item.products?.id));
   }
 
   renderItems();
