@@ -25,6 +25,13 @@
 .cart-item-option{font-size:11px;color:#888;line-height:1.5}
 .cart-item-price{font-size:15px;font-weight:700;text-align:right}
 .cart-item-original{font-size:11px;color:#999;text-decoration:line-through;text-align:right;margin-bottom:2px}
+.cart-compare-hint{padding:8px 24px;font-size:11px;color:#BBB;border-bottom:1px solid #F0EDE8;transition:background .2s,color .2s}
+.cart-compare-hint.locked{color:#7a6f5f;background:#FAF6EE;font-weight:500}
+.cart-cat-group{transition:opacity .2s}
+.cart-cat-group.locked-out{opacity:.42}
+.cart-cat-header{display:flex;align-items:center;gap:6px;padding:14px 24px 9px;font-size:12px;font-weight:600;letter-spacing:1px;color:#333;background:#FAF8F5;border-bottom:1px solid #F0EDE8}
+.cart-cat-header .cnt{color:#AAA;font-weight:500}
+.cart-cat-header .lock{margin-left:auto;font-size:12px}
 
 /* QUANTITY */
 .cart-qty{display:flex;align-items:center;border:1px solid #E5E1DC;width:fit-content}
@@ -265,7 +272,7 @@
           <label><input type="checkbox" id="selectAll" checked onchange="toggleSelectAll()"> 전체 선택</label>
           <button class="cart-delete-selected" onclick="deleteSelected()">선택 삭제</button>
         </div>
-        <div style="padding:8px 24px;font-size:11px;color:#BBB;border-bottom:1px solid #F0EDE8;">비교할 상품에 체크하면 나란히 비교할 수 있어요</div>
+        <div id="compareHint" class="cart-compare-hint">비교할 상품에 체크하면 나란히 비교할 수 있어요</div>
         <div id="cartItems"></div>
       </div>
 
@@ -399,15 +406,34 @@ function renderCart(){
   document.getElementById('cartLayout').style.display='grid';
   document.getElementById('cartCount').textContent=`${cartItems.length}개의 상품`;
 
+  // 카테고리별로 묶기 — 원래 인덱스 i 그대로 유지 (수량/삭제/비교 핸들러 보존)
+  const groups=[]; const gmap={};
+  cartItems.forEach((item,i)=>{
+    if(!item.products)return;
+    const cat=item.products.category||'기타';
+    if(!gmap[cat]){gmap[cat]={cat,rows:[]};groups.push(gmap[cat]);}
+    gmap[cat].rows.push({item,i});
+  });
+
   const el=document.getElementById('cartItems');
-  el.innerHTML=cartItems.map((item,i)=>{
-    const p=item.products;
-    if(!p)return'';
-    const img=getMainImg(p);
-    const opts=item.selected_options||{};
-    const optStr=Object.entries(opts).filter(([k])=>!k.startsWith('_')).map(([k,v])=>k+': '+v).join(' / ');
-    const isSale=p.original_price&&p.original_price>p.price;
-    return`<div class="cart-item">
+  el.innerHTML=groups.map(g=>{
+    const head=`<div class="cart-cat-header"><span>${catLabel(g.cat)}</span><span class="cnt">(${g.rows.length})</span><span class="lock"></span></div>`;
+    const body=g.rows.map(r=>cartItemHTML(r.item,r.i)).join('');
+    return `<div class="cart-cat-group" data-cat="${g.cat}">${head}${body}</div>`;
+  }).join('');
+
+  updateSummary();
+  updateCompareCheck();
+}
+
+function cartItemHTML(item,i){
+  const p=item.products;
+  if(!p)return'';
+  const img=getMainImg(p);
+  const opts=item.selected_options||{};
+  const optStr=Object.entries(opts).filter(([k])=>!k.startsWith('_')).map(([k,v])=>k+': '+v).join(' / ');
+  const isSale=p.original_price&&p.original_price>p.price;
+  return`<div class="cart-item">
       <div>${img?`<img class="cart-item-img" src="${img}">`:'<div class="cart-item-img"></div>'}</div>
       <div>
         <div class="cart-item-brand">${p.brand||'YLLOWTAP'}</div>
@@ -428,10 +454,6 @@ function renderCart(){
       <div style="text-align:center;"><label style="font-size:10px;color:#999;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:2px;"><input type="checkbox" class="compare-check" data-idx="${i}" data-cat="${p.category}" data-pid="${p.id}" data-noscore="${scoredProductIds.has(p.id)?'0':'1'}" ${scoredProductIds.has(p.id)?'':'disabled title="비교 점수가 아직 없어요"'} onchange="updateCompareCheck()"><span>비교</span></label></div>
       <div><button class="cart-remove" onclick="removeItem(${i})">×</button></div>
     </div>`;
-  }).join('');
-
-  updateSummary();
-  updateCompareCheck();
 }
 
 function updateSummary(){
@@ -556,6 +578,26 @@ function updateCompareCheck() {
   } else {
     entry.style.display = 'none';
     entry.classList.remove('show');
+  }
+
+  // 카테고리 그룹 잠금 비주얼 (다른 카테고리 흐리게 + 🔒)
+  document.querySelectorAll('.cart-cat-group').forEach(g => {
+    const isOther = lockedCat && g.dataset.cat !== lockedCat;
+    g.classList.toggle('locked-out', !!isOther);
+    const lk = g.querySelector('.cart-cat-header .lock');
+    if (lk) lk.textContent = isOther ? '🔒' : '';
+  });
+
+  // 상단 배너 문구 전환
+  const hint = document.getElementById('compareHint');
+  if (hint) {
+    if (lockedCat) {
+      hint.textContent = `🔒 ${catLabel(lockedCat)}끼리만 비교돼요 · 다른 카테고리는 잠겨요`;
+      hint.classList.add('locked');
+    } else {
+      hint.textContent = '비교할 상품에 체크하면 나란히 비교할 수 있어요';
+      hint.classList.remove('locked');
+    }
   }
 }
 
