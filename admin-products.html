@@ -796,13 +796,13 @@ body { font-family:var(--font); background:var(--bg); color:var(--text); font-si
         <div class="form-row full"><div class="form-group"><label class="form-label">소재, 사이즈 등</label><textarea class="form-textarea tall" id="fDetail" placeholder="<h3>소재</h3>&#10;<table>&#10;  <tr><th>소재</th><td>폴리 100%</td></tr>&#10;</table>"></textarea><span class="form-hint">HTML 태그 사용 가능</span></div></div>
       </div>
 
-      <div class="form-section">
+      <div class="form-section" style="display:none">
         <div class="form-section-title">옵션</div>
         <div id="optionBuilder"></div>
         <button class="btn btn-secondary btn-small" onclick="addOption()">+ 옵션 추가</button>
       </div>
 
-      <div class="form-section">
+      <div class="form-section" style="display:none">
         <div style="display:none;"><div class="form-section-title">쿠폰 · 이벤트 · 혜택 안내</div>
         <p style="font-size:11px;color:var(--text-muted);margin-bottom:12px;">상세페이지 가격 밑 쿠폰 패널 + 혜택 안내(배송/교환/적립)예요. 비우면 기본 문구가 떠요.</p>
         <div class="form-group"><label class="form-label">쿠폰/이벤트 제목 (비우면 패널 안 뜸)</label><input class="form-input" id="fCouponTitle" placeholder="예: 첫 구매 10% 쿠폰"></div>
