@@ -184,7 +184,7 @@
 .pd-rec-card:hover .pd-rec-card-img img{transform:scale(1.05)}
 .pd-rec-brand{font-size:10px;font-weight:500;letter-spacing:1.5px;text-transform:uppercase;color:var(--pd-text3);margin-bottom:3px}
 .pd-rec-name{font-size:13px;line-height:1.4;margin-bottom:5px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
-.pd-rec-price{font-size:14px;font-weight:700}
+.pd-rec-price{font-size:14px;font-weight:700;display:flex;flex-wrap:wrap;align-items:baseline;gap:2px 4px}.pd-rec-price-orig{font-size:12px;font-weight:400;color:var(--pd-text3);text-decoration:line-through;white-space:nowrap}.pd-rec-price-now{font-size:14px;font-weight:700;white-space:nowrap}.pd-rec-price-disc{font-size:12px;font-weight:700;color:var(--pd-red);white-space:nowrap}
 
 /* JOURNAL LINK */
 .pd-journal{background:var(--pd-text);padding:70px 40px;text-align:center}
@@ -1239,7 +1239,7 @@ async function loadRecs(){
   let{data:recs}=await sb.from('recommended_products').select('recommended_product_id,rec_section').eq('source_product_id',product.id).order('display_order');
   const rec1=(recs||[]).filter(r=>(r.rec_section||1)!==2).map(r=>r.recommended_product_id);
   const rec2=(recs||[]).filter(r=>r.rec_section===2).map(r=>r.recommended_product_id);
-  const card=p=>{const img=getMainImg(p);return`<a class="pd-rec-card" href="/product.html?slug=${p.slug||p.id}"><div class="pd-rec-card-img">${img?`<img src="${img}" alt="${p.name}" loading="lazy">`:'<div style="width:100%;height:100%;background:#EAE7E2"></div>'}</div><div class="pd-rec-brand">${p.brand||'YLLOWTAP'}</div><div class="pd-rec-name">${p.name}</div><div class="pd-rec-price">${p.price.toLocaleString()}원</div></a>`;};
+  const card=p=>{const img=getMainImg(p);const isSale=p.original_price&&p.original_price>p.price;const disc=isSale?Math.round((1-p.price/p.original_price)*100):0;return`<a class="pd-rec-card" href="/product.html?slug=${p.slug||p.id}"><div class="pd-rec-card-img">${img?`<img src="${img}" alt="${p.name}" loading="lazy">`:'<div style="width:100%;height:100%;background:#EAE7E2"></div>'}</div><div class="pd-rec-brand">${p.brand||'YLLOWTAP'}</div><div class="pd-rec-name">${p.name}</div>${isSale?`<div class="pd-rec-price"><span class="pd-rec-price-orig">${p.original_price.toLocaleString()}원</span><span class="pd-rec-price-now">${p.price.toLocaleString()}원</span><span class="pd-rec-price-disc">${disc}%</span></div>`:`<div class="pd-rec-price">${p.price.toLocaleString()}원</div>`}</a>`;};
   const byIds=async ids=>{const{data}=await sb.from('products').select('*,product_media(media_url,role,display_order)').in('id',ids).eq('is_active',true);return (data||[]).sort((a,b)=>ids.indexOf(a.id)-ids.indexOf(b.id));};
   // 섹션1: 함께 보면 좋은 아이템 (지정 우선, 없으면 같은 카테고리 자동)
   let items=[];
