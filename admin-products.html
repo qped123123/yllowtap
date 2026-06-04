@@ -1642,7 +1642,7 @@ let formSetItems=[], formBuyOptions=[], formEditReasons=[];
 
 function toggleEditFields(){
   const w=document.getElementById('editFieldsWrap');
-  if(w) w.style.display = document.getElementById('fLayout').value==='edit' ? '' : 'none';
+  if(w) w.style.display='';   // 모든 상품에서 구매옵션 입력 가능 (통일)
 }
 
 function renderSetItems(){
