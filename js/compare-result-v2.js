@@ -85,10 +85,11 @@ const pName=p=>p.name||p.title||p.product_name||'상품';
 const won=n=>Number(n||0).toLocaleString('ko-KR')+'원';
 const num=v=>{const n=Number(v);return isFinite(n)?n:0;};
 function priceHTML(p){
-  const sell=num(p.price);                 // 실제 판매가(세일가)
-  const orig=num(p.original_price);         // 정가
-  if(orig>0 && sell>0 && orig>sell)
-    return `<span class="price-sale">${won(sell)}</span><span class="price-orig">${won(orig)}</span>`;
+  const sell=num(p.price), orig=num(p.original_price);
+  if(orig>0 && sell>0 && orig>sell){
+    const rate=Math.round((orig-sell)/orig*100);
+    return `<span class="price-sale">${won(sell)}</span><span class="price-orig">${won(orig)}</span><span class="price-rate">${rate}%</span>`;
+  }
   return `<span>${won(sell||orig)}</span>`;
 }
 const pCat=p=>(p.category||p.cat||'').toString();
@@ -140,7 +141,6 @@ function render(){
 
   $app.innerHTML=`
     <header class="cr-header fade-up">
-      <div class="cr-brand">yllowtap</div>
       <h1>비교 결과</h1>
       <p>당신의 취향을 분석해 가장 잘 어울리는 스타일을 찾았어요.</p>
     </header>
