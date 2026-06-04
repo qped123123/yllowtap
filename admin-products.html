@@ -347,6 +347,13 @@ body { font-family:var(--font); background:var(--bg); color:var(--text); font-si
         <h1>상품 관리</h1>
         <button class="btn btn-primary" onclick="openProductForm()">+ 새 상품 등록</button>
       </div>
+      <div style="display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap;align-items:center;">
+        <input class="form-input" id="prodSearch" placeholder="상품명 검색" style="flex:1;min-width:180px;font-size:12px;" onkeyup="renderProductList()">
+        <select class="form-select" id="prodCatFilter" style="width:170px;font-size:12px;" onchange="renderProductList()">
+          <option value="">전체 카테고리</option>
+        </select>
+        <span id="prodCount" style="font-size:11px;color:var(--text-muted);white-space:nowrap;"></span>
+      </div>
       <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);">
         <div class="product-list-header">
           <div></div><div>상품명</div><div>카테고리</div><div>가격</div><div>상태</div><div>관리</div>
@@ -951,7 +958,7 @@ body { font-family:var(--font); background:var(--bg); color:var(--text); font-si
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <script>
 const SUPABASE_URL = 'https://ppihvvpplqikclftrwdb.supabase.co';
-const SUPABASE_ANON = '';
+const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBwaWh2dnBwbHFpa2NsZnRyd2RiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk3MzE0NTEsImV4cCI6MjA5NTMwNzQ1MX0.shGVcFTQiuYc4u6tdU50x18YMgJdgFUljf8c7QlQU-U';
 const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON);
 
 const ROLE_LABELS = { main:'대표', editorial:'추가', detail:'추가', fabric:'추가', mood:'무드컷' };
@@ -995,13 +1002,28 @@ async function loadProducts() {
   const { data } = await sb.from('products').select('*, product_media(id, media_url, media_type, role, display_order)')
     .order('display_order').order('created_at', { ascending: false });
   allProducts = data || [];
-  renderProductList(); updateRecommendSelect();
+  populateCatFilter(); renderProductList(); updateRecommendSelect();
+}
+
+function populateCatFilter() {
+  const sel = document.getElementById('prodCatFilter'); if (!sel) return;
+  const cats = [...new Set(allProducts.map(p => p.category).filter(Boolean))].sort();
+  const cur = sel.value;
+  sel.innerHTML = '<option value="">전체 카테고리</option>' + cats.map(c => `<option value="${c}">${c}</option>`).join('');
+  if (cur) sel.value = cur;
 }
 
 function renderProductList() {
   const el = document.getElementById('productList');
-  if (!allProducts.length) { el.innerHTML = '<div class="empty-list"><p>등록된 상품이 없습니다</p><button class="btn btn-primary" onclick="openProductForm()">첫 상품 등록하기</button></div>'; return; }
-  el.innerHTML = allProducts.map(p => {
+  if (!allProducts.length) { el.innerHTML = '<div class="empty-list"><p>등록된 상품이 없습니다</p><button class="btn btn-primary" onclick="openProductForm()">첫 상품 등록하기</button></div>'; const c=document.getElementById('prodCount'); if(c)c.textContent=''; return; }
+  const q = (document.getElementById('prodSearch')?.value || '').trim().toLowerCase();
+  const cat = document.getElementById('prodCatFilter')?.value || '';
+  let list = allProducts;
+  if (cat) list = list.filter(p => (p.category || '') === cat);
+  if (q) list = list.filter(p => (p.name || '').toLowerCase().includes(q) || (p.brand || '').toLowerCase().includes(q));
+  const cntEl = document.getElementById('prodCount'); if (cntEl) cntEl.textContent = `${list.length}개`;
+  if (!list.length) { el.innerHTML = '<div class="empty-list"><p>검색 결과가 없어요</p></div>'; return; }
+  el.innerHTML = list.map(p => {
     const img = getMainImg(p);
     const tags = (p.tags||[]).map(t => `<span class="tag-badge">${t.toUpperCase()}</span>`).join('');
     return `<div class="product-row" onclick="editProduct('${p.id}')">
@@ -1677,12 +1699,28 @@ function renderBuyOpts(){
     }).join('');
     const hint=mode==='single'?'이미지 + 컬러명 + 정가/판매가(선택)':'이미지 + 상품명 + 컬러명 + 금액 + 이동링크';
     const emptyMsg=items.length?'':`<div style="font-size:10px;color:var(--text-muted);margin-bottom:6px;">+ 항목 추가 버튼으로 이 옵션에 보일 항목을 넣으세요</div>`;
-    return `<div style="padding:8px;margin-bottom:8px;background:var(--bg-input);border:1px solid var(--border);border-radius:var(--radius);"><div style="display:grid;grid-template-columns:1fr 1fr 90px 80px 50px 50px;gap:8px;align-items:center;"><input class="form-input" value="${(o.option_title||'').replace(/"/g,'&quot;')}" placeholder="옵션명" style="font-size:11px;" onchange="formBuyOptions[${i}].option_title=this.value"><input class="form-input" value="${(o.sub_description||'').replace(/"/g,'&quot;')}" placeholder="설명" style="font-size:11px;" onchange="formBuyOptions[${i}].sub_description=this.value"><input class="form-input" type="number" value="${o.price||''}" placeholder="가격" style="font-size:11px;" onchange="formBuyOptions[${i}].price=parseInt(this.value)||0"><input class="form-input" value="${(o.badge_text||'').replace(/"/g,'&quot;')}" placeholder="배지" style="font-size:11px;" onchange="formBuyOptions[${i}].badge_text=this.value||null"><label style="font-size:10px;display:flex;align-items:center;gap:3px;color:var(--text-dim);"><input type="checkbox" ${o.is_best?'checked':''} onchange="setBestOpt(${i},this.checked)">기본</label><div style="display:flex;gap:3px;">${i>0?`<button class="btn btn-secondary btn-small" onclick="moveOpt(${i},-1)">↑</button>`:''}<button class="btn btn-small" style="background:var(--red);color:#fff;border:none;" onclick="removeOpt(${i})">×</button></div></div><div style="margin-top:8px;border-top:1px dashed var(--border);padding-top:8px;"><div style="display:flex;gap:8px;align-items:center;margin-bottom:8px;"><select class="form-select" style="font-size:10px;padding:3px 6px;width:160px;" onchange="changeOptMode(${i},this.value)"><option value="single"${mode==='single'?' selected':''}>단일 (컬러만)</option><option value="multi"${mode==='multi'?' selected':''}>여러선택 (구성품)</option></select><span style="font-size:9px;color:var(--text-muted);">${hint}</span></div>${emptyMsg}${itemsHtml}<button class="btn btn-secondary btn-small" style="font-size:10px;margin-top:2px;" onclick="addOptItem(${i})">+ 항목 추가</button></div></div>`;
+    return `<div style="padding:8px;margin-bottom:8px;background:var(--bg-input);border:1px solid var(--border);border-radius:var(--radius);"><div style="display:grid;grid-template-columns:1fr 1fr 90px 80px 50px 50px;gap:8px;align-items:center;"><input class="form-input" value="${(o.option_title||'').replace(/"/g,'&quot;')}" placeholder="옵션명" style="font-size:11px;" onchange="formBuyOptions[${i}].option_title=this.value"><input class="form-input" value="${(o.sub_description||'').replace(/"/g,'&quot;')}" placeholder="설명" style="font-size:11px;" onchange="formBuyOptions[${i}].sub_description=this.value"><input class="form-input" type="number" value="${o.price||''}" placeholder="가격" style="font-size:11px;" onchange="formBuyOptions[${i}].price=parseInt(this.value)||0"><input class="form-input" value="${(o.badge_text||'').replace(/"/g,'&quot;')}" placeholder="배지" style="font-size:11px;" onchange="formBuyOptions[${i}].badge_text=this.value||null"><label style="font-size:10px;display:flex;align-items:center;gap:3px;color:var(--text-dim);"><input type="checkbox" ${o.is_best?'checked':''} onchange="setBestOpt(${i},this.checked)">기본</label><div style="display:flex;gap:3px;">${i>0?`<button class="btn btn-secondary btn-small" onclick="moveOpt(${i},-1)">↑</button>`:''}<button class="btn btn-small" style="background:var(--red);color:#fff;border:none;" onclick="removeOpt(${i})">×</button></div></div><div style="margin-top:8px;border-top:1px dashed var(--border);padding-top:8px;"><div style="display:flex;gap:8px;align-items:center;margin-bottom:8px;"><select class="form-select" style="font-size:10px;padding:3px 6px;width:160px;" onchange="changeOptMode(${i},this.value)"><option value="single"${mode==='single'?' selected':''}>단일 (컬러만)</option><option value="multi"${mode==='multi'?' selected':''}>여러선택 (구성품)</option></select><span style="font-size:9px;color:var(--text-muted);">${hint}</span></div>${emptyMsg}${itemsHtml}<div style="display:flex;gap:6px;align-items:center;margin-top:4px;flex-wrap:wrap;"><button class="btn btn-secondary btn-small" style="font-size:10px;" onclick="addOptItem(${i})">+ 항목 추가</button><select class="form-select" style="font-size:10px;padding:3px 6px;width:220px;" onchange="addOptItemFromProduct(${i},this.value);this.value='';"><option value="">📥 기존 상품에서 불러오기</option>${prodSel('')}</select></div></div></div>`;
   }).join('');
 }
 function addBuyOpt(){formBuyOptions.push({option_title:'',sub_description:'',price:0,badge_text:null,is_best:formBuyOptions.length===0,select_mode:'multi',items:[]});renderBuyOpts();}
 function changeOptMode(i,v){formBuyOptions[i].select_mode=v;renderBuyOpts();}
 function addOptItem(i){if(!formBuyOptions[i].items)formBuyOptions[i].items=[];formBuyOptions[i].items.push({image_url:'',name:'',color_name:'',original_price:null,price:null,link_product_id:null});renderBuyOpts();}
+function addOptItemFromProduct(i,pid){
+  if(!pid)return;
+  const p=allProducts.find(x=>x.id===pid); if(!p){showToast('상품을 찾을 수 없어요',true);return;}
+  if(!formBuyOptions[i].items)formBuyOptions[i].items=[];
+  const hasSale=p.original_price&&p.original_price>p.price;
+  formBuyOptions[i].items.push({
+    image_url:getMainImg(p)||'',
+    name:p.name||'',
+    color_name:'',
+    original_price:hasSale?p.original_price:null,
+    price:p.price||null,
+    link_product_id:p.id
+  });
+  renderBuyOpts();
+  showToast(`${p.name} 불러옴 (가격은 +추가금액으로 수정하세요)`);
+}
 function removeOptItem(i,j){if(formBuyOptions[i]&&formBuyOptions[i].items){formBuyOptions[i].items.splice(j,1);renderBuyOpts();}}
 async function uploadOptItemImg(input,i,j){const f=input.files[0];if(!f)return;const fn=`optitems/${Date.now()}_${Math.random().toString(36).slice(2,8)}.${f.name.split('.').pop()}`;const{error}=await sb.storage.from('media').upload(fn,f,{upsert:true,contentType:f.type});if(error){showToast('업로드 실패',true);return;}const{data:u}=sb.storage.from('media').getPublicUrl(fn);if(!formBuyOptions[i].items)formBuyOptions[i].items=[];formBuyOptions[i].items[j].image_url=u.publicUrl;renderBuyOpts();input.value='';}
 function removeOpt(i){formBuyOptions.splice(i,1);renderBuyOpts();}
