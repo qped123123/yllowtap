@@ -1022,7 +1022,7 @@ function renderOptExpand(idx, el){
         }
       }
       const color=it.color_name?`<div class="pd-set-item-color">${it.color_name}</div>`:'';
-      const view=it.link_product_id?`<a class="pd-set-item-view" href="/product.html?slug=${it.link_product_id}" onclick="event.stopPropagation()">보러가기</a>`:'';
+      const view=(it.link_product_id&&it.link_product_id!==product.id)?`<a class="pd-set-item-view" href="/product.html?slug=${it.link_product_id}" onclick="event.stopPropagation()">보러가기</a>`:'';
       return `<div class="pd-set-item${on?' sel':''}" onclick="toggleOptItem(${idx},${j})">${img}<div class="pd-set-item-name">${it.name||''}</div>${color}${price}${view}</div>`;
     }).join('')}</div>`;
   }
@@ -1344,8 +1344,8 @@ function collectCartLines(){
         any=true;
         const nm=it.color_name||it.name||'';
         const pr=Number(it.price)||0;
-        if(it.link_product_id){
-          // 불러오기로 연결된 상품 → 별도 장바구니 줄로 (가격 = 옵션에 들어간 값 그대로)
+        if(it.link_product_id && it.link_product_id!==product.id){
+          // 다른 상품과 연결됨 → 별도 장바구니 줄로 (가격 = 옵션에 들어간 값 그대로)
           addonLines.push({product_id:it.link_product_id, price:pr});
         }else{
           // 연결 없는 옵션(색상 등) → 메인 상품 줄에 유지
