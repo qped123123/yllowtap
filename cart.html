@@ -216,15 +216,15 @@
 @media(max-width:768px){
   .cart-page{padding:calc(var(--header-height,60px) + 20px) 16px 60px}
   .cart-header h1{font-size:24px}
-  .cart-item{grid-template-columns:80px 1fr;gap:12px;padding:16px}
+  .cart-item{grid-template-columns:80px 1fr;gap:12px;padding:16px;align-items:flex-start}
   .cart-item-img{width:80px;height:100px}
   .cart-item-price,.cart-qty{grid-column:2}
   .cart-item-price{text-align:left}
   .cart-item-original{text-align:left}
-  /* 비교·삭제(×)를 YLLOWTAP 로고 줄에 맞춰 상단 우측으로 */
-  .cart-remove-cell{position:absolute;top:12px;right:10px;margin:0}
-  .cart-remove{font-size:22px;color:#999;width:28px;height:28px}
-  .cart-compare-cell{position:absolute;top:14px;right:46px;margin:0}
+  /* 비교·삭제(×)를 YLLOWTAP 글자 줄에 맞춰 상단 우측에 나란히 */
+  .cart-compare-cell{position:absolute;top:13px;right:38px;margin:0}
+  .cart-remove-cell{position:absolute;top:11px;right:8px;margin:0}
+  .cart-remove{font-size:20px;color:#111;width:24px;height:24px}
   .compare-products{gap:10px;padding:0 16px 16px}
   .compare-section{padding:0 16px}
   .compare-actions{padding:0 16px}
