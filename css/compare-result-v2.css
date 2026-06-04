@@ -61,7 +61,7 @@ button{font-family:inherit;cursor:pointer;border:none;background:none;}
 .buy-area .picked{font-size:17px;font-weight:600;margin:5px 0 13px;}
 .cr-buy-btn{display:inline-block;background:var(--ink);color:#fff;padding:11px 28px;border-radius:999px;font-size:13.5px;font-weight:600;transition:opacity .18s ease;}
 .cr-buy-btn:hover{opacity:.86;}
-.cr-buy-close{display:block;margin:11px auto 0;color:var(--ink-soft);font-size:12px;text-decoration:underline;text-underline-offset:3px;}
+.cr-buy-close{display:block;margin:11px auto 0;color:#B4AEA5;font-size:12px;text-decoration:underline;text-underline-offset:3px;}
 
 /* 슬라이더 (간격 축소) */
 .sld-group-title{font-size:13px;font-weight:700;margin:0 0 2px;}

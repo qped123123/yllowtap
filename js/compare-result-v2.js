@@ -141,6 +141,7 @@ function render(){
 
   $app.innerHTML=`
     <header class="cr-header fade-up">
+      <div class="cr-brand">YLLOWTAP</div>
       <h1>비교 결과</h1>
       <p>당신의 취향을 분석해 가장 잘 어울리는 스타일을 찾았어요.</p>
     </header>
