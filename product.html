@@ -610,7 +610,7 @@ let colorImages=[];
 let buyOptions=[],selectedBuyOption=null;   // v1: 구매옵션 상태
 
 function getSlug(){return new URLSearchParams(window.location.search).get('slug')}
-function isEdit(){return product && product.product_layout==='edit'}
+function isEdit(){return buyOptions && buyOptions.length>0}
 
 // ══════════════════════════════════════════
 // LOAD PRODUCT
@@ -622,8 +622,8 @@ async function loadProduct(){
   if(error||!data){const r=await sb.from('products').select('*,product_media(id,media_url,media_type,role,alt_text,display_order)').eq('id',slug).single();data=r.data;error=r.error}
   if(error||!data){alert('상품을 찾을 수 없습니다.');return}
   product=data;
-  await render();
   await loadPurchaseOptions();
+  await render();
   await Promise.all([loadColorImages(),loadRecs(),loadReviews(),loadSetItems(),loadEditReasons()]);
   hideLoading();
   // v5: 우측 정보(구성상품/구매옵션 등)가 다 그려진 뒤 메인 높이를 맞춤
