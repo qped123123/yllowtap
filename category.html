@@ -732,7 +732,7 @@ function swipeSub(dir){
   renderProducts();
 }
 (function setupCategorySwipe(){
-  const grid = document.getElementById('productGrid');
+  const grid = document.querySelector('.cat-main');
   if(!grid) return;
   let sx = 0, sy = 0;
   grid.addEventListener('touchstart', e => {
