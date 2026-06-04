@@ -162,7 +162,6 @@ function render(){
           </div>
           <div class="buy-area">
             <div class="label">당신의 취향에 더 가까운 상품</div>
-            <div class="picked">${pName(sel)}</div>
             <a class="cr-buy-btn" id="buyBtn" href="${ROUTE.checkout(sel?.id)}">${pName(sel)} 구매하기</a>
             <a class="cr-buy-close" href="${ROUTE.back}">고르지 않고 닫기</a>
           </div>
@@ -244,7 +243,6 @@ function updateSelected(){
   const sel=compared.find(p=>String(p.id)===String(STATE.selectedId))||compared[0];
   const pct=matchPercent(input.quality,input.mood,scoreOf(scoreMap,sel?.id));
   document.querySelectorAll('#comparedRow .cmp-card').forEach(c=>c.classList.toggle('is-selected',String(c.getAttribute('data-id'))===String(STATE.selectedId)));
-  document.querySelector('.buy-area .picked').textContent=pName(sel);
   const buy=document.getElementById('buyBtn'); buy.textContent=`${pName(sel)} 구매하기`; buy.href=ROUTE.checkout(sel?.id);
   const g=document.getElementById('gauge'); g.style.setProperty('--pct',pct);
   document.getElementById('gNum').textContent=pct+'%';

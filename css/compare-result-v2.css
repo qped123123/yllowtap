@@ -30,7 +30,7 @@ button{font-family:inherit;cursor:pointer;border:none;background:none;}
 .cr-header p{color:var(--ink-soft);font-size:13.5px;margin:0;}
 
 /* 2열 (가로 넘침 방지 minmax) */
-.cr-grid{display:grid;grid-template-columns:40% minmax(0,1fr);column-gap:42px;row-gap:20px;align-items:start;}
+.cr-grid{display:grid;grid-template-columns:40% minmax(0,1fr);column-gap:80px;row-gap:20px;align-items:start;}
 .col-left{display:flex;flex-direction:column;gap:14px;min-width:0;}   /* 왼쪽 간격만 축소 */
 .col-right{display:flex;flex-direction:column;gap:22px;min-width:0;}  /* 오른쪽은 유지 */
 
