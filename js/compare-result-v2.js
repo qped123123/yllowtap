@@ -62,7 +62,7 @@ function matchPercent(quality,mood,score){
   const qs=Math.max(0,Math.min(1,qFit-penalty));
   return Math.max(55,Math.min(99,Math.round(55+(0.5*moodScore+0.5*qs)*44)));
 }
-const matchLabel=p=>p>=90?'매우 잘 맞아요':p>=80?'잘 맞아요':p>=70?'꽤 맞아요':'무난하게 맞아요';
+const matchLabel=p=>p>=80?'가장 잘 맞아요':p>=70?'잘 맞아요':p>=60?'무난해요':'글쎄요';
 
 /* ---------- 5. 기준 요약(상위 3개 + 조사) ---------- */
 function hasJong(s){ if(!s)return false; const c=s.charCodeAt(s.length-1); if(c<0xAC00||c>0xD7A3)return false; return (c-0xAC00)%28!==0; }
@@ -150,7 +150,7 @@ function render(){
       <div class="col-left">
         <!-- 카드 1: 비교 상품(흰바탕) + 구매 -->
         <div class="cr-card white-card fade-up">
-          <div class="blk-title">내가 비교한 상품들 <small>상품을 누르면 선택이 바뀌어요</small></div>
+          <div class="blk-title">내가 비교한 상품들 <small>상품을 누르면 취향 일치도가 바뀌어요</small></div>
           <div class="cmp-panel">
             <div class="cr-compared" id="comparedRow">
               ${compared.map(p=>`
@@ -198,6 +198,7 @@ function render(){
               <div class="g-cap" id="gCap">${matchLabel(pct)}</div>
             </div>
             <div class="match-chips">${chips}</div>
+            <div class="gauge-note">지금 선택한 상품이 내 취향과<br>얼마나 맞는지예요</div>
           </div>
         </div>
 
