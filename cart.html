@@ -15,7 +15,9 @@
 
 /* CART ITEMS */
 .cart-items{background:#fff;border:1px solid #E5E1DC}
-.cart-item{display:grid;grid-template-columns:100px 1fr 120px 100px 40px;gap:16px;padding:20px 24px;align-items:center;border-bottom:1px solid #F0EDE8;position:relative}
+.cart-item{display:grid;grid-template-columns:28px 100px 1fr 120px 100px 40px;gap:16px;padding:20px 24px;align-items:center;border-bottom:1px solid #F0EDE8;position:relative}
+.cart-select-cell{display:flex;align-items:center;justify-content:center}
+.cart-select-cell input{width:16px;height:16px;cursor:pointer}
 .cart-item:last-child{border-bottom:none}
 .cart-item-img{width:100px;height:100px;object-fit:cover;object-position:center;background:#EAE7E2}
 .cart-item-brand{font-size:10px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:#888;margin-bottom:3px}
@@ -216,9 +218,9 @@
 @media(max-width:768px){
   .cart-page{padding:calc(var(--header-height,60px) + 20px) 16px 60px}
   .cart-header h1{font-size:24px}
-  .cart-item{grid-template-columns:80px 1fr;gap:12px;padding:16px;align-items:flex-start}
+  .cart-item{grid-template-columns:24px 80px 1fr;gap:10px;padding:16px;align-items:flex-start}
   .cart-item-img{width:80px;height:80px}
-  .cart-item-price,.cart-qty{grid-column:2}
+  .cart-item-price,.cart-qty{grid-column:3}
   .cart-item-price{text-align:left}
   .cart-item-original{text-align:left}
   /* 비교·삭제(×)를 YLLOWTAP 글자 줄에 맞춰 상단 우측에 나란히 */
@@ -273,7 +275,7 @@
     <div>
       <div class="cart-items">
         <div class="cart-select-bar">
-          <label><input type="checkbox" id="selectAll" checked onchange="toggleSelectAll()"> 전체 선택</label>
+          <label><input type="checkbox" id="selectAll" onchange="toggleSelectAll()"> 전체 선택</label>
           <button class="cart-delete-selected" onclick="deleteSelected()">선택 삭제</button>
         </div>
         <div id="compareHint" class="cart-compare-hint">비교할 상품에 체크하면 나란히 비교할 수 있어요</div>
@@ -364,7 +366,7 @@ async function loadCart(){
   if(!cart)return;
   cartId=cart.id;
   const{data:items}=await sb.from('cart_items').select('*,products(*,product_media(media_url,role,display_order))').eq('cart_id',cartId).order('added_at');
-  cartItems=(items||[]).map(item=>({...item,checked:true}));
+  cartItems=(items||[]).map(item=>({...item,checked:false}));
   // 비교 점수(product_attributes)가 입력된 상품만 비교 대상 → id 집합 미리 조회
   const _pids=[...new Set(cartItems.map(it=>it.products?.id).filter(Boolean))];
   if(_pids.length){
@@ -438,6 +440,7 @@ function renderCart(){
 
   updateSummary();
   updateCompareCheck();
+  syncSelectAll();
 }
 
 function cartItemHTML(item,i){
@@ -448,6 +451,7 @@ function cartItemHTML(item,i){
   const optStr=Object.entries(opts).filter(([k])=>!k.startsWith('_')).map(([k,v])=>k+': '+v).join(' / ');
   const isSale=p.original_price&&p.original_price>p.price;
   return`<div class="cart-item">
+      <div class="cart-select-cell"><input type="checkbox" class="cart-sel-check" data-idx="${i}" ${item.checked?'checked':''} onchange="toggleItemSelect(${i},this.checked)"></div>
       <div>${img?`<img class="cart-item-img" src="${img}">`:'<div class="cart-item-img"></div>'}</div>
       <div>
         <div class="cart-item-brand">${p.brand||'YLLOWTAP'}</div>
@@ -506,6 +510,15 @@ async function removeItem(idx){
 function toggleSelectAll(){
   const checked=document.getElementById('selectAll').checked;
   cartItems.forEach(item=>item.checked=checked);
+  document.querySelectorAll('.cart-sel-check').forEach(cb=>cb.checked=checked);
+}
+function toggleItemSelect(idx,checked){
+  if(cartItems[idx]) cartItems[idx].checked=checked;
+  syncSelectAll();
+}
+function syncSelectAll(){
+  const sa=document.getElementById('selectAll'); if(!sa) return;
+  sa.checked = cartItems.length>0 && cartItems.every(it=>it.checked);
 }
 
 async function deleteSelected(){
@@ -551,7 +564,18 @@ function updateCompareCheck() {
   if (!entry) return;
 
   const allChecks = Array.from(document.querySelectorAll('.compare-check'));
-  const checked = allChecks.filter(cb => cb.checked);
+  let checked = allChecks.filter(cb => cb.checked);
+
+  // 다른 카테고리를 같이 체크하면 안내하고 되돌림 (같은 카테고리끼리만 비교)
+  if (checked.length) {
+    const baseCat = checked[0].dataset.cat;
+    const offenders = checked.filter(cb => cb.dataset.cat !== baseCat);
+    if (offenders.length) {
+      offenders.forEach(cb => cb.checked = false);
+      showCompareToast(`${catLabel(baseCat)}은 ${catLabel(baseCat)}끼리만 비교돼요 · 같은 카테고리 상품을 골라주세요`);
+      checked = allChecks.filter(cb => cb.checked);
+    }
+  }
 
   // 잠금 기준 카테고리 = 가장 먼저 체크된 항목의 카테고리
   lockedCat = checked.length ? checked[0].dataset.cat : null;
@@ -572,15 +596,12 @@ function updateCompareCheck() {
   compareItems = eligibleItems;
   const reachedMax = seen.size >= 3;
 
-  // 체크박스 잠금/해제 (점수 없는 상품은 항상 비활성 유지)
+  // 같은 카테고리에서 3개 다 차면 추가 체크만 막음 (다른 카테고리는 막지 않고, 누르면 안내)
   allChecks.forEach(cb => {
     const label = cb.closest('label');
-    if (cb.dataset.noscore === '1') { if (label) label.style.opacity = '0.35'; return; }
-    let disable = false;
-    if (lockedCat && cb.dataset.cat !== lockedCat) disable = true;                       // 다른 카테고리 잠금
-    if (lockedCat && cb.dataset.cat === lockedCat && reachedMax && !cb.checked) disable = true; // 3개 다 차면 추가 잠금
+    const disable = !!(lockedCat && cb.dataset.cat === lockedCat && reachedMax && !cb.checked);
     cb.disabled = disable;
-    if (label) label.style.opacity = disable ? '0.35' : '';
+    if (label) label.style.opacity = disable ? '0.4' : '';
   });
 
   // 안내 문구 + '나란히 보기' 노출
@@ -609,11 +630,11 @@ function updateCompareCheck() {
       hint.style.display = 'none';            // 비교 가능한 상품이 없으면 안내도 숨김
     } else if (lockedCat) {
       hint.style.display = '';
-      hint.textContent = `🔒 ${catLabel(lockedCat)}끼리만 비교돼요 · 다른 카테고리는 잠겨요`;
+      hint.textContent = `🔒 지금 ${catLabel(lockedCat)}끼리 비교 중 · 다른 카테고리는 함께 비교 안 돼요`;
       hint.classList.add('locked');
     } else {
       hint.style.display = '';
-      hint.textContent = '비교할 상품에 체크하면 나란히 비교할 수 있어요';
+      hint.textContent = '비교할 상품에 체크하세요 · 같은 카테고리(가방·쥬얼리·키링)끼리만 비교돼요';
       hint.classList.remove('locked');
     }
   }
