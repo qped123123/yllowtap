@@ -102,8 +102,11 @@
 .compare-header{text-align:center;padding:20px 24px 16px;font-size:14px;font-weight:500;letter-spacing:1px;color:#333}
 
 .compare-products{display:grid;grid-template-columns:1fr 1fr;gap:16px;padding:0 24px 20px}
+.compare-products.cols-3{grid-template-columns:repeat(3,1fr);gap:10px}
 .compare-product-card{text-align:center}
 .compare-product-card img{width:100%;max-width:160px;aspect-ratio:3/4;object-fit:cover;border-radius:4px}
+.compare-products.cols-3 .compare-product-card img{max-width:100%}
+.compare-check:disabled{cursor:not-allowed}
 .compare-product-name{font-size:12px;font-weight:500;margin-top:8px;color:#333}
 .compare-product-price{font-size:12px;color:#888;margin-top:2px}
 
@@ -323,6 +326,10 @@ let cartId=null;
 let cartItems=[];
 let FREE_SHIPPING=50000;
 let SHIPPING_FEE=3000;
+let scoredProductIds=new Set();
+let lockedCat=null;
+const CAT_LABEL={bags:'가방',jewelry:'쥬얼리',keyring:'키링',accessories:'액세서리',seasonal:'시즌',best:'베스트',new:'신상',sale:'세일'};
+function catLabel(c){return CAT_LABEL[c]||c||'같은 카테고리';}
 
 function getGuestId(){
   let id=localStorage.getItem('yllowtap_guest_id');
@@ -346,6 +353,14 @@ async function loadCart(){
   cartId=cart.id;
   const{data:items}=await sb.from('cart_items').select('*,products(*,product_media(media_url,role,display_order))').eq('cart_id',cartId).order('added_at');
   cartItems=(items||[]).map(item=>({...item,checked:true}));
+  // 비교 점수(product_attributes)가 입력된 상품만 비교 대상 → id 집합 미리 조회
+  const _pids=[...new Set(cartItems.map(it=>it.products?.id).filter(Boolean))];
+  if(_pids.length){
+    const{data:_scored}=await sb.from('product_attributes').select('product_id').in('product_id',_pids);
+    scoredProductIds=new Set((_scored||[]).map(s=>s.product_id));
+  }else{
+    scoredProductIds=new Set();
+  }
   renderCart();
   if(session){
     document.querySelectorAll('.header__actions a, .mobile-menu a').forEach(a=>{
@@ -410,7 +425,7 @@ function renderCart(){
         ${isSale?`<div class="cart-item-original">${p.original_price.toLocaleString()}원</div>`:''}
         <div class="cart-item-price">${((opts._line_price||p.price)*item.quantity).toLocaleString()}원</div>
       </div>
-      <div style="text-align:center;"><label style="font-size:10px;color:#999;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:2px;"><input type="checkbox" class="compare-check" data-idx="${i}" data-cat="${p.category}" onchange="updateCompareCheck()"><span>비교</span></label></div>
+      <div style="text-align:center;"><label style="font-size:10px;color:#999;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:2px;"><input type="checkbox" class="compare-check" data-idx="${i}" data-cat="${p.category}" data-pid="${p.id}" data-noscore="${scoredProductIds.has(p.id)?'0':'1'}" ${scoredProductIds.has(p.id)?'':'disabled title="비교 점수가 아직 없어요"'} onchange="updateCompareCheck()"><span>비교</span></label></div>
       <div><button class="cart-remove" onclick="removeItem(${i})">×</button></div>
     </div>`;
   }).join('');
@@ -499,25 +514,43 @@ function updateCompareCheck() {
   const entry = document.getElementById('compareEntry');
   if (!entry) return;
 
-  const checks = document.querySelectorAll('.compare-check:checked');
-  const selected = [];
-  checks.forEach(cb => {
+  const allChecks = Array.from(document.querySelectorAll('.compare-check'));
+  const checked = allChecks.filter(cb => cb.checked);
+
+  // 잠금 기준 카테고리 = 가장 먼저 체크된 항목의 카테고리
+  lockedCat = checked.length ? checked[0].dataset.cat : null;
+
+  // 잠긴 카테고리 안에서 '서로 다른 상품'만, 최대 3개까지 비교 대상으로
+  const seen = new Set();
+  const eligibleItems = [];
+  checked.forEach(cb => {
+    if (cb.dataset.cat !== lockedCat) return;
     const idx = parseInt(cb.dataset.idx);
-    if (cartItems[idx]) selected.push(cartItems[idx]);
+    const it = cartItems[idx];
+    if (!it) return;
+    const pid = it.products?.id;
+    if (!pid || seen.has(pid)) return;       // 같은 상품 중복은 1개로 취급
+    seen.add(pid);
+    if (eligibleItems.length < 3) eligibleItems.push(it);
+  });
+  compareItems = eligibleItems;
+  const reachedMax = seen.size >= 3;
+
+  // 체크박스 잠금/해제 (점수 없는 상품은 항상 비활성 유지)
+  allChecks.forEach(cb => {
+    const label = cb.closest('label');
+    if (cb.dataset.noscore === '1') { if (label) label.style.opacity = '0.35'; return; }
+    let disable = false;
+    if (lockedCat && cb.dataset.cat !== lockedCat) disable = true;                       // 다른 카테고리 잠금
+    if (lockedCat && cb.dataset.cat === lockedCat && reachedMax && !cb.checked) disable = true; // 3개 다 차면 추가 잠금
+    cb.disabled = disable;
+    if (label) label.style.opacity = disable ? '0.35' : '';
   });
 
-  // 같은 카테고리 2개 이상 체크됐는지
-  const cats = {};
-  selected.forEach(item => {
-    const cat = item.products?.category;
-    if (cat) { if (!cats[cat]) cats[cat] = []; cats[cat].push(item); }
-  });
-
-  let eligible = null;
-  for (const cat in cats) { if (cats[cat].length >= 2) { eligible = cats[cat]; break; } }
-
-  if (eligible) {
-    compareItems = eligible.slice(0, 2);
+  // 안내 문구 + '나란히 보기' 노출
+  const textEl = entry.querySelector('.compare-entry-text');
+  if (compareItems.length >= 2) {
+    if (textEl) textEl.textContent = `⟡ ${catLabel(lockedCat)} ${compareItems.length}개를 나란히 비교해볼까요?`;
     entry.style.display = 'block';
     setTimeout(() => entry.classList.add('show'), 50);
   } else {
@@ -532,13 +565,12 @@ let compareQualityDefs = [];
 
 async function openCompare() {
   if (compareItems.length < 2) return;
-  const pA = compareItems[0].products;
-  const pB = compareItems[1].products;
-  const cat = pA.category;
+  const prods = compareItems.map(i => i.products);   // 2~3개
+  const cat = prods[0].category;
 
   const { data: attrDefs } = await sb.from('attribute_definitions')
     .select('*').eq('is_active', true).order('sort_order');
-  const ids = [pA.id, pB.id];
+  const ids = prods.map(p => p.id);
   const { data: scores } = await sb.from('product_attributes')
     .select('product_id, attribute_id, value').in('product_id', ids);
 
@@ -551,24 +583,19 @@ async function openCompare() {
   compareQualityDefs = (attrDefs || []).filter(a => a.attr_type === 'quality' && a.category === cat);
   compareStyleDefs = (attrDefs || []).filter(a => a.attr_type === 'style' && !a.category);
   const qDefs = compareQualityDefs;
-  const imgA = getMainImg(pA);
-  const imgB = getMainImg(pB);
 
   let html = '';
 
-  // 상품 카드 (클릭해서 선택)
-  html += `<div class="compare-products" id="compareCards">
-    <div class="compare-product-card" id="card-${pA.id}" onclick="highlightCard('${pA.id}')" style="cursor:pointer;">
-      ${imgA ? `<img src="${imgA}">` : ''}
-      <div class="compare-product-name">${pA.name}</div>
-      <div class="compare-product-price">${pA.price?.toLocaleString()}원</div>
-    </div>
-    <div class="compare-product-card" id="card-${pB.id}" onclick="highlightCard('${pB.id}')" style="cursor:pointer;">
-      ${imgB ? `<img src="${imgB}">` : ''}
-      <div class="compare-product-name">${pB.name}</div>
-      <div class="compare-product-price">${pB.price?.toLocaleString()}원</div>
-    </div>
-  </div>`;
+  // 상품 카드 (클릭해서 선택) — 2~3개
+  html += `<div class="compare-products cols-${prods.length}" id="compareCards">` +
+    prods.map(p => {
+      const img = getMainImg(p);
+      return `<div class="compare-product-card" id="card-${p.id}" onclick="highlightCard('${p.id}')" style="cursor:pointer;">
+        ${img ? `<img src="${img}">` : ''}
+        <div class="compare-product-name">${p.name}</div>
+        <div class="compare-product-price">${p.price?.toLocaleString()}원</div>
+      </div>`;
+    }).join('') + `</div>`;
 
   // 매칭 결과 영역
   html += `<div class="compare-match-result" id="matchResult"></div>`;
@@ -592,8 +619,6 @@ async function openCompare() {
     html += `<div style="font-size:11px;font-weight:600;color:#555;margin-bottom:4px;letter-spacing:1px;">품질</div>
     <div style="font-size:10px;color:#AAA;margin-bottom:10px;">높을수록 중요하게 생각해요</div>`;
     qDefs.forEach(a => {
-      const vA = compareScoreMap[pA.id]?.[a.id] ?? 5;
-      const vB = compareScoreMap[pB.id]?.[a.id] ?? 5;
       html += `<div class="taste-row">
         <span>${a.name_ko}</span>
         <input type="range" class="taste-slider" min="0" max="10" value="5" step="0.5" id="taste-${a.id}">
@@ -606,8 +631,6 @@ async function openCompare() {
   html += `<div style="font-size:11px;font-weight:600;color:#555;margin:18px 0 4px;letter-spacing:1px;">무드</div>
   <div style="font-size:10px;color:#AAA;margin-bottom:10px;">선호하는 방향으로 맞춰보세요</div>`;
   compareStyleDefs.forEach(a => {
-    const vA = compareScoreMap[pA.id]?.[a.id] ?? 0;
-    const vB = compareScoreMap[pB.id]?.[a.id] ?? 0;
     html += `<div class="taste-row">
       <span>${a.pole_low}</span>
       <input type="range" class="taste-slider" min="-5" max="5" value="0" step="1" id="taste-${a.id}">
@@ -624,8 +647,7 @@ async function openCompare() {
 }
 
 function calculateMatch() {
-  const pA = compareItems[0].products;
-  const pB = compareItems[1].products;
+  const prods = compareItems.map(i => i.products);   // 2~3개
 
   // 모든 슬라이더 값 수집 (품질 + 무드)
   const allDefs = [...compareQualityDefs, ...compareStyleDefs];
@@ -634,18 +656,18 @@ function calculateMatch() {
     value: parseFloat(document.getElementById('taste-' + a.id)?.value || 0)
   }));
 
-  // 유클리드 거리 계산
-  let distA = 0, distB = 0;
-  tastes.forEach(t => {
-    const sA = compareScoreMap[pA.id]?.[t.id] ?? 0;
-    const sB = compareScoreMap[pB.id]?.[t.id] ?? 0;
-    distA += (t.value - sA) ** 2;
-    distB += (t.value - sB) ** 2;
+  // 각 상품의 유클리드 거리 계산 → 가장 가까운 상품 추천
+  let closer = null, bestDist = Infinity;
+  prods.forEach(p => {
+    let d = 0;
+    tastes.forEach(t => {
+      const s = compareScoreMap[p.id]?.[t.id] ?? 0;
+      d += (t.value - s) ** 2;
+    });
+    d = Math.sqrt(d);
+    if (d < bestDist) { bestDist = d; closer = p; }
   });
-  distA = Math.sqrt(distA);
-  distB = Math.sqrt(distB);
-
-  const closer = distA <= distB ? pA : pB;
+  if (!closer) return;
 
   // 결과 표시 + 카드 강조 + 구매 버튼
   highlightCard(closer.id);
@@ -680,10 +702,10 @@ function highlightCard(id) {
 function confirmPurchase() {
   if (!selectedProductId) return;
   const rejected = compareItems.filter(i => i.products.id !== selectedProductId).map(i => i.products.id);
-  selectPreferred(selectedProductId, rejected[0] || null);
+  selectPreferred(selectedProductId, rejected);
 }
 
-async function selectPreferred(chosenId, rejectedId) {
+async function selectPreferred(chosenId, rejectedIds) {
   const { data: { session } } = await sb.auth.getSession();
   const userId = session?.user?.id || null;
   const cat = compareItems[0].products?.category;
@@ -706,7 +728,7 @@ async function selectPreferred(chosenId, rejectedId) {
     await sb.from('comparison_choices').insert({
       session_id: compSession.id,
       chosen_product: chosenId,
-      rejected_products: [rejectedId]
+      rejected_products: Array.isArray(rejectedIds) ? rejectedIds : [rejectedIds]
     });
   }
 
