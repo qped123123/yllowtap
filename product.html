@@ -359,7 +359,8 @@
 @media(max-width:768px){
   .pd-center .pd-main,.pd-edit-head{max-width:100%}
   .pd-edit-head-name{font-size:24px}
-  .pd-set-grid{grid-template-columns:repeat(2,1fr)}
+  .pd-set-grid{display:flex;gap:10px;overflow-x:auto;-webkit-overflow-scrolling:touch;padding-bottom:6px}
+  .pd-set-item{flex:0 0 auto;width:calc((100% - 20px)/3);min-width:86px}
   .pd-why{padding:40px 20px 50px}
   .pd-why-grid{grid-template-columns:repeat(2,1fr)}
   .pd-why-title{font-size:24px}
@@ -601,7 +602,7 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <script>
 const SUPABASE_URL='https://ppihvvpplqikclftrwdb.supabase.co';
-const SUPABASE_ANON='';
+const SUPABASE_ANON='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBwaWh2dnBwbHFpa2NsZnRyd2RiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk3MzE0NTEsImV4cCI6MjA5NTMwNzQ1MX0.shGVcFTQiuYc4u6tdU50x18YMgJdgFUljf8c7QlQU-U';
 const sb=window.supabase.createClient(SUPABASE_URL,SUPABASE_ANON);
 
 let product=null,qty=1,allGalleryImgs=[],currentImgIdx=0,rfRating=5,rfImageUrls=[];
