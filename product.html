@@ -849,10 +849,9 @@ function syncThumbs(){
     updateThumbHint();
     return;
   }
-  // v5: EDIT 메인 이미지를 우측 정보 높이에 맞춤 (가로 라인 정렬, 정사각)
+  // EDIT 메인 이미지도 일반 상품과 동일 크기로 (정보 높이 맞춤 제거)
   if(isEdit()&&info){
-    const infoH=Math.round(info.getBoundingClientRect().height);
-    if(infoH>0){ main.style.maxWidth='none'; main.style.width=infoH+'px'; main.style.height=infoH+'px'; }
+    main.style.maxWidth=''; main.style.width=''; main.style.height='';
   }
   // 썸네일: 잘 보이게 고정 크기(세로형). 왼쪽 정렬. 넘치면 세로 스크롤
   const thumbW=84, gap=8;
