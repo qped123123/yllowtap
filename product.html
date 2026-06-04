@@ -268,6 +268,8 @@
 .pd-item-now{display:inline;font-size:11px;font-weight:700;color:var(--pd-text)}
 .pd-item-disc{display:inline;font-size:9px;font-weight:700;color:#E05545;margin-left:3px}
 .pd-item-saleline{display:block;white-space:nowrap}
+.pd-set-item-view{display:inline-block;margin-top:8px;padding:5px 16px;border:1px solid var(--pd-border);border-radius:18px;font-size:10px;letter-spacing:.5px;color:var(--pd-text2);text-decoration:none;background:var(--pd-white);transition:all .2s}
+.pd-set-item-view:hover{border-color:var(--pd-text);color:var(--pd-text)}
 .pd-color-cell-price{font-size:10px;font-weight:600;color:var(--pd-text);margin-top:2px}
 .pd-sel-summary{margin-top:16px;padding:14px;background:#FBFAF8;border:1px solid var(--pd-border);border-radius:8px}
 .pd-sel-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
@@ -1020,7 +1022,8 @@ function renderOptExpand(idx, el){
         }
       }
       const color=it.color_name?`<div class="pd-set-item-color">${it.color_name}</div>`:'';
-      return `<div class="pd-set-item${on?' sel':''}" onclick="toggleOptItem(${idx},${j})">${img}<div class="pd-set-item-name">${it.name||''}</div>${color}${price}</div>`;
+      const view=it.link_product_id?`<a class="pd-set-item-view" href="/product.html?slug=${it.link_product_id}" onclick="event.stopPropagation()">보러가기</a>`:'';
+      return `<div class="pd-set-item${on?' sel':''}" onclick="toggleOptItem(${idx},${j})">${img}<div class="pd-set-item-name">${it.name||''}</div>${color}${price}${view}</div>`;
     }).join('')}</div>`;
   }
 }
