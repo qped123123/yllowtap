@@ -71,8 +71,11 @@ button{font-family:inherit;cursor:pointer;border:none;background:none;}
 .sld-row{display:flex;align-items:center;gap:10px;margin:8px 0;}
 .sld-label{flex:0 0 46px;font-size:12px;color:#4a463f;}
 .sld-pole-r{flex:0 0 38px;font-size:12px;color:#4a463f;text-align:right;}
-.sld-track{position:relative;flex:1 1 auto;height:4px;border-radius:999px;background:linear-gradient(90deg,#EFE9DD 0%,#E6DACF 45%,#D9CBBF 100%);}
-.sld-dot{position:absolute;top:50%;width:14px;height:14px;border-radius:50%;background:#fff;border:1.5px solid #B7AC9E;box-shadow:0 1px 3px rgba(0,0,0,.12);transform:translate(-50%,-50%);}
+.sld-track{position:relative;flex:1 1 auto;height:7px;border-radius:999px;
+  background:
+    repeating-linear-gradient(90deg, rgba(255,255,255,0) 0, rgba(255,255,255,0) calc(10% - 1.2px), rgba(255,255,255,.85) calc(10% - 1.2px), rgba(255,255,255,.85) 10%),
+    linear-gradient(90deg,#E5E0D8 0%,#C8C0B5 100%);}
+.sld-dot{position:absolute;top:50%;width:16px;height:16px;border-radius:50%;background:#fff;border:1.5px solid #B7AC9E;box-shadow:0 1px 3px rgba(0,0,0,.15);transform:translate(-50%,-50%);}
 
 /* 내가 선택한 기준 */
 .criteria{border-top:1px solid var(--line);margin-top:14px;padding-top:14px;}
