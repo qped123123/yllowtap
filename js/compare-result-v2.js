@@ -82,7 +82,15 @@ function buildSummary(quality,mood){
 /* ---------- 6. 상품 필드 ---------- */
 const pImg=p=>p.image_url||p.image||p.thumbnail||p.thumbnail_url||(Array.isArray(p.images)&&p.images[0])||'';
 const pName=p=>p.name||p.title||p.product_name||'상품';
-const pPrice=p=>Number(p.price??p.sale_price??0).toLocaleString('ko-KR')+'원';
+const won=n=>Number(n||0).toLocaleString('ko-KR')+'원';
+const num=v=>{const n=Number(v);return isFinite(n)?n:0;};
+function priceHTML(p){
+  const sell=num(p.price);                 // 실제 판매가(세일가)
+  const orig=num(p.original_price);         // 정가
+  if(orig>0 && sell>0 && orig>sell)
+    return `<span class="price-sale">${won(sell)}</span><span class="price-orig">${won(orig)}</span>`;
+  return `<span>${won(sell||orig)}</span>`;
+}
 const pCat=p=>(p.category||p.cat||'').toString();
 const isBag=c=>/bag|가방/i.test(c||'');
 
@@ -132,6 +140,7 @@ function render(){
 
   $app.innerHTML=`
     <header class="cr-header fade-up">
+      <div class="cr-brand">yllowtap</div>
       <h1>비교 결과</h1>
       <p>당신의 취향을 분석해 가장 잘 어울리는 스타일을 찾았어요.</p>
     </header>
@@ -139,7 +148,7 @@ function render(){
     <div class="cr-grid">
       <div class="col-left">
         <!-- 카드 1: 비교 상품(흰바탕) + 구매 -->
-        <div class="cr-card fade-up">
+        <div class="cr-card white-card fade-up">
           <div class="blk-title">내가 비교한 상품들 <small>상품을 누르면 선택이 바뀌어요</small></div>
           <div class="cmp-panel">
             <div class="cr-compared" id="comparedRow">
@@ -147,7 +156,7 @@ function render(){
                 <div class="cmp-card ${String(p.id)===String(selectedId)?'is-selected':''}" data-id="${p.id}">
                   <div class="cmp-thumb"><img src="${pImg(p)}" alt="${pName(p)}" onerror="this.style.opacity=.15"></div>
                   <div class="cmp-name">${pName(p)}</div>
-                  <div class="cmp-price">${pPrice(p)}</div>
+                  <div class="cmp-price">${priceHTML(p)}</div>
                 </div>`).join('')}
             </div>
           </div>
@@ -215,7 +224,7 @@ function recoCard(p){
       </button>
     </div>
     <div class="reco-name">${pName(p)}</div>
-    <div class="reco-price">${pPrice(p)}</div>
+    <div class="reco-price">${priceHTML(p)}</div>
   </div>`;
 }
 

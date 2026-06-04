@@ -1333,6 +1333,7 @@ function collectOptions(){
   // EDIT 구매옵션 — 여러 옵션에서 체크한 항목 전부 수집 (조합)
   if(isEdit()&&buyOptions.length){
     const parts=[];
+    const components=[];
     buyOptions.forEach((o,oi)=>{
       if(!Array.isArray(o.items)) return;
       const sset=(window.__selItems&&window.__selItems[oi])?[...window.__selItems[oi]]:[];
@@ -1341,11 +1342,13 @@ function collectOptions(){
         const nm=it.color_name||it.name||'';
         const pr=Number(it.price)||0;
         parts.push(pr>0?`${nm} (+${pr.toLocaleString()}원)`:nm);
+        components.push({name:nm,price:pr,product_id:it.link_product_id||null});
       });
     });
     if(!parts.length){alert('항목을 하나 이상 선택해주세요.');return null;}
     opts['구성']=parts.join(', ');
     opts['_line_price']=allSelectedTotal();   // 옵션 조합 최종가 (장바구니에서 사용)
+    opts['_components']=components;   // 구성품 구조화(상품ID 포함) — 카테고리 분리 비교용
   }
   return opts;
 }

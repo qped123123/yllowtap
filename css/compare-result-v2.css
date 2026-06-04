@@ -1,8 +1,5 @@
 /* ============================================================
    Yllowtap 취향 비교 결과화면 V2  (compare-result-v2.css)
-   - 카드 3개로 묶음(따로 노는 박스 제거)
-   - 이미지 전부 정사각(1:1) 통일
-   - 카드 배경 = 취향타입 카드와 동일(아이보리), 비교상품만 흰바탕
    ============================================================ */
 :root{
   --bg:#ffffff; --paper:#FBFAF7; --paper-2:#F4F2ED;
@@ -19,31 +16,32 @@ body{background:var(--bg);color:var(--ink);
 img{display:block;max-width:100%;}
 a{color:inherit;text-decoration:none;}
 button{font-family:inherit;cursor:pointer;border:none;background:none;}
-.serif{font-family:'Bodoni Moda',Georgia,serif;font-weight:500;}   /* 영문 타입명에만 */
+.serif{font-family:'Bodoni Moda',Georgia,serif;font-weight:500;}
 
-.cr-wrap{max-width:1120px;margin:0 auto;padding:48px 26px 100px;}
+/* 가로 넓게, 화면 안에 다 들어오게 */
+.cr-wrap{width:100%;max-width:1440px;margin:0 auto;padding:44px 30px 90px;}
 
-/* 헤더 */
-.cr-header{text-align:center;margin:0 auto 40px;}
+/* 헤더 + yllowtap 마크 */
+.cr-header{text-align:center;margin:0 auto 38px;}
+.cr-brand{font-family:'Bodoni Moda',Georgia,serif;font-size:13px;letter-spacing:4px;text-transform:uppercase;color:var(--ink-soft);margin-bottom:11px;}
 .cr-header h1{font-size:26px;font-weight:700;letter-spacing:.4px;margin:0 0 9px;}
 .cr-header p{color:var(--ink-soft);font-size:14px;margin:0;}
 
-/* 2열 (여백 넉넉히) */
-.cr-grid{display:grid;grid-template-columns:42% 1fr;gap:26px;align-items:start;}
-.col-left,.col-right{display:flex;flex-direction:column;gap:22px;min-width:0;}
+/* 2열 — 중간 간격 넉넉히 */
+.cr-grid{display:grid;grid-template-columns:40% 1fr;column-gap:46px;row-gap:26px;align-items:start;}
+.col-left,.col-right{display:flex;flex-direction:column;gap:24px;min-width:0;}
 
-/* 공통 카드 (아이보리) */
-.cr-card{background:var(--paper);border:1px solid var(--line);border-radius:var(--radius-lg);
-  padding:24px;box-shadow:var(--shadow-sm);}
+.cr-card{background:var(--paper);border:1px solid var(--line);border-radius:var(--radius-lg);padding:24px;box-shadow:var(--shadow-sm);}
+.cr-card.white-card{background:#fff;}   /* 비교 상품 카드는 전체 흰색 */
 
 .blk-title{font-size:14px;font-weight:700;margin:0 0 13px;display:flex;align-items:baseline;gap:7px;flex-wrap:wrap;}
 .blk-title small{font-weight:400;color:var(--ink-soft);font-size:12px;}
 
-/* ---------- 비교 상품 (흰바탕 패널) ---------- */
-.cmp-panel{background:#fff;border:1px solid var(--line);border-radius:var(--radius);padding:12px;}
+/* 비교 상품 */
+.cmp-panel{padding:0;}
 .cr-compared{display:flex;gap:11px;}
-.cmp-card{flex:1 1 0;min-width:0;cursor:pointer;border:1px solid var(--line);
-  border-radius:12px;padding:7px;background:#fff;transition:border-color .18s ease, transform .18s ease;}
+.cmp-card{flex:1 1 0;min-width:0;cursor:pointer;border:1px solid var(--line);border-radius:12px;padding:7px;background:#fff;
+  transition:border-color .18s ease, transform .18s ease;}
 .cmp-card:hover{transform:translateY(-2px);}
 .cmp-card.is-selected{border-color:var(--line-strong);border-width:1.5px;}
 .cmp-thumb{width:100%;aspect-ratio:1/1;background:var(--paper);border-radius:9px;overflow:hidden;}
@@ -51,16 +49,19 @@ button{font-family:inherit;cursor:pointer;border:none;background:none;}
 .cmp-name{font-size:12px;margin:8px 2px 2px;line-height:1.35;}
 .cmp-price{font-size:12px;color:var(--ink-soft);margin:0 2px;}
 
-/* 구매 영역 (비교상품 카드 아래, 같은 카드 안) */
-.buy-area{text-align:center;margin-top:20px;}
+/* 가격(세일가) */
+.price-sale{font-weight:700;color:var(--ink);}
+.price-orig{margin-left:6px;color:#b3aea6;text-decoration:line-through;font-size:.9em;}
+
+/* 구매 */
+.buy-area{text-align:center;margin-top:22px;}
 .buy-area .label{font-size:12px;color:var(--ink-soft);letter-spacing:.3px;}
 .buy-area .picked{font-size:18px;font-weight:600;margin:6px 0 15px;}
-.cr-buy-btn{display:inline-block;background:var(--ink);color:#fff;padding:12px 30px;border-radius:999px;
-  font-size:13.5px;font-weight:600;transition:opacity .18s ease;}
+.cr-buy-btn{display:inline-block;background:var(--ink);color:#fff;padding:12px 30px;border-radius:999px;font-size:13.5px;font-weight:600;transition:opacity .18s ease;}
 .cr-buy-btn:hover{opacity:.86;}
 .cr-buy-close{display:block;margin:13px auto 0;color:var(--ink-soft);font-size:12px;text-decoration:underline;text-underline-offset:3px;}
 
-/* ---------- 슬라이더(읽기전용) ---------- */
+/* 슬라이더 */
 .sld-group-title{font-size:13.5px;font-weight:700;margin:0 0 2px;}
 .sld-group-title:not(:first-child){margin-top:16px;}
 .sld-group-title small{font-weight:400;color:var(--ink-soft);font-size:11.5px;margin-left:6px;}
@@ -68,60 +69,54 @@ button{font-family:inherit;cursor:pointer;border:none;background:none;}
 .sld-row{display:flex;align-items:center;gap:10px;margin:11px 0;}
 .sld-label{flex:0 0 46px;font-size:12px;color:#4a463f;}
 .sld-pole-r{flex:0 0 38px;font-size:12px;color:#4a463f;text-align:right;}
-.sld-track{position:relative;flex:1 1 auto;height:4px;border-radius:999px;
-  background:linear-gradient(90deg,#EBE4D8 0%,#E4D7CE 45%,#CDBCC4 100%);}
-.sld-dot{position:absolute;top:50%;width:15px;height:15px;border-radius:50%;
-  background:#fff;border:1.5px solid #B7AC9E;box-shadow:0 1px 3px rgba(0,0,0,.12);transform:translate(-50%,-50%);}
+.sld-track{position:relative;flex:1 1 auto;height:4px;border-radius:999px;background:linear-gradient(90deg,#EBE4D8 0%,#E4D7CE 45%,#CDBCC4 100%);}
+.sld-dot{position:absolute;top:50%;width:15px;height:15px;border-radius:50%;background:#fff;border:1.5px solid #B7AC9E;box-shadow:0 1px 3px rgba(0,0,0,.12);transform:translate(-50%,-50%);}
 
-/* ---------- 내가 선택한 기준 (같은 카드 안, 위에 구분선) ---------- */
+/* 내가 선택한 기준 */
 .criteria{border-top:1px solid var(--line);margin-top:20px;padding-top:18px;}
-.criteria .s-eyebrow{font-size:15px;font-weight:700;color:var(--ink);margin-bottom:9px;}  /* 3px 크게 */
-.criteria .s-text{color:var(--ink-soft);font-weight:700;font-size:14px;line-height:1.7;}    /* 회색 볼딩 */
+.criteria .s-eyebrow{font-size:15px;font-weight:700;color:var(--ink);margin-bottom:9px;}
+.criteria .s-text{color:var(--ink-soft);font-weight:700;font-size:14px;line-height:1.7;}
 
-/* ---------- 타입 + 일치도 (한 카드) ---------- */
-.cr-type-gauge{display:grid;grid-template-columns:1.5fr 1fr;gap:20px;align-items:center;}
+/* 타입 + 일치도 (한 카드) */
+.cr-type-gauge{display:grid;grid-template-columns:1.6fr 1fr;gap:22px;align-items:center;}
 .taste-region{display:flex;gap:15px;min-width:0;}
 .taste-region .tc-text{flex:1;min-width:0;}
 .tc-eyebrow{font-size:11.5px;color:var(--ink-soft);letter-spacing:.5px;margin-bottom:9px;}
-.tc-name{font-size:26px;line-height:1.12;margin:0 0 3px;}     /* .serif */
+.tc-name{font-size:23px;line-height:1.12;margin:0 0 3px;white-space:nowrap;}   /* 한 줄 */
 .tc-alias{font-size:13px;color:var(--ink-soft);margin:0 0 13px;}
 .tc-desc{font-size:13px;color:#4a463f;margin:0 0 14px;}
 .tc-tags{display:flex;flex-wrap:wrap;gap:6px;}
 .tc-tag{font-size:11px;color:var(--ink-soft);background:#fff;border:1px solid var(--line);border-radius:999px;padding:5px 10px;}
-.taste-region .tc-img{flex:0 0 40%;aspect-ratio:1/1;align-self:center;border-radius:13px;overflow:hidden;background:var(--paper-2);}
+.taste-region .tc-img{flex:0 0 34%;aspect-ratio:1/1;align-self:center;border-radius:13px;overflow:hidden;background:var(--paper-2);}
 .taste-region .tc-img img{width:100%;height:100%;object-fit:cover;}
 
 .gauge-region{display:flex;flex-direction:column;align-items:center;}
 .gauge-region .m-eyebrow{font-size:11.5px;color:var(--ink-soft);letter-spacing:.5px;margin-bottom:12px;}
-.gauge{--pct:92;width:132px;height:132px;border-radius:50%;
-  background:radial-gradient(closest-side,var(--paper) 76%,transparent 77% 100%),
-    conic-gradient(var(--mauve) calc(var(--pct)*1%), var(--sand) 0);
+.gauge{--pct:92;width:130px;height:130px;border-radius:50%;
+  background:radial-gradient(closest-side,var(--paper) 76%,transparent 77% 100%),conic-gradient(var(--mauve) calc(var(--pct)*1%), var(--sand) 0);
   display:flex;align-items:center;justify-content:center;flex-direction:column;}
-.gauge .g-num{font-size:32px;font-weight:700;line-height:1;}
+.gauge .g-num{font-size:31px;font-weight:700;line-height:1;}
 .gauge .g-cap{font-size:11px;color:var(--ink-soft);margin-top:4px;}
-.match-chips{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;margin-top:15px;}
+.match-chips{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;margin-top:14px;}
 .match-chip{font-size:11px;color:#4a463f;background:#fff;border:1px solid var(--line);border-radius:999px;padding:5px 10px;}
 
-/* ---------- 추천 (정사각·작게·연한 테두리 카드) ---------- */
-.cr-reco{display:grid;grid-template-columns:repeat(3,1fr);gap:13px;}
-.reco-card{cursor:pointer;border:1px solid var(--line);border-radius:var(--radius);padding:8px;background:#fff;
-  transition:border-color .18s ease, transform .18s ease;}
+/* 추천 — 작게(최대 150px), 왼쪽 정렬 */
+.cr-reco{display:grid;grid-template-columns:repeat(3,minmax(0,150px));justify-content:start;gap:14px;}
+.reco-card{cursor:pointer;border:1px solid var(--line);border-radius:var(--radius);padding:7px;background:#fff;transition:border-color .18s ease, transform .18s ease;}
 .reco-card:hover{transform:translateY(-2px);}
 .reco-thumb{position:relative;width:100%;aspect-ratio:1/1;background:var(--paper);border-radius:10px;overflow:hidden;}
 .reco-thumb img{width:100%;height:100%;object-fit:cover;transition:transform .35s ease;}
 .reco-card:hover .reco-thumb img{transform:scale(1.03);}
-.reco-heart{position:absolute;right:7px;bottom:7px;width:28px;height:28px;border-radius:50%;
-  background:rgba(255,255,255,.92);display:flex;align-items:center;justify-content:center;box-shadow:var(--shadow-sm);flex-shrink:0;}
-.reco-heart svg{width:15px;height:15px;display:block;}
+.reco-heart{position:absolute;right:6px;bottom:6px;width:26px;height:26px;border-radius:50%;background:rgba(255,255,255,.92);display:flex;align-items:center;justify-content:center;box-shadow:var(--shadow-sm);}
+.reco-heart svg{width:14px;height:14px;display:block;}
 .reco-heart .hf{fill:none;stroke:var(--ink);stroke-width:1.7;stroke-linejoin:round;stroke-linecap:round;}
 .reco-heart.on .hf{fill:#C46A78;stroke:#C46A78;}
-.reco-name{font-size:11.5px;margin:8px 3px 2px;line-height:1.35;}
+.reco-name{font-size:11.5px;margin:7px 3px 2px;line-height:1.35;}
 .reco-price{font-size:11.5px;color:var(--ink-soft);margin:0 3px;}
-.reco-empty{grid-column:1/-1;text-align:center;color:var(--ink-soft);font-size:12.5px;padding:24px 0;}
+.reco-empty{grid-column:1/-1;text-align:left;color:var(--ink-soft);font-size:12.5px;padding:18px 0;}
 
 /* CTA */
-.cr-cta{display:block;width:100%;text-align:center;background:var(--ink);color:#fff;padding:18px;
-  border-radius:var(--radius);font-size:15px;font-weight:600;transition:opacity .18s ease;}
+.cr-cta{display:block;width:100%;text-align:center;background:var(--ink);color:#fff;padding:18px;border-radius:var(--radius);font-size:15px;font-weight:600;transition:opacity .18s ease;}
 .cr-cta:hover{opacity:.86;}
 
 /* 빈/에러 */
@@ -132,13 +127,13 @@ button{font-family:inherit;cursor:pointer;border:none;background:none;}
 .fade-up{opacity:0;transform:translateY(10px);animation:fadeUp .5s ease forwards;}
 @keyframes fadeUp{to{opacity:1;transform:none;}}
 
-/* ---------- 모바일 ---------- */
+/* 모바일 */
 @media (max-width:860px){
-  .cr-wrap{padding:32px 16px 80px;}
-  .cr-grid{grid-template-columns:1fr;gap:18px;}
+  .cr-wrap{padding:30px 16px 80px;}
+  .cr-grid{grid-template-columns:1fr;column-gap:0;row-gap:18px;}
   .cr-type-gauge{grid-template-columns:1fr;gap:22px;}
-  .tc-name{font-size:24px;}
+  .tc-name{white-space:normal;font-size:24px;}
   .cr-reco{display:flex;overflow-x:auto;gap:11px;padding-bottom:8px;scroll-snap-type:x proximity;-webkit-overflow-scrolling:touch;}
   .cr-reco::-webkit-scrollbar{height:0;}
-  .reco-card{flex:0 0 38%;scroll-snap-align:start;}
+  .reco-card{flex:0 0 130px;scroll-snap-align:start;}
 }
