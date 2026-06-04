@@ -1171,7 +1171,10 @@ async function saveProduct() {
     await saveDetailBlocks(pid);
     await saveProductScores(pid);
     await saveEditData(pid);
-    showToast(editingProductId?'수정 완료':'등록 완료');closeProductForm();await loadProducts();
+    showToast(editingProductId?'수정 완료':'등록 완료');closeProductForm();
+    const _ps=document.getElementById('prodSearch'); if(_ps)_ps.value='';
+    const _pc=document.getElementById('prodCatFilter'); if(_pc)_pc.value='';
+    await loadProducts();
   } catch(err) { if(err.message?.includes('duplicate')&&err.message?.includes('slug'))showToast('중복된 슬러그',true);else showToast('저장 실패: '+err.message,true); }
 }
 async function deleteProduct() { if(!editingProductId||!confirm('이 상품을 삭제하시겠습니까?'))return;try{const{error}=await sb.from('products').delete().eq('id',editingProductId);if(error)throw error;showToast('삭제 완료');closeProductForm();await loadProducts();}catch(err){showToast('삭제 실패: '+err.message,true);} }
