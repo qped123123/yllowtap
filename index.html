@@ -138,7 +138,9 @@
   .home-ph { background: #f3f0eb; }
   .home-pcard__name { margin-top: 10px; font-size: 12px; line-height: 1.35; color: #111; font-weight: 400; letter-spacing: -0.01em; }
   .home-pcard__price { margin-top: 4px; font-size: 12px; line-height: 1.3; color: #111; font-weight: 600; white-space: nowrap; }
-  .home-pcard__price .old { color: #aaa; text-decoration: line-through; margin-right: 5px; font-weight: 400; }
+  .home-pcard__price .old { display:block; color: #aaa; text-decoration: line-through; font-weight: 400; }
+  .home-pcard__price .saleline { white-space: nowrap; }
+  .home-pcard__price .disc { color:#C4453C; font-weight:700; margin-left:5px; }
   .home-pcard__price .now { color: #111; font-weight: 700; }
   .home-wish {
     position: absolute; top: 8px; right: 8px; z-index: 3;
@@ -678,8 +680,9 @@ function productCardHTML(p, opts = {}) {
   const img = getMainImg(p);
   const slug = p.slug || p.id;
   const isSale = p.original_price && p.original_price > p.price;
+  const disc = isSale ? Math.round((1 - p.price / p.original_price) * 100) : 0;
   const price = isSale
-    ? `<span class="old">₩ ${p.original_price.toLocaleString()}</span><span class="now">₩ ${p.price.toLocaleString()}</span>`
+    ? `<span class="old">₩ ${p.original_price.toLocaleString()}</span><span class="saleline"><span class="now">₩ ${p.price.toLocaleString()}</span><span class="disc">${disc}%</span></span>`
     : `₩ ${p.price.toLocaleString()}`;
   const newTag = opts.showNew ? `<span class="home-newtag">NEW</span>` : '';
   return `<div class="home-pcard" data-pid="${p.id}">
@@ -803,7 +806,7 @@ async function loadBest() {
     .select('*, product_media(media_url, role, display_order)')
     .eq('is_active', true).contains('tags', ['best']).order('display_order').limit(8);
   const grid = document.getElementById('bestGrid');
-  if (!data?.length) { grid.innerHTML = placeholderCards(8); return; }
+  if (!data?.length) { const sec=grid.closest('section'); if(sec) sec.style.display='none'; return; }
   grid.innerHTML = data.map(p => productCardHTML(p)).join('');
 }
 
@@ -812,7 +815,7 @@ async function loadNew() {
     .select('*, product_media(media_url, role, display_order)')
     .eq('is_active', true).contains('tags', ['new']).order('display_order').limit(8);
   const grid = document.getElementById('newGrid');
-  if (!data?.length) { grid.innerHTML = placeholderCards(8, true); return; }
+  if (!data?.length) { const sec=grid.closest('section'); if(sec) sec.style.display='none'; return; }
   grid.innerHTML = data.map(p => productCardHTML(p, { showNew: true })).join('');
 }
 // ══════════════════════════════════════════

@@ -16,7 +16,7 @@
 }
 
 /* BREADCRUMB */
-.pd-breadcrumb{max-width:1560px;margin:0 auto;padding:76px 30px 14px;font-size:11px;color:var(--pd-text3);letter-spacing:1px}
+.pd-breadcrumb{position:relative;z-index:5;max-width:1560px;margin:0 auto;padding:76px 30px 14px;font-size:11px;color:var(--pd-text3);letter-spacing:1px}
 .pd-breadcrumb a{color:var(--pd-text3);text-decoration:none;transition:color .3s}.pd-breadcrumb a:hover{color:var(--pd-text)}
 .pd-breadcrumb span{margin:0 7px}
 
@@ -184,7 +184,7 @@
 .pd-rec-card:hover .pd-rec-card-img img{transform:scale(1.05)}
 .pd-rec-brand{font-size:10px;font-weight:500;letter-spacing:1.5px;text-transform:uppercase;color:var(--pd-text3);margin-bottom:3px}
 .pd-rec-name{font-size:13px;line-height:1.4;margin-bottom:5px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
-.pd-rec-price{font-size:14px;font-weight:700;display:flex;flex-wrap:wrap;align-items:baseline;gap:2px 4px}.pd-rec-price-orig{font-size:12px;font-weight:400;color:var(--pd-text3);text-decoration:line-through;white-space:nowrap}.pd-rec-price-now{font-size:14px;font-weight:700;white-space:nowrap}.pd-rec-price-disc{font-size:12px;font-weight:700;color:var(--pd-red);white-space:nowrap}
+.pd-rec-price{font-size:14px;font-weight:700;display:flex;flex-wrap:wrap;align-items:baseline;gap:2px 4px}.pd-rec-price-orig{flex-basis:100%;font-size:12px;font-weight:400;color:var(--pd-text3);text-decoration:line-through;white-space:nowrap}.pd-rec-price-now{font-size:14px;font-weight:700;white-space:nowrap}.pd-rec-price-disc{font-size:12px;font-weight:700;color:var(--pd-red);white-space:nowrap}
 
 /* JOURNAL LINK */
 .pd-journal{background:var(--pd-text);padding:70px 40px;text-align:center}
@@ -267,6 +267,7 @@
 .pd-item-orig{display:block;font-size:9px;color:var(--pd-text3);text-decoration:line-through}
 .pd-item-now{display:inline;font-size:11px;font-weight:700;color:var(--pd-text)}
 .pd-item-disc{display:inline;font-size:9px;font-weight:700;color:#E05545;margin-left:3px}
+.pd-item-saleline{display:block;white-space:nowrap}
 .pd-color-cell-price{font-size:10px;font-weight:600;color:var(--pd-text);margin-top:2px}
 .pd-sel-summary{margin-top:16px;padding:14px;background:#FBFAF8;border:1px solid var(--pd-border);border-radius:8px}
 .pd-sel-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
@@ -402,7 +403,7 @@
 </div>
 
 <!-- BREADCRUMB -->
-<nav class="pd-breadcrumb"><a href="/">HOME</a><span>›</span><a href="/category.html">SHOP</a><span>›</span><span id="breadcrumbCat">BAGS</span></nav>
+<nav class="pd-breadcrumb"><a href="/">HOME</a><span>›</span><a href="/category.html">SHOP</a><span>›</span><a id="breadcrumbCat" href="/category.html">BAGS</a></nav>
 
 <!-- PRODUCT TOP -->
 <section class="pd-top pd-fade">
@@ -575,9 +576,9 @@
 <!-- FOOTER -->
 <div class="pd-buybar" id="buyBar">
   <div class="pd-buybar-inner">
-    <button class="pd-buybar-wish" onclick="toggleWishlist()" aria-label="찜">♡</button>
-    <button class="pd-buybar-cart" onclick="addToCart()">CART</button>
     <button class="pd-buybar-buy" onclick="buyNow()">BUY IT NOW</button>
+    <button class="pd-buybar-cart" onclick="addToCart()">CART</button>
+    <button class="pd-buybar-wish" onclick="toggleWishlist()" aria-label="찜">♡</button>
   </div>
 </div>
 <footer class="footer">
@@ -637,7 +638,7 @@ async function render(){
   document.getElementById('pBrand').textContent=p.brand||'YLLOWTAP';
   document.getElementById('pName').textContent=p.name;
   document.getElementById('pSub').textContent=p.subtitle||'';
-  document.getElementById('breadcrumbCat').textContent=p.category?.toUpperCase()||'SHOP';
+  const _bc=document.getElementById('breadcrumbCat'); _bc.textContent=p.category?.toUpperCase()||'SHOP'; if(p.category) _bc.href='/category.html?cat='+p.category;
   document.getElementById('pPrice').textContent=p.price.toLocaleString()+'원';
   if(p.original_price&&p.original_price>p.price){
     document.getElementById('pOrig').textContent=p.original_price.toLocaleString()+'원';document.getElementById('pOrig').style.display='';
@@ -1013,7 +1014,7 @@ function renderOptExpand(idx, el){
       if(Number(it.price)>0){
         if(Number(it.original_price)>Number(it.price)){
           const d=Math.round((1-it.price/it.original_price)*100);
-          price=`<div class="pd-set-item-price"><span class="pd-item-orig">₩${Number(it.original_price).toLocaleString()}</span><span class="pd-item-now">+₩${Number(it.price).toLocaleString()}</span><span class="pd-item-disc">${d}%</span></div>`;
+          price=`<div class="pd-set-item-price"><span class="pd-item-orig">₩${Number(it.original_price).toLocaleString()}</span><span class="pd-item-saleline"><span class="pd-item-now">+₩${Number(it.price).toLocaleString()}</span><span class="pd-item-disc">${d}%</span></span></div>`;
         } else {
           price=`<div class="pd-set-item-price">+₩${Number(it.price).toLocaleString()}</div>`;
         }
