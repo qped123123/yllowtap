@@ -948,7 +948,6 @@ async function loadSetItems(){
 // v1: 구매 옵션 (EDIT)
 // ══════════════════════════════════════════
 async function loadPurchaseOptions(){
-  if(!isEdit()) return;
   const{data}=await sb.from('product_purchase_options').select('*').eq('product_id',product.id).order('display_order');
   if(!data||!data.length){
     // v7: 에디트인데 구매옵션이 비어있으면 기본 가격/수량/합계 UI를 다시 보여줌 (우측이 비지 않게)
