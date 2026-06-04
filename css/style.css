@@ -126,7 +126,7 @@ button { font-family:var(--font-body); cursor:pointer; border:none; background:n
    SERVICE BAR
    ===================================================== */
 .service-bar {
-  display:grid; grid-template-columns:repeat(4,1fr);
+  display:grid; grid-template-columns:repeat(3,1fr);
   border-bottom:1px solid var(--divider); background:var(--bg-main);
 }
 .service-bar__item {
