@@ -390,7 +390,7 @@ function renderCart(){
     if(!p)return'';
     const img=getMainImg(p);
     const opts=item.selected_options||{};
-    const optStr=Object.entries(opts).map(([k,v])=>k+': '+v).join(' / ');
+    const optStr=Object.entries(opts).filter(([k])=>!k.startsWith('_')).map(([k,v])=>k+': '+v).join(' / ');
     const isSale=p.original_price&&p.original_price>p.price;
     return`<div class="cart-item">
       <div>${img?`<img class="cart-item-img" src="${img}">`:'<div class="cart-item-img"></div>'}</div>
@@ -408,7 +408,7 @@ function renderCart(){
       </div>
       <div>
         ${isSale?`<div class="cart-item-original">${p.original_price.toLocaleString()}원</div>`:''}
-        <div class="cart-item-price">${(p.price*item.quantity).toLocaleString()}원</div>
+        <div class="cart-item-price">${((opts._line_price||p.price)*item.quantity).toLocaleString()}원</div>
       </div>
       <div style="text-align:center;"><label style="font-size:10px;color:#999;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:2px;"><input type="checkbox" class="compare-check" data-idx="${i}" data-cat="${p.category}" onchange="updateCompareCheck()"><span>비교</span></label></div>
       <div><button class="cart-remove" onclick="removeItem(${i})">×</button></div>
@@ -424,7 +424,8 @@ function updateSummary(){
   cartItems.forEach(item=>{
     const p=item.products;
     if(!p)return;
-    subtotal+=p.price*item.quantity;
+    const lp=(item.selected_options&&item.selected_options._line_price)||p.price;
+    subtotal+=lp*item.quantity;
     if(p.original_price&&p.original_price>p.price){discount+=(p.original_price-p.price)*item.quantity;}
   });
   const shipping=subtotal>=FREE_SHIPPING?0:SHIPPING_FEE;
