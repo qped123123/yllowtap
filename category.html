@@ -716,6 +716,35 @@ async function toggleCatWish(productId,btn){
     btn.classList.add('active');
   }
 }
+// ★ 모바일: 상품 영역 좌우 스와이프 → 현재 카테고리의 하위 탭 전환
+function swipeSub(dir){
+  const subs = SUBMENUS[currentCategory];
+  if(!subs || !subs.length) return;                 // 하위 탭 없으면 무시
+  const keys = ['', ...subs.map(s => s.type + ':' + s.value)];  // 전체 + 서브들
+  let i = keys.indexOf(currentSub || '');
+  if(i < 0) i = 0;
+  const ni = i + dir;
+  if(ni < 0 || ni >= keys.length) return;           // 양 끝에서 멈춤
+  currentSub = keys[ni];
+  currentPage = 1;
+  history.pushState(null, '', `/category.html?cat=${currentCategory}${currentSub ? '&sub=' + currentSub : ''}`);
+  renderSidebar();
+  renderProducts();
+}
+(function setupCategorySwipe(){
+  const grid = document.getElementById('productGrid');
+  if(!grid) return;
+  let sx = 0, sy = 0;
+  grid.addEventListener('touchstart', e => {
+    sx = e.changedTouches[0].clientX; sy = e.changedTouches[0].clientY;
+  }, { passive: true });
+  grid.addEventListener('touchend', e => {
+    const dx = e.changedTouches[0].clientX - sx;
+    const dy = e.changedTouches[0].clientY - sy;
+    if(Math.abs(dx) < 60 || Math.abs(dx) < Math.abs(dy)) return;  // 가로 스와이프만 인식
+    swipeSub(dx < 0 ? 1 : -1);   // 왼쪽=다음, 오른쪽=이전
+  }, { passive: true });
+})();
 init();
 </script>
 <script src="./js/common-header.js"></script>
