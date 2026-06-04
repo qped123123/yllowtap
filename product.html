@@ -623,7 +623,8 @@ async function loadProduct(){
   if(error||!data){alert('상품을 찾을 수 없습니다.');return}
   product=data;
   await render();
-  await Promise.all([loadColorImages(),loadRecs(),loadReviews(),loadSetItems(),loadPurchaseOptions(),loadEditReasons()]);
+  await loadPurchaseOptions();
+  await Promise.all([loadColorImages(),loadRecs(),loadReviews(),loadSetItems(),loadEditReasons()]);
   hideLoading();
   // v5: 우측 정보(구성상품/구매옵션 등)가 다 그려진 뒤 메인 높이를 맞춤
   setTimeout(syncThumbs,60);
@@ -892,7 +893,7 @@ function renderOpts(){
 }
 
 async function loadColorImages(){
-  if(isEdit()) return;   // v1: EDIT 상품은 컬러 썸네일 미사용
+  if(isEdit() || (buyOptions && buyOptions.length)) return;   // 구매옵션 있으면 컬러 숨김(통일)
   const{data}=await sb.from('product_option_images').select('*').eq('product_id',product.id).order('display_order');
   colorImages=data||[];
   if(!colorImages.length) return;
@@ -956,6 +957,8 @@ async function loadPurchaseOptions(){
   }
   buyOptions=data;
   document.getElementById('buyoptSec').style.display='';
+  const _cs=document.getElementById('colorSec'); if(_cs)_cs.style.display='none';
+  const _oa=document.getElementById('optsArea'); if(_oa)_oa.style.display='none';
   document.getElementById('buyoptList').innerHTML=data.map((o,i)=>`
     <div class="pd-buyopt-item" data-i="${i}" onclick="selectPurchaseOption(${i})">
       <div class="pd-buyopt-left">
