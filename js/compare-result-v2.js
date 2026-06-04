@@ -198,7 +198,7 @@ function render(){
               <div class="g-cap" id="gCap">${matchLabel(pct)}</div>
             </div>
             <div class="match-chips">${chips}</div>
-            <div class="gauge-note">지금 선택한 상품이 내 취향과<br>얼마나 맞는지예요</div>
+            
           </div>
         </div>
 
