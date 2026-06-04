@@ -28,10 +28,10 @@
 .pd-thumbs-wrap{position:relative;height:600px}
 .pd-thumbs{display:flex;flex-direction:column;gap:7px;height:100%;overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;scrollbar-width:thin;scrollbar-color:var(--pd-border) transparent;padding-right:4px}
 .pd-thumbs::-webkit-scrollbar{width:3px}.pd-thumbs::-webkit-scrollbar-thumb{background:var(--pd-border);border-radius:3px}
-.pd-thumb{width:76px;min-height:95px;height:95px;object-fit:cover;cursor:pointer;border:2px solid transparent;transition:border-color .3s,opacity .3s;opacity:.5;flex-shrink:0}
+.pd-thumb{width:76px;min-height:76px;height:76px;object-fit:cover;cursor:pointer;border:2px solid transparent;transition:border-color .3s,opacity .3s;opacity:.5;flex-shrink:0}
 .pd-thumb.active,.pd-thumb:hover{border-color:var(--pd-text);opacity:1}
-.pd-main{position:relative;aspect-ratio:3/4;overflow:hidden;background:#EAE7E2;cursor:zoom-in}
-.pd-main img{width:100%;height:100%;object-fit:cover;transition:opacity .4s}
+.pd-main{position:relative;aspect-ratio:1/1;overflow:hidden;background:#EAE7E2;cursor:zoom-in}
+.pd-main img{width:100%;height:100%;object-fit:cover;object-position:center;transition:opacity .4s}
 .pd-img-counter{position:absolute;bottom:12px;right:12px;background:rgba(0,0,0,.5);color:#fff;font-size:11px;padding:4px 10px;border-radius:3px;letter-spacing:1px}
 
 /* PRODUCT INFO */
@@ -55,7 +55,7 @@
 .pd-colors-grid{display:flex;gap:20px;justify-content:center;flex-wrap:wrap}
 .pd-color-item{text-align:center;cursor:pointer;transition:opacity .3s;opacity:.7}
 .pd-color-item:hover,.pd-color-item.active{opacity:1}
-.pd-color-item img{width:140px;height:175px;object-fit:cover;border:2px solid transparent;transition:border-color .3s}
+.pd-color-item img{width:140px;height:140px;object-fit:cover;object-position:center;border:2px solid transparent;transition:border-color .3s}
 .pd-color-item.active img{border-color:var(--pd-text)}
 .pd-color-label{font-size:11px;font-weight:500;letter-spacing:1px;text-transform:uppercase;color:var(--pd-text2);margin-top:8px}
 
@@ -179,8 +179,8 @@
 .pd-rec-sub{font-size:13px;color:var(--pd-text2);margin-top:7px}
 .pd-rec-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:18px}
 .pd-rec-card{text-decoration:none;color:inherit}
-.pd-rec-card-img{position:relative;aspect-ratio:3/4;overflow:hidden;background:#EAE7E2;margin-bottom:10px}
-.pd-rec-card-img img{width:100%;height:100%;object-fit:cover;transition:transform .8s cubic-bezier(.25,0,.15,1)}
+.pd-rec-card-img{position:relative;aspect-ratio:1/1;overflow:hidden;background:#EAE7E2;margin-bottom:10px}
+.pd-rec-card-img img{width:100%;height:100%;object-fit:cover;object-position:center;transition:transform .8s cubic-bezier(.25,0,.15,1)}
 .pd-rec-card:hover .pd-rec-card-img img{transform:scale(1.05)}
 .pd-rec-brand{font-size:10px;font-weight:500;letter-spacing:1.5px;text-transform:uppercase;color:var(--pd-text3);margin-bottom:3px}
 .pd-rec-name{font-size:13px;line-height:1.4;margin-bottom:5px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
@@ -209,7 +209,7 @@
   .pd-gallery{position:static;grid-template-columns:1fr}
   .pd-thumbs-wrap{height:auto}
   .pd-thumbs{flex-direction:row;overflow-x:auto;overflow-y:hidden;order:2;height:auto}
-  .pd-thumb{width:56px;min-height:70px;height:70px}
+  .pd-thumb{width:56px;min-height:56px;height:56px}
   .pd-main{order:1}
   .pd-rec-grid{grid-template-columns:repeat(3,1fr)}
 }
@@ -221,7 +221,7 @@
   .pd-editorial-title{font-size:24px}
   .pd-tabs{overflow-x:auto;scrollbar-width:none}.pd-tab{white-space:nowrap;padding:12px 14px;font-size:11px}
   .pd-journal{padding:50px 20px}.pd-journal-title{font-size:22px}
-  .pd-color-item img{width:100px;height:125px}
+  .pd-color-item img{width:100px;height:100px}
   .pd-review-summary{flex-direction:column;gap:16px}
   .pd-rf-row{grid-template-columns:1fr}
 }
@@ -250,14 +250,14 @@
 
 /* (2) 컬러 썸네일 3개 한 줄 (단품) */
 .pd-colors-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;justify-content:initial;flex-wrap:nowrap}
-.pd-color-item img{width:100%;height:auto;aspect-ratio:4/5}
+.pd-color-item img{width:100%;height:auto;aspect-ratio:1/1}
 
 /* (3) 구성 상품 (EDIT) — 간격 축소 v3 */
 .pd-set{margin-bottom:16px}
 .pd-set-title{font-size:13px;font-weight:600;letter-spacing:0;margin-bottom:9px;color:var(--pd-text)}
 .pd-set-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
 .pd-set-item{position:relative;text-align:center;color:inherit;display:block;cursor:pointer}
-.pd-set-item-img{width:100%;aspect-ratio:1/1;object-fit:cover;background:#EAE7E2;margin-bottom:6px;display:block;border:2px solid transparent;border-radius:6px;transition:border-color .15s}
+.pd-set-item-img{width:100%;aspect-ratio:1/1;object-fit:cover;object-position:center;background:#EAE7E2;margin-bottom:6px;display:block;border:2px solid transparent;border-radius:6px;transition:border-color .15s}
 .pd-set-item.sel .pd-set-item-img{border-color:var(--pd-text)}
 .pd-set-item.sel::after{content:'✓';position:absolute;top:6px;right:6px;width:20px;height:20px;background:var(--pd-text);color:#fff;border-radius:50%;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;box-shadow:0 1px 4px rgba(0,0,0,.25)}
 .pd-set-item-name{font-size:11px;line-height:1.3;color:var(--pd-text);margin-bottom:1px}
@@ -290,7 +290,7 @@
 .pd-comp-label{font-size:11px;font-weight:600;color:var(--pd-text);margin-bottom:9px;letter-spacing:.2px}
 .pd-color-swipe{display:flex;gap:12px;overflow-x:auto;padding-bottom:6px;-webkit-overflow-scrolling:touch}
 .pd-color-cell{position:relative;flex:0 0 auto;width:calc((100% - 20px)/3);min-width:86px;text-align:center;cursor:pointer}
-.pd-color-cell img{width:100%;aspect-ratio:1/1;object-fit:cover;border-radius:6px;border:2px solid transparent;display:block;transition:border-color .15s}
+.pd-color-cell img{width:100%;aspect-ratio:1/1;object-fit:cover;object-position:center;border-radius:6px;border:2px solid transparent;display:block;transition:border-color .15s}
 .pd-color-cell.sel img{border-color:var(--pd-text)}
 .pd-color-cell.sel::after{content:'✓';position:absolute;top:6px;right:6px;width:20px;height:20px;background:var(--pd-text);color:#fff;border-radius:50%;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;box-shadow:0 1px 4px rgba(0,0,0,.25)}
 .pd-color-cell-name{font-size:10px;color:var(--pd-text2);margin-top:5px;line-height:1.3}
@@ -338,7 +338,7 @@
 .pd-main-nav:hover{background:#fff}
 
 /* (v2) 썸네일 세로형 기본 비율 (높이/너비는 JS가 메인 이미지에 맞춰 계산) */
-.pd-thumb{aspect-ratio:4/5}
+.pd-thumb{aspect-ratio:1/1}
 /* (v5) 썸네일 더 있을 때 '내려보기' 힌트 */
 .pd-thumbs-hint{position:absolute;left:0;right:4px;bottom:0;height:30px;display:flex;align-items:flex-end;justify-content:center;font-size:18px;line-height:1;color:var(--pd-text2);background:linear-gradient(transparent,var(--pd-bg) 85%);pointer-events:none;opacity:0;transition:opacity .3s;z-index:3}
 
@@ -370,7 +370,7 @@
 /* v8: 컬러 옵션 한 줄(일렬) 배치 — 개수 많으면 가로 스크롤 */
 .pd-colors-grid{display:flex;flex-wrap:nowrap;gap:12px;justify-content:center;overflow-x:auto;padding-bottom:6px;-webkit-overflow-scrolling:touch}
 .pd-color-item{flex:0 0 auto;width:120px}
-.pd-color-item img{width:120px;height:150px;object-fit:cover;aspect-ratio:auto}
+.pd-color-item img{width:120px;height:120px;object-fit:cover;object-position:center;aspect-ratio:1/1}
 @media(max-width:768px){
   .pd-color-item{width:96px}
   .pd-color-item img{width:96px;height:120px}
@@ -855,7 +855,7 @@ function syncThumbs(){
   }
   // 썸네일: 잘 보이게 고정 크기(세로형). 왼쪽 정렬. 넘치면 세로 스크롤
   const thumbW=84, gap=8;
-  const thumbH=Math.round(thumbW*1.25);   // 4:5 세로형
+  const thumbH=thumbW;   // 1:1 정사각
   els.forEach(t=>{t.style.width=thumbW+'px';t.style.height=thumbH+'px';t.style.minHeight=thumbH+'px';});
   thumbs.style.gap=gap+'px';
   if(gallery){
