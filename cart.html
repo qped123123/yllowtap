@@ -232,6 +232,18 @@
   .compare-actions{padding:0 16px}
   .compare-sheet{max-width:100%}
 }
+.cart-comp-toggle{font-size:11px;color:#8a7fb5;cursor:pointer;padding:8px 24px 8px 152px;user-select:none}
+.cart-comp-toggle:hover{color:#5d4f95}
+.cart-comp-toggle .arr{font-size:10px}
+.cart-comp-list{padding:2px 24px 12px 152px;background:#FAF8F5}
+.cart-comp-row{display:flex;align-items:center;gap:10px;padding:8px 0;border-top:1px dashed #ECE7E0}
+.cart-comp-img{width:40px;height:40px;border-radius:6px;overflow:hidden;background:#EEE;flex:0 0 40px}
+.cart-comp-img img{width:100%;height:100%;object-fit:cover;object-position:center}
+.cart-comp-info{flex:1;font-size:12px;color:#333;line-height:1.4}
+.cart-comp-cat{display:inline-block;font-size:9px;color:#8a7fb5;border:1px solid #d9d2ea;border-radius:8px;padding:1px 6px;margin-right:6px;vertical-align:middle}
+.cart-comp-check{font-size:10px;color:#999;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:2px}
+.cart-comp-check input{cursor:pointer}
+@media(max-width:768px){.cart-comp-toggle{padding-left:16px}.cart-comp-list{padding-left:16px}}
 </style>
 </head>
 <body>
@@ -341,6 +353,8 @@ let FREE_SHIPPING=50000;
 let SHIPPING_FEE=3000;
 let scoredProductIds=new Set();
 let comparableCats=new Set();
+let componentProducts={};      // 구성품 상품 객체 {pid:product}
+let compareProductMap={};      // 비교용 통합 상품 맵 (장바구니 줄 + 구성품)
 let lockedCat=null;
 const CAT_LABEL={bags:'가방',jewelry:'쥬얼리',keyring:'키링',accessories:'액세서리',seasonal:'시즌',best:'베스트',new:'신상',sale:'세일'};
 function catLabel(c){return CAT_LABEL[c]||c||'같은 카테고리';}
@@ -367,8 +381,15 @@ async function loadCart(){
   cartId=cart.id;
   const{data:items}=await sb.from('cart_items').select('*,products(*,product_media(media_url,role,display_order))').eq('cart_id',cartId).order('added_at');
   cartItems=(items||[]).map(item=>({...item,checked:true}));
-  // 비교 점수(product_attributes)가 입력된 상품만 비교 대상 → id 집합 미리 조회
-  const _pids=[...new Set(cartItems.map(it=>it.products?.id).filter(Boolean))];
+  // 구성품(_components) 중 상품ID 있는 것 → 상품 정보 로드 (카테고리 분리 비교용)
+  const _compIds=[...new Set(cartItems.flatMap(it=>(it.selected_options?._components||[]).map(c=>c.product_id).filter(Boolean)))];
+  componentProducts={};
+  if(_compIds.length){
+    const{data:_cps}=await sb.from('products').select('*,product_media(media_url,role,display_order)').in('id',_compIds);
+    (_cps||[]).forEach(pr=>{componentProducts[pr.id]=pr;});
+  }
+  // 비교 점수(product_attributes)가 입력된 상품만 비교 대상 → id 집합 미리 조회 (구성품 포함)
+  const _pids=[...new Set([...cartItems.map(it=>it.products?.id),..._compIds].filter(Boolean))];
   if(_pids.length){
     const{data:_scored}=await sb.from('product_attributes').select('product_id').in('product_id',_pids);
     scoredProductIds=new Set((_scored||[]).map(s=>s.product_id));
@@ -429,7 +450,20 @@ function renderCart(){
     const c=p.category||'기타';
     (catScored[c]=catScored[c]||new Set()).add(p.id);
   });
+  // 구성품도 카테고리 집계에 포함
+  cartItems.forEach(it=>{
+    (it.selected_options?._components||[]).forEach(c=>{
+      const cp=c.product_id&&componentProducts[c.product_id];
+      if(!cp||!scoredProductIds.has(cp.id))return;
+      const cc=cp.category||'기타';
+      (catScored[cc]=catScored[cc]||new Set()).add(cp.id);
+    });
+  });
   comparableCats=new Set(Object.keys(catScored).filter(c=>catScored[c].size>=2));
+  // 비교 대상 상품 객체 통합 맵 (장바구니 줄 + 구성품)
+  compareProductMap={};
+  cartItems.forEach(it=>{ if(it.products) compareProductMap[it.products.id]=it.products; });
+  Object.values(componentProducts).forEach(pr=>{ compareProductMap[pr.id]=pr; });
 
   const el=document.getElementById('cartItems');
   el.innerHTML=groups.map(g=>{
@@ -471,7 +505,35 @@ function cartItemHTML(item,i){
       </div>
       <div class="cart-compare-cell" style="text-align:center;">${(scoredProductIds.has(p.id)&&comparableCats.has(p.category||'기타'))?`<label style="font-size:10px;color:#999;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:2px;"><input type="checkbox" class="compare-check" data-idx="${i}" data-cat="${p.category}" data-pid="${p.id}" data-noscore="0" onchange="updateCompareCheck()"><span>비교</span></label>`:''}</div>
       <div class="cart-remove-cell"><button class="cart-remove" onclick="removeItem(${i})">×</button></div>
+    </div>${componentRowsHTML(item,i)}`;
+}
+
+// 구성품 비교 행 (상품ID 있고 점수 있고 비교가능 카테고리인 구성품만)
+function comparableComponents(item){
+  return ((item.selected_options&&item.selected_options._components)||[])
+    .map(c=>c.product_id&&compareProductMap[c.product_id])
+    .filter(cp=>cp&&scoredProductIds.has(cp.id)&&comparableCats.has(cp.category||'기타'));
+}
+function componentRowsHTML(item,i){
+  const comps=comparableComponents(item);
+  if(!comps.length) return '';
+  const rid='comp-'+i, seen=new Set();
+  const rows=comps.filter(cp=>{if(seen.has(cp.id))return false;seen.add(cp.id);return true;}).map(cp=>{
+    const cimg=getMainImg(cp);
+    return `<div class="cart-comp-row" data-cat="${cp.category||'기타'}">
+      <div class="cart-comp-img">${cimg?`<img src="${cimg}">`:''}</div>
+      <div class="cart-comp-info"><span class="cart-comp-cat">${catLabel(cp.category||'기타')}</span>${cp.name}</div>
+      <label class="cart-comp-check"><input type="checkbox" class="compare-check" data-cat="${cp.category||'기타'}" data-pid="${cp.id}" onchange="updateCompareCheck()"><span>비교</span></label>
     </div>`;
+  }).join('');
+  return `<div class="cart-comp-toggle" onclick="toggleComp('${rid}',this)">⟡ 이 상품의 구성품도 따로 비교할 수 있어요 <span class="arr">▾</span></div>
+    <div class="cart-comp-list" id="${rid}" style="display:none;">${rows}</div>`;
+}
+function toggleComp(rid,el){
+  const box=document.getElementById(rid); if(!box)return;
+  const open=box.style.display==='none';
+  box.style.display=open?'block':'none';
+  const arr=el&&el.querySelector('.arr'); if(arr)arr.textContent=open?'▴':'▾';
 }
 
 function updateSummary(){
@@ -590,13 +652,11 @@ function updateCompareCheck() {
   const eligibleItems = [];
   checked.forEach(cb => {
     if (cb.dataset.cat !== lockedCat) return;
-    const idx = parseInt(cb.dataset.idx);
-    const it = cartItems[idx];
-    if (!it) return;
-    const pid = it.products?.id;
-    if (!pid || seen.has(pid)) return;       // 같은 상품 중복은 1개로 취급
+    const pid = cb.dataset.pid;
+    const prod = compareProductMap[pid];
+    if (!prod || seen.has(pid)) return;       // 같은 상품 중복은 1개로 취급
     seen.add(pid);
-    if (eligibleItems.length < 3) eligibleItems.push(it);
+    if (eligibleItems.length < 3) eligibleItems.push({ products: prod });
   });
   compareItems = eligibleItems;
   const reachedMax = seen.size >= 3;
@@ -819,8 +879,14 @@ async function selectPreferred(chosenId, rejectedIds) {
   }
 
   closeCompare();
-  showCompareToast('선택 완료! 주문 페이지로 이동합니다');
-  setTimeout(() => { window.location.href = '/checkout.html?selected=' + chosenId; }, 1000);
+  const _prod = compareProductMap[chosenId] || {};
+  const _isLine = cartItems.some(it=>it.products?.id===chosenId);
+  showCompareToast(_isLine ? '선택 완료! 주문 페이지로 이동합니다' : '선택 완료! 상품 페이지로 이동합니다');
+  setTimeout(() => {
+    window.location.href = _isLine
+      ? ('/checkout.html?selected=' + chosenId)
+      : ('/product.html?slug=' + (_prod.slug || chosenId));
+  }, 1000);
 }
 
 function closeCompare() {
