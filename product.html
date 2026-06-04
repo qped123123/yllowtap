@@ -576,8 +576,8 @@
 <div class="pd-buybar" id="buyBar">
   <div class="pd-buybar-inner">
     <button class="pd-buybar-wish" onclick="toggleWishlist()" aria-label="찜">♡</button>
-    <button class="pd-buybar-cart" onclick="addToCart()">장바구니</button>
-    <button class="pd-buybar-buy" onclick="buyNow()">구매하기</button>
+    <button class="pd-buybar-cart" onclick="addToCart()">CART</button>
+    <button class="pd-buybar-buy" onclick="buyNow()">BUY IT NOW</button>
   </div>
 </div>
 <footer class="footer">
@@ -764,10 +764,9 @@ function setupEditLayout(){
   });
   // 메인 이미지: 일반 상품과 동일 비율(3/4)·크기 유지 — 인라인 정사각 제거
   document.getElementById('mainWrap').style.aspectRatio='';
-  // 버튼: 세로 배치 + 라벨 한글화 (스타일/색은 기존 유지)
-  document.getElementById('btnGroup').classList.add('is-edit');
-  document.getElementById('buyBtn').textContent='구매하기';
-  document.getElementById('cartBtn').textContent='장바구니 담기';
+  // 버튼: 일반 상품과 동일하게 가로·영문 유지 (은반지 페이지와 통일)
+  document.getElementById('buyBtn').textContent='BUY IT NOW';
+  document.getElementById('cartBtn').textContent='CART';
 }
 
 // ══════════════════════════════════════════
@@ -982,7 +981,7 @@ function selectPurchaseOption(idx){
     else { e.classList.remove('active'); e.innerHTML=''; }
   });
   const buyBtn=document.getElementById('buyBtn');
-  if(buyBtn&&selectedBuyOption) buyBtn.textContent=`${selectedBuyOption.option_title} 구매하기`;
+  if(buyBtn) buyBtn.textContent='BUY IT NOW';
   if(typeof updateBuyBar==='function') updateBuyBar();
   updateTotal();
 }

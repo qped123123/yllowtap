@@ -232,7 +232,7 @@
   .compare-actions{padding:0 16px}
   .compare-sheet{max-width:100%}
 }
-.cart-comp-toggle{font-size:11px;color:#8a7fb5;cursor:pointer;padding:8px 24px 8px 152px;user-select:none}
+.cart-comp-head{font-size:11px;color:#8a7fb5;font-weight:600;padding:6px 0 2px}
 .cart-comp-toggle:hover{color:#5d4f95}
 .cart-comp-toggle .arr{font-size:10px}
 .cart-comp-list{padding:2px 24px 12px 152px;background:#FAF8F5}
@@ -517,7 +517,7 @@ function comparableComponents(item){
 function componentRowsHTML(item,i){
   const comps=comparableComponents(item);
   if(!comps.length) return '';
-  const rid='comp-'+i, seen=new Set();
+  const seen=new Set();
   const rows=comps.filter(cp=>{if(seen.has(cp.id))return false;seen.add(cp.id);return true;}).map(cp=>{
     const cimg=getMainImg(cp);
     return `<div class="cart-comp-row" data-cat="${cp.category||'기타'}">
@@ -526,14 +526,7 @@ function componentRowsHTML(item,i){
       <label class="cart-comp-check"><input type="checkbox" class="compare-check" data-cat="${cp.category||'기타'}" data-pid="${cp.id}" onchange="updateCompareCheck()"><span>비교</span></label>
     </div>`;
   }).join('');
-  return `<div class="cart-comp-toggle" onclick="toggleComp('${rid}',this)">⟡ 이 상품의 구성품도 따로 비교할 수 있어요 <span class="arr">▾</span></div>
-    <div class="cart-comp-list" id="${rid}" style="display:none;">${rows}</div>`;
-}
-function toggleComp(rid,el){
-  const box=document.getElementById(rid); if(!box)return;
-  const open=box.style.display==='none';
-  box.style.display=open?'block':'none';
-  const arr=el&&el.querySelector('.arr'); if(arr)arr.textContent=open?'▴':'▾';
+  return `<div class="cart-comp-list"><div class="cart-comp-head">⟡ 구성품도 따로 비교할 수 있어요</div>${rows}</div>`;
 }
 
 function updateSummary(){
