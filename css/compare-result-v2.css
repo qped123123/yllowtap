@@ -104,6 +104,7 @@ button{font-family:inherit;cursor:pointer;border:none;background:none;}
 .gauge .g-cap{font-size:11px;color:var(--ink-soft);margin-top:4px;}
 .match-chips{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;margin-top:14px;}
 .match-chip{font-size:11px;color:#4a463f;background:var(--bg);border:1px solid var(--line);border-radius:999px;padding:5px 10px;}
+.gauge-note{font-size:11px;color:var(--ink-soft);text-align:center;margin-top:11px;line-height:1.45;}
 
 /* 추천 (작게) */
 .cr-reco{display:grid;grid-template-columns:repeat(3,minmax(0,150px));justify-content:start;gap:14px;}
