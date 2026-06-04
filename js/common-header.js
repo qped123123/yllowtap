@@ -366,6 +366,7 @@
       @media(max-width:768px) {\
         .header__social-icons { display:none; }\
         .header__actions a { display:none; }\
+        .header__actions a#headerCartLink { display:inline-flex; align-items:center; font-size:11px; letter-spacing:0.1em; }\
         .header__search-toggle { display:flex; }\
         .header__actions .header__hamburger { display:flex; }\
         .header-search-bar__inner { padding:12px 16px; }\
