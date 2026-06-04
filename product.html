@@ -761,6 +761,13 @@ function setupEditLayout(){
   document.getElementById('editHeadOver').textContent=p.edit_overline||p.brand||'YLLOWTAP EDIT';
   document.getElementById('editHeadName').textContent=p.name;
   document.getElementById('editHeadDesc').textContent=p.subtitle||p.mood_description||'';
+  // ★ 가운데 상품명 밑 메인 금액 표시 (모든 상품 일관)
+  const _ehp=document.getElementById('editHeadPrice');
+  if(_ehp){
+    let _h=`<span class="pd-price-now">${p.price.toLocaleString()}원</span>`;
+    if(p.original_price&&p.original_price>p.price) _h+=`<span class="pd-price-old">${p.original_price.toLocaleString()}원</span><span class="pd-price-off">${Math.round((1-p.price/p.original_price)*100)}%</span>`;
+    _ehp.innerHTML=_h; _ehp.style.display='';
+  }
   // 우측 기존 단품용 요소 숨김 (정보는 가운데/구매옵션으로 이동)
   ['pBrand','pName','pSub','pInfoPrice','optsArea','colorSec','qtyRow','totalRow'].forEach(id=>{
     const el=document.getElementById(id); if(el) el.style.display='none';
