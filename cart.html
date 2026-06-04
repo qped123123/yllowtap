@@ -27,8 +27,8 @@
 .cart-item-option{font-size:11px;color:#888;line-height:1.5}
 .cart-item-price{font-size:15px;font-weight:700;text-align:right}
 .cart-item-original{font-size:11px;color:#999;text-decoration:line-through;text-align:right;margin-bottom:2px}
-.cart-compare-hint{padding:8px 24px;font-size:11px;color:#BBB;border-bottom:1px solid #F0EDE8;transition:background .2s,color .2s}
-.cart-compare-hint.locked{color:#7a6f5f;background:#FAF6EE;font-weight:500}
+.cart-compare-hint{padding:13px 24px;font-size:13px;font-weight:500;color:#7a6f5f;background:#FAF6EE;border-bottom:1px solid #F0EDE8;line-height:1.55;transition:background .2s,color .2s}
+.cart-compare-hint.locked{color:#8a6d3b;background:#FBF0DC;font-weight:600}
 .cart-cat-group{transition:opacity .2s}
 .cart-cat-group.locked-out{opacity:.42}
 .cart-cat-header{display:flex;align-items:center;gap:6px;padding:14px 24px 9px;font-size:12px;font-weight:600;letter-spacing:1px;color:#333;background:#FAF8F5;border-bottom:1px solid #F0EDE8}
@@ -235,7 +235,7 @@
 .cart-comp-head{font-size:11px;color:#8a7fb5;font-weight:600;padding:6px 0 2px}
 .cart-comp-toggle:hover{color:#5d4f95}
 .cart-comp-toggle .arr{font-size:10px}
-.cart-comp-list{padding:2px 24px 12px 152px;background:#FAF8F5}
+.cart-comp-list{padding:2px 24px 12px 24px;background:#FAF8F5}
 .cart-comp-row{display:flex;align-items:center;gap:10px;padding:8px 0;border-top:1px dashed #ECE7E0}
 .cart-comp-img{width:40px;height:40px;border-radius:6px;overflow:hidden;background:#EEE;flex:0 0 40px}
 .cart-comp-img img{width:100%;height:100%;object-fit:cover;object-position:center}
@@ -286,11 +286,11 @@
   <div class="cart-layout" id="cartLayout" style="display:none;">
     <div>
       <div class="cart-items">
+        <div id="compareHint" class="cart-compare-hint">💭 고민되시나요? 같은 카테고리끼리 비교해보세요 · 다른 카테고리 상품은 함께 비교할 수 없어요 (예: BAGS ↔ 쥬얼리 ✗)</div>
         <div class="cart-select-bar">
           <label><input type="checkbox" id="selectAll" checked onchange="toggleSelectAll()"> 전체 선택</label>
           <button class="cart-delete-selected" onclick="deleteSelected()">선택 삭제</button>
         </div>
-        <div id="compareHint" class="cart-compare-hint">비교할 상품에 체크하면 나란히 비교할 수 있어요</div>
         <div id="cartItems"></div>
       </div>
 
@@ -510,9 +510,10 @@ function cartItemHTML(item,i){
 
 // 구성품 비교 행 (상품ID 있고 점수 있고 비교가능 카테고리인 구성품만)
 function comparableComponents(item){
+  const ownId=item.products?.id;
   return ((item.selected_options&&item.selected_options._components)||[])
     .map(c=>c.product_id&&compareProductMap[c.product_id])
-    .filter(cp=>cp&&scoredProductIds.has(cp.id)&&comparableCats.has(cp.category||'기타'));
+    .filter(cp=>cp&&cp.id!==ownId&&scoredProductIds.has(cp.id)&&comparableCats.has(cp.category||'기타'));
 }
 function componentRowsHTML(item,i){
   const comps=comparableComponents(item);
@@ -692,7 +693,7 @@ function updateCompareCheck() {
       hint.classList.add('locked');
     } else {
       hint.style.display = '';
-      hint.textContent = '비교할 상품에 체크하세요 · 같은 카테고리(가방·쥬얼리·키링)끼리만 비교돼요';
+      hint.textContent = '💭 고민되시나요? 같은 카테고리끼리 비교해보세요 · 다른 카테고리 상품은 함께 비교할 수 없어요 (예: BAGS ↔ 쥬얼리 ✗)';
       hint.classList.remove('locked');
     }
   }
