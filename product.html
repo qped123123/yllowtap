@@ -1318,38 +1318,54 @@ document.querySelectorAll('.pd-tab').forEach(tab=>{
 // ══════════════════════════════════════════
 // 옵션 수집 (v1: EDIT면 구매옵션 포함)
 // ══════════════════════════════════════════
-function collectOptions(){
-  const opts={};
+// 메인 상품 옵션(연결 없는 것) + 연결 상품(별도 줄로 담을 것) 분리
+function collectCartLines(){
+  const mainOpts={};
   document.querySelectorAll('.pd-opt-select').forEach(sel=>{
-    if(sel.value) opts[sel.dataset.opt]=sel.value;
+    if(sel.value) mainOpts[sel.dataset.opt]=sel.value;
   });
-  // 단품 필수옵션 체크 — EDIT 상품은 구매옵션만 쓰므로 구식 옵션 검증 스킵
   const requiredOpts=isEdit()?[]:(product.options||[]);
   for(const o of requiredOpts){
     const sel=document.querySelector(`.pd-opt-select[data-opt="${o.name}"]`);
-    if(sel && sel.offsetParent!==null && !opts[o.name]){alert(`${o.name}을(를) 선택해주세요.`);return null;}
+    if(sel && sel.offsetParent!==null && !mainOpts[o.name]){alert(`${o.name}을(를) 선택해주세요.`);return null;}
   }
-  // EDIT 구매옵션 — 여러 옵션에서 체크한 항목 전부 수집 (조합)
+  const addonLines=[];
   if(isEdit()&&buyOptions.length){
-    const parts=[];
-    const components=[];
+    const parts=[]; let any=false;
     buyOptions.forEach((o,oi)=>{
       if(!Array.isArray(o.items)) return;
       const sset=(window.__selItems&&window.__selItems[oi])?[...window.__selItems[oi]]:[];
       sset.forEach(j=>{
         const it=o.items[j]; if(!it) return;
+        any=true;
         const nm=it.color_name||it.name||'';
         const pr=Number(it.price)||0;
-        parts.push(pr>0?`${nm} (+${pr.toLocaleString()}원)`:nm);
-        components.push({name:nm,price:pr,product_id:it.link_product_id||null});
+        if(it.link_product_id){
+          // 불러오기로 연결된 상품 → 별도 장바구니 줄로 (가격 = 옵션에 들어간 값 그대로)
+          addonLines.push({product_id:it.link_product_id, price:pr});
+        }else{
+          // 연결 없는 옵션(색상 등) → 메인 상품 줄에 유지
+          parts.push(pr>0?`${nm} (+${pr.toLocaleString()}원)`:nm);
+        }
       });
     });
-    if(!parts.length){alert('항목을 하나 이상 선택해주세요.');return null;}
-    opts['구성']=parts.join(', ');
-    opts['_line_price']=allSelectedTotal();   // 옵션 조합 최종가 (장바구니에서 사용)
-    opts['_components']=components;   // 구성품 구조화(상품ID 포함) — 카테고리 분리 비교용
+    if(!any){alert('항목을 하나 이상 선택해주세요.');return null;}
+    if(parts.length) mainOpts['구성']=parts.join(', ');
+    const linkedSum=addonLines.reduce((s,a)=>s+a.price,0);
+    mainOpts['_line_price']=Math.max(0, allSelectedTotal()-linkedSum);  // 메인 줄 = 전체 − 연결상품
   }
-  return opts;
+  return { mainOpts, addonLines };
+}
+
+// 장바구니 한 줄 추가/병합 (같은 상품+옵션이면 수량만 증가)
+async function addCartLine(cartId, productId, quantity, opts){
+  const{data:existing}=await sb.from('cart_items').select('*').eq('cart_id',cartId).eq('product_id',productId);
+  const match=existing?.find(e=>JSON.stringify(e.selected_options)===JSON.stringify(opts));
+  if(match){
+    await sb.from('cart_items').update({quantity:match.quantity+quantity}).eq('id',match.id);
+  }else{
+    await sb.from('cart_items').insert({cart_id:cartId,product_id:productId,quantity:quantity,selected_options:opts});
+  }
 }
 
 // ══════════════════════════════════════════
@@ -1357,8 +1373,8 @@ function collectOptions(){
 // ══════════════════════════════════════════
 async function buyNow(){
   if(!product)return;
-  const opts=collectOptions();
-  if(opts===null) return;
+  const lines=collectCartLines();
+  if(lines===null) return;
 
   const{data:{session}}=await sb.auth.getSession();
   if(!session){alert('로그인이 필요합니다.');window.location.href='/login.html';return;}
@@ -1368,14 +1384,12 @@ async function buyNow(){
   if(data){cartId=data.id;}
   else{const{data:nc}=await sb.from('carts').insert({user_id:session.user.id}).select().single();cartId=nc.id;}
 
-  const{data:existing}=await sb.from('cart_items').select('*').eq('cart_id',cartId).eq('product_id',product.id);
-  const match=existing?.find(e=>JSON.stringify(e.selected_options)===JSON.stringify(opts));
-  if(match){
-    await sb.from('cart_items').update({quantity:match.quantity+qty}).eq('id',match.id);
-  }else{
-    await sb.from('cart_items').insert({cart_id:cartId,product_id:product.id,quantity:qty,selected_options:opts});
-  }
-  window.location.href='/checkout.html';
+  await addCartLine(cartId, product.id, qty, lines.mainOpts);
+  for(const a of lines.addonLines){ await addCartLine(cartId, a.product_id, qty, {_line_price:a.price}); }
+
+  // 방금 담은 상품들만 결제로
+  const ids=[...new Set([product.id, ...lines.addonLines.map(a=>a.product_id)])];
+  window.location.href='/checkout.html?selected='+ids.join(',');
 }
 
 // ══════════════════════════════════════════
@@ -1383,8 +1397,8 @@ async function buyNow(){
 // ══════════════════════════════════════════
 async function addToCart(){
   if(!product)return;
-  const opts=collectOptions();
-  if(opts===null) return;
+  const lines=collectCartLines();
+  if(lines===null) return;
 
   const{data:{session}}=await sb.auth.getSession();
   let cartId;
@@ -1401,14 +1415,9 @@ async function addToCart(){
     else{const{data:nc}=await sb.from('carts').insert({guest_id:gid}).select().single();cartId=nc.id;}
   }
 
-  // 이미 같은 상품+옵션이 있으면 수량만 증가
-  const{data:existing}=await sb.from('cart_items').select('*').eq('cart_id',cartId).eq('product_id',product.id);
-  const match=existing?.find(e=>JSON.stringify(e.selected_options)===JSON.stringify(opts));
-  if(match){
-    await sb.from('cart_items').update({quantity:match.quantity+qty}).eq('id',match.id);
-  }else{
-    await sb.from('cart_items').insert({cart_id:cartId,product_id:product.id,quantity:qty,selected_options:opts});
-  }
+  // 메인 상품 + 연결 상품(별도 줄) 각각 담기
+  await addCartLine(cartId, product.id, qty, lines.mainOpts);
+  for(const a of lines.addonLines){ await addCartLine(cartId, a.product_id, qty, {_line_price:a.price}); }
 
   if(confirm('장바구니에 담았습니다!\n장바구니로 이동하시겠습니까?')){
     window.location.href='/cart.html';
