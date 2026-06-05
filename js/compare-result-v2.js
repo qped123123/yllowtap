@@ -8,7 +8,7 @@ const SUPABASE_URL  = 'https://ppihvvpplqikclftrwdb.supabase.co';
 const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBwaWh2dnBwbHFpa2NsZnRyd2RiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk3MzE0NTEsImV4cCI6MjA5NTMwNzQ1MX0.shGVcFTQiuYc4u6tdU50x18YMgJdgFUljf8c7QlQU-U';   // ← Ctrl+H 로 실제 anon 키 치환
 
 const ROUTE = {
-  productDetail : (id) => `product.html?id=${id}`,
+  detail        : (slug, id) => slug ? `product?slug=${slug}` : `product?id=${id}`,
   checkout      : (id) => `checkout.html?selected=${id}`,
   back          : 'cart.html',
   recommend     : (code) => `recommend.html?type=${code}`
@@ -229,7 +229,7 @@ function render(){
 }
 
 function recoCard(p){
-  return `<div class="reco-card" data-id="${p.id}">
+  return `<div class="reco-card" data-id="${p.id}" data-slug="${p.slug||''}">
     <div class="reco-thumb"><img src="${pImg(p)}" alt="${pName(p)}" onerror="this.style.opacity=.15">
       <button class="reco-heart" data-wish="${p.id}" aria-label="찜">
         <svg viewBox="0 0 24 24"><path class="hf" d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.29 1.51 4.04 3 5.5l7 7Z"/></svg>
@@ -237,7 +237,7 @@ function recoCard(p){
     </div>
     <div class="reco-name">${pName(p)}</div>
     <div class="reco-price">${priceHTML(p)}</div>
-    <a class="reco-view" href="${ROUTE.productDetail(p.id)}">보러가기</a>
+    <a class="reco-view" href="${ROUTE.detail(p.slug, p.id)}">보러가기</a>
   </div>`;
 }
 
@@ -248,7 +248,7 @@ function wireEvents(){
     STATE.selectedId=id; updateSelected();
   }));
   document.querySelectorAll('.reco-card').forEach(el=>el.addEventListener('click',e=>{
-    if(e.target.closest('[data-wish], .reco-view'))return; location.href=ROUTE.productDetail(el.getAttribute('data-id'));
+    if(e.target.closest('[data-wish], .reco-view'))return; location.href=ROUTE.detail(el.getAttribute('data-slug'), el.getAttribute('data-id'));
   }));
   document.querySelectorAll('[data-wish]').forEach(btn=>btn.addEventListener('click',e=>{e.stopPropagation();toggleWish(btn);}));
 }
