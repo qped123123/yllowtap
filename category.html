@@ -279,7 +279,7 @@
   /* 1줄: 큰 카테고리 가로 스크롤 */
   .cat-maintabs {
     flex-direction: row; flex-wrap: nowrap;
-    overflow-x: auto; -webkit-overflow-scrolling: touch; scrollbar-width: none;
+    overflow-x: auto; -webkit-overflow-scrolling: touch; touch-action: pan-x; scrollbar-width: none;
     gap: 2px; padding: 0 12px;
     border-bottom: 1px solid var(--cat-border);
   }
@@ -295,7 +295,7 @@
   .cat-submenu--mobile {
     display: flex;
     flex-direction: row; flex-wrap: nowrap;
-    overflow-x: auto; -webkit-overflow-scrolling: touch; scrollbar-width: none;
+    overflow-x: auto; -webkit-overflow-scrolling: touch; touch-action: pan-x; scrollbar-width: none;
     gap: 2px; padding: 0 12px; margin: 0; background: #faf8f5;
   }
   .cat-submenu::-webkit-scrollbar { display: none; }

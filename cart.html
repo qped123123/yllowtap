@@ -29,7 +29,7 @@
 .cart-item-original{font-size:11px;color:#999;text-decoration:line-through;text-align:right;margin-bottom:2px;white-space:nowrap}
 .cart-item-saleline{display:flex;align-items:baseline;gap:5px;justify-content:flex-end}
 .cart-item-disc{color:#C4453C;font-weight:700;font-size:12px;white-space:nowrap}
-.cart-compare-hint{padding:13px 24px;font-size:13px;font-weight:600;color:#7a5e2e;background:#FBEBA8;border-bottom:1px solid #F2E4A0;line-height:1.55;word-break:keep-all;transition:background .2s,color .2s}
+.cart-compare-hint{padding:13px 24px;font-size:13px;font-weight:600;color:#7a5e2e;background:#FBEBA8;border-bottom:1px solid #F2E4A0;line-height:1.55;word-break:keep-all;text-align:center;transition:background .2s,color .2s}
 .cart-compare-hint.locked{color:#6b531c;background:#F6DD86;font-weight:600}
 .cart-cat-group{transition:opacity .2s}
 .cart-cat-group.locked-out{}
@@ -295,7 +295,7 @@
   <div class="cart-layout" id="cartLayout" style="display:none;">
     <div>
       <div class="cart-items">
-        <div id="compareHint" class="cart-compare-hint">💭 고민되시나요? 같은 카테고리끼리 비교해보세요 · 다른 카테고리 상품은 함께 비교할 수 없어요 (예: BAGS ↔ 쥬얼리 ✗)</div>
+        <div id="compareHint" class="cart-compare-hint">💭 같은 카테고리끼리만 비교할 수 있어요 (예: 가방 ↔ 쥬얼리 ✗)</div>
         <div class="cart-select-bar">
           <label><input type="checkbox" id="selectAll" checked onchange="toggleSelectAll()"> 전체 선택</label>
           <button class="cart-delete-selected" onclick="deleteSelected()">선택 삭제</button>
@@ -701,11 +701,11 @@ function updateCompareCheck() {
       hint.style.display = 'none';            // 비교 가능한 상품이 없으면 안내도 숨김
     } else if (lockedCat) {
       hint.style.display = '';
-      hint.textContent = `🔒 지금 ${catLabel(lockedCat)}끼리 비교 중 · 다른 카테고리는 함께 비교 안 돼요`;
+      hint.textContent = `🔒 지금 ${catLabel(lockedCat)}끼리 비교 중이에요`;
       hint.classList.add('locked');
     } else {
       hint.style.display = '';
-      hint.textContent = '💭 고민되시나요? 같은 카테고리끼리 비교해보세요 · 다른 카테고리 상품은 함께 비교할 수 없어요 (예: BAGS ↔ 쥬얼리 ✗)';
+      hint.textContent = '💭 같은 카테고리끼리만 비교할 수 있어요 (예: 가방 ↔ 쥬얼리 ✗)';
       hint.classList.remove('locked');
     }
   }
