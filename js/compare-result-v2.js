@@ -18,8 +18,8 @@ const QKEYS  = ['storage','material','durability','finish','weight'];
 const MKEYS  = ['minimal','color','cute_chic','daily_special'];
 const QLABEL = {storage:'수납력',material:'소재',durability:'내구성',finish:'마감',weight:'무게'};
 const MPOLE  = {minimal:['미니멀','데코'],color:['무채색','컬러'],cute_chic:['귀여움','시크'],daily_special:['데일리','스페셜']};
-const CAT_KR = {bags:'가방', bag:'가방', 가방:'가방', jewelry:'주얼리', 주얼리:'주얼리', accessories:'소품', 소품:'소품', keyring:'키링', 키링:'키링'};
-const catKR = c => CAT_KR[String(c||'').toLowerCase()] || CAT_KR[String(c||'')] || c || '아이템';
+const CAT_LABEL = {bags:'BAGS', bag:'BAGS', jewelry:'JEWELRY', accessories:'ACCESSORIES', keyring:'KEYRING'};
+const catLbl = c => CAT_LABEL[String(c||'').toLowerCase()] || (c?String(c).toUpperCase():'아이템');
 
 const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON);
 const $app = document.getElementById('crApp');
@@ -101,9 +101,9 @@ function priceHTML(p){
   const sell=num(p.price), orig=num(p.original_price);
   if(orig>0 && sell>0 && orig>sell){
     const rate=Math.round((orig-sell)/orig*100);
-    return `<span class="price-orig">${won(orig)}</span><span class="price-now"><span class="price-sale">${won(sell)}</span><span class="price-rate">${rate}%</span></span>`;
+    return `<span class="price-orig">${won(orig)}</span><span class="price-now"><span class="price-main">${won(sell)}</span><span class="price-rate">${rate}%</span></span>`;
   }
-  return `<span>${won(sell||orig)}</span>`;
+  return `<span class="price-main">${won(sell||orig)}</span>`;
 }
 const pCat=p=>(p.category||p.cat||'').toString();
 const isBag=c=>/bag|가방/i.test(c||'');
@@ -149,11 +149,16 @@ function render(){
   const reco1=allProducts.filter(p=>!ids.has(String(p.id))&&pCat(p)&&(pCat(p)===compareCat||(isBag(compareCat)&&isBag(pCat(p)))))
     .map(p=>({p,m:matchPercent(input.quality,input.mood,scoreOf(scoreMap,p.id))})).sort((a,b)=>b.m-a.m).slice(0,6).map(x=>x.p);
   const c=type?type.centroid:{}; const cQ={},cM={}; QKEYS.forEach(k=>cQ[k]=c[k]); MKEYS.forEach(k=>cM[k]=c[k]);
-  const reco2=allProducts.filter(p=>!ids.has(String(p.id))&&pCat(p)&&pCat(p)!==compareCat&&!(isBag(compareCat)&&isBag(pCat(p))))
-    .map(p=>({p,m:matchPercent(cQ,cM,scoreOf(scoreMap,p.id))})).sort((a,b)=>b.m-a.m).slice(0,6).map(x=>x.p);
+  const otherCatList=[...new Set(allProducts.map(p=>pCat(p)).filter(x=>x && x!==compareCat && !(isBag(compareCat)&&isBag(x))))];
+  let reco2=[];
+  otherCatList.forEach(cat=>{
+    const items=allProducts.filter(p=>!ids.has(String(p.id)) && pCat(p)===cat)
+      .map(p=>({p,m:matchPercent(cQ,cM,scoreOf(scoreMap,p.id))})).sort((a,b)=>b.m-a.m).slice(0,3).map(x=>x.p);
+    reco2=reco2.concat(items);
+  });
 
-  const catLabel=catKR(compareCat);
-  const otherCats=[...new Set(reco2.map(p=>catKR(pCat(p))))];
+  const catLabel=catLbl(compareCat);
+  const otherCats=[...new Set(reco2.map(p=>catLbl(pCat(p))))];
   const otherLabel=otherCats.length?otherCats.join(' / '):'다른 아이템';
   const chips=(type?.tags||[]).slice(0,3).map(t=>`<span class="match-chip">${t.replace(/^#/,'')}</span>`).join('');
 
