@@ -18,6 +18,8 @@ const QKEYS  = ['storage','material','durability','finish','weight'];
 const MKEYS  = ['minimal','color','cute_chic','daily_special'];
 const QLABEL = {storage:'수납력',material:'소재',durability:'내구성',finish:'마감',weight:'무게'};
 const MPOLE  = {minimal:['미니멀','데코'],color:['무채색','컬러'],cute_chic:['귀여움','시크'],daily_special:['데일리','스페셜']};
+const CAT_KR = {bags:'가방', bag:'가방', 가방:'가방', jewelry:'주얼리', 주얼리:'주얼리', accessories:'소품', 소품:'소품', keyring:'키링', 키링:'키링'};
+const catKR = c => CAT_KR[String(c||'').toLowerCase()] || CAT_KR[String(c||'')] || c || '아이템';
 
 const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON);
 const $app = document.getElementById('crApp');
@@ -99,7 +101,7 @@ function priceHTML(p){
   const sell=num(p.price), orig=num(p.original_price);
   if(orig>0 && sell>0 && orig>sell){
     const rate=Math.round((orig-sell)/orig*100);
-    return `<span class="price-sale">${won(sell)}</span><span class="price-orig">${won(orig)}</span><span class="price-rate">${rate}%</span>`;
+    return `<span class="price-orig">${won(orig)}</span><span class="price-now"><span class="price-sale">${won(sell)}</span><span class="price-rate">${rate}%</span></span>`;
   }
   return `<span>${won(sell||orig)}</span>`;
 }
@@ -112,8 +114,11 @@ async function loadData(input){
   let compared=[];
   if(input.products.length){ const {data}=await sb.from('products').select('*').in('id',input.products);
     const map={}; (data||[]).forEach(p=>map[String(p.id)]=p); compared=input.products.map(id=>map[id]).filter(Boolean); }
-  if(!compared.length&&input.demo){ const {data}=await sb.from('products').select('*').limit(3);
-    compared=data||[]; if(compared.length&&!input.selected) input.selected=String(compared[0].id); }
+  if(!compared.length&&input.demo){ const {data}=await sb.from('products').select('*').limit(60);
+    const all=data||[]; const byCat={}; all.forEach(p=>{const c=pCat(p)||'_'; (byCat[c]=byCat[c]||[]).push(p);});
+    let pick=[]; for(const c in byCat){ if(byCat[c].length>=2){ pick=byCat[c].slice(0,3); break; } }
+    compared = pick.length?pick:all.slice(0,3);
+    if(compared.length&&!input.selected) input.selected=String(compared[0].id); }
   const { data:allProducts }=await sb.from('products').select('*').limit(300);
   const { data:scoresArr }=await sb.from('vw_product_taste_scores').select('*');
   const scoreMap={}; (scoresArr||[]).forEach(s=>scoreMap[String(s.product_id)]=s);
@@ -147,7 +152,9 @@ function render(){
   const reco2=allProducts.filter(p=>!ids.has(String(p.id))&&pCat(p)&&pCat(p)!==compareCat&&!(isBag(compareCat)&&isBag(pCat(p))))
     .map(p=>({p,m:matchPercent(cQ,cM,scoreOf(scoreMap,p.id))})).sort((a,b)=>b.m-a.m).slice(0,6).map(x=>x.p);
 
-  const catLabel=isBag(compareCat)?'가방':(compareCat||'아이템');
+  const catLabel=catKR(compareCat);
+  const otherCats=[...new Set(reco2.map(p=>catKR(pCat(p))))];
+  const otherLabel=otherCats.length?otherCats.join(' / '):'다른 아이템';
   const chips=(type?.tags||[]).slice(0,3).map(t=>`<span class="match-chip">${t.replace(/^#/,'')}</span>`).join('');
 
   $app.innerHTML=`
@@ -219,7 +226,7 @@ function render(){
           <div class="cr-reco">${reco1.length?reco1.map(recoCard).join(''):'<div class="reco-empty">아직 비슷한 상품이 준비되지 않았어요.</div>'}</div>
         </section>
         <section class="fade-up">
-          <div class="blk-title">함께 어울리는 키링 / 주얼리 / 지갑</div>
+          <div class="blk-title">함께 어울리는 ${otherLabel}</div>
           <div class="cr-reco">${reco2.length?reco2.map(recoCard).join(''):'<div class="reco-empty">아직 어울리는 상품이 준비되지 않았어요.</div>'}</div>
         </section>
       </div>
