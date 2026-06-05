@@ -63,6 +63,17 @@ function matchPercent(quality,mood,score){
   return Math.max(55,Math.min(99,Math.round(55+(0.5*moodScore+0.5*qs)*44)));
 }
 const matchLabel=p=>p>=80?'가장 잘 맞아요':p>=70?'잘 맞아요':p>=60?'무난해요':'글쎄요';
+// 게이지 라벨: 비교 상품 중 1순위(가장 높은 점수)는 항상 '가장 잘 맞아요',
+// 2·3순위는 점수로 (80↑ 잘 맞아요 / 70~79 무난해요 / 70미만 글쎄요)
+function gaugeInfo(sel){
+  const {compared, scoreMap, input}=STATE;
+  const scored=compared.map(p=>({id:String(p.id), m:matchPercent(input.quality,input.mood,scoreOf(scoreMap,p.id))})).sort((a,b)=>b.m-a.m);
+  const mine=scored.find(x=>x.id===String(sel.id))||scored[0];
+  const rank=scored.findIndex(x=>x.id===String(mine.id));
+  const pct=mine.m;
+  const label = rank===0 ? '가장 잘 맞아요' : pct>=80 ? '잘 맞아요' : pct>=70 ? '무난해요' : '글쎄요';
+  return {pct, label};
+}
 
 /* ---------- 5. 기준 요약(상위 3개 + 조사) ---------- */
 function hasJong(s){ if(!s)return false; const c=s.charCodeAt(s.length-1); if(c<0xAC00||c>0xD7A3)return false; return (c-0xAC00)%28!==0; }
@@ -125,7 +136,7 @@ function render(){
   const { input, compared, allProducts, scoreMap, type, selectedId } = STATE;
   const sel=compared.find(p=>String(p.id)===String(selectedId))||compared[0];
   STATE.fixedImg = pImg(sel); // 타입 카드 이미지는 처음 선택 상품으로 고정(이후 안 바뀜)
-  const pct=matchPercent(input.quality,input.mood,scoreOf(scoreMap,sel?.id));
+  const g=gaugeInfo(sel); const pct=g.pct;
   const summary=buildSummary(input.quality,input.mood);
 
   const compareCat=pCat(sel)||(input.category||'');
@@ -195,12 +206,13 @@ function render(){
             <div class="m-eyebrow">취향 일치도</div>
             <div class="gauge" id="gauge" style="--pct:${pct}">
               <div class="g-num" id="gNum">${pct}%</div>
-              <div class="g-cap" id="gCap">${matchLabel(pct)}</div>
+              <div class="g-cap" id="gCap">${g.label}</div>
             </div>
             <div class="match-chips">${chips}</div>
-            
           </div>
         </div>
+
+        <div class="cr-reco-banner">내 취향과 어울리는 다른 아이템</div>
 
         <section class="fade-up">
           <div class="blk-title">내 취향과 비슷한 ${catLabel}</div>
@@ -210,7 +222,6 @@ function render(){
           <div class="blk-title">함께 어울리는 키링 / 주얼리 / 지갑</div>
           <div class="cr-reco">${reco2.length?reco2.map(recoCard).join(''):'<div class="reco-empty">아직 어울리는 상품이 준비되지 않았어요.</div>'}</div>
         </section>
-        <a class="cr-cta fade-up" href="${ROUTE.recommend(type?.type_code||'')}">내 취향과 어울리는 다른 아이템 보러가기</a>
       </div>
     </div>`;
 
@@ -243,12 +254,12 @@ function wireEvents(){
 function updateSelected(){
   const { compared, scoreMap, input } = STATE;
   const sel=compared.find(p=>String(p.id)===String(STATE.selectedId))||compared[0];
-  const pct=matchPercent(input.quality,input.mood,scoreOf(scoreMap,sel?.id));
+  const info=gaugeInfo(sel); const pct=info.pct;
   document.querySelectorAll('#comparedRow .cmp-card').forEach(c=>c.classList.toggle('is-selected',String(c.getAttribute('data-id'))===String(STATE.selectedId)));
   const buy=document.getElementById('buyBtn'); buy.textContent=`${pName(sel)} 구매하기`; buy.href=ROUTE.checkout(sel?.id);
   const g=document.getElementById('gauge'); g.style.setProperty('--pct',pct);
   document.getElementById('gNum').textContent=pct+'%';
-  document.getElementById('gCap').textContent=matchLabel(pct);
+  document.getElementById('gCap').textContent=info.label;
   // ※ 타입 카드 이미지는 고정 — 바꾸지 않음
 }
 

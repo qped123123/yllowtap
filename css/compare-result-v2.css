@@ -124,6 +124,7 @@ button{font-family:inherit;cursor:pointer;border:none;background:none;}
 /* CTA */
 .cr-cta{display:block;width:100%;text-align:center;background:var(--ink);color:#fff;padding:17px;border-radius:var(--radius);font-size:15px;font-weight:600;transition:opacity .18s ease;}
 .cr-cta:hover{opacity:.86;}
+.cr-reco-banner{width:100%;text-align:center;background:var(--ink);color:#fff;padding:15px;border-radius:var(--radius);font-size:14.5px;font-weight:600;letter-spacing:.3px;}
 
 .cr-empty{text-align:center;padding:90px 20px;color:var(--ink-soft);}
 .cr-empty h2{font-weight:700;font-size:20px;color:var(--ink);margin:0 0 10px;}
