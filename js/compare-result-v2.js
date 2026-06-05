@@ -237,6 +237,7 @@ function recoCard(p){
     </div>
     <div class="reco-name">${pName(p)}</div>
     <div class="reco-price">${priceHTML(p)}</div>
+    <a class="reco-view" href="${ROUTE.productDetail(p.id)}">보러가기</a>
   </div>`;
 }
 
@@ -247,7 +248,7 @@ function wireEvents(){
     STATE.selectedId=id; updateSelected();
   }));
   document.querySelectorAll('.reco-card').forEach(el=>el.addEventListener('click',e=>{
-    if(e.target.closest('[data-wish]'))return; location.href=ROUTE.productDetail(el.getAttribute('data-id'));
+    if(e.target.closest('[data-wish], .reco-view'))return; location.href=ROUTE.productDetail(el.getAttribute('data-id'));
   }));
   document.querySelectorAll('[data-wish]').forEach(btn=>btn.addEventListener('click',e=>{e.stopPropagation();toggleWish(btn);}));
 }
