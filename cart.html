@@ -295,7 +295,7 @@
   <div class="cart-layout" id="cartLayout" style="display:none;">
     <div>
       <div class="cart-items">
-        <div id="compareHint" class="cart-compare-hint">💭 고민되시나요? 같은 카테고리끼리만 비교할 수 있어요<br><span style="display:inline-block;margin-top:3px;font-weight:400;font-size:12px;opacity:.8;">다른 카테고리 상품은 함께 비교할 수 없어요 (예: 가방 ↔ 쥬얼리 ✗)</span></div>
+        <div id="compareHint" class="cart-compare-hint">💭 고민되시나요? 같은 카테고리끼리 비교해보세요<br><span style="display:inline-block;margin-top:3px;font-weight:400;font-size:12px;opacity:.8;">다른 카테고리 상품은 함께 비교할 수 없어요 <span style="white-space:nowrap;">(예: 가방 ↔ 쥬얼리 ✗)</span></span></div>
         <div class="cart-select-bar">
           <label><input type="checkbox" id="selectAll" checked onchange="toggleSelectAll()"> 전체 선택</label>
           <button class="cart-delete-selected" onclick="deleteSelected()">선택 삭제</button>
@@ -700,7 +700,7 @@ function updateCompareCheck() {
       hint.classList.add('locked');
     } else {
       hint.style.display = '';
-      hint.innerHTML = '💭 고민되시나요? 같은 카테고리끼리만 비교할 수 있어요<br><span style="display:inline-block;margin-top:3px;font-weight:400;font-size:12px;opacity:.8;">다른 카테고리 상품은 함께 비교할 수 없어요 (예: 가방 ↔ 쥬얼리 ✗)</span>';
+      hint.innerHTML = '💭 고민되시나요? 같은 카테고리끼리 비교해보세요<br><span style="display:inline-block;margin-top:3px;font-weight:400;font-size:12px;opacity:.8;">다른 카테고리 상품은 함께 비교할 수 없어요 <span style="white-space:nowrap;">(예: 가방 ↔ 쥬얼리 ✗)</span></span>';
       hint.classList.remove('locked');
     }
   }
