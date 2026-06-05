@@ -192,7 +192,7 @@
   }
 
   // ── SNS 아이콘 추가 ──
-  var NAV_ITEMS = [['Best','best'],['New In','new'],['Bags','bags'],['Jewelry','jewelry'],['Accessories','accessories'],['Keyring','keyring'],['Seasonal','seasonal'],['Sale','sale']];
+  var NAV_ITEMS = [['Best','best'],['New In','new'],['Bags','bags'],['Jewelry','jewelry'],['Keyring','keyring'],['Sale','sale']];
   function navLinksHTML() { return NAV_ITEMS.map(function(it){ return '<a href="/category.html?cat=' + it[1] + '">' + it[0] + '</a>'; }).join(''); }
   function buildNav() {
     var nav = document.querySelector('.header__nav');
@@ -409,6 +409,7 @@
       .header__icon-link svg { width:18px; height:18px; }\
       .header__icon-link:hover svg { opacity:0.6; }\
       .header__cart-badge { position:absolute; top:-7px; right:-10px; min-width:15px; height:15px; padding:0 3px; border-radius:8px; background:#111; color:#fff; font-size:9px; line-height:15px; text-align:center; font-weight:600; box-sizing:border-box; }\
+      a#headerCartLink { margin-right:12px; }\
       @media(max-width:1024px) { .header__actions { margin-left:auto; } }\
       @media(max-width:768px) {\
         .header__social-icons { display:none; }\

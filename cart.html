@@ -29,7 +29,7 @@
 .cart-item-original{font-size:11px;color:#999;text-decoration:line-through;text-align:right;margin-bottom:2px;white-space:nowrap}
 .cart-item-saleline{display:flex;align-items:baseline;gap:5px;justify-content:flex-end}
 .cart-item-disc{color:#C4453C;font-weight:700;font-size:12px;white-space:nowrap}
-.cart-compare-hint{padding:13px 24px;font-size:13px;font-weight:600;color:#7a5e2e;background:#FBEBA8;border-bottom:1px solid #F2E4A0;line-height:1.55;word-break:keep-all;text-align:center;transition:background .2s,color .2s}
+.cart-compare-hint{padding:13px 24px;font-size:13px;font-weight:600;color:#fff;background:#1a1a1a;border-bottom:none;line-height:1.55;word-break:keep-all;text-align:center;transition:background .2s,color .2s}
 .cart-compare-hint.locked{color:#fff;background:#1a1a1a;font-weight:600}
 .cart-cat-group{transition:opacity .2s}
 .cart-cat-group.locked-out{}
@@ -76,18 +76,18 @@
 /* ===== 비교 기능 ===== */
 .compare-entry{
   margin-top:16px;padding:18px 24px;
-  border:1px solid #E5E1DC;background:#FAFAF8;
+  border:none;background:#1a1a1a;
   text-align:center;opacity:0;transform:translateY(8px);
   transition:opacity .4s ease-out, transform .4s ease-out;
 }
 .compare-entry.show{opacity:1;transform:translateY(0)}
-.compare-entry-text{font-size:13px;color:#888;margin-bottom:10px}
+.compare-entry-text{font-size:13px;color:#fff;margin-bottom:10px}
 .compare-entry-btn{
   padding:10px 28px;font-size:12px;font-weight:500;letter-spacing:1px;
-  background:none;border:1px solid #CCC;color:#666;cursor:pointer;
+  background:none;border:1px solid #fff;color:#fff;cursor:pointer;
   font-family:inherit;transition:all .3s;
 }
-.compare-entry-btn:hover{border-color:#111;color:#111}
+.compare-entry-btn:hover{background:#fff;border-color:#fff;color:#1a1a1a}
 
 .compare-overlay{
   position:fixed;inset:0;z-index:999;
@@ -686,7 +686,7 @@ function updateCompareCheck() {
     const isOther = lockedCat && g.dataset.cat !== lockedCat;
     g.classList.toggle('locked-out', !!isOther);
     const lk = g.querySelector('.cart-cat-header .lock');
-    if (lk) lk.textContent = isOther ? '🔒' : '';
+    if (lk) lk.innerHTML = isOther ? '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#1a1a1a" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>' : '';
   });
 
   // 상단 배너 문구 전환
