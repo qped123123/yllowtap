@@ -37,6 +37,7 @@
     const { data: { user } } = await supa.auth.getUser();
     const actions = document.querySelector('.header__actions');
     const mobileMenu = document.querySelector('.mobile-menu');
+    buildNav();
     if (!actions) return;
 
     // 햄버거 버튼 보존
@@ -191,6 +192,13 @@
   }
 
   // ── SNS 아이콘 추가 ──
+  var NAV_ITEMS = [['BEST','best'],['NEW IN','new'],['BAGS','bags'],['JEWELRY','jewelry'],['ACCESSORIES','accessories'],['KEYRING','keyring'],['SEASONAL','seasonal'],['SALE','sale']];
+  function buildNav() {
+    var nav = document.querySelector('.header__nav');
+    if (!nav) return;
+    nav.innerHTML = NAV_ITEMS.map(function(it){ return '<a href="/category.html?cat=' + it[1] + '">' + it[0] + '</a>'; }).join('');
+  }
+
   function appendSocialIcons(container) {
     const socialWrap = document.createElement('div');
     socialWrap.className = 'header__social-icons';
@@ -340,8 +348,9 @@
         transition:opacity .3s;\
       }\
       .header__search-toggle:hover { opacity:.5; }\
+      .header__actions { gap:12px; }\
       .header__social-icons {\
-        display:flex; align-items:center; gap:12px; margin-left:4px;\
+        display:flex; align-items:center; gap:12px; margin-left:16px;\
       }\
       .header__social-icons a {\
         display:flex; align-items:center; justify-content:center;\
@@ -393,16 +402,17 @@
       .header__icon-link svg { width:18px; height:18px; }\
       .header__icon-link:hover svg { opacity:0.6; }\
       .header__cart-badge { position:absolute; top:-7px; right:-10px; min-width:15px; height:15px; padding:0 3px; border-radius:8px; background:#111; color:#fff; font-size:9px; line-height:15px; text-align:center; font-weight:600; box-sizing:border-box; }\
+      @media(max-width:1024px) { .header__actions { margin-left:auto; } }\
       @media(max-width:768px) {\
         .header__social-icons { display:none; }\
         .header__actions a { display:none; }\
         .header__actions a#headerCartLink, .header__actions a#headerWishLink { display:inline-flex; align-items:center; }\
         .header__search-toggle { display:flex; }\
-        .header__actions .header__hamburger { display:flex; margin-left:auto; }\
+        .header__actions .header__hamburger { display:flex; }\
         .header-search-bar__inner { padding:12px 16px; }\
       }\
       @media(max-width:1200px) {\
-        .header__actions { gap:16px; }\
+        .header__actions { gap:12px; }\
         .header__actions a { font-size:10px; letter-spacing:0.12em; }\
       }\
     ';
