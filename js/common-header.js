@@ -41,6 +41,8 @@
 
     // 햄버거 버튼 보존
     const hamburger = actions.querySelector('.header__hamburger');
+    const HEART_SVG = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>';
+    const BAG_SVG = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>';
 
     if (user) {
       // ── 로그인 상태 ──
@@ -76,11 +78,24 @@
       orderLink.textContent = 'Order';
       actions.appendChild(orderLink);
 
-      // BAG
+      // WISHLIST (♡)
+      const wishLink = document.createElement('a');
+      wishLink.href = '/mypage.html?tab=wishlist';
+      wishLink.id = 'headerWishLink';
+      wishLink.className = 'header__icon-link';
+      wishLink.setAttribute('aria-label', 'Wishlist');
+      wishLink.title = 'Wishlist';
+      wishLink.innerHTML = HEART_SVG;
+      actions.appendChild(wishLink);
+
+      // BAG (장바구니 아이콘)
       const cartLink = document.createElement('a');
       cartLink.href = '/cart.html';
-      cartLink.textContent = 'Bag';
       cartLink.id = 'headerCartLink';
+      cartLink.className = 'header__icon-link';
+      cartLink.setAttribute('aria-label', 'Bag');
+      cartLink.title = 'Bag';
+      cartLink.innerHTML = BAG_SVG + '<span class="header__cart-badge">0</span>';
       actions.appendChild(cartLink);
 
       // MYPAGE
@@ -145,13 +160,20 @@
 
       const wishLink = document.createElement('a');
       wishLink.href = '/login.html';
-      wishLink.textContent = 'Wishlist';
+      wishLink.id = 'headerWishLink';
+      wishLink.className = 'header__icon-link';
+      wishLink.setAttribute('aria-label', 'Wishlist');
+      wishLink.title = 'Wishlist';
+      wishLink.innerHTML = HEART_SVG;
       actions.appendChild(wishLink);
 
       const cartLink = document.createElement('a');
       cartLink.href = '/cart.html';
-      cartLink.textContent = 'Bag (0)';
       cartLink.id = 'headerCartLink';
+      cartLink.className = 'header__icon-link';
+      cartLink.setAttribute('aria-label', 'Bag');
+      cartLink.title = 'Bag';
+      cartLink.innerHTML = BAG_SVG + '<span class="header__cart-badge">0</span>';
       actions.appendChild(cartLink);
 
       // SNS 아이콘들
@@ -236,6 +258,10 @@
   }
 
   // ── 카트 수량 업데이트 (로그인 + 비로그인 게스트 모두) ──
+  function setBag(link, n) {
+    var b = link.querySelector('.header__cart-badge');
+    if (b) { b.textContent = n; } else { link.textContent = 'Bag (' + n + ')'; }
+  }
   async function updateCartCount() {
     try {
       var supa = getSb(); if (!supa) return;
@@ -256,11 +282,11 @@
 
       var cartLink = document.getElementById('headerCartLink');
       if (!cartLink) return;
-      if (!cartId) { cartLink.textContent = 'Bag (0)'; return; }
+      if (!cartId) { setBag(cartLink, 0); return; }
 
       var countResult = await supa.from('cart_items').select('*', { count: 'exact', head: true }).eq('cart_id', cartId);
       var count = countResult.count || 0;
-      cartLink.textContent = 'Bag (' + count + ')';
+      setBag(cartLink, count);
     } catch (e) {}
   }
   // 다른 페이지 스크립트(예: product.html addToCart)에서 담은 직후 부를 수 있게 노출
@@ -363,12 +389,16 @@
         transition:color .3s;\
       }\
       .header-search-bar__close:hover { color:var(--text-primary,#111); }\
+      .header__icon-link { display:inline-flex; align-items:center; position:relative; color:inherit; }\
+      .header__icon-link svg { width:18px; height:18px; }\
+      .header__icon-link:hover svg { opacity:0.6; }\
+      .header__cart-badge { position:absolute; top:-7px; right:-10px; min-width:15px; height:15px; padding:0 3px; border-radius:8px; background:#111; color:#fff; font-size:9px; line-height:15px; text-align:center; font-weight:600; box-sizing:border-box; }\
       @media(max-width:768px) {\
         .header__social-icons { display:none; }\
         .header__actions a { display:none; }\
-        .header__actions a#headerCartLink { display:inline-flex; align-items:center; font-size:11px; letter-spacing:0.1em; }\
+        .header__actions a#headerCartLink, .header__actions a#headerWishLink { display:inline-flex; align-items:center; }\
         .header__search-toggle { display:flex; }\
-        .header__actions .header__hamburger { display:flex; }\
+        .header__actions .header__hamburger { display:flex; margin-left:auto; }\
         .header-search-bar__inner { padding:12px 16px; }\
       }\
       @media(max-width:1200px) {\

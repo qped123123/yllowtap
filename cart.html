@@ -353,7 +353,7 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <script>
 const SUPABASE_URL='https://ppihvvpplqikclftrwdb.supabase.co';
-const SUPABASE_ANON='';
+const SUPABASE_ANON='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBwaWh2dnBwbHFpa2NsZnRyd2RiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk3MzE0NTEsImV4cCI6MjA5NTMwNzQ1MX0.shGVcFTQiuYc4u6tdU50x18YMgJdgFUljf8c7QlQU-U';
 const sb=window.supabase.createClient(SUPABASE_URL,SUPABASE_ANON);
 
 let cartId=null;
@@ -386,7 +386,7 @@ async function loadCart(){
     const{data}=await sb.from('carts').select('*').eq('guest_id',gid).single();
     if(data){cart=data;}else{const{data:newCart}=await sb.from('carts').insert({guest_id:gid}).select().single();cart=newCart;}
   }
-  if(!cart)return;
+  if(!cart){console.error('[cart] 카트 조회/생성 실패 — anon 키(여기에_anon 치환) 또는 carts 테이블 RLS 확인');cartItems=[];renderCart();return;}
   cartId=cart.id;
   const{data:items}=await sb.from('cart_items').select('*,products(*,product_media(media_url,role,display_order))').eq('cart_id',cartId).order('added_at');
   cartItems=(items||[]).map(item=>({...item,checked:true}));
@@ -908,8 +908,9 @@ function showCompareToast(msg) {
 }
 
 async function init(){
-  await loadShippingSettings();
-  await loadCart();
+  try{ await loadShippingSettings(); }catch(e){ console.error('[cart] 배송설정 오류:',e); }
+  try{ await loadCart(); }
+  catch(e){ console.error('[cart] loadCart 오류:',e); cartItems=[]; try{ renderCart(); }catch(_){} }
 }
 init();
 </script>
