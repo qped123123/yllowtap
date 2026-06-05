@@ -357,7 +357,7 @@
       .header__search-toggle:hover { opacity:.5; }\
       .header__actions { gap:12px; }\
       .header__social-icons {\
-        display:flex; align-items:center; gap:12px; margin-left:16px;\
+        display:flex; align-items:center; gap:12px; margin-left:0;\
       }\
       .header__social-icons a {\
         display:flex; align-items:center; justify-content:center;\
