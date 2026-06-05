@@ -51,8 +51,8 @@ button{font-family:inherit;cursor:pointer;border:none;background:none;}
 .cmp-price{font-size:12px;color:var(--ink-soft);margin:0 2px;}
 
 /* 가격 + 세일 % */
-.price-orig{color:#b3aea6;text-decoration:line-through;font-size:.9em;margin-right:5px;}
-.price-now{white-space:nowrap;}
+.price-orig{display:block;color:#b3aea6;text-decoration:line-through;font-size:.9em;margin-bottom:2px;}
+.price-now{display:block;white-space:nowrap;}
 .price-main{font-weight:700;color:var(--ink);}
 .price-rate{margin-left:5px;color:#E2453B;font-weight:700;}
 
