@@ -192,11 +192,18 @@
   }
 
   // ── SNS 아이콘 추가 ──
-  var NAV_ITEMS = [['BEST','best'],['NEW IN','new'],['BAGS','bags'],['JEWELRY','jewelry'],['ACCESSORIES','accessories'],['KEYRING','keyring'],['SEASONAL','seasonal'],['SALE','sale']];
+  var NAV_ITEMS = [['Best','best'],['New In','new'],['Bags','bags'],['Jewelry','jewelry'],['Accessories','accessories'],['Keyring','keyring'],['Seasonal','seasonal'],['Sale','sale']];
+  function navLinksHTML() { return NAV_ITEMS.map(function(it){ return '<a href="/category.html?cat=' + it[1] + '">' + it[0] + '</a>'; }).join(''); }
   function buildNav() {
     var nav = document.querySelector('.header__nav');
-    if (!nav) return;
-    nav.innerHTML = NAV_ITEMS.map(function(it){ return '<a href="/category.html?cat=' + it[1] + '">' + it[0] + '</a>'; }).join('');
+    if (nav) nav.innerHTML = navLinksHTML();
+    var mm = document.querySelector('.mobile-menu');
+    if (mm) {
+      mm.querySelectorAll('a').forEach(function(a){ if (!a.closest('.mobile-auth-section')) a.remove(); });
+      var auth = mm.querySelector('.mobile-auth-section');
+      var temp = document.createElement('div'); temp.innerHTML = navLinksHTML();
+      Array.prototype.slice.call(temp.children).forEach(function(l){ if (auth) mm.insertBefore(l, auth); else mm.appendChild(l); });
+    }
   }
 
   function appendSocialIcons(container) {
