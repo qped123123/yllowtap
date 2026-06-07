@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Yllowtap — 페이지를 찾을 수 없습니다</title>
+<link rel="stylesheet" href="./css/style.css">
+<style>
+.e404-page{max-width:560px;margin:0 auto;padding:calc(var(--header-height,88px) + 100px) 24px 80px;min-height:100vh;text-align:center}
+.e404-num{font-family:'Bodoni Moda',serif;font-size:96px;font-weight:400;letter-spacing:4px;color:#E5E1DC;line-height:1;margin-bottom:16px}
+.e404-title{font-family:'Bodoni Moda',serif;font-size:24px;font-weight:400;margin-bottom:12px;color:#111}
+.e404-msg{font-size:14px;color:#888;line-height:1.7;margin-bottom:36px}
+.e404-btns{display:flex;gap:12px;justify-content:center;flex-wrap:wrap}
+.e404-btn{padding:14px 32px;font-size:12px;font-weight:500;letter-spacing:1.5px;text-transform:uppercase;text-decoration:none;border:1px solid #111;color:#111;font-family:inherit;transition:all .2s}
+.e404-btn:hover{background:#111;color:#fff;opacity:1}
+.e404-btn.primary{background:#111;color:#fff}
+.e404-btn.primary:hover{background:#333}
+@media(max-width:768px){.e404-num{font-size:64px}.e404-btns{flex-direction:column;align-items:center}.e404-btn{width:100%;max-width:260px;text-align:center}}
+</style>
+</head>
+<body>
+<header class="header">
+  <div class="header__logo"><a href="/" style="text-decoration:none;color:inherit;"><span class="header__logo-highlight">Yllowtap</span></a></div>
+</header>
+
+<div class="e404-page">
+  <div class="e404-num">404</div>
+  <div class="e404-title">페이지를 찾을 수 없습니다</div>
+  <div class="e404-msg">요청하신 페이지가 존재하지 않거나 이동되었을 수 있습니다.</div>
+  <div class="e404-btns">
+    <a href="/" class="e404-btn primary">홈으로 가기</a>
+    <a href="/category.html" class="e404-btn">쇼핑하기</a>
+  </div>
+</div>
+
+<footer class="footer">
+  <div class="footer__bottom"><div class="footer__copy">© 2026 Yllowtap. All rights reserved.</div></div>
+</footer>
+<script src="./js/main.js"></script>
+<script src="./js/common-header.js?v=15"></script>
+</body>
+</html>

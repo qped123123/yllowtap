@@ -496,7 +496,24 @@
     </div>
     <div id="reviewList"></div>
   </div>
-  <div class="pd-panel" id="panel-qna"><div class="pd-content" style="text-align:center;padding:50px 0;"><p style="color:var(--pd-text3);">문의 내역이 없습니다.</p></div></div>
+  <div class="pd-panel" id="panel-qna">
+    <button class="pd-review-write-btn" onclick="toggleQnaForm()">문의 작성하기</button>
+    <div class="pd-review-form" id="qnaForm">
+      <div class="pd-review-form-title">상품 문의</div>
+      <div class="pd-rf-row">
+        <div><div class="pd-rf-label">작성자명</div><input class="pd-rf-input" id="qfName" placeholder="홍길동"></div>
+        <div><div class="pd-rf-label">비밀글 여부</div><label style="display:flex;align-items:center;gap:8px;padding:10px 0;font-size:13px;cursor:pointer;"><input type="checkbox" id="qfSecret"> 비밀글로 작성</label></div>
+      </div>
+      <div class="pd-rf-row full">
+        <div><div class="pd-rf-label">문의 내용</div><textarea class="pd-rf-textarea" id="qfContent" placeholder="상품에 대해 궁금한 점을 작성해주세요."></textarea></div>
+      </div>
+      <div class="pd-rf-actions">
+        <button style="padding:10px 24px;font-size:12px;border:1px solid var(--pd-border);background:none;cursor:pointer;font-family:var(--pd-fb);color:var(--pd-text2)" onclick="toggleQnaForm()">취소</button>
+        <button style="padding:10px 24px;font-size:12px;border:none;background:var(--pd-accent);cursor:pointer;font-family:var(--pd-fb);color:var(--pd-text);font-weight:600" onclick="submitQna()">등록</button>
+      </div>
+    </div>
+    <div id="qnaList"></div>
+  </div>
 </section>
   </div>
   <div class="pd-info">
@@ -627,7 +644,7 @@ async function loadProduct(){
   product=data;
   await loadPurchaseOptions();
   await render();
-  await Promise.all([loadColorImages(),loadRecs(),loadReviews(),loadSetItems(),loadEditReasons()]);
+  await Promise.all([loadColorImages(),loadRecs(),loadReviews(),loadQnas(),loadSetItems(),loadEditReasons()]);
   hideLoading();
   // v5: 우측 정보(구성상품/구매옵션 등)가 다 그려진 뒤 메인 높이를 맞춤
   setTimeout(syncThumbs,60);
@@ -1236,6 +1253,44 @@ async function submitReview(){
 }
 
 // ══════════════════════════════════════════
+// QNA (상품 문의)
+// ══════════════════════════════════════════
+let allQnas=[];
+
+async function loadQnas(){
+  const{data}=await sb.from('product_inquiries').select('*').eq('product_id',product.id).order('created_at',{ascending:false});
+  allQnas=data||[];
+  document.getElementById('qnaCnt').textContent=`(${allQnas.length})`;
+  renderQnaList();
+}
+function renderQnaList(){
+  const el=document.getElementById('qnaList');
+  if(!allQnas.length){el.innerHTML='<div class="pd-review-empty">등록된 문의가 없습니다.</div>';return}
+  el.innerHTML=allQnas.map(q=>{
+    const name=maskName(q.author_name);
+    const date=new Date(q.created_at).toLocaleDateString('ko-KR');
+    if(q.is_secret) return`<div class="pd-review-item"><div class="pd-review-item-top"><div><span class="pd-review-item-author">🔒 ${name}</span></div><div class="pd-review-item-date">${date}</div></div><div class="pd-review-item-text" style="color:var(--pd-text3);">비밀글입니다.</div></div>`;
+    return`<div class="pd-review-item">
+      <div class="pd-review-item-top"><div><span class="pd-review-item-author">${name}</span></div><div class="pd-review-item-date">${date}</div></div>
+      <div class="pd-review-item-text">${q.content.replace(/\n/g,'<br>')}</div>
+      ${q.answer?`<div style="margin-top:12px;padding:12px 14px;background:#FBF8EC;border-left:3px solid var(--pd-accent);font-size:13px;color:var(--pd-text2);line-height:1.7;"><div style="font-size:11px;font-weight:600;color:var(--pd-text);margin-bottom:4px;">관리자 답변</div>${q.answer.replace(/\n/g,'<br>')}</div>`:'<div style="margin-top:8px;font-size:11px;color:var(--pd-accent);font-weight:500;">답변 대기 중</div>'}
+    </div>`;
+  }).join('');
+}
+function toggleQnaForm(){document.getElementById('qnaForm').classList.toggle('show');}
+async function submitQna(){
+  const name=document.getElementById('qfName').value.trim();
+  const content=document.getElementById('qfContent').value.trim();
+  if(!name){alert('작성자명을 입력해주세요.');return}
+  if(!content){alert('문의 내용을 입력해주세요.');return}
+  const{error}=await sb.from('product_inquiries').insert({product_id:product.id,author_name:name,content,is_secret:document.getElementById('qfSecret').checked});
+  if(error){alert('등록 실패: '+error.message);return}
+  document.getElementById('qfName').value='';document.getElementById('qfContent').value='';document.getElementById('qfSecret').checked=false;
+  toggleQnaForm();
+  await loadQnas();
+}
+
+// ══════════════════════════════════════════
 // RECOMMEND
 // ══════════════════════════════════════════
 async function loadRecs(){
@@ -1499,6 +1554,6 @@ window.addEventListener('resize',syncThumbs);
 document.getElementById('thumbs').addEventListener('scroll',updateThumbHint);
 loadProduct().then(()=>{recordView();loadWishCount();});
 </script>
-<script src="./js/common-header.js"></script>
+<script src="./js/common-header.js?v=15"></script>
 </body>
 </html>

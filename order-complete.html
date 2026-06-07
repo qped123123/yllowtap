@@ -7,254 +7,143 @@
 <link rel="stylesheet" href="./css/style.css">
 <style>
 .oc-page{max-width:640px;margin:0 auto;padding:calc(var(--header-height,88px) + 60px) 24px 80px;min-height:100vh;text-align:center}
-
-/* ── 로딩 상태 ── */
 .oc-loading{padding:80px 0}
 .oc-spinner{width:40px;height:40px;border:3px solid #E5E1DC;border-top-color:#111;border-radius:50%;animation:oc-spin .7s linear infinite;margin:0 auto 24px}
 @keyframes oc-spin{to{transform:rotate(360deg)}}
 .oc-loading-text{font-size:15px;color:#444;margin-bottom:6px}
 .oc-loading-sub{font-size:12px;color:#999}
-
-/* ── 성공 상태 ── */
 .oc-success{display:none;padding:60px 0}
 .oc-check{width:64px;height:64px;border-radius:50%;background:#111;display:flex;align-items:center;justify-content:center;margin:0 auto 24px}
 .oc-check svg{width:32px;height:32px}
 .oc-title{font-family:'Bodoni Moda',serif;font-size:28px;font-weight:400;letter-spacing:1px;margin-bottom:8px}
 .oc-order-num{font-size:14px;color:#888;margin-bottom:24px}
-
 .oc-summary{background:#F7F5F2;border:1px solid #E5E1DC;padding:20px 24px;margin:0 auto 32px;max-width:360px;text-align:left}
 .oc-summary-row{display:flex;justify-content:space-between;font-size:13px;color:#444;margin-bottom:8px}
 .oc-summary-row:last-child{margin-bottom:0;padding-top:10px;border-top:1px solid #E5E1DC;font-weight:700;font-size:15px;color:#111}
-
 .oc-msg{font-size:13px;color:#666;line-height:1.7;margin-bottom:32px}
 .oc-btns{display:flex;gap:12px;justify-content:center;flex-wrap:wrap}
 .oc-btn{padding:14px 32px;font-size:12px;font-weight:500;letter-spacing:1.5px;text-transform:uppercase;text-decoration:none;border:1px solid #111;color:#111;font-family:inherit;transition:all .2s;cursor:pointer;background:none}
 .oc-btn:hover{background:#111;color:#fff;opacity:1}
 .oc-btn.primary{background:#111;color:#fff}
 .oc-btn.primary:hover{background:#333}
-
-/* ── 실패 상태 ── */
 .oc-fail{display:none;padding:60px 0}
 .oc-fail-icon{width:64px;height:64px;border-radius:50%;background:#C4453C;display:flex;align-items:center;justify-content:center;margin:0 auto 24px}
 .oc-fail-icon svg{width:28px;height:28px}
 .oc-fail-title{font-family:'Bodoni Moda',serif;font-size:24px;margin-bottom:12px}
 .oc-fail-msg{font-size:13px;color:#666;line-height:1.7;margin-bottom:8px}
 .oc-fail-code{font-size:11px;color:#999;margin-bottom:32px}
-
-@media(max-width:768px){
-  .oc-page{padding:calc(var(--header-height,60px) + 40px) 16px 60px}
-  .oc-title{font-size:24px}
-  .oc-btns{flex-direction:column;align-items:center}
-  .oc-btn{width:100%;max-width:280px;text-align:center}
-}
+@media(max-width:768px){.oc-page{padding:calc(var(--header-height,60px) + 40px) 16px 60px}.oc-title{font-size:24px}.oc-btns{flex-direction:column;align-items:center}.oc-btn{width:100%;max-width:280px;text-align:center}}
 </style>
 </head>
 <body>
-
-<!-- common-header.js가 덮어쓰므로 최소 뼈대만 -->
-<header class="header">
-  <div class="header__logo"><a href="/" style="text-decoration:none;color:inherit;"><span class="header__logo-highlight">Yllowtap</span></a></div>
-</header>
+<header class="header"><div class="header__logo"><a href="/" style="text-decoration:none;color:inherit;"><span class="header__logo-highlight">Yllowtap</span></a></div></header>
 
 <div class="oc-page">
-
-  <!-- ═══ 로딩 ═══ -->
   <div class="oc-loading" id="ocLoading">
     <div class="oc-spinner"></div>
     <div class="oc-loading-text">결제를 확인하고 있습니다</div>
     <div class="oc-loading-sub">잠시만 기다려주세요. 창을 닫지 마세요.</div>
   </div>
-
-  <!-- ═══ 성공 ═══ -->
   <div class="oc-success" id="ocSuccess">
-    <div class="oc-check">
-      <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
-    </div>
+    <div class="oc-check"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
     <div class="oc-title">주문이 완료되었습니다</div>
     <div class="oc-order-num" id="ocOrderNum"></div>
-
     <div class="oc-summary" id="ocSummary"></div>
-
-    <div class="oc-msg">
-      주문 확인 후 상품을 준비하겠습니다.<br>
-      주문 내역은 마이페이지에서 확인하실 수 있습니다.
-    </div>
-    <div class="oc-btns">
-      <a href="/mypage.html?tab=orders" class="oc-btn primary">주문 내역 보기</a>
-      <a href="/category.html" class="oc-btn">쇼핑 계속하기</a>
-    </div>
+    <div class="oc-msg">주문 확인 후 상품을 준비하겠습니다.<br>주문 내역은 마이페이지에서 확인하실 수 있습니다.</div>
+    <div class="oc-btns"><a href="/mypage.html?tab=orders" class="oc-btn primary">주문 내역 보기</a><a href="/category.html" class="oc-btn">쇼핑 계속하기</a></div>
   </div>
-
-  <!-- ═══ 실패 ═══ -->
   <div class="oc-fail" id="ocFail">
-    <div class="oc-fail-icon">
-      <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-    </div>
+    <div class="oc-fail-icon"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></div>
     <div class="oc-fail-title">결제 확인에 실패했습니다</div>
-    <div class="oc-fail-msg" id="ocFailMsg">결제는 정상 처리되었으나 확인 과정에서 문제가 발생했습니다.<br>자동으로 확인될 수 있으니 잠시 후 마이페이지를 확인해주세요.</div>
+    <div class="oc-fail-msg" id="ocFailMsg"></div>
     <div class="oc-fail-code" id="ocFailCode"></div>
-    <div class="oc-btns">
-      <a href="/mypage.html?tab=orders" class="oc-btn primary">마이페이지 확인</a>
-      <a href="/mypage.html?tab=inquiry" class="oc-btn">1:1 문의하기</a>
-    </div>
+    <div class="oc-btns"><a href="/mypage.html?tab=orders" class="oc-btn primary">마이페이지 확인</a><a href="/mypage.html?tab=inquiry" class="oc-btn">1:1 문의하기</a></div>
   </div>
-
 </div>
 
-<!-- FOOTER -->
 <footer class="footer">
-  <div class="footer__grid">
-    <div><div class="footer__brand">Yllowtap</div><p class="footer__brand-desc">Curated luxury fashion for the modern woman.</p></div>
-    <div class="footer__col"><div class="footer__col-title">Shop</div><a href="/category.html?cat=best">Best</a><a href="/category.html?cat=new">New In</a><a href="/category.html?cat=bags">Bags</a><a href="/category.html?cat=jewelry">Jewelry</a></div>
-    <div class="footer__col"><div class="footer__col-title">Customer Care</div><a href="/mypage.html?tab=inquiry">1:1 문의하기</a><a href="/faq.html">FAQ 자주 묻는 질문</a><a href="/faq.html?cat=shipping">배송 안내</a><a href="/faq.html?cat=return">교환 · 반품</a></div>
-    <div class="footer__col"><div class="footer__col-title">About</div><a href="/about.html">브랜드 소개</a><a href="/terms.html">이용약관</a><a href="/privacy.html">개인정보처리방침</a></div>
-  </div>
-  <div style="max-width:1400px;margin:0 auto;padding:0 0 24px;font-size:12px;color:#888;line-height:1.8;">
-    고객센터 1544-0000<br>운영시간 : 평일 09:00 - 18:00 (점심시간 12:00 - 13:00 제외)<br>이메일 : cs@yllowtap.com
-  </div>
-  <div class="footer__bottom"><div class="footer__copy">© 2026 Yllowtap. All rights reserved.</div><div class="footer__social"><a href="https://www.instagram.com/" target="_blank">Instagram</a><a href="https://www.youtube.com/" target="_blank">YouTube</a><a href="https://pinterest.com" target="_blank">Pinterest</a></div></div>
+  <div class="footer__grid"><div><div class="footer__brand">Yllowtap</div><p class="footer__brand-desc">Curated luxury fashion for the modern woman.</p></div><div class="footer__col"><div class="footer__col-title">Shop</div><a href="/category.html?cat=best">Best</a><a href="/category.html?cat=new">New In</a></div><div class="footer__col"><div class="footer__col-title">Customer Care</div><a href="/mypage.html?tab=inquiry">1:1 문의하기</a><a href="/faq.html">FAQ</a></div><div class="footer__col"><div class="footer__col-title">About</div><a href="/about.html">브랜드 소개</a><a href="/terms.html">이용약관</a></div></div>
+  <div class="footer__bottom"><div class="footer__copy">© 2026 Yllowtap. All rights reserved.</div></div>
 </footer>
 
 <script src="./js/main.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <script>
-/* ══════════════════════════════════════════
-   CONFIG
-   ══════════════════════════════════════════ */
 const SUPABASE_URL='https://ppihvvpplqikclftrwdb.supabase.co';
 const SUPABASE_ANON='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBwaWh2dnBwbHFpa2NsZnRyd2RiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk3MzE0NTEsImV4cCI6MjA5NTMwNzQ1MX0.shGVcFTQiuYc4u6tdU50x18YMgJdgFUljf8c7QlQU-U';
 const sb=window.supabase.createClient(SUPABASE_URL,SUPABASE_ANON);
 
-/* ══════════════════════════════════════════
-   INIT — 페이지 로드 시 자동 실행
-   ══════════════════════════════════════════ */
 (async function init(){
-  // ── 1. URL에서 Toss 파라미터 추출 ──
   const params=new URLSearchParams(window.location.search);
-  const paymentKey=params.get('paymentKey');
-  const orderId=params.get('orderId');     // = orderNumber (YT-YYYYMMDD-XXXX)
-  const amount=params.get('amount');
+  const paymentKey=params.get('paymentKey'),orderId=params.get('orderId'),amount=params.get('amount');
+  if(!paymentKey||!orderId||!amount){showFail('잘못된 접근입니다','이 페이지는 결제 완료 후 자동으로 연결됩니다. 장바구니에서 다시 주문해주세요.');return;}
 
-  if(!paymentKey||!orderId||!amount){
-    showFail('잘못된 접근입니다','이 페이지는 결제 완료 후 자동으로 연결됩니다. 장바구니에서 다시 주문해주세요.');
-    return;
-  }
-
-  // ── 2. 로그인 확인 ──
   const{data:{session}}=await sb.auth.getSession();
-  if(!session){
-    showFail('로그인 세션이 만료되었습니다.','다시 로그인 후 마이페이지에서 주문 상태를 확인해주세요.');
-    return;
-  }
+  if(!session){showFail('로그인 세션이 만료되었습니다.','다시 로그인 후 마이페이지에서 주문 상태를 확인해주세요.');return;}
 
-  // ── 3. Edge Function 호출 → Toss 결제 승인 ──
   try{
     const res=await fetch(SUPABASE_URL+'/functions/v1/toss-confirm',{
       method:'POST',
-      headers:{
-        'Content-Type':'application/json',
-        'Authorization':'Bearer '+session.access_token
-      },
-      body:JSON.stringify({
-        paymentKey:paymentKey,
-        orderId:orderId,
-        amount:Number(amount)
-      })
+      headers:{'Content-Type':'application/json','Authorization':'Bearer '+session.access_token},
+      body:JSON.stringify({paymentKey,orderId,amount:Number(amount)})
     });
-
     const result=await res.json();
+    if(!res.ok||!result.success){showFail(result.message||'결제 승인에 실패했습니다.',result.code?'오류 코드: '+result.code:'');return;}
 
-    if(!res.ok||!result.success){
-      showFail(
-        result.message||'결제 승인에 실패했습니다.',
-        result.code?'오류 코드: '+result.code:''
-      );
-      return;
-    }
-
-    // ── 4. 승인 성공 → 카트 정리 ──
-    await cleanupCart(session.user.id);
-
-    // ── 5. 유저 프로필 업데이트 (주문 수, 총 지출) ──
-    await updateProfile(session.user.id, Number(amount));
-
-    // ── 6. 성공 화면 표시 ──
-    showSuccess(orderId, result);
-
+    // 후처리: 카트 삭제 → 쿠폰 사용 → 포인트 차감 → 프로필 업데이트
+    const uid=session.user.id;
+    await cleanupCart();
+    await markCouponUsed(uid,orderId);
+    await deductPoints(uid,orderId);
+    await updateProfile(uid,Number(amount));
+    showSuccess(orderId,result);
   }catch(e){
-    console.error('결제 확인 오류:',e);
-    showFail(
-      '결제 확인 중 네트워크 오류가 발생했습니다.',
-      '결제가 정상 처리된 경우 잠시 후 마이페이지에서 확인 가능합니다.'
-    );
+    console.error('결제 확인:',e);
+    showFail('결제 확인 중 네트워크 오류가 발생했습니다.','결제가 정상 처리된 경우 잠시 후 마이페이지에서 확인 가능합니다.');
   }
 })();
 
-/* ══════════════════════════════════════════
-   카트 정리 — checkout에서 저장한 cart_item_ids 삭제
-   ══════════════════════════════════════════ */
-async function cleanupCart(userId){
-  try{
-    const raw=sessionStorage.getItem('yt_checkout_cart_ids');
-    if(raw){
-      const ids=JSON.parse(raw);
-      for(const id of ids){
-        await sb.from('cart_items').delete().eq('id',id);
-      }
-      sessionStorage.removeItem('yt_checkout_cart_ids');
-      sessionStorage.removeItem('yt_checkout_total');
-    }else{
-      // sessionStorage 비어있으면 (새 탭 등) → 주문 상품 기준으로 삭제
-      // 안전하게: 아무것도 안 함 (카트에 남아있어도 큰 문제 없음)
-      console.warn('sessionStorage에 cart_item_ids 없음 — 카트 정리 스킵');
-    }
-  }catch(e){
-    console.warn('카트 정리 실패 (무시 가능):',e);
-  }
+async function cleanupCart(){
+  try{const raw=sessionStorage.getItem('yt_checkout_cart_ids');if(raw){const ids=JSON.parse(raw);for(const id of ids)await sb.from('cart_items').delete().eq('id',id);sessionStorage.removeItem('yt_checkout_cart_ids');}sessionStorage.removeItem('yt_checkout_total');}catch(e){console.warn('카트 정리:',e);}
 }
 
-/* ══════════════════════════════════════════
-   유저 프로필 업데이트
-   ══════════════════════════════════════════ */
-async function updateProfile(userId, totalAmount){
+async function markCouponUsed(uid,orderNumber){
   try{
-    const{data:profile}=await sb.from('user_profiles').select('order_count,total_spent').eq('id',userId).single();
-    if(profile){
-      await sb.from('user_profiles').update({
-        order_count:(profile.order_count||0)+1,
-        total_spent:(profile.total_spent||0)+totalAmount,
-        updated_at:new Date().toISOString()
-      }).eq('id',userId);
-    }
-  }catch(e){
-    console.warn('프로필 업데이트 실패 (무시 가능):',e);
-  }
+    const couponId=sessionStorage.getItem('yt_checkout_coupon_id');
+    if(!couponId)return;
+    // 주문 ID 조회
+    const{data:order}=await sb.from('orders').select('id').eq('order_number',orderNumber).single();
+    await sb.from('user_coupons').update({is_used:true,used_at:new Date().toISOString(),order_id:order?.id||null}).eq('coupon_id',couponId).eq('user_id',uid);
+    sessionStorage.removeItem('yt_checkout_coupon_id');
+  }catch(e){console.warn('쿠폰 처리:',e);}
 }
 
-/* ══════════════════════════════════════════
-   UI 상태 전환
-   ══════════════════════════════════════════ */
-function showSuccess(orderNumber, result){
+async function deductPoints(uid,orderNumber){
+  try{
+    const pts=parseInt(sessionStorage.getItem('yt_checkout_points_used')||'0');
+    if(pts<=0)return;
+    const{data:profile}=await sb.from('user_profiles').select('point').eq('id',uid).single();
+    if(profile){await sb.from('user_profiles').update({point:Math.max(0,(profile.point||0)-pts)}).eq('id',uid);}
+    const{data:order}=await sb.from('orders').select('id').eq('order_number',orderNumber).single();
+    await sb.from('point_history').insert({user_id:uid,amount:pts,type:'use',description:'주문 사용',order_id:order?.id||null});
+    sessionStorage.removeItem('yt_checkout_points_used');
+  }catch(e){console.warn('포인트 처리:',e);}
+}
+
+async function updateProfile(uid,totalAmount){
+  try{const{data:p}=await sb.from('user_profiles').select('order_count,total_spent').eq('id',uid).single();if(p)await sb.from('user_profiles').update({order_count:(p.order_count||0)+1,total_spent:(p.total_spent||0)+totalAmount,updated_at:new Date().toISOString()}).eq('id',uid);}catch(e){console.warn('프로필:',e);}
+}
+
+function showSuccess(orderNumber,result){
   document.getElementById('ocLoading').style.display='none';
   document.getElementById('ocSuccess').style.display='block';
   document.getElementById('ocOrderNum').textContent='주문번호: '+orderNumber;
-
-  // 요약 정보
-  const totalAmount=result.totalAmount||0;
-  const method=result.method||'';
-  let summaryHTML='';
-  summaryHTML+='<div class="oc-summary-row"><span>결제 금액</span><span>'+totalAmount.toLocaleString()+'원</span></div>';
-  if(method) summaryHTML+='<div class="oc-summary-row"><span>결제 수단</span><span>'+method+'</span></div>';
-  summaryHTML+='<div class="oc-summary-row"><span>주문 상태</span><span>결제 완료</span></div>';
-  document.getElementById('ocSummary').innerHTML=summaryHTML;
+  let html='<div class="oc-summary-row"><span>결제 금액</span><span>'+(result.totalAmount||0).toLocaleString()+'원</span></div>';
+  if(result.method)html+='<div class="oc-summary-row"><span>결제 수단</span><span>'+result.method+'</span></div>';
+  html+='<div class="oc-summary-row"><span>주문 상태</span><span>결제 완료</span></div>';
+  document.getElementById('ocSummary').innerHTML=html;
 }
-
-function showFail(message, detail){
-  document.getElementById('ocLoading').style.display='none';
-  document.getElementById('ocFail').style.display='block';
-  document.getElementById('ocFailMsg').innerHTML=message;
-  document.getElementById('ocFailCode').textContent=detail||'';
-}
+function showFail(msg,detail){document.getElementById('ocLoading').style.display='none';document.getElementById('ocFail').style.display='block';document.getElementById('ocFailMsg').innerHTML=msg;document.getElementById('ocFailCode').textContent=detail||'';}
 </script>
 <script src="./js/common-header.js?v=15"></script>
 </body>
