@@ -37,6 +37,13 @@
 .co-item-qty{font-size:11px;color:#888;margin-top:2px}
 .co-item-price{margin-left:auto;font-size:14px;font-weight:600;white-space:nowrap}
 
+/* PAYMENT METHOD (Toss Widget) */
+.co-payment-wrap{min-height:80px;position:relative}
+.co-payment-loading{text-align:center;padding:32px 0;color:#888;font-size:13px;line-height:1.6}
+.co-payment-loading .spinner{display:inline-block;width:20px;height:20px;border:2px solid #E5E1DC;border-top-color:#111;border-radius:50%;animation:spin .6s linear infinite;margin-bottom:8px}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* SUMMARY */
 .co-summary{background:#fff;border:1px solid #E5E1DC;padding:28px 24px;position:sticky;top:calc(var(--header-height,88px) + 20px)}
 .co-summary-title{font-size:14px;font-weight:600;letter-spacing:1px;margin-bottom:20px;padding-bottom:12px;border-bottom:1px solid #E5E1DC}
 .co-summary-row{display:flex;justify-content:space-between;margin-bottom:10px;font-size:13px;color:#444}
@@ -44,21 +51,16 @@
 .co-agree{margin-top:20px;padding-top:16px;border-top:1px solid #E5E1DC}
 .co-agree label{display:flex;align-items:flex-start;gap:8px;font-size:12px;color:#444;line-height:1.5;cursor:pointer;margin-bottom:8px}
 .co-agree input{margin-top:2px;flex-shrink:0}
+.co-toss-agree{margin-top:12px}
 .co-submit{display:block;width:100%;padding:18px;margin-top:20px;font-size:14px;font-weight:700;letter-spacing:2px;text-transform:uppercase;text-align:center;background:#111;color:#fff;border:none;cursor:pointer;font-family:inherit;transition:background .2s}
 .co-submit:hover{background:#333}
 .co-submit:disabled{background:#ccc;cursor:not-allowed}
-.co-success{display:none;text-align:center;padding:80px 0}
-.co-success-icon{font-size:48px;margin-bottom:16px}
-.co-success-title{font-family:'Bodoni Moda',serif;font-size:28px;margin-bottom:8px}
-.co-success-num{font-size:14px;color:#888;margin-bottom:24px}
-.co-success-msg{font-size:13px;color:#666;line-height:1.7;margin-bottom:32px}
-.co-success-btns{display:flex;gap:12px;justify-content:center}
-.co-success-btn{padding:14px 32px;font-size:12px;font-weight:500;letter-spacing:1.5px;text-transform:uppercase;text-decoration:none;border:1px solid #111;color:#111;font-family:inherit;transition:all .2s}
-.co-success-btn:hover{background:#111;color:#fff;opacity:1}
-.co-success-btn.primary{background:#111;color:#fff}
-.co-success-btn.primary:hover{background:#333}
+
+/* ERROR */
 .co-error{background:#FFF0F0;border:1px solid #E8CCCC;color:#C4453C;padding:10px 14px;font-size:12px;margin-bottom:16px;display:none;border-radius:2px}
 .co-error.show{display:block}
+
+/* RESPONSIVE */
 @media(max-width:1024px){.co-layout{grid-template-columns:1fr;gap:24px}.co-summary{position:static}}
 @media(max-width:768px){
   .co-page{padding:calc(var(--header-height,60px) + 20px) 16px 60px}
@@ -69,42 +71,17 @@
 </head>
 <body>
 
+<!-- common-header.js가 덮어쓰므로 최소 뼈대만 -->
 <header class="header">
   <div class="header__logo"><a href="/" style="text-decoration:none;color:inherit;"><span class="header__logo-highlight">Yllowtap</span></a></div>
-  <nav class="header__nav">
-    <a href="/category.html?cat=best">Best</a><a href="/category.html?cat=new">New In</a>
-    <a href="/category.html?cat=bags">Bags</a><a href="/category.html?cat=jewelry">Jewelry</a>
-    <a href="/category.html?cat=accessories">Accessories</a><a href="/category.html?cat=keyring">Keyring</a>
-    <a href="/category.html?cat=seasonal">Seasonal</a><a href="/category.html?cat=sale">Sale</a>
-  </nav>
-  <div class="header__actions"><a href="/mypage.html">My Page</a><a href="/mypage.html?tab=wishlist">Wishlist</a><a href="/cart.html">Bag (0)</a>
-    <button class="header__hamburger" aria-label="메뉴 열기"><span></span><span></span><span></span></button></div>
 </header>
-<div class="mobile-menu">
-  <button class="mobile-menu__close" aria-label="메뉴 닫기">✕</button>
-  <a href="/category.html?cat=best">Best</a><a href="/category.html?cat=new">New In</a>
-  <a href="/category.html?cat=bags">Bags</a><a href="/category.html?cat=jewelry">Jewelry</a>
-  <a href="/category.html?cat=accessories">Accessories</a><a href="/category.html?cat=keyring">Keyring</a>
-  <a href="/category.html?cat=seasonal">Seasonal</a><a href="/category.html?cat=sale">Sale</a>
-  <a href="/mypage.html">My Page</a><a href="/mypage.html?tab=wishlist">Wishlist</a>
-</div>
 
 <div class="co-page">
   <div class="co-header"><h1>Checkout</h1></div>
 
-  <div class="co-success" id="coSuccess">
-    <div class="co-success-icon">✓</div>
-    <div class="co-success-title">주문이 완료되었습니다</div>
-    <div class="co-success-num" id="coOrderNum"></div>
-    <div class="co-success-msg">주문 확인 후 상품을 준비하겠습니다.<br>주문 내역은 마이페이지에서 확인하실 수 있습니다.</div>
-    <div class="co-success-btns">
-      <a href="/mypage.html?tab=orders" class="co-success-btn primary">주문 내역 보기</a>
-      <a href="/category.html" class="co-success-btn">쇼핑 계속하기</a>
-    </div>
-  </div>
-
   <div class="co-layout" id="coForm">
     <div>
+      <!-- ═══ 배송 정보 ═══ -->
       <div class="co-section">
         <div class="co-section-title">배송 정보</div>
         <div class="co-error" id="coError"></div>
@@ -145,7 +122,7 @@
         </div>
       </div>
 
-      <!-- 주문 상품 (체크리스트) -->
+      <!-- ═══ 주문 상품 ═══ -->
       <div class="co-section">
         <div class="co-section-title">주문 상품</div>
         <div style="margin-bottom:12px;">
@@ -155,8 +132,17 @@
         </div>
         <div id="coItems"></div>
       </div>
+
+      <!-- ═══ 결제 수단 (TossPayments 위젯) ═══ -->
+      <div class="co-section">
+        <div class="co-section-title">결제 수단</div>
+        <div id="payment-method" class="co-payment-wrap">
+          <div class="co-payment-loading"><div class="spinner"></div><br>결제 수단을 불러오는 중...</div>
+        </div>
+      </div>
     </div>
 
+    <!-- ═══ ORDER SUMMARY ═══ -->
     <div class="co-summary">
       <div class="co-summary-title">ORDER SUMMARY</div>
       <div class="co-summary-row"><span>상품 금액</span><span id="coSubtotal">0원</span></div>
@@ -164,6 +150,7 @@
       <div class="co-summary-row"><span>배송비</span><span id="coShipping">0원</span></div>
       <div class="co-summary-total"><span>총 결제 금액</span><span id="coTotal">0원</span></div>
 
+      <!-- 쇼핑몰 약관 -->
       <div class="co-agree">
         <label><input type="checkbox" id="agreeAll" onchange="toggleAgreeAll()"> <strong>전체 동의</strong></label>
         <label><input type="checkbox" class="agree-item" id="agreeTerms"> [필수] 이용약관 동의</label>
@@ -171,12 +158,15 @@
         <label><input type="checkbox" class="agree-item" id="agreePayment"> [필수] 결제 진행 동의</label>
       </div>
 
-      <button class="co-submit" id="coSubmitBtn" onclick="submitOrder()">주문하기</button>
-      <p style="text-align:center;margin-top:10px;font-size:11px;color:#888;">결제 시스템 준비 중 — 주문 접수만 됩니다</p>
+      <!-- Toss 결제 약관 (위젯이 여기 렌더링) -->
+      <div id="toss-agreement" class="co-toss-agree"></div>
+
+      <button class="co-submit" id="coSubmitBtn" onclick="submitOrder()">결제하기</button>
     </div>
   </div>
 </div>
 
+<!-- FOOTER -->
 <footer class="footer">
   <div class="footer__grid">
     <div><div class="footer__brand">Yllowtap</div><p class="footer__brand-desc">Curated luxury fashion for the modern woman.</p></div>
@@ -193,11 +183,26 @@
 <script src="./js/main.js"></script>
 <script src="https://t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<script src="https://js.tosspayments.com/v2/standard"></script>
 <script>
+/* ══════════════════════════════════════════
+   CONFIG — Ctrl+H로 키 치환
+   ══════════════════════════════════════════ */
 const SUPABASE_URL='https://ppihvvpplqikclftrwdb.supabase.co';
 const SUPABASE_ANON='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBwaWh2dnBwbHFpa2NsZnRyd2RiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk3MzE0NTEsImV4cCI6MjA5NTMwNzQ1MX0.shGVcFTQiuYc4u6tdU50x18YMgJdgFUljf8c7QlQU-U';
+const TOSS_CLIENT_KEY='여기에_CLIENT_KEY';
 const sb=window.supabase.createClient(SUPABASE_URL,SUPABASE_ANON);
 
+let currentUser=null;
+let cartItems=[];
+let widgets=null;          // TossPayments 위젯 인스턴스
+let FREE_SHIPPING=50000;
+let SHIPPING_FEE=3000;
+let lastCreatedOrderId=null; // 결제 취소 시 클린업용
+
+/* ══════════════════════════════════════════
+   다음 주소 검색
+   ══════════════════════════════════════════ */
 function searchAddress(){
   new daum.Postcode({
     oncomplete:function(data){
@@ -208,11 +213,9 @@ function searchAddress(){
   }).open();
 }
 
-let currentUser=null;
-let cartItems=[];
-let FREE_SHIPPING=50000;
-let SHIPPING_FEE=3000;
-
+/* ══════════════════════════════════════════
+   INIT
+   ══════════════════════════════════════════ */
 async function init(){
   const{data:{session}}=await sb.auth.getSession();
   if(!session){alert('로그인이 필요합니다.');window.location.href='/login.html';return;}
@@ -221,8 +224,12 @@ async function init(){
   await loadCartItems();
   await loadSavedAddresses();
   bindMemoSelect();
+  await initTossWidgets();
 }
 
+/* ══════════════════════════════════════════
+   배송비 설정 로드
+   ══════════════════════════════════════════ */
 async function loadShippingSettings(){
   const{data}=await sb.from('site_settings').select('*');
   if(data){data.forEach(r=>{
@@ -231,6 +238,9 @@ async function loadShippingSettings(){
   });}
 }
 
+/* ══════════════════════════════════════════
+   장바구니 → 주문 상품 로드
+   ══════════════════════════════════════════ */
 async function loadCartItems(){
   const{data:cart}=await sb.from('carts').select('id').eq('user_id',currentUser.id).single();
   if(!cart){window.location.href='/cart.html';return;}
@@ -238,7 +248,7 @@ async function loadCartItems(){
   cartItems=(items||[]).map(item=>({...item,checked:true}));
   if(!cartItems.length){window.location.href='/cart.html';return;}
 
-  // URL에서 선택된 상품 (비교에서 넘어온 경우) - 선택 안 한 건 아예 제외
+  // URL에서 선택된 상품 (비교에서 넘어온 경우)
   const params=new URLSearchParams(window.location.search);
   const selectedId=params.get('selected');
   if(selectedId){
@@ -250,6 +260,9 @@ async function loadCartItems(){
   updateSummary();
 }
 
+/* ══════════════════════════════════════════
+   주문 상품 렌더링
+   ══════════════════════════════════════════ */
 function renderItems(){
   document.getElementById('coItems').innerHTML=cartItems.map((item,i)=>{
     const p=item.products;
@@ -270,14 +283,15 @@ function renderItems(){
   }).join('');
 }
 
+/* ══════════════════════════════════════════
+   상품 체크/해제
+   ══════════════════════════════════════════ */
 function toggleCoItem(idx){
   cartItems[idx].checked=!cartItems[idx].checked;
   const el=document.getElementById('co-item-'+idx);
   if(el)el.classList.toggle('unchecked',!cartItems[idx].checked);
   updateSummary();
-  // 전체 선택 체크박스 동기화
-  const allChecked=cartItems.every(i=>i.checked);
-  document.getElementById('coSelectAll').checked=allChecked;
+  document.getElementById('coSelectAll').checked=cartItems.every(i=>i.checked);
 }
 
 function toggleCoSelectAll(){
@@ -292,7 +306,10 @@ function toggleCoSelectAll(){
   updateSummary();
 }
 
-function updateSummary(){
+/* ══════════════════════════════════════════
+   ORDER SUMMARY 갱신 + Toss 금액 동기화
+   ══════════════════════════════════════════ */
+async function updateSummary(){
   const checkedItems=cartItems.filter(i=>i.checked);
   let subtotal=0,discount=0;
   checkedItems.forEach(item=>{
@@ -302,12 +319,24 @@ function updateSummary(){
   });
   const shipping=subtotal>=FREE_SHIPPING?0:(subtotal>0?SHIPPING_FEE:0);
   const total=subtotal+shipping;
+
   document.getElementById('coSubtotal').textContent=(subtotal+discount).toLocaleString()+'원';
   document.getElementById('coDiscount').textContent=discount?'-'+discount.toLocaleString()+'원':'0원';
   document.getElementById('coShipping').textContent=shipping?shipping.toLocaleString()+'원':(subtotal>0?'무료':'0원');
   document.getElementById('coTotal').textContent=total.toLocaleString()+'원';
+
+  // 결제 버튼: 금액 0이면 비활성화
+  document.getElementById('coSubmitBtn').disabled=(total<=0);
+
+  // Toss 위젯 금액 동기화
+  if(widgets&&total>0){
+    try{await widgets.setAmount({currency:'KRW',value:total});}catch(e){console.warn('Toss setAmount:',e);}
+  }
 }
 
+/* ══════════════════════════════════════════
+   저장된 배송지
+   ══════════════════════════════════════════ */
 async function loadSavedAddresses(){
   const{data}=await sb.from('addresses').select('*').eq('user_id',currentUser.id).order('is_default',{ascending:false});
   if(!data?.length)return;
@@ -345,13 +374,54 @@ function bindMemoSelect(){
   });
 }
 
+/* ══════════════════════════════════════════
+   약관 전체 동의
+   ══════════════════════════════════════════ */
 function toggleAgreeAll(){
   const checked=document.getElementById('agreeAll').checked;
   document.querySelectorAll('.agree-item').forEach(cb=>cb.checked=checked);
 }
 
+/* ══════════════════════════════════════════
+   TossPayments 위젯 초기화
+   ══════════════════════════════════════════ */
+async function initTossWidgets(){
+  try{
+    const tossPayments=TossPayments(TOSS_CLIENT_KEY);
+    widgets=tossPayments.widgets({customerKey:currentUser.id});
+
+    const total=getCurrentTotal();
+    if(total>0){
+      await widgets.setAmount({currency:'KRW',value:total});
+      await widgets.renderPaymentMethods({selector:'#payment-method',variantKey:'DEFAULT'});
+      await widgets.renderAgreement({selector:'#toss-agreement',variantKey:'AGREEMENT'});
+    }else{
+      document.getElementById('payment-method').innerHTML=
+        '<div class="co-payment-loading">주문할 상품을 선택해주세요</div>';
+    }
+  }catch(e){
+    console.error('Toss 초기화 오류:',e);
+    document.getElementById('payment-method').innerHTML=
+      '<div class="co-payment-loading" style="color:#C4453C;">결제 수단을 불러오지 못했습니다.<br>새로고침 후 다시 시도해주세요.</div>';
+  }
+}
+
+function getCurrentTotal(){
+  const checkedItems=cartItems.filter(i=>i.checked);
+  let subtotal=0;
+  checkedItems.forEach(item=>{
+    const p=item.products;if(!p)return;
+    subtotal+=p.price*item.quantity;
+  });
+  const shipping=subtotal>=FREE_SHIPPING?0:(subtotal>0?SHIPPING_FEE:0);
+  return subtotal+shipping;
+}
+
+/* ══════════════════════════════════════════
+   결제하기
+   ══════════════════════════════════════════ */
 async function submitOrder(){
-  // 체크된 상품만
+  // ── 검증 ──
   const checkedItems=cartItems.filter(i=>i.checked);
   if(!checkedItems.length){showError('주문할 상품을 선택해주세요.');return;}
 
@@ -370,11 +440,14 @@ async function submitOrder(){
   if(!document.getElementById('agreeTerms').checked||!document.getElementById('agreePrivacy').checked||!document.getElementById('agreePayment').checked){
     showError('필수 약관에 동의해주세요.');return;
   }
+  if(!widgets){showError('결제 수단을 불러오지 못했습니다. 새로고침해주세요.');return;}
 
   const btn=document.getElementById('coSubmitBtn');
   btn.disabled=true;btn.textContent='처리 중...';
+  hideError();
 
   try{
+    // ── 금액 계산 ──
     let subtotal=0,discount=0;
     checkedItems.forEach(item=>{
       const p=item.products;if(!p)return;
@@ -384,11 +457,13 @@ async function submitOrder(){
     const shipping=subtotal>=FREE_SHIPPING?0:SHIPPING_FEE;
     const total=subtotal+shipping;
 
+    // ── 주문번호 생성 ──
     const now=new Date();
     const dateStr=now.getFullYear().toString()+String(now.getMonth()+1).padStart(2,'0')+String(now.getDate()).padStart(2,'0');
     const rand=String(Math.floor(Math.random()*10000)).padStart(4,'0');
     const orderNumber='YT-'+dateStr+'-'+rand;
 
+    // ── DB: 주문 생성 (pending) ──
     const{data:order,error:orderErr}=await sb.from('orders').insert({
       order_number:orderNumber,user_id:currentUser.id,status:'pending',
       recipient_name:name,phone,zipcode:zip,address1:addr1,address2:addr2,
@@ -396,6 +471,9 @@ async function submitOrder(){
     }).select().single();
     if(orderErr) throw orderErr;
 
+    lastCreatedOrderId=order.id;
+
+    // ── DB: 주문 상품 생성 ──
     const orderItems=checkedItems.map(item=>{
       const p=item.products;
       return{order_id:order.id,product_id:p.id,product_name_snapshot:p.name,
@@ -406,11 +484,7 @@ async function submitOrder(){
     const{error:itemsErr}=await sb.from('order_items').insert(orderItems);
     if(itemsErr) throw itemsErr;
 
-    // 주문된 상품만 장바구니에서 제거
-    for(const item of checkedItems){
-      await sb.from('cart_items').delete().eq('id',item.id);
-    }
-
+    // ── 배송지 저장 (체크 시) ──
     if(document.getElementById('coSaveAddr').checked){
       await sb.from('addresses').insert({
         user_id:currentUser.id,label:'주문 시 저장',
@@ -419,32 +493,74 @@ async function submitOrder(){
       });
     }
 
-    if(currentUser.id){
-      const{data:profile}=await sb.from('user_profiles').select('order_count,total_spent,display_name,phone').eq('id',currentUser.id).single();
-      if(profile){
-        const profileUpdate={order_count:(profile.order_count||0)+1,total_spent:(profile.total_spent||0)+total,updated_at:new Date().toISOString()};
-        if(!profile.display_name||profile.display_name==='회원') profileUpdate.display_name=name;
-        if(!profile.phone) profileUpdate.phone=phone;
-        await sb.from('user_profiles').update(profileUpdate).eq('id',currentUser.id);
-      }
-    }
+    // ── 주문 이름 (Toss 표시용) ──
+    const firstName=checkedItems[0].products?.name||'상품';
+    const orderName=checkedItems.length>1
+      ? firstName+' 외 '+(checkedItems.length-1)+'건'
+      : firstName;
 
-    document.getElementById('coForm').style.display='none';
-    document.getElementById('coSuccess').style.display='block';
-    document.getElementById('coOrderNum').textContent='주문번호: '+orderNumber;
+    // ── 카트 정리용 ID 저장 (결제 성공 후 order-complete에서 사용) ──
+    sessionStorage.setItem('yt_checkout_cart_ids',JSON.stringify(checkedItems.map(i=>i.id)));
+    sessionStorage.setItem('yt_checkout_total',String(total));
+
+    // ── TossPayments 결제 요청 ──
+    // 성공 → order-complete.html, 실패 → order-fail.html
+    await widgets.requestPayment({
+      orderId:orderNumber,
+      orderName:orderName,
+      successUrl:window.location.origin+'/order-complete.html',
+      failUrl:window.location.origin+'/order-fail.html',
+      customerEmail:currentUser.email||'',
+      customerName:name,
+      customerMobilePhone:phone.replace(/-/g,''),
+    });
+
+    // requestPayment가 성공하면 페이지가 리다이렉트되므로
+    // 여기 이후 코드는 실행되지 않음
 
   }catch(err){
-    showError('주문 처리 실패: '+err.message);
-    btn.disabled=false;btn.textContent='주문하기';
+    console.error('결제 오류:',err);
+
+    // 사용자가 결제창을 닫은 경우
+    if(err.code==='USER_CANCEL'||err.code==='INVALID_CARD_COMPANY'){
+      // pending 주문 클린업
+      if(lastCreatedOrderId){
+        await sb.from('order_items').delete().eq('order_id',lastCreatedOrderId);
+        await sb.from('orders').delete().eq('id',lastCreatedOrderId);
+        lastCreatedOrderId=null;
+      }
+      btn.disabled=false;btn.textContent='결제하기';
+      return;
+    }
+
+    // 그 외 오류
+    // pending 주문 클린업
+    if(lastCreatedOrderId){
+      await sb.from('order_items').delete().eq('order_id',lastCreatedOrderId);
+      await sb.from('orders').delete().eq('id',lastCreatedOrderId);
+      lastCreatedOrderId=null;
+    }
+    showError('결제 요청에 실패했습니다. '+(err.message||'다시 시도해주세요.'));
+    btn.disabled=false;btn.textContent='결제하기';
   }
 }
 
+/* ══════════════════════════════════════════
+   에러 표시
+   ══════════════════════════════════════════ */
 function showError(msg){
   const el=document.getElementById('coError');
   el.textContent=msg;el.classList.add('show');
   el.scrollIntoView({behavior:'smooth',block:'center'});
 }
+function hideError(){
+  const el=document.getElementById('coError');
+  el.textContent='';el.classList.remove('show');
+}
 
+/* ══════════════════════════════════════════
+   헬퍼
+   ══════════════════════════════════════════ */
 function getMainImg(p){
   if(p.product_media?.length){const m=p.product_media.filter(x=>x.role==='main').sort((a,b)=>a.display_order-b.display_order);return m.length?m[0].media_url:p.product_media[0].media_url;}
   return p.image_url;
@@ -452,6 +568,6 @@ function getMainImg(p){
 
 init();
 </script>
-<script src="./js/common-header.js"></script>
+<script src="./js/common-header.js?v=15"></script>
 </body>
 </html>
