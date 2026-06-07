@@ -82,16 +82,26 @@
 .order-action-msg{font-size:12px;color:#888;padding:8px 0;font-style:italic}
 
 /* COUPONS */
-.coupon-card{background:#fff;border:1px solid #E5E1DC;padding:18px 20px;margin-bottom:12px;display:flex;justify-content:space-between;align-items:center}
-.coupon-card.used,.coupon-card.expired{opacity:.45}
-.coupon-name{font-size:14px;font-weight:600;margin-bottom:2px}
-.coupon-desc{font-size:11px;color:#888;line-height:1.5}
+.coupon-register{background:#fff;border:1px solid #E5E1DC;padding:36px 24px;text-align:center;margin-bottom:28px}
+.coupon-register-icon{font-size:36px;margin-bottom:8px}
+.coupon-register-title{font-size:16px;font-weight:600;letter-spacing:1px;margin-bottom:4px}
+.coupon-register-desc{font-size:12px;color:#888;margin-bottom:20px}
+.coupon-register-row{display:flex;gap:8px;max-width:360px;margin:0 auto}
+.coupon-code-input{flex:1;text-align:center;letter-spacing:2px;text-transform:uppercase;font-weight:600;font-size:15px}
+.coupon-register-btn{padding:12px 28px;font-size:12px;font-weight:600;letter-spacing:2px;text-transform:uppercase;background:#111;color:#fff;border:none;cursor:pointer;font-family:inherit;white-space:nowrap;transition:background .2s}
+.coupon-register-btn:hover{background:#333}
+.coupon-section-title{font-size:12px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:#888;margin-bottom:12px}
+.coupon-card{background:#fff;border:1px solid #E5E1DC;border-left:4px solid #F4D84E;padding:20px 24px;margin-bottom:12px;display:flex;justify-content:space-between;align-items:center}
+.coupon-card.used,.coupon-card.expired{opacity:.45;border-left-color:#ccc}
+.coupon-name{font-size:14px;font-weight:600;margin-bottom:4px}
+.coupon-desc{font-size:11px;color:#888;line-height:1.6}
 .coupon-right{text-align:right}
-.coupon-value{font-size:20px;font-weight:700;color:#111}
-.coupon-badge{display:inline-block;padding:2px 8px;font-size:9px;font-weight:600;letter-spacing:1px;border-radius:2px;margin-top:4px}
+.coupon-value{font-size:22px;font-weight:700;color:#111}
+.coupon-badge{display:inline-block;padding:3px 10px;font-size:9px;font-weight:600;letter-spacing:1px;border-radius:2px;margin-top:6px}
 .coupon-badge.ok{background:#D4EDDA;color:#155724}
 .coupon-badge.used{background:#F8D7DA;color:#721C24}
 .coupon-badge.expired{background:#E5E1DC;color:#666}
+.coupon-empty{text-align:center;padding:40px 0;color:#aaa;font-size:13px}
 
 /* POINTS */
 .point-balance-card{background:#fff;border:1px solid #E5E1DC;padding:20px 24px;margin-bottom:20px;display:flex;justify-content:space-between;align-items:center}
@@ -160,7 +170,7 @@
   .order-actions{flex-direction:column}
   .order-action-btn{width:100%;text-align:center}
   .membership-tiers{grid-template-columns:repeat(2,1fr)}
-  .coupon-card{flex-direction:column;gap:8px;text-align:center}
+  .coupon-card{flex-direction:column;gap:8px;text-align:center;border-left-width:4px}
   .coupon-right{text-align:center}
 }
 </style>
@@ -209,11 +219,16 @@
   <div class="my-panel active" id="panel-orders"><div id="orderList"></div></div>
 
   <div class="my-panel" id="panel-coupon">
-    <div id="couponList"></div>
-    <div style="margin-top:20px;max-width:400px;display:flex;gap:8px;">
-      <input class="pf-input" id="couponCodeInput" placeholder="쿠폰 코드를 입력하세요" style="flex:1">
-      <button class="pf-save" onclick="registerCoupon()" style="margin-top:0;white-space:nowrap;padding:12px 24px">등록</button>
+    <div class="coupon-register">
+      <div class="coupon-register-icon">🎟️</div>
+      <div class="coupon-register-title">쿠폰 등록</div>
+      <div class="coupon-register-desc">쿠폰 코드를 입력하고 등록 버튼을 눌러주세요</div>
+      <div class="coupon-register-row">
+        <input class="pf-input coupon-code-input" id="couponCodeInput" placeholder="예: WELCOME10" maxlength="30">
+        <button class="coupon-register-btn" onclick="registerCoupon()">등록</button>
+      </div>
     </div>
+    <div id="couponList"></div>
   </div>
 
   <div class="my-panel" id="panel-point">
@@ -415,20 +430,26 @@ async function confirmOrder(id,num){if(!confirm('구매를 확정하시겠습니
 async function loadCoupons(){
   const{data}=await sb.from('user_coupons').select('*,coupons(*)').eq('user_id',currentUser.id).order('received_at',{ascending:false});
   const el=document.getElementById('couponList');
-  if(!data?.length){el.innerHTML='<div class="my-empty"><p>보유한 쿠폰이 없습니다</p><p style="font-size:12px;color:#aaa;">쿠폰 코드가 있다면 아래에서 등록하세요</p></div>';return;}
+  if(!data?.length){el.innerHTML='<div class="coupon-empty">등록된 쿠폰이 없습니다</div>';return;}
   const now=new Date();
-  el.innerHTML=data.map(uc=>{
-    const c=uc.coupons;if(!c)return'';
+  const available=[], used=[];
+  data.forEach(uc=>{
+    const c=uc.coupons;if(!c)return;
     const expired=c.valid_until&&new Date(c.valid_until)<now;
     const status=uc.is_used?'used':expired?'expired':'ok';
     const statusLabel=uc.is_used?'사용 완료':expired?'기간 만료':'사용 가능';
     const valStr=c.discount_type==='percent'?c.discount_value+'%':c.discount_value.toLocaleString()+'원';
     const validStr=c.valid_until?new Date(c.valid_until).toLocaleDateString('ko-KR')+'까지':'무기한';
-    return`<div class="coupon-card ${status}">
+    const html=`<div class="coupon-card ${status}">
       <div><div class="coupon-name">${c.name}</div><div class="coupon-desc">${c.min_order_amount?c.min_order_amount.toLocaleString()+'원 이상 구매 시':'제한 없음'} · ${validStr}</div></div>
       <div class="coupon-right"><div class="coupon-value">${valStr}</div><span class="coupon-badge ${status}">${statusLabel}</span></div>
     </div>`;
-  }).join('');
+    if(status==='ok')available.push(html);else used.push(html);
+  });
+  let html='';
+  if(available.length)html+=`<div class="coupon-section-title">사용 가능 (${available.length}장)</div>`+available.join('');
+  if(used.length)html+=`<div class="coupon-section-title" style="margin-top:24px;">사용 완료 / 만료</div>`+used.join('');
+  el.innerHTML=html;
 }
 async function registerCoupon(){
   const code=document.getElementById('couponCodeInput').value.trim().toUpperCase();
