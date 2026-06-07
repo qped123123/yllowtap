@@ -4,6 +4,8 @@
    ============================================================ */
 
 /* ---------- 0. 설정 ---------- */
+const {data:{session}} = await sb.auth.getSession();
+if(!session) { window.location.href = '/login.html'; return; }
 const SUPABASE_URL  = 'https://ppihvvpplqikclftrwdb.supabase.co';
 const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBwaWh2dnBwbHFpa2NsZnRyd2RiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk3MzE0NTEsImV4cCI6MjA5NTMwNzQ1MX0.shGVcFTQiuYc4u6tdU50x18YMgJdgFUljf8c7QlQU-U';   // ← Ctrl+H 로 실제 anon 키 치환
 
