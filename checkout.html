@@ -269,7 +269,7 @@ function renderItems(){
     if(!p)return'';
     const img=getMainImg(p);
     const opts=item.selected_options||{};
-    const optStr=Object.entries(opts).map(([k,v])=>k+': '+v).join(' / ');
+    const optStr=Object.entries(opts).filter(([k])=>!k.startsWith('_')).map(([k,v])=>k+': '+v).join(' / ');
     return`<div class="co-item${item.checked?'':' unchecked'}" id="co-item-${i}">
       <input type="checkbox" class="co-item-check" ${item.checked?'checked':''} onchange="toggleCoItem(${i})">
       ${img?`<img class="co-item-img" src="${img}">`:'<div class="co-item-img"></div>'}

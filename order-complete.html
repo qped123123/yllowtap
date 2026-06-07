@@ -136,7 +136,7 @@ const sb=window.supabase.createClient(SUPABASE_URL,SUPABASE_ANON);
   const amount=params.get('amount');
 
   if(!paymentKey||!orderId||!amount){
-    showFail('결제 정보가 누락되었습니다.','필수 파라미터(paymentKey, orderId, amount)가 URL에 없습니다.');
+    showFail('잘못된 접근입니다','이 페이지는 결제 완료 후 자동으로 연결됩니다. 장바구니에서 다시 주문해주세요.');
     return;
   }
 

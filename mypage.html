@@ -42,14 +42,32 @@
 .status-preparing{background:#CCE5FF;color:#004085}
 .status-shipped{background:#CCE5FF;color:#004085}
 .status-delivered{background:#D4EDDA;color:#155724}
+.status-confirmed{background:#D4EDDA;color:#155724}
 .status-cancelled{background:#F8D7DA;color:#721C24}
 .status-refunded{background:#F8D7DA;color:#721C24}
+.status-requested{background:#FFF3CD;color:#856404}
 .order-item{display:flex;gap:14px;align-items:center;padding:8px 0}
 .order-item-img{width:56px;height:70px;object-fit:cover;background:#EAE7E2;flex-shrink:0}
 .order-item-name{font-size:13px;font-weight:500;margin-bottom:2px}
 .order-item-option{font-size:11px;color:#888}
 .order-item-price{margin-left:auto;font-size:13px;font-weight:600;white-space:nowrap}
 .order-total{text-align:right;margin-top:12px;padding-top:12px;border-top:1px solid #F0EDE8;font-size:14px;font-weight:700}
+
+/* ORDER DETAIL (expandable) */
+.order-detail-toggle{display:block;width:100%;padding:12px 0 0;font-size:12px;color:#888;background:none;border:none;cursor:pointer;font-family:inherit;text-align:center;transition:color .2s;letter-spacing:0.5px}
+.order-detail-toggle:hover{color:#111}
+.order-detail{border-top:1px solid #F0EDE8;margin-top:14px;padding-top:18px}
+.order-detail-section{margin-bottom:16px}
+.order-detail-label{font-size:11px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:#111;margin-bottom:6px}
+.order-detail-row{font-size:12px;color:#666;line-height:1.8}
+.order-actions{display:flex;gap:8px;flex-wrap:wrap;padding-top:16px;border-top:1px solid #F0EDE8}
+.order-action-btn{padding:9px 22px;font-size:11px;font-weight:500;letter-spacing:0.5px;border:1px solid #E5E1DC;background:none;cursor:pointer;font-family:inherit;transition:all .2s;border-radius:2px}
+.order-action-btn:hover{background:#111;color:#fff;border-color:#111}
+.order-action-btn.cancel{color:#C4453C;border-color:#C4453C}
+.order-action-btn.cancel:hover{background:#C4453C;color:#fff}
+.order-action-btn.primary{background:#111;color:#fff;border-color:#111}
+.order-action-btn.primary:hover{background:#333}
+.order-action-msg{font-size:12px;color:#888;padding:8px 0;font-style:italic}
 
 /* WISHLIST */
 .wish-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
@@ -109,31 +127,17 @@
   .recent-grid{grid-template-columns:repeat(3,1fr)}
   .order-item{flex-wrap:wrap}
   .addr-card{flex-direction:column;gap:12px;align-items:flex-start}
+  .order-actions{flex-direction:column}
+  .order-action-btn{width:100%;text-align:center}
 }
 </style>
 </head>
 <body>
 
-<!-- HEADER -->
+<!-- common-header.js가 덮어쓰므로 최소 뼈대만 -->
 <header class="header">
   <div class="header__logo"><a href="/" style="text-decoration:none;color:inherit;"><span class="header__logo-highlight">Yllowtap</span></a></div>
-  <nav class="header__nav">
-    <a href="/category.html?cat=best">Best</a><a href="/category.html?cat=new">New In</a>
-    <a href="/category.html?cat=bags">Bags</a><a href="/category.html?cat=jewelry">Jewelry</a>
-    <a href="/category.html?cat=accessories">Accessories</a><a href="/category.html?cat=keyring">Keyring</a>
-    <a href="/category.html?cat=seasonal">Seasonal</a><a href="/category.html?cat=sale">Sale</a>
-  </nav>
-  <div class="header__actions"><a href="/mypage.html">My Page</a><a href="/mypage.html?tab=wishlist">Wishlist</a><a href="/cart.html">Bag (0)</a>
-    <button class="header__hamburger" aria-label="메뉴 열기"><span></span><span></span><span></span></button></div>
 </header>
-<div class="mobile-menu">
-  <button class="mobile-menu__close" aria-label="메뉴 닫기">✕</button>
-  <a href="/category.html?cat=best">Best</a><a href="/category.html?cat=new">New In</a>
-  <a href="/category.html?cat=bags">Bags</a><a href="/category.html?cat=jewelry">Jewelry</a>
-  <a href="/category.html?cat=accessories">Accessories</a><a href="/category.html?cat=keyring">Keyring</a>
-  <a href="/category.html?cat=seasonal">Seasonal</a><a href="/category.html?cat=sale">Sale</a>
-  <a href="/mypage.html">My Page</a><a href="/mypage.html?tab=wishlist">Wishlist</a>
-</div>
 
 <!-- MY PAGE -->
 <div class="my-page">
@@ -258,16 +262,19 @@
 <script src="https://t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <script>
+/* ══════════════════════════════════════════
+   CONFIG
+   ══════════════════════════════════════════ */
 const SUPABASE_URL='https://ppihvvpplqikclftrwdb.supabase.co';
-const SUPABASE_ANON='';
+const SUPABASE_ANON='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBwaWh2dnBwbHFpa2NsZnRyd2RiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk3MzE0NTEsImV4cCI6MjA5NTMwNzQ1MX0.shGVcFTQiuYc4u6tdU50x18YMgJdgFUljf8c7QlQU-U';
 const sb=window.supabase.createClient(SUPABASE_URL,SUPABASE_ANON);
 
 let currentUser=null;
 let profile=null;
 
-// ══════════════════════════════════════════
-// AUTH CHECK
-// ══════════════════════════════════════════
+/* ══════════════════════════════════════════
+   AUTH CHECK
+   ══════════════════════════════════════════ */
 async function checkAuth(){
   const{data:{session}}=await sb.auth.getSession();
   if(!session){window.location.href='/login.html';return;}
@@ -276,15 +283,14 @@ async function checkAuth(){
   loadAll();
 }
 
-// ══════════════════════════════════════════
-// PROFILE
-// ══════════════════════════════════════════
+/* ══════════════════════════════════════════
+   PROFILE
+   ══════════════════════════════════════════ */
 async function loadProfile(){
   const{data}=await sb.from('user_profiles').select('*').eq('id',currentUser.id).single();
   if(data){
     profile=data;
   }else{
-    // 첫 로그인 시 프로필 자동 생성
     const name=currentUser.user_metadata?.display_name||currentUser.user_metadata?.name||'회원';
     await sb.from('user_profiles').insert({id:currentUser.id,display_name:name});
     profile={display_name:name,grade:'basic',point:0,order_count:0};
@@ -299,7 +305,6 @@ function renderUserCard(){
   document.getElementById('userGrade').textContent=(profile?.grade||'basic').toUpperCase();
   document.getElementById('statOrders').textContent=profile?.order_count||0;
   document.getElementById('statPoint').textContent=(profile?.point||0).toLocaleString();
-  // 프로필 폼
   document.getElementById('pfEmail').value=currentUser.email||'';
   document.getElementById('pfName').value=profile?.display_name||'';
   document.getElementById('pfPhone').value=profile?.phone||'';
@@ -325,58 +330,64 @@ async function withdrawAccount(){
   if(!c1) return;
   const c2=confirm('마지막 확인입니다.\n\n회원 탈퇴를 진행하시겠습니까?');
   if(!c2) return;
-
   try {
-    const uid = currentUser.id;
-    // 관련 데이터 삭제 (순서 중요 — 외래키 참조 순)
-    await sb.from('cart_items').delete().eq('user_id', uid);
-    await sb.from('wishlists').delete().eq('user_id', uid);
-    await sb.from('recent_views').delete().eq('user_id', uid);
-    await sb.from('addresses').delete().eq('user_id', uid);
-    await sb.from('inquiries').delete().eq('user_id', uid);
-    await sb.from('notifications').delete().eq('user_id', uid);
-    await sb.from('user_profiles').delete().eq('id', uid);
-
-    // 로그아웃
+    const uid=currentUser.id;
+    await sb.from('cart_items').delete().eq('user_id',uid);
+    await sb.from('wishlists').delete().eq('user_id',uid);
+    await sb.from('recent_views').delete().eq('user_id',uid);
+    await sb.from('addresses').delete().eq('user_id',uid);
+    await sb.from('inquiries').delete().eq('user_id',uid);
+    await sb.from('notifications').delete().eq('user_id',uid);
+    await sb.from('user_profiles').delete().eq('id',uid);
     await sb.auth.signOut();
     alert('회원 탈퇴가 완료되었습니다.\n그동안 Yllowtap을 이용해주셔서 감사합니다.');
-    window.location.href = '/';
-  } catch(e) {
+    window.location.href='/';
+  }catch(e){
     alert('탈퇴 처리 중 오류가 발생했습니다. 고객센터로 문의해주세요.');
   }
 }
 
-// ══════════════════════════════════════════
-// TAB SWITCH
-// ══════════════════════════════════════════
+/* ══════════════════════════════════════════
+   TAB SWITCH
+   ══════════════════════════════════════════ */
 function switchMyTab(tab){
   document.querySelectorAll('.my-tab').forEach(t=>t.classList.remove('active'));
   document.querySelectorAll('.my-panel').forEach(p=>p.classList.remove('active'));
   document.getElementById('panel-'+tab).classList.add('active');
-  // 해당 탭 버튼 active
   document.querySelectorAll('.my-tab').forEach(t=>{
     if(t.getAttribute('onclick')?.includes("'"+tab+"'")) t.classList.add('active');
   });
 }
 
-// ══════════════════════════════════════════
-// LOAD ALL DATA
-// ══════════════════════════════════════════
+/* ══════════════════════════════════════════
+   LOAD ALL DATA
+   ══════════════════════════════════════════ */
 function loadAll(){
   loadOrders();loadWishlist();loadRecent();loadAddresses();loadInquiries();
 }
 
-// ══════════════════════════════════════════
-// ORDERS
-// ══════════════════════════════════════════
+/* ══════════════════════════════════════════
+   ORDERS — 상세보기 + 액션 버튼 포함
+   ══════════════════════════════════════════ */
+const STATUS_MAP={
+  pending:'주문접수',paid:'결제완료',preparing:'상품준비중',shipped:'배송중',
+  delivered:'배송완료',confirmed:'구매확정',
+  cancel_requested:'취소요청',cancelled:'취소완료',
+  exchange_requested:'교환요청',return_requested:'반품요청',refunded:'환불완료'
+};
+const STATUS_CLASS={
+  pending:'pending',paid:'paid',preparing:'preparing',shipped:'shipped',
+  delivered:'delivered',confirmed:'confirmed',
+  cancel_requested:'requested',cancelled:'cancelled',
+  exchange_requested:'requested',return_requested:'requested',refunded:'refunded'
+};
+
 async function loadOrders(){
   const{data}=await sb.from('orders').select('*,order_items(*)').eq('user_id',currentUser.id).order('created_at',{ascending:false});
   const el=document.getElementById('orderList');
   if(!data?.length){el.innerHTML='<div class="my-empty"><p>주문 내역이 없습니다</p><a href="/category.html">쇼핑하러 가기</a></div>';return;}
 
   el.innerHTML=data.map(o=>{
-    const statusMap={pending:'주문접수',paid:'결제완료',preparing:'상품준비중',shipped:'배송중',delivered:'배송완료',cancel_requested:'취소요청',cancelled:'취소완료',exchange_requested:'교환요청',return_requested:'반품요청',refunded:'환불완료'};
-    const statusClass={pending:'pending',paid:'paid',preparing:'preparing',shipped:'shipped',delivered:'delivered',cancelled:'cancelled',cancel_requested:'cancelled',refunded:'refunded'};
     const items=(o.order_items||[]).map(i=>{
       const link=i.product_id?`/product.html?slug=${i.product_id}`:'#';
       return`<div class="order-item" style="cursor:pointer;" onclick="window.location.href='${link}'">
@@ -388,21 +399,124 @@ async function loadOrders(){
         <div class="order-item-price">${i.item_total?.toLocaleString()}원</div>
       </div>`;
     }).join('');
+
+    const actions=getOrderActions(o);
+
     return`<div class="order-card">
       <div class="order-card-top">
         <div><span class="order-number">${o.order_number}</span> <span class="order-date">${new Date(o.created_at).toLocaleDateString('ko-KR')}</span></div>
-        <span class="order-status status-${statusClass[o.status]||'pending'}">${statusMap[o.status]||o.status}</span>
+        <span class="order-status status-${STATUS_CLASS[o.status]||'pending'}">${STATUS_MAP[o.status]||o.status}</span>
       </div>
       ${items}
       ${o.tracking_number?`<div style="font-size:11px;color:#888;margin-top:8px;">운송장: ${o.tracking_company||''} ${o.tracking_number}</div>`:''}
       <div class="order-total">총 ${o.total_amount?.toLocaleString()}원</div>
+
+      <button class="order-detail-toggle" onclick="toggleOrderDetail('${o.id}')">상세보기 ▾</button>
+
+      <div class="order-detail" id="order-detail-${o.id}" style="display:none;">
+        <div class="order-detail-section">
+          <div class="order-detail-label">배송 정보</div>
+          <div class="order-detail-row">
+            ${o.recipient_name||''} / ${o.phone||''}<br>
+            [${o.zipcode||''}] ${o.address1||''} ${o.address2||''}<br>
+            ${o.delivery_memo?'메모: '+o.delivery_memo:''}
+          </div>
+        </div>
+        <div class="order-detail-section">
+          <div class="order-detail-label">결제 정보</div>
+          <div class="order-detail-row">
+            결제수단: ${o.payment_method||'—'}<br>
+            결제일: ${o.paid_at?new Date(o.paid_at).toLocaleDateString('ko-KR',{year:'numeric',month:'long',day:'numeric',hour:'2-digit',minute:'2-digit'}):'—'}<br>
+            상품 ${(o.subtotal||0).toLocaleString()}원
+            ${o.discount_amount?' / 할인 -'+o.discount_amount.toLocaleString()+'원':''}
+            ${o.shipping_fee?' / 배송비 '+(o.shipping_fee>0?o.shipping_fee.toLocaleString()+'원':'무료'):''}
+          </div>
+        </div>
+        ${actions?'<div class="order-actions">'+actions+'</div>':''}
+      </div>
     </div>`;
   }).join('');
 }
 
-// ══════════════════════════════════════════
-// WISHLIST
-// ══════════════════════════════════════════
+/* ── 상태별 액션 버튼 ── */
+function getOrderActions(o){
+  const id=o.id;
+  const num=o.order_number;
+  const s=o.status;
+
+  if(['pending','paid','preparing'].includes(s)){
+    const warn=s==='preparing'?' (상품 준비 중이라 취소가 어려울 수 있습니다)':'';
+    return`<button class="order-action-btn cancel" onclick="requestCancel('${id}','${num}','${s}')">주문 취소${warn}</button>`;
+  }
+  if(s==='shipped'){
+    return`<button class="order-action-btn" onclick="requestExchange('${id}','${num}')">교환 요청</button>`
+      +`<button class="order-action-btn" onclick="requestReturn('${id}','${num}')">반품 요청</button>`;
+  }
+  if(s==='delivered'){
+    return`<button class="order-action-btn primary" onclick="confirmOrder('${id}','${num}')">구매 확정</button>`
+      +`<button class="order-action-btn" onclick="requestExchange('${id}','${num}')">교환 요청</button>`
+      +`<button class="order-action-btn" onclick="requestReturn('${id}','${num}')">반품 요청</button>`;
+  }
+  if(['cancel_requested','exchange_requested','return_requested'].includes(s)){
+    return`<div class="order-action-msg">요청이 접수되어 처리 중입니다. 진행 상황은 1:1 문의로 확인해주세요.</div>`;
+  }
+  return'';
+}
+
+/* ── 상세보기 토글 ── */
+function toggleOrderDetail(orderId){
+  const el=document.getElementById('order-detail-'+orderId);
+  if(!el)return;
+  const isOpen=el.style.display!=='none';
+  el.style.display=isOpen?'none':'block';
+  // 버튼 텍스트 변경
+  const btn=el.previousElementSibling;
+  if(btn&&btn.classList.contains('order-detail-toggle')){
+    btn.textContent=isOpen?'상세보기 ▾':'접기 ▴';
+  }
+}
+
+/* ── 주문 취소 ── */
+async function requestCancel(orderId,orderNumber,currentStatus){
+  let msg='주문을 취소하시겠습니까?\n\n주문번호: '+orderNumber;
+  if(currentStatus==='preparing') msg+='\n\n⚠ 상품 준비 중이라 취소가 불가할 수 있습니다.\n취소 요청 후 고객센터에서 확인 연락을 드립니다.';
+  if(!confirm(msg))return;
+  const{error}=await sb.from('orders').update({status:'cancel_requested',updated_at:new Date().toISOString()}).eq('id',orderId);
+  if(error){alert('취소 요청 실패: '+error.message);return;}
+  alert('취소 요청이 접수되었습니다.\n처리 결과는 알림으로 안내드리겠습니다.');
+  loadOrders();
+}
+
+/* ── 교환 요청 ── */
+async function requestExchange(orderId,orderNumber){
+  if(!confirm('교환을 요청하시겠습니까?\n\n주문번호: '+orderNumber+'\n\n요청 접수 후 고객센터에서 교환 절차를 안내드립니다.'))return;
+  const{error}=await sb.from('orders').update({status:'exchange_requested',updated_at:new Date().toISOString()}).eq('id',orderId);
+  if(error){alert('교환 요청 실패: '+error.message);return;}
+  alert('교환 요청이 접수되었습니다.');
+  loadOrders();
+}
+
+/* ── 반품 요청 ── */
+async function requestReturn(orderId,orderNumber){
+  if(!confirm('반품을 요청하시겠습니까?\n\n주문번호: '+orderNumber+'\n\n요청 접수 후 고객센터에서 반품 절차를 안내드립니다.'))return;
+  const{error}=await sb.from('orders').update({status:'return_requested',updated_at:new Date().toISOString()}).eq('id',orderId);
+  if(error){alert('반품 요청 실패: '+error.message);return;}
+  alert('반품 요청이 접수되었습니다.');
+  loadOrders();
+}
+
+/* ── 구매 확정 ── */
+async function confirmOrder(orderId,orderNumber){
+  if(!confirm('구매를 확정하시겠습니까?\n\n주문번호: '+orderNumber+'\n\n확정 후에는 교환·반품이 제한될 수 있습니다.'))return;
+  const{error}=await sb.from('orders').update({status:'confirmed',updated_at:new Date().toISOString()}).eq('id',orderId);
+  if(error){alert('구매확정 실패: '+error.message);return;}
+  alert('구매가 확정되었습니다. 감사합니다!');
+  loadOrders();
+}
+
+/* ══════════════════════════════════════════
+   WISHLIST
+   ══════════════════════════════════════════ */
 async function loadWishlist(){
   const{data}=await sb.from('wishlists').select('*,products(*,product_media(media_url,role,display_order))').eq('user_id',currentUser.id).order('created_at',{ascending:false});
   const el=document.getElementById('wishGrid');
@@ -429,18 +543,15 @@ async function removeWish(id){
   loadWishlist();
 }
 
-// ══════════════════════════════════════════
-// RECENT VIEWS
-// ══════════════════════════════════════════
+/* ══════════════════════════════════════════
+   RECENT VIEWS
+   ══════════════════════════════════════════ */
 async function loadRecent(){
   const{data}=await sb.from('recent_views').select('*,products(*,product_media(media_url,role,display_order))').eq('user_id',currentUser.id).order('viewed_at',{ascending:false}).limit(10);
   const el=document.getElementById('recentGrid');
   if(!data?.length){el.innerHTML='<div class="my-empty" style="grid-column:1/-1"><p>최근 본 상품이 없습니다</p></div>';return;}
-
-  // 중복 제거
   const seen=new Set();
   const unique=data.filter(r=>{if(!r.products||seen.has(r.product_id))return false;seen.add(r.product_id);return true;});
-
   el.innerHTML=unique.map(r=>{
     const p=r.products;const img=getMainImg(p);
     return`<a class="recent-card" href="/product.html?slug=${p.slug||p.id}">
@@ -451,14 +562,13 @@ async function loadRecent(){
   }).join('');
 }
 
-// ══════════════════════════════════════════
-// ADDRESSES
-// ══════════════════════════════════════════
+/* ══════════════════════════════════════════
+   ADDRESSES
+   ══════════════════════════════════════════ */
 async function loadAddresses(){
   const{data}=await sb.from('addresses').select('*').eq('user_id',currentUser.id).order('is_default',{ascending:false});
   const el=document.getElementById('addressList');
   if(!data?.length){el.innerHTML='<div class="my-empty"><p>등록된 배송지가 없습니다</p></div>';return;}
-
   el.innerHTML=data.map(a=>`
     <div class="addr-card">
       <div>
@@ -506,14 +616,13 @@ async function deleteAddr(id){
   loadAddresses();
 }
 
-// ══════════════════════════════════════════
-// INQUIRIES
-// ══════════════════════════════════════════
+/* ══════════════════════════════════════════
+   INQUIRIES
+   ══════════════════════════════════════════ */
 async function loadInquiries(){
   const{data}=await sb.from('inquiries').select('*').eq('user_id',currentUser.id).order('created_at',{ascending:false});
   const el=document.getElementById('inquiryList');
   if(!data?.length){el.innerHTML='<div class="my-empty"><p>문의 내역이 없습니다</p></div>';return;}
-
   const catMap={general:'일반',order:'주문/결제',shipping:'배송',exchange:'교환',return:'반품/환불',product:'상품'};
   const statusMap={pending:'답변 대기',answered:'답변 완료',closed:'종료'};
   el.innerHTML=data.map(q=>`
@@ -549,9 +658,9 @@ async function submitInquiry(){
   toggleInquiryForm();loadInquiries();
 }
 
-// ══════════════════════════════════════════
-// HELPERS
-// ══════════════════════════════════════════
+/* ══════════════════════════════════════════
+   HELPERS
+   ══════════════════════════════════════════ */
 function getMainImg(p){
   if(p.product_media?.length){const m=p.product_media.filter(x=>x.role==='main').sort((a,b)=>a.display_order-b.display_order);return m.length?m[0].media_url:p.product_media[0].media_url;}
   return p.image_url;
@@ -590,6 +699,6 @@ function getTabLabel(tab){
 checkAuth();
 setTimeout(checkTabParam,500);
 </script>
-<script src="./js/common-header.js"></script>
+<script src="./js/common-header.js?v=15"></script>
 </body>
 </html>
