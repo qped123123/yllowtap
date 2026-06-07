@@ -328,6 +328,7 @@ body { font-family:var(--font); background:var(--bg); color:var(--text); font-si
       <a onclick="switchPage('products')" id="nav-products" class="active"><span class="icon">🛍️</span> 상품 관리</a>
       <a onclick="switchPage('hero')" id="nav-hero"><span class="icon">🖼️</span> 히어로 슬라이드</a>
       <a onclick="switchPage('settings')" id="nav-settings"><span class="icon">⚙️</span> 사이트 설정</a>
+      <a onclick="switchPage('coupons')" id="nav-coupons"><span class="icon">🎟️</span> 쿠폰 관리</a>
       <a onclick="switchPage('inquiries')" id="nav-inquiries"><span class="icon">💬</span> 문의 관리</a>
       <a onclick="switchPage('orders')" id="nav-orders"><span class="icon">📦</span> 주문 관리</a>
       <a onclick="switchPage('members')" id="nav-members"><span class="icon">👥</span> 회원 관리</a>
@@ -502,6 +503,49 @@ body { font-family:var(--font); background:var(--bg); color:var(--text); font-si
 
     <!-- ============================================ -->
     <!-- PAGE 4: 문의 관리 -->
+    <!-- ============================================ -->
+    <div class="page-section" id="page-coupons">
+      <div class="top-bar">
+        <h1>쿠폰 관리</h1>
+        <button class="btn btn-primary" onclick="openCouponForm()">+ 새 쿠폰</button>
+      </div>
+      <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;">
+        <div style="display:grid;grid-template-columns:120px 1fr 80px 100px 100px 100px 80px;gap:12px;padding:10px 16px;font-size:10px;font-weight:500;letter-spacing:1px;text-transform:uppercase;color:var(--text-muted);border-bottom:1px solid var(--border);">
+          <div>코드</div><div>쿠폰명</div><div>할인</div><div>최소 금액</div><div>유효기간</div><div>발급수</div><div>상태</div>
+        </div>
+        <div id="couponAdminList"></div>
+      </div>
+      <!-- 쿠폰 추가/편집 폼 -->
+      <div id="couponFormWrap" style="display:none;margin-top:20px;background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:24px;">
+        <div style="font-size:14px;font-weight:600;margin-bottom:20px;" id="couponFormTitle">새 쿠폰 추가</div>
+        <input type="hidden" id="cpEditId">
+        <div class="form-row">
+          <div class="form-group"><label class="form-label">쿠폰 코드 <span class="required">*</span></label><input class="form-input" id="cpCode" placeholder="WELCOME10" style="text-transform:uppercase;letter-spacing:2px;font-weight:600;"></div>
+          <div class="form-group"><label class="form-label">쿠폰 이름 <span class="required">*</span></label><input class="form-input" id="cpName" placeholder="신규 가입 10% 할인"></div>
+        </div>
+        <div class="form-row triple">
+          <div class="form-group"><label class="form-label">할인 유형</label><select class="form-select" id="cpType"><option value="percent">퍼센트 (%)</option><option value="fixed">정액 (원)</option></select></div>
+          <div class="form-group"><label class="form-label">할인 값 <span class="required">*</span></label><input class="form-input" id="cpValue" type="number" placeholder="10"></div>
+          <div class="form-group"><label class="form-label">최대 할인 (원)</label><input class="form-input" id="cpMaxDiscount" type="number" placeholder="50000"><div class="form-hint">% 할인 시 최대 금액 제한</div></div>
+        </div>
+        <div class="form-row triple">
+          <div class="form-group"><label class="form-label">최소 주문 금액 (원)</label><input class="form-input" id="cpMinOrder" type="number" placeholder="30000"></div>
+          <div class="form-group"><label class="form-label">유효 시작일</label><input class="form-input" id="cpValidFrom" type="date"></div>
+          <div class="form-group"><label class="form-label">유효 종료일</label><input class="form-input" id="cpValidUntil" type="date"></div>
+        </div>
+        <div class="form-row">
+          <div class="form-group"><label class="form-label">발급 제한 수</label><input class="form-input" id="cpUsageLimit" type="number" placeholder="비우면 무제한"><div class="form-hint">비우면 무제한 발급</div></div>
+          <div class="form-group"><label class="form-label">상태</label><select class="form-select" id="cpActive"><option value="true">활성</option><option value="false">비활성</option></select></div>
+        </div>
+        <div style="display:flex;gap:8px;margin-top:16px;">
+          <button class="btn btn-primary" onclick="saveCouponAdmin()">저장</button>
+          <button class="btn btn-secondary" onclick="closeCouponForm()">취소</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============================================ -->
+    <!-- PAGE 5: 문의 관리 -->
     <!-- ============================================ -->
     <div class="page-section" id="page-inquiries">
       <div class="top-bar">
@@ -979,7 +1023,7 @@ function switchPage(page) {
 }
 
 async function init() {
-  await Promise.all([loadPopupNotices(), loadCategories(), loadCollections(), loadProducts(), loadHeroSlides(), loadSettings(), loadInquiries(), loadMembers(), loadOrders(), loadFaqs(), loadAttrDefs()]);
+  await Promise.all([loadPopupNotices(), loadCategories(), loadCollections(), loadProducts(), loadHeroSlides(), loadSettings(), loadInquiries(), loadMembers(), loadOrders(), loadFaqs(), loadAttrDefs(), loadCouponsAdmin()]);
   bindTagCheckboxes(); bindCustomTagInput(); bindImageUpload(); bindHeroMediaUpload(); bindSettingsImageUpload(); bindPopupNoticeImageUpload(); loadMainImages(); bindMainImagesUpload();
 }
 
@@ -1760,6 +1804,85 @@ async function saveEditData(productId){
   if(formBuyOptions.length) await sb.from('product_purchase_options').insert(formBuyOptions.map((o,i)=>({product_id:productId,option_title:o.option_title||'',sub_description:o.sub_description||null,price:o.price||0,badge_text:o.badge_text||null,is_best:!!o.is_best,select_mode:o.select_mode||'multi',items:o.items||[],display_order:i})));
   if(formEditReasons.length) await sb.from('product_edit_reasons').insert(formEditReasons.map((r,i)=>({product_id:productId,image_url:r.image_url||null,subtitle:r.subtitle||null,description:r.description||null,sub_font:r.sub_font||'serif',sub_size:r.sub_size||'medium',sub_color:r.sub_color||null,desc_font:r.desc_font||'default',desc_size:r.desc_size||'medium',desc_color:r.desc_color||null,display_order:i})));
 }
+// ─── 쿠폰 관리 ───
+let allCoupons=[];
+async function loadCouponsAdmin(){
+  const{data}=await sb.from('coupons').select('*').order('created_at',{ascending:false});
+  allCoupons=data||[];
+  const el=document.getElementById('couponAdminList');
+  if(!allCoupons.length){el.innerHTML='<div class="empty-list"><p>등록된 쿠폰이 없습니다</p></div>';return;}
+  el.innerHTML=allCoupons.map(c=>{
+    const valStr=c.discount_type==='percent'?c.discount_value+'%':c.discount_value.toLocaleString()+'원';
+    const minStr=c.min_order_amount?c.min_order_amount.toLocaleString()+'원':'없음';
+    const validStr=c.valid_until?new Date(c.valid_until).toLocaleDateString('ko-KR'):'무기한';
+    const expired=c.valid_until&&new Date(c.valid_until)<new Date();
+    return`<div style="display:grid;grid-template-columns:120px 1fr 80px 100px 100px 100px 80px;gap:12px;padding:12px 16px;align-items:center;border-bottom:1px solid rgba(255,255,255,0.04);cursor:pointer;transition:background 0.15s;${!c.is_active||expired?'opacity:0.4;':''}" onmouseover="this.style.background='var(--bg-hover)'" onmouseout="this.style.background=''" onclick="editCouponAdmin('${c.id}')">
+      <div style="font-weight:600;letter-spacing:1px;font-size:12px;color:var(--accent);">${c.code}</div>
+      <div><div style="font-weight:500;">${c.name}</div></div>
+      <div style="font-weight:600;">${valStr}</div>
+      <div style="font-size:12px;color:var(--text-dim);">${minStr}</div>
+      <div style="font-size:12px;color:var(--text-dim);">${validStr}</div>
+      <div style="font-size:12px;color:var(--text-dim);">${c.used_count||0}${c.usage_limit?'/'+c.usage_limit:''}</div>
+      <div><span class="status-badge ${c.is_active&&!expired?'status-active':'status-inactive'}">${c.is_active&&!expired?'활성':'비활성'}</span></div>
+    </div>`;
+  }).join('');
+}
+function openCouponForm(){
+  document.getElementById('cpEditId').value='';
+  document.getElementById('cpCode').value='';document.getElementById('cpName').value='';
+  document.getElementById('cpType').value='percent';document.getElementById('cpValue').value='';
+  document.getElementById('cpMaxDiscount').value='';document.getElementById('cpMinOrder').value='';
+  document.getElementById('cpValidFrom').value='';document.getElementById('cpValidUntil').value='';
+  document.getElementById('cpUsageLimit').value='';document.getElementById('cpActive').value='true';
+  document.getElementById('couponFormTitle').textContent='새 쿠폰 추가';
+  document.getElementById('cpCode').disabled=false;
+  document.getElementById('couponFormWrap').style.display='block';
+  document.getElementById('couponFormWrap').scrollIntoView({behavior:'smooth'});
+}
+function closeCouponForm(){document.getElementById('couponFormWrap').style.display='none';}
+function editCouponAdmin(id){
+  const c=allCoupons.find(x=>x.id===id);if(!c)return;
+  document.getElementById('cpEditId').value=c.id;
+  document.getElementById('cpCode').value=c.code;document.getElementById('cpCode').disabled=true;
+  document.getElementById('cpName').value=c.name;
+  document.getElementById('cpType').value=c.discount_type;
+  document.getElementById('cpValue').value=c.discount_value;
+  document.getElementById('cpMaxDiscount').value=c.max_discount||'';
+  document.getElementById('cpMinOrder').value=c.min_order_amount||'';
+  document.getElementById('cpValidFrom').value=c.valid_from?c.valid_from.split('T')[0]:'';
+  document.getElementById('cpValidUntil').value=c.valid_until?c.valid_until.split('T')[0]:'';
+  document.getElementById('cpUsageLimit').value=c.usage_limit||'';
+  document.getElementById('cpActive').value=c.is_active?'true':'false';
+  document.getElementById('couponFormTitle').textContent='쿠폰 수정';
+  document.getElementById('couponFormWrap').style.display='block';
+  document.getElementById('couponFormWrap').scrollIntoView({behavior:'smooth'});
+}
+async function saveCouponAdmin(){
+  const id=document.getElementById('cpEditId').value;
+  const code=document.getElementById('cpCode').value.trim().toUpperCase();
+  const name=document.getElementById('cpName').value.trim();
+  if(!code||!name){showToast('코드와 이름을 입력하세요',true);return;}
+  const val=parseInt(document.getElementById('cpValue').value);
+  if(!val||val<=0){showToast('할인 값을 입력하세요',true);return;}
+  const d={
+    code,name,
+    discount_type:document.getElementById('cpType').value,
+    discount_value:val,
+    max_discount:parseInt(document.getElementById('cpMaxDiscount').value)||null,
+    min_order_amount:parseInt(document.getElementById('cpMinOrder').value)||0,
+    valid_from:document.getElementById('cpValidFrom').value?new Date(document.getElementById('cpValidFrom').value).toISOString():new Date().toISOString(),
+    valid_until:document.getElementById('cpValidUntil').value?new Date(document.getElementById('cpValidUntil').value+'T23:59:59').toISOString():null,
+    usage_limit:parseInt(document.getElementById('cpUsageLimit').value)||null,
+    is_active:document.getElementById('cpActive').value==='true'
+  };
+  let err;
+  if(id){const r=await sb.from('coupons').update(d).eq('id',id);err=r.error;}
+  else{const r=await sb.from('coupons').insert(d);err=r.error;}
+  if(err){showToast('저장 실패: '+err.message,true);return;}
+  showToast(id?'쿠폰이 수정되었어요':'쿠폰이 추가되었어요');
+  closeCouponForm();loadCouponsAdmin();
+}
+
 // ─── 시작 ───
 checkAuth();
 </script>
