@@ -110,7 +110,7 @@
 .coupon-empty{text-align:center;padding:40px 0;color:#aaa;font-size:13px}
 
 /* POINTS */
-.point-balance-card{background:#fff;border:1px solid #E5E1DC;padding:12px 18px;margin-bottom:14px;display:flex;justify-content:space-between;align-items:center}
+.point-balance-card{background:#fff;border:1px solid #E5E1DC;padding:8px 16px;margin-bottom:12px;display:flex;justify-content:space-between;align-items:center}
 .point-row{display:flex;justify-content:space-between;align-items:center;padding:14px 0;border-bottom:1px solid #F0EDE8;font-size:13px}
 .point-row:last-child{border-bottom:none}
 .point-amount{font-weight:700;white-space:nowrap}
@@ -709,7 +709,7 @@ async function loadPointHistory(){
   document.getElementById('pointBalance').textContent=(profile?.point||0).toLocaleString()+' P';
   const{data}=await sb.from('point_history').select('*').eq('user_id',currentUser.id).order('created_at',{ascending:false}).limit(50);
   const el=document.getElementById('pointList');
-  if(!data?.length){el.innerHTML='<div class="my-empty"><p>포인트 내역이 없습니다</p></div>';return;}
+  if(!data?.length){el.innerHTML='<div style="text-align:center;padding:14px 0;color:#bbb;font-size:12px;">포인트 내역이 없습니다</div>';return;}
   el.innerHTML=data.map(p=>`<div class="point-row">
     <div><div style="font-weight:500;margin-bottom:2px;">${p.description||p.type}</div><div style="font-size:11px;color:#888;">${new Date(p.created_at).toLocaleDateString('ko-KR')}</div></div>
     <div class="point-amount ${p.type==='earn'||p.type==='admin'?'earn':'use'}">${p.type==='use'||p.type==='expire'?'-':'+'} ${Math.abs(p.amount).toLocaleString()} P</div>
