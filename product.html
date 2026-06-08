@@ -217,7 +217,11 @@
   .pd-top{padding:6px 20px 0}.pd-breadcrumb{padding:76px 20px 10px}
   .pd-editorial{padding:50px 20px}.pd-detail{padding:0 20px 50px}
   .pd-recommend{padding:36px 20px 50px}.pd-editorial-grid{grid-template-columns:1fr}
-  .pd-rec-grid{grid-template-columns:repeat(2,1fr)}.pd-info-name{font-size:20px}
+  .pd-rec-grid{display:flex;overflow-x:auto;gap:12px;-webkit-overflow-scrolling:touch;scroll-snap-type:x mandatory;scrollbar-width:none;padding-bottom:4px}
+  .pd-rec-grid::-webkit-scrollbar{display:none}
+  .pd-rec-card{flex:0 0 60%;scroll-snap-align:start}
+  .pd-info-name{font-size:20px}
+  body{overflow-x:hidden}
   .pd-editorial-title{font-size:24px}
   .pd-tabs{overflow-x:auto;scrollbar-width:none}.pd-tab{white-space:nowrap;padding:12px 14px;font-size:11px}
   .pd-journal{padding:50px 20px}.pd-journal-title{font-size:22px}
@@ -288,6 +292,17 @@
 .pd-opt-expand .pd-set-item-name{margin-bottom:3px;letter-spacing:.2px}
 .pd-opt-expand .pd-set-item-color{margin-bottom:3px}
 .pd-opt-expand .pd-set-item-price{letter-spacing:.2px}
+/* v9: 옵션 항목 한 줄 슬라이드 (모바일 스와이프 / 웹 화살표) */
+.pd-opt-slider{position:relative}
+.pd-opt-arrow{display:none}
+@media(min-width:769px){
+  .pd-opt-expand .pd-set-grid{display:flex;flex-wrap:nowrap;gap:14px;overflow-x:auto;padding-bottom:6px;scroll-snap-type:x mandatory;scrollbar-width:none}
+  .pd-opt-expand .pd-set-grid::-webkit-scrollbar{display:none}
+  .pd-opt-expand .pd-set-item{flex:0 0 auto;width:120px;scroll-snap-align:start}
+  .pd-opt-arrow{display:flex;align-items:center;justify-content:center;position:absolute;top:46px;width:30px;height:30px;border-radius:50%;border:1px solid var(--pd-border);background:#fff;cursor:pointer;font-size:16px;line-height:1;color:#555;z-index:3;box-shadow:0 1px 5px rgba(0,0,0,.12);transition:all .15s}
+  .pd-opt-prev{left:-4px}.pd-opt-next{right:-4px}
+  .pd-opt-arrow:hover{background:var(--pd-text);color:#fff;border-color:var(--pd-text)}
+}
 .pd-comp-block{margin-bottom:16px}
 .pd-comp-block:last-child{margin-bottom:2px}
 .pd-comp-label{font-size:11px;font-weight:600;color:var(--pd-text);margin-bottom:9px;letter-spacing:.2px}
@@ -1014,6 +1029,7 @@ function renderOptExpand(idx, el){
   if(!window.__selItems) window.__selItems={};
   if(!window.__selItems[idx]) window.__selItems[idx]=new Set();
   const selSet=window.__selItems[idx];
+  const arrows='<button class="pd-opt-arrow pd-opt-prev" type="button" onclick="optSlide(this,-1)" aria-label="이전">&#8249;</button><button class="pd-opt-arrow pd-opt-next" type="button" onclick="optSlide(this,1)" aria-label="다음">&#8250;</button>';
 
   if(opt.select_mode==='single'){
     // ── 색상형: 이미지 + 컬러명 (+가격) · 다중 체크 ──
@@ -1023,10 +1039,10 @@ function renderOptExpand(idx, el){
       const price=Number(it.price)>0?`<div class="pd-color-cell-price">+₩${Number(it.price).toLocaleString()}</div>`:'';
       return `<div class="pd-color-cell${on?' sel':''}" onclick="toggleOptItem(${idx},${j})">${img}<div class="pd-color-cell-name">${it.color_name||''}</div>${price}</div>`;
     }).join('');
-    el.innerHTML=`<div class="pd-comp-block"><div class="pd-color-swipe">${cells}</div></div>`;
+    el.innerHTML=`<div class="pd-opt-slider">${arrows}<div class="pd-comp-block"><div class="pd-color-swipe">${cells}</div></div></div>`;
   } else {
     // ── 구성품형: 이미지 + 상품명 + 컬러명 + 가격 · 다중 체크 ──
-    el.innerHTML=`<div class="pd-set-grid">${items.map((it,j)=>{
+    el.innerHTML=`<div class="pd-opt-slider">${arrows}<div class="pd-set-grid">${items.map((it,j)=>{
       const on=selSet.has(j);
       const img=it.image_url?`<img class="pd-set-item-img" src="${it.image_url}" alt="${(it.name||'').replace(/"/g,'&quot;')}" loading="lazy">`:'<div class="pd-set-item-img"></div>';
       let price='';
@@ -1041,9 +1057,10 @@ function renderOptExpand(idx, el){
       const color=it.color_name?`<div class="pd-set-item-color">${it.color_name}</div>`:'';
       const view=(it.link_product_id&&it.link_product_id!==product.id)?`<a class="pd-set-item-view" href="/product.html?slug=${it.link_product_id}" onclick="event.stopPropagation()">보러가기</a>`:'';
       return `<div class="pd-set-item${on?' sel':''}" onclick="toggleOptItem(${idx},${j})">${img}<div class="pd-set-item-name">${it.name||''}</div>${color}${price}${view}</div>`;
-    }).join('')}</div>`;
+    }).join('')}</div></div>`;
   }
 }
+function optSlide(btn,dir){ const s=btn.closest('.pd-opt-slider'); if(!s)return; const g=s.querySelector('.pd-set-grid,.pd-color-swipe'); if(g) g.scrollBy({left:dir*260,behavior:'smooth'}); }
 // 항목 체크/해제 토글 → 다시 그리고 옵션가격·총액·요약 갱신
 function toggleOptItem(idx,j){
   if(!window.__selItems) window.__selItems={};
