@@ -478,28 +478,29 @@ async function loadSavedComparisons(){
   const cntEl=document.getElementById('accSavedCmpCnt');if(cntEl)cntEl.textContent=list.length?'('+list.length+')':'';
   if(!list.length){wrap.innerHTML='<div style="font-size:13px;color:#999;padding:8px 0;">아직 저장한 비교가 없어요.</div>';return;}
   _savedCmpMap={};list.forEach(r=>_savedCmpMap[r.id]=r);
-  const cmpBase="display:inline-flex;align-items:center;justify-content:center;gap:5px;padding:9px 6px;font-size:12px;font-weight:600;background:#fff;color:#888;border:1px solid #E5E1DC;border-radius:7px;cursor:pointer;font-family:inherit;transition:background .15s,color .15s,border-color .15s;";
-  const cmpWide="flex:1;"+cmpBase;
+  const cmpBase="display:inline-flex;align-items:center;justify-content:center;gap:5px;padding:9px 6px;font-size:12px;font-weight:600;white-space:nowrap;background:#fff;color:#888;border:1px solid #E5E1DC;border-radius:7px;cursor:pointer;font-family:inherit;transition:background .15s,color .15s,border-color .15s;";
+  const cmpWide="flex:1 1 140px;"+cmpBase;
   const cmpSm="flex:0 0 auto;width:84px;"+cmpBase;
+  const cmpTool="flex:0 0 auto;"+cmpBase;
   const hovIn="this.style.background='#1a1a1a';this.style.color='#fff';this.style.borderColor='#1a1a1a';";
   const hovOut="this.style.background='#fff';this.style.color='#888';this.style.borderColor='#E5E1DC';";
   const icV='<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>';
   const icS='<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg>';
   const icB='<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>';
   const icT='<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>';
-  wrap.innerHTML=list.map(row=>{
+  const toolbar=`<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;"><label style="display:inline-flex;align-items:center;gap:6px;font-size:12px;color:#666;cursor:pointer;"><input type="checkbox" id="scmpAll" onchange="toggleAllSavedCmp(this)" style="width:15px;height:15px;cursor:pointer;accent-color:#1a1a1a;"> 전체 선택</label><button onclick="deleteSelectedSavedCmp()" onmouseover="${hovIn}" onmouseout="${hovOut}" style="${cmpTool}">${icT}선택 삭제</button></div>`;
+  wrap.innerHTML=toolbar+list.map(row=>{
     const s=row.snapshot||{};
     const date=new Date(row.created_at).toLocaleDateString('ko-KR');
     const typeName=(s.type&&(s.type.type_name_en||s.type.type_name_kr))||row.type_name||'비교 결과';
     const prods=s.products||[];
     const thumbs=prods.map(p=>`<div style="text-align:center;width:62px;"><div style="position:relative;width:62px;height:62px;border-radius:6px;overflow:hidden;background:#f3f1ec;" onmouseover="this.lastElementChild.style.opacity='1'" onmouseout="this.lastElementChild.style.opacity='0'">${p.img?`<img src="${p.img}" style="width:100%;height:100%;object-fit:cover;" onerror="this.style.opacity=.15">`:''}<div style="position:absolute;inset:0;background:rgba(0,0,0,.62);color:#fff;font-size:9px;line-height:1.25;display:flex;align-items:center;justify-content:center;text-align:center;padding:3px;opacity:0;transition:opacity .15s;">${(p.name||'').replace(/"/g,'&quot;')}</div></div><div style="font-size:10px;color:#888;margin-top:3px;">${p.match!=null?p.match+'%':''}</div></div>`).join('');
     return `<div style="border:1px solid #E5E1DC;border-radius:8px;padding:14px;margin-bottom:10px;">
-      <div style="margin-bottom:10px;"><span style="font-size:13px;font-weight:600;">${typeName}</span> <span style="font-size:11px;color:#888;">${date}</span></div>
+      <div style="margin-bottom:10px;display:flex;align-items:center;gap:8px;"><input type="checkbox" class="scmp-check" value="${row.id}" onchange="syncScmpAll()" style="width:15px;height:15px;cursor:pointer;accent-color:#1a1a1a;flex:0 0 auto;"><span style="font-size:13px;font-weight:600;">${typeName}</span><span style="font-size:11px;color:#888;">${date}</span></div>
       <div style="display:flex;gap:8px;flex-wrap:wrap;">${thumbs}</div>
-      <div style="display:flex;gap:6px;margin-top:12px;">
+      <div style="display:flex;gap:6px;margin-top:12px;flex-wrap:wrap;">
         <button onclick="viewSavedCmp('${row.id}')" onmouseover="${hovIn}" onmouseout="${hovOut}" style="${cmpWide}">${icV}전체보기</button>
         <button onclick="shareSavedCmp('${row.id}',this)" onmouseover="${hovIn}" onmouseout="${hovOut}" style="${cmpSm}">${icS}공유</button>
-        <button onclick="saveSavedCmp('${row.id}',this)" onmouseover="${hovIn}" onmouseout="${hovOut}" style="${cmpSm}">${icB}저장</button>
         <button onclick="deleteSavedCmp('${row.id}')" onmouseover="${hovIn}" onmouseout="${hovOut}" style="${cmpSm}">${icT}삭제</button>
       </div>
     </div>`;
@@ -515,6 +516,21 @@ async function deleteSavedCmp(id){
   if(!confirm('이 저장한 비교를 삭제할까요?'))return;
   const{error}=await sb.from('saved_comparisons').delete().eq('id',id);
   if(error){alert('삭제 실패: '+error.message);return;}
+  loadSavedComparisons();
+}
+function toggleAllSavedCmp(m){ document.querySelectorAll('.scmp-check').forEach(c=>c.checked=m.checked); }
+function syncScmpAll(){
+  const all=document.querySelectorAll('.scmp-check'); const chk=document.querySelectorAll('.scmp-check:checked');
+  const m=document.getElementById('scmpAll'); if(!m)return;
+  m.checked=all.length>0&&chk.length===all.length;
+  m.indeterminate=chk.length>0&&chk.length<all.length;
+}
+async function deleteSelectedSavedCmp(){
+  const ids=[...document.querySelectorAll('.scmp-check:checked')].map(c=>c.value);
+  if(!ids.length){ cmpToast('선택된 비교가 없어요'); return; }
+  if(!confirm(`선택한 ${ids.length}개를 삭제할까요?`)) return;
+  const{error}=await sb.from('saved_comparisons').delete().in('id',ids);
+  if(error){ alert('삭제 실패: '+error.message); return; }
   loadSavedComparisons();
 }
 function cmpToast(msg){
