@@ -436,6 +436,15 @@ body { font-family:var(--font); background:var(--bg); color:var(--text); font-si
         <div class="setting-row" style="align-items:flex-start;"><div class="setting-label" style="padding-top:4px;">교환 · 반품</div><textarea class="form-input" id="sGuideExchange" style="min-height:54px;resize:vertical;line-height:1.5;" placeholder="수령 후 7일 이내 신청 가능합니다."></textarea></div>
         <div class="setting-row" style="align-items:flex-start;"><div class="setting-label" style="padding-top:4px;">환불 안내</div><textarea class="form-input" id="sGuideRefund" style="min-height:54px;resize:vertical;line-height:1.5;" placeholder="반품 확인 후 3~5영업일 내 환불됩니다."></textarea></div>
         <div class="setting-row" style="align-items:flex-start;"><div class="setting-label" style="padding-top:4px;">상품정보 제공고시</div><textarea class="form-input" id="sGuideLegal" style="min-height:54px;resize:vertical;line-height:1.5;" placeholder="소재·치수·원산지 등 안내"></textarea></div>
+          <!-- ★ 포인트 적립 설정 -->
+        <div style="border-top:1px solid var(--border);margin:20px 0;"></div>
+        <div style="font-size:12px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:var(--accent);margin-bottom:6px;">포인트 적립 설정</div>
+        <p style="font-size:11px;color:var(--text-muted);margin-bottom:12px;">구매확정 시 결제 금액의 X% 적립. 리뷰 작성 시 고정 포인트 적립.</p>
+        <div class="setting-row"><div class="setting-label">BASIC 적립률 (%)</div><input class="form-input" id="sPointBasic" type="number" min="0" max="100" value="1" style="width:80px;"></div>
+        <div class="setting-row"><div class="setting-label">SILVER 적립률 (%)</div><input class="form-input" id="sPointSilver" type="number" min="0" max="100" value="2" style="width:80px;"></div>
+        <div class="setting-row"><div class="setting-label">GOLD 적립률 (%)</div><input class="form-input" id="sPointGold" type="number" min="0" max="100" value="3" style="width:80px;"></div>
+        <div class="setting-row"><div class="setting-label">VIP 적립률 (%)</div><input class="form-input" id="sPointVip" type="number" min="0" max="100" value="5" style="width:80px;"></div>
+        <div class="setting-row"><div class="setting-label">리뷰 작성 포인트 (원)</div><input class="form-input" id="sPointReview" type="number" min="0" value="500" style="width:100px;"></div>
           <!-- ★ 메인 이미지 관리 (홈 화면) -->
         <div style="border-top:1px solid var(--border);margin:20px 0;"></div>
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
@@ -1270,6 +1279,14 @@ async function loadSettings() {
     document.getElementById('sGuideRefund').value=siteSettings.guide_refund||'';
     document.getElementById('sGuideLegal').value=siteSettings.guide_legal||'';
   }
+  // 포인트 적립 설정
+  if(document.getElementById('sPointBasic')){
+    document.getElementById('sPointBasic').value=siteSettings.point_rate_basic||'1';
+    document.getElementById('sPointSilver').value=siteSettings.point_rate_silver||'2';
+    document.getElementById('sPointGold').value=siteSettings.point_rate_gold||'3';
+    document.getElementById('sPointVip').value=siteSettings.point_rate_vip||'5';
+    document.getElementById('sPointReview').value=siteSettings.point_review||'500';
+  }
 }
 let excludeCats=[];
 function renderExcludeCats(){
@@ -1481,6 +1498,11 @@ async function saveSettings() {
     {key:'guide_exchange',value:document.getElementById('sGuideExchange')?.value||''},
     {key:'guide_refund',value:document.getElementById('sGuideRefund')?.value||''},
     {key:'guide_legal',value:document.getElementById('sGuideLegal')?.value||''},
+    {key:'point_rate_basic',value:document.getElementById('sPointBasic')?.value||'1'},
+    {key:'point_rate_silver',value:document.getElementById('sPointSilver')?.value||'2'},
+    {key:'point_rate_gold',value:document.getElementById('sPointGold')?.value||'3'},
+    {key:'point_rate_vip',value:document.getElementById('sPointVip')?.value||'5'},
+    {key:'point_review',value:document.getElementById('sPointReview')?.value||'500'},
   ];
   try { for(const item of items){await sb.from('site_settings').upsert({key:item.key,value:item.value,updated_at:new Date().toISOString()},{onConflict:'key'});} showToast('설정 저장 완료'); }
   catch(err){showToast('저장 실패: '+err.message,true);}

@@ -156,6 +156,47 @@
 .my-empty a{display:inline-block;padding:12px 32px;font-size:11px;font-weight:500;letter-spacing:2px;text-transform:uppercase;border:1px solid #111;color:#111;text-decoration:none;transition:all .2s}
 .my-empty a:hover{background:#111;color:#fff;opacity:1}
 
+/* DASHBOARD */
+.my-dashboard{margin-bottom:32px}
+.dash-section{background:#fff;border:1px solid #E5E1DC;padding:20px 24px;margin-bottom:12px}
+.dash-title{display:flex;justify-content:space-between;align-items:center;font-size:14px;font-weight:600;margin-bottom:14px}
+.dash-title a{font-size:11px;color:#888;cursor:pointer;text-decoration:none}
+.dash-title a:hover{color:#111}
+.dash-scroll{display:flex;gap:14px;overflow-x:auto;scrollbar-width:none;padding-bottom:4px}
+.dash-scroll::-webkit-scrollbar{display:none}
+.dash-mini-card{flex-shrink:0;width:130px;text-decoration:none;color:inherit}
+.dash-mini-img{width:130px;height:160px;object-fit:cover;background:#EAE7E2;margin-bottom:6px}
+.dash-mini-brand{font-size:9px;color:#888;letter-spacing:1px;text-transform:uppercase}
+.dash-mini-name{font-size:11px;margin-bottom:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.dash-mini-price{font-size:12px;font-weight:700}
+.dash-mini-sale{font-size:10px;color:#C4453C;margin-left:4px}
+.dash-mini-original{font-size:10px;color:#888;text-decoration:line-through;margin-right:4px}
+.dash-benefit{display:flex;gap:20px;padding:16px 0 0}
+.dash-benefit-item{text-align:center;flex:1}
+.dash-benefit-num{font-size:18px;font-weight:700;color:#111}
+.dash-benefit-label{font-size:10px;color:#888;margin-top:2px;letter-spacing:0.5px}
+
+/* ORDER TRACKING */
+.order-tracking{display:flex;align-items:center;justify-content:center;padding:16px 0 8px;gap:0}
+.track-step{display:flex;flex-direction:column;align-items:center;gap:4px;min-width:56px}
+.track-dot{width:24px;height:24px;border-radius:50%;background:#E5E1DC;display:flex;align-items:center;justify-content:center;font-size:11px;transition:all .3s}
+.track-dot.active{background:#111;color:#fff}
+.track-dot.current{background:#F4D84E;color:#111}
+.track-label{font-size:9px;color:#aaa;letter-spacing:0.5px}
+.track-label.active{color:#111;font-weight:600}
+.track-line{flex:1;height:2px;background:#E5E1DC;min-width:20px;max-width:60px}
+.track-line.active{background:#111}
+
+/* REVIEW FORM */
+.review-inline{margin-top:14px;padding:16px;background:#F7F5F2;border:1px solid #E5E1DC}
+.review-stars-input{display:flex;gap:4px;margin-bottom:12px;cursor:pointer}
+.review-stars-input span{font-size:24px;color:#E5E1DC;transition:color .15s}
+.review-stars-input span.on{color:#F4D84E}
+.review-textarea{width:100%;padding:10px 12px;font-size:13px;font-family:inherit;border:1px solid #E5E1DC;background:#fff;min-height:80px;resize:vertical;line-height:1.6}
+.review-submit-row{display:flex;justify-content:space-between;align-items:center;margin-top:10px}
+.review-point-hint{font-size:11px;color:#2E7D32}
+.review-submit-btn{padding:10px 24px;font-size:11px;font-weight:600;background:#111;color:#fff;border:none;cursor:pointer;font-family:inherit}
+
 @media(max-width:768px){
   .my-page{padding:calc(var(--header-height,60px) + 20px) 16px 60px}
   .my-header h1{font-size:24px}
@@ -170,6 +211,12 @@
   .order-actions{flex-direction:column}
   .order-action-btn{width:100%;text-align:center}
   .membership-tiers{grid-template-columns:repeat(2,1fr)}
+  .dash-mini-card{width:110px}
+  .dash-mini-img{width:110px;height:140px}
+  .order-tracking{gap:0;padding:12px 0 4px}
+  .track-step{min-width:44px}
+  .track-dot{width:20px;height:20px;font-size:9px}
+  .track-label{font-size:8px}
   .coupon-card{flex-direction:column;gap:8px;text-align:center;border-left-width:4px}
   .coupon-right{text-align:center}
 }
@@ -191,6 +238,7 @@
     <div class="my-user-stats">
       <div><div class="my-stat-num" id="statOrders">0</div><div class="my-stat-label">주문</div></div>
       <div><div class="my-stat-num" id="statPoint">0</div><div class="my-stat-label">포인트</div></div>
+      <div><div class="my-stat-num" id="statCoupon">0</div><div class="my-stat-label">쿠폰</div></div>
       <div><div class="my-stat-num" id="statWish">0</div><div class="my-stat-label">위시리스트</div></div>
     </div>
   </div>
@@ -204,6 +252,22 @@
     <div class="membership-tiers" id="mbTiers"></div>
   </div>
   <div class="no-membership-border" id="mbSpacer"></div>
+
+  <!-- 대시보드 -->
+  <div class="my-dashboard" id="myDashboard">
+    <div class="dash-section" id="dashOrder" style="display:none;">
+      <div class="dash-title">최근 주문 <a onclick="switchMyTab('orders')">전체보기 →</a></div>
+      <div id="dashOrderContent"></div>
+    </div>
+    <div class="dash-section" id="dashWish" style="display:none;">
+      <div class="dash-title">찜한 상품 <a onclick="switchMyTab('wishlist')">전체보기 →</a></div>
+      <div class="dash-scroll" id="dashWishScroll"></div>
+    </div>
+    <div class="dash-section" id="dashRecent" style="display:none;">
+      <div class="dash-title">최근 본 상품 <a onclick="switchMyTab('recent')">전체보기 →</a></div>
+      <div class="dash-scroll" id="dashRecentScroll"></div>
+    </div>
+  </div>
 
   <div class="my-tabs">
     <button class="my-tab active" onclick="switchMyTab('orders')">주문내역</button>
@@ -386,45 +450,179 @@ function switchMyTab(tab){
   document.getElementById('panel-'+tab).classList.add('active');
   document.querySelectorAll('.my-tab').forEach(t=>{if(t.getAttribute('onclick')?.includes("'"+tab+"'"))t.classList.add('active');});
 }
-function loadAll(){loadOrders();loadCoupons();loadPointHistory();loadWishlist();loadRecent();loadAddresses();loadInquiries();}
+function loadAll(){loadOrders();loadCoupons();loadPointHistory();loadWishlist();loadRecent();loadAddresses();loadInquiries();loadDashboard();loadPointSettings();}
 
 /* ── ORDERS ── */
+const TRACK_STEPS=[{k:'pending',l:'주문접수'},{k:'paid',l:'결제완료'},{k:'preparing',l:'상품준비'},{k:'shipped',l:'배송중'},{k:'delivered',l:'배송완료'}];
+const TRACK_IDX={pending:0,paid:1,preparing:2,shipped:3,delivered:4,confirmed:4};
+function renderTracking(status){
+  const idx=TRACK_IDX[status]??0;
+  return'<div class="order-tracking">'+TRACK_STEPS.map((s,i)=>{
+    const active=i<=idx,current=i===idx;
+    return(i>0?`<div class="track-line${active?' active':''}"></div>`:'')+`<div class="track-step"><div class="track-dot${current?' current':active?' active':''}">${active?'✓':i+1}</div><div class="track-label${active?' active':''}">${s.l}</div></div>`;
+  }).join('')+'</div>';
+}
 async function loadOrders(){
   const{data}=await sb.from('orders').select('*,order_items(*)').eq('user_id',currentUser.id).order('created_at',{ascending:false});
   const el=document.getElementById('orderList');
+  document.getElementById('statOrders').textContent=data?.length||0;
   if(!data?.length){el.innerHTML='<div class="my-empty"><p>주문 내역이 없습니다</p><a href="/category.html">쇼핑하러 가기</a></div>';return;}
   el.innerHTML=data.map(o=>{
     const items=(o.order_items||[]).map(i=>`<div class="order-item" style="cursor:pointer;" onclick="window.location.href='/product.html?slug=${i.product_id||''}'">
       ${i.product_image_snapshot?`<img class="order-item-img" src="${i.product_image_snapshot}">`:'<div class="order-item-img"></div>'}
       <div><div class="order-item-name">${i.product_name_snapshot}</div><div class="order-item-option">${i.option_snapshot?Object.entries(i.option_snapshot).filter(([k])=>!k.startsWith('_')).map(([k,v])=>k+': '+v).join(' / '):''} · ${i.quantity}개</div></div>
       <div class="order-item-price">${i.item_total?.toLocaleString()}원</div></div>`).join('');
+    const showTrack=['pending','paid','preparing','shipped','delivered','confirmed'].includes(o.status);
     const actions=getOrderActions(o);
     return`<div class="order-card">
       <div class="order-card-top"><div><span class="order-number">${o.order_number}</span> <span class="order-date">${new Date(o.created_at).toLocaleDateString('ko-KR')}</span></div><span class="order-status status-${STATUS_CLASS[o.status]||'pending'}">${STATUS_MAP[o.status]||o.status}</span></div>
+      ${showTrack?renderTracking(o.status):''}
       ${items}
       ${o.tracking_number?`<div style="font-size:11px;color:#888;margin-top:8px;">운송장: ${o.tracking_company||''} ${o.tracking_number}</div>`:''}
       <div class="order-total">총 ${o.total_amount?.toLocaleString()}원</div>
+      ${actions?'<div class="order-actions">'+actions+'</div>':''}
       <button class="order-detail-toggle" onclick="toggleOrderDetail('${o.id}')">상세보기 ▾</button>
       <div class="order-detail" id="order-detail-${o.id}" style="display:none;">
         <div class="order-detail-section"><div class="order-detail-label">배송 정보</div><div class="order-detail-row">${o.recipient_name||''} / ${o.phone||''}<br>[${o.zipcode||''}] ${o.address1||''} ${o.address2||''}<br>${o.delivery_memo?'메모: '+o.delivery_memo:''}</div></div>
         <div class="order-detail-section"><div class="order-detail-label">결제 정보</div><div class="order-detail-row">결제수단: ${o.payment_method||'—'}<br>결제일: ${o.paid_at?new Date(o.paid_at).toLocaleDateString('ko-KR',{year:'numeric',month:'long',day:'numeric',hour:'2-digit',minute:'2-digit'}):'—'}<br>상품 ${(o.subtotal||0).toLocaleString()}원${o.discount_amount?' / 할인 -'+o.discount_amount.toLocaleString()+'원':''}${o.coupon_discount?' / 쿠폰 -'+o.coupon_discount.toLocaleString()+'원':''}${o.points_used?' / 포인트 -'+o.points_used.toLocaleString()+'P':''}${o.shipping_fee!=null?' / 배송비 '+(o.shipping_fee>0?o.shipping_fee.toLocaleString()+'원':'무료'):''}</div></div>
-        ${actions?'<div class="order-actions">'+actions+'</div>':''}
-      </div></div>`;
+      </div>
+      <div class="review-inline" id="review-form-${o.id}" style="display:none;">
+        <div style="font-size:12px;font-weight:600;margin-bottom:10px;">리뷰 작성</div>
+        <div class="review-stars-input" id="review-stars-${o.id}">${[1,2,3,4,5].map(n=>`<span onclick="setReviewStar('${o.id}',${n})" data-n="${n}">★</span>`).join('')}</div>
+        <textarea class="review-textarea" id="review-text-${o.id}" placeholder="상품은 어떠셨나요? 솔직한 리뷰를 남겨주세요."></textarea>
+        <div class="review-submit-row"><span class="review-point-hint">🎁 리뷰 작성 시 ${pointReview}P 적립</span><button class="review-submit-btn" onclick="submitOrderReview('${o.id}')">등록</button></div>
+      </div>
+    </div>`;
   }).join('');
 }
 function getOrderActions(o){
   const id=o.id,s=o.status;
-  if(['pending','paid','preparing'].includes(s))return`<button class="order-action-btn cancel" onclick="requestCancel('${id}','${o.order_number}','${s}')">주문 취소</button>`;
-  if(s==='shipped')return`<button class="order-action-btn" onclick="requestExchange('${id}','${o.order_number}')">교환 요청</button><button class="order-action-btn" onclick="requestReturn('${id}','${o.order_number}')">반품 요청</button>`;
-  if(s==='delivered')return`<button class="order-action-btn primary" onclick="confirmOrder('${id}','${o.order_number}')">구매 확정</button><button class="order-action-btn" onclick="requestExchange('${id}','${o.order_number}')">교환 요청</button><button class="order-action-btn" onclick="requestReturn('${id}','${o.order_number}')">반품 요청</button>`;
-  if(['cancel_requested','exchange_requested','return_requested'].includes(s))return`<div class="order-action-msg">요청이 접수되어 처리 중입니다</div>`;
-  return'';
+  let btns='';
+  if(['pending','paid','preparing'].includes(s))btns+=`<button class="order-action-btn cancel" onclick="requestCancel('${id}','${o.order_number}','${s}')">주문 취소</button>`;
+  if(s==='shipped'){
+    if(o.tracking_number)btns+=`<button class="order-action-btn" onclick="openTracking('${o.tracking_company||''}','${o.tracking_number}')">배송 조회</button>`;
+    btns+=`<button class="order-action-btn" onclick="requestExchange('${id}','${o.order_number}')">교환 요청</button><button class="order-action-btn" onclick="requestReturn('${id}','${o.order_number}')">반품 요청</button>`;
+  }
+  if(s==='delivered'){
+    btns+=`<button class="order-action-btn primary" onclick="confirmOrder('${id}','${o.order_number}',${o.total_amount||0})">구매 확정</button>`;
+    if(o.tracking_number)btns+=`<button class="order-action-btn" onclick="openTracking('${o.tracking_company||''}','${o.tracking_number}')">배송 조회</button>`;
+    btns+=`<button class="order-action-btn" onclick="toggleReviewForm('${id}')">리뷰 쓰기</button>`;
+    btns+=`<button class="order-action-btn" onclick="reorderItems('${id}')">재구매</button>`;
+    btns+=`<button class="order-action-btn" onclick="requestExchange('${id}','${o.order_number}')">교환</button><button class="order-action-btn" onclick="requestReturn('${id}','${o.order_number}')">반품</button>`;
+  }
+  if(s==='confirmed'){
+    btns+=`<button class="order-action-btn" onclick="toggleReviewForm('${id}')">리뷰 쓰기</button>`;
+    btns+=`<button class="order-action-btn" onclick="reorderItems('${id}')">재구매</button>`;
+  }
+  if(['cancel_requested','exchange_requested','return_requested'].includes(s))btns+=`<div class="order-action-msg">요청이 접수되어 처리 중입니다</div>`;
+  return btns;
 }
 function toggleOrderDetail(id){const el=document.getElementById('order-detail-'+id);if(!el)return;const open=el.style.display!=='none';el.style.display=open?'none':'block';el.previousElementSibling.textContent=open?'상세보기 ▾':'접기 ▴';}
 async function requestCancel(id,num,st){let msg='주문을 취소하시겠습니까?\n주문번호: '+num;if(st==='preparing')msg+='\n\n⚠ 상품 준비 중이라 취소가 불가할 수 있습니다.';if(!confirm(msg))return;await sb.from('orders').update({status:'cancel_requested',updated_at:new Date().toISOString()}).eq('id',id);alert('취소 요청이 접수되었습니다.');loadOrders();}
 async function requestExchange(id,num){if(!confirm('교환을 요청하시겠습니까?\n주문번호: '+num))return;await sb.from('orders').update({status:'exchange_requested',updated_at:new Date().toISOString()}).eq('id',id);alert('교환 요청이 접수되었습니다.');loadOrders();}
 async function requestReturn(id,num){if(!confirm('반품을 요청하시겠습니까?\n주문번호: '+num))return;await sb.from('orders').update({status:'return_requested',updated_at:new Date().toISOString()}).eq('id',id);alert('반품 요청이 접수되었습니다.');loadOrders();}
-async function confirmOrder(id,num){if(!confirm('구매를 확정하시겠습니까?\n주문번호: '+num+'\n\n확정 후 교환·반품이 제한될 수 있습니다.'))return;await sb.from('orders').update({status:'confirmed',updated_at:new Date().toISOString()}).eq('id',id);alert('구매가 확정되었습니다!');loadOrders();}
+async function confirmOrder(id,num,totalAmount){if(!confirm('구매를 확정하시겠습니까?\n주문번호: '+num+'\n\n확정 후 교환·반품이 제한될 수 있습니다.'))return;await sb.from('orders').update({status:'confirmed',updated_at:new Date().toISOString()}).eq('id',id);
+  // 포인트 적립
+  const grade=profile?.grade||'basic';
+  const rate=pointRates[grade]||1;
+  const earn=Math.floor((totalAmount||0)*rate/100);
+  if(earn>0){
+    const{data:p}=await sb.from('user_profiles').select('point').eq('id',currentUser.id).single();
+    await sb.from('user_profiles').update({point:(p?.point||0)+earn}).eq('id',currentUser.id);
+    await sb.from('point_history').insert({user_id:currentUser.id,amount:earn,type:'earn',description:'구매확정 적립 ('+rate+'%)',order_id:id});
+    profile.point=(p?.point||0)+earn;
+    alert('구매가 확정되었습니다!\n'+earn.toLocaleString()+'P가 적립되었습니다 🎁');
+  }else{alert('구매가 확정되었습니다!');}
+  loadOrders();loadPointHistory();renderUserCard();
+}
+
+/* ── 포인트 설정 ── */
+let pointRates={basic:1,silver:2,gold:3,vip:5},pointReview=500;
+async function loadPointSettings(){
+  const{data}=await sb.from('site_settings').select('*').in('key',['point_rate_basic','point_rate_silver','point_rate_gold','point_rate_vip','point_review']);
+  if(data)data.forEach(r=>{
+    if(r.key==='point_rate_basic')pointRates.basic=parseInt(r.value)||1;
+    if(r.key==='point_rate_silver')pointRates.silver=parseInt(r.value)||2;
+    if(r.key==='point_rate_gold')pointRates.gold=parseInt(r.value)||3;
+    if(r.key==='point_rate_vip')pointRates.vip=parseInt(r.value)||5;
+    if(r.key==='point_review')pointReview=parseInt(r.value)||500;
+  });
+}
+
+/* ── 리뷰 ── */
+let reviewStars={};
+function toggleReviewForm(orderId){const el=document.getElementById('review-form-'+orderId);el.style.display=el.style.display==='none'?'block':'none';}
+function setReviewStar(orderId,n){
+  reviewStars[orderId]=n;
+  document.querySelectorAll('#review-stars-'+orderId+' span').forEach(s=>{s.classList.toggle('on',parseInt(s.dataset.n)<=n);});
+}
+async function submitOrderReview(orderId){
+  const rating=reviewStars[orderId];if(!rating){alert('별점을 선택해주세요.');return;}
+  const content=document.getElementById('review-text-'+orderId).value.trim();
+  if(!content){alert('리뷰 내용을 입력해주세요.');return;}
+  const{data:order}=await sb.from('orders').select('order_items(product_id)').eq('id',orderId).single();
+  const productId=order?.order_items?.[0]?.product_id;
+  if(!productId){alert('상품 정보를 찾을 수 없습니다.');return;}
+  const{error}=await sb.from('reviews').insert({product_id:productId,author_name:profile?.display_name||'회원',rating,content});
+  if(error){alert('리뷰 등록 실패: '+error.message);return;}
+  // 포인트 적립
+  if(pointReview>0){
+    const{data:p}=await sb.from('user_profiles').select('point').eq('id',currentUser.id).single();
+    await sb.from('user_profiles').update({point:(p?.point||0)+pointReview}).eq('id',currentUser.id);
+    await sb.from('point_history').insert({user_id:currentUser.id,amount:pointReview,type:'earn',description:'리뷰 작성 적립',order_id:orderId});
+    profile.point=(p?.point||0)+pointReview;
+    alert('리뷰가 등록되었습니다!\n'+pointReview+'P가 적립되었습니다 🎁');
+  }else{alert('리뷰가 등록되었습니다!');}
+  toggleReviewForm(orderId);loadPointHistory();renderUserCard();
+}
+
+/* ── 재구매 ── */
+async function reorderItems(orderId){
+  const{data:items}=await sb.from('order_items').select('product_id,quantity,option_snapshot').eq('order_id',orderId);
+  if(!items?.length){alert('상품 정보를 찾을 수 없습니다.');return;}
+  let{data:cart}=await sb.from('carts').select('id').eq('user_id',currentUser.id).single();
+  if(!cart){const r=await sb.from('carts').insert({user_id:currentUser.id}).select().single();cart=r.data;}
+  for(const item of items){
+    await sb.from('cart_items').insert({cart_id:cart.id,product_id:item.product_id,quantity:item.quantity,selected_options:item.option_snapshot||{}});
+  }
+  alert('장바구니에 담았습니다!');window.location.href='/cart.html';
+}
+
+/* ── 배송 조회 ── */
+const TRACKING_URLS={CJ대한통운:'https://www.cjlogistics.com/ko/tool/parcel/tracking?gnbInvcNo=',로젠택배:'https://www.ilogen.com/web/personal/trace/',한진택배:'https://www.hanjin.com/kor/CMS/DeliveryMgr/WaybillResult.do?mession=&wblnum=',우체국:'https://service.epost.go.kr/trace.RetrieveDomRi498.postal?sid1=',롯데택배:'https://www.lotteglogis.com/home/reservation/tracking/link498?InvNo='};
+function openTracking(company,number){
+  const base=TRACKING_URLS[company];
+  if(base){window.open(base+number,'_blank');}
+  else if(number){window.open('https://search.naver.com/search.naver?query='+encodeURIComponent(number+' 배송조회'),'_blank');}
+  else{alert('운송장 정보가 아직 등록되지 않았습니다.');}
+}
+
+/* ── 대시보드 ── */
+async function loadDashboard(){
+  // 최근 주문 1건
+  const{data:orders}=await sb.from('orders').select('*').eq('user_id',currentUser.id).order('created_at',{ascending:false}).limit(1);
+  if(orders?.length){
+    const o=orders[0];
+    document.getElementById('dashOrder').style.display='block';
+    document.getElementById('dashOrderContent').innerHTML=`<div style="display:flex;justify-content:space-between;align-items:center;"><div><span style="font-size:13px;font-weight:600;">${o.order_number}</span><span style="font-size:11px;color:#888;margin-left:8px;">${STATUS_MAP[o.status]||o.status}</span></div><div style="font-size:14px;font-weight:700;">${o.total_amount?.toLocaleString()}원</div></div>`;
+  }
+  // 찜한 상품
+  const{data:wishes}=await sb.from('wishlists').select('*,products(*,product_media(media_url,role,display_order))').eq('user_id',currentUser.id).order('created_at',{ascending:false}).limit(6);
+  if(wishes?.length){
+    document.getElementById('dashWish').style.display='block';
+    document.getElementById('dashWishScroll').innerHTML=wishes.map(w=>{const p=w.products;if(!p)return'';const img=getMainImg(p);const hasD=p.original_price&&p.original_price>p.price;const pct=hasD?Math.round((1-p.price/p.original_price)*100):0;return`<a class="dash-mini-card" href="/product.html?slug=${p.slug||p.id}">${img?`<img class="dash-mini-img" src="${img}">`:'<div class="dash-mini-img"></div>'}<div class="dash-mini-brand">${p.brand||'YLLOWTAP'}</div><div class="dash-mini-name">${p.name}</div><div>${hasD?`<span class="dash-mini-original">${p.original_price.toLocaleString()}</span>`:''}<span class="dash-mini-price">${p.price?.toLocaleString()}원</span>${pct?`<span class="dash-mini-sale">${pct}%</span>`:''}</div></a>`;}).join('');
+  }
+  // 최근 본 상품
+  const{data:recents}=await sb.from('recent_views').select('*,products(*,product_media(media_url,role,display_order))').eq('user_id',currentUser.id).order('viewed_at',{ascending:false}).limit(6);
+  const seen=new Set();const uniqR=(recents||[]).filter(r=>{if(!r.products||seen.has(r.product_id))return false;seen.add(r.product_id);return true;});
+  if(uniqR.length){
+    document.getElementById('dashRecent').style.display='block';
+    document.getElementById('dashRecentScroll').innerHTML=uniqR.map(r=>{const p=r.products;const img=getMainImg(p);return`<a class="dash-mini-card" href="/product.html?slug=${p.slug||p.id}">${img?`<img class="dash-mini-img" src="${img}">`:'<div class="dash-mini-img"></div>'}<div class="dash-mini-brand">${p.brand||'YLLOWTAP'}</div><div class="dash-mini-name">${p.name}</div><div class="dash-mini-price">${p.price?.toLocaleString()}원</div></a>`;}).join('');
+  }
+  // 쿠폰 수
+  const{count}=await sb.from('user_coupons').select('id',{count:'exact'}).eq('user_id',currentUser.id).eq('is_used',false);
+  document.getElementById('statCoupon').textContent=count||0;
+}
 
 /* ── COUPONS ── */
 async function loadCoupons(){

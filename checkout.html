@@ -120,6 +120,7 @@
       <div class="co-summary-row" id="coPointRow" style="display:none;"><span>포인트 사용</span><span id="coPointDiscount" style="color:#C4453C">0원</span></div>
       <div class="co-summary-row"><span>배송비</span><span id="coShipping">0원</span></div>
       <div class="co-summary-total"><span>총 결제 금액</span><span id="coTotal">0원</span></div>
+      <div id="coEarnPreview" style="text-align:right;font-size:11px;color:#2E7D32;margin-top:6px;display:none;">🎁 구매확정 시 <strong id="coEarnAmount">0</strong>P 적립 예정</div>
       <div class="co-agree">
         <label><input type="checkbox" id="agreeAll" onchange="toggleAgreeAll()"> <strong>전체 동의</strong></label>
         <label><input type="checkbox" class="agree-item" id="agreeTerms"> [필수] 이용약관 동의</label>
@@ -151,6 +152,7 @@ let currentUser=null,cartItems=[],widgets=null,FREE_SHIPPING=50000,SHIPPING_FEE=
 let lastCreatedOrderId=null;
 let myCoupons=[],selectedCoupon=null,couponDiscount=0;
 let userPoints=0,pointsUsed=0;
+let earnRates={basic:1,silver:2,gold:3,vip:5},userGrade='basic';
 
 function searchAddress(){new daum.Postcode({oncomplete:function(d){document.getElementById('coZip').value=d.zonecode;document.getElementById('coAddr1').value=d.roadAddress||d.jibunAddress;document.getElementById('coAddr2').focus();}}).open();}
 
@@ -163,6 +165,7 @@ async function init(){
   await loadSavedAddresses();
   await loadMyCoupons();
   await loadMyPoints();
+  await loadEarnRates();
   bindMemoSelect();
   await initTossWidgets();
 }
@@ -222,9 +225,13 @@ function removeCoupon(){selectedCoupon=null;couponDiscount=0;document.getElement
 
 /* ── 포인트 ── */
 async function loadMyPoints(){
-  const{data}=await sb.from('user_profiles').select('point').eq('id',currentUser.id).single();
-  userPoints=data?.point||0;
+  const{data}=await sb.from('user_profiles').select('point,grade').eq('id',currentUser.id).single();
+  userPoints=data?.point||0;userGrade=data?.grade||'basic';
   document.getElementById('coPointInfo').textContent='보유 포인트: '+userPoints.toLocaleString()+' P';
+}
+async function loadEarnRates(){
+  const{data}=await sb.from('site_settings').select('*').in('key',['point_rate_basic','point_rate_silver','point_rate_gold','point_rate_vip']);
+  if(data)data.forEach(r=>{const g=r.key.replace('point_rate_','');if(earnRates[g]!==undefined)earnRates[g]=parseInt(r.value)||earnRates[g];});
 }
 function onPointInput(){
   let v=parseInt(document.getElementById('coPointInput').value)||0;
@@ -262,6 +269,12 @@ async function updateSummary(){
   document.getElementById('coShipping').textContent=shipping?shipping.toLocaleString()+'원':(subtotal>0?'무료':'0원');
   document.getElementById('coTotal').textContent=total.toLocaleString()+'원';
   document.getElementById('coSubmitBtn').disabled=(total<=0&&subtotal<=0);
+  // 적립 예정 표시
+  const rate=earnRates[userGrade]||1;
+  const earnPreview=Math.floor(total*rate/100);
+  const ep=document.getElementById('coEarnPreview');
+  if(earnPreview>0&&total>0){ep.style.display='block';document.getElementById('coEarnAmount').textContent=earnPreview.toLocaleString();}
+  else{ep.style.display='none';}
   if(widgets&&total>0){try{await widgets.setAmount({currency:'KRW',value:total});}catch(e){}}
 }
 
