@@ -122,8 +122,6 @@
           authSection.innerHTML = '\
             <span style="font-size:13px;color:#888;">' + displayName + '님</span>\
             <a href="/mypage.html" style="font-size:18px;">My Page</a>\
-            <a href="/mypage.html?tab=orders" style="font-size:18px;">Orders</a>\
-            <a href="/cart.html" style="font-size:18px;">Bag</a>\
             <a href="#" class="mobile-logout-btn" style="font-size:18px;color:#888;">Logout</a>\
           ';
           mobileMenu.appendChild(authSection);
@@ -186,7 +184,6 @@
         authSection.style.cssText = 'margin-top:20px;padding-top:20px;border-top:1px solid #E5E1DC;display:flex;flex-direction:column;align-items:center;gap:16px;';
         authSection.innerHTML = '\
           <a href="/login.html" style="font-size:18px;">Login</a>\
-          <a href="/cart.html" style="font-size:18px;">Bag</a>\
         ';
         mobileMenu.appendChild(authSection);
       }
