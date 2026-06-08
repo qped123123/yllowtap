@@ -249,16 +249,24 @@ async function changeCoOption(idx){
     }
     return;
   }
-  // 연결상품(link_product_id)이 섞인 옵션 → 인라인 편집 불가 → 상세페이지
-  const hasLinked=data.some(o=>Array.isArray(o.items)&&o.items.some(it=>it.link_product_id&&it.link_product_id!==p.id));
-  if(hasLinked){
-    if(confirm('이 상품은 연결 옵션이 있어 상세페이지에서 변경해야 해요. 이동할까요?\n(지금 담긴 옵션은 빠지고, 상세페이지에서 새로 담으면 돼요)')){
+  // 연결상품(link_product_id) 항목은 별도 장바구니 줄이라 모달에서 제외 → 색상 등 '연결 안 된 옵션'만 인라인 편집
+  const editable=data.map(o=>{
+    const items=(Array.isArray(o.items)?o.items:[]).filter(it=>!(it.link_product_id&&it.link_product_id!==p.id));
+    return {...o, items};
+  }).filter(o=>o.items.length>0);
+  // 인라인으로 바꿀 수 있는 옵션이 하나도 없으면(전부 연결상품뿐) → 상세페이지
+  if(!editable.length){
+    if(confirm('이 상품은 연결 옵션이라 상세페이지에서 변경해야 해요. 이동할까요?\n(지금 담긴 옵션은 빠지고, 상세페이지에서 새로 담으면 돼요)')){
       try{ if(item.id) await sb.from('cart_items').delete().eq('id',item.id); }catch(e){}
       location.href='/product.html?slug='+encodeURIComponent(p.slug||p.id);
     }
     return;
   }
-  coOptState={ idx, options:data, sel:{} };
+  // 현재 담긴 구성과 일치하는 항목을 미리 선택해 둠
+  const cur=item.selected_options?.['구성']||'';
+  const sel={};
+  editable.forEach((o,oi)=>{ o.items.forEach((it,j)=>{ const nm=it.color_name||it.name||''; if(nm&&cur.includes(nm)){ if(!sel[oi])sel[oi]=new Set(); sel[oi].add(j); } }); });
+  coOptState={ idx, options:editable, sel };
   renderCoOptModal();
   document.getElementById('coOptModal').classList.add('show');
   document.body.style.overflow='hidden';
