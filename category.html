@@ -450,7 +450,7 @@
 // ─── Supabase 설정 ───
 // ★★ 아래 SUPABASE_ANON = '' 에 본인 anon key를 꼭 넣어주세요! (비우면 화면이 안 떠요) ★★
 const SUPABASE_URL = 'https://ppihvvpplqikclftrwdb.supabase.co';
-const SUPABASE_ANON = '';
+const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBwaWh2dnBwbHFpa2NsZnRyd2RiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk3MzE0NTEsImV4cCI6MjA5NTMwNzQ1MX0.shGVcFTQiuYc4u6tdU50x18YMgJdgFUljf8c7QlQU-U';
 const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON);
 
 let currentCategory = 'all';
@@ -499,22 +499,30 @@ function renderSidebar() {
   let subItemsPC = '';      // PC용: 그냥 '전체'
   let subItemsMo = '';      // 모바일용: '[카테고리] 전체'
   let activeName = '';
-  categories.filter(cat => !HIDDEN_CATS.includes(cat.slug)).forEach(cat => {
+  // 상위 카테고리만 메인 탭으로 (parent_id 없는 것)
+  categories.filter(cat => !cat.parent_id && !HIDDEN_CATS.includes(cat.slug)).forEach(cat => {
     const isActive = cat.slug === currentCategory;
     html += `<a class="cat-tab${isActive ? ' active' : ''}" href="/category.html?cat=${cat.slug}" data-slug="${cat.slug}">${cat.name}</a>`;
-    if (isActive && SUBMENUS[cat.slug]) {
-      activeName = cat.name;
-      // 항목들 (공통)
-      let items = '';
-      SUBMENUS[cat.slug].forEach(sub => {
-        const key = sub.type + ':' + sub.value;
-        items += `<a class="cat-subtab${currentSub === key ? ' active' : ''}" href="#" data-subkey="${key}">${sub.label}</a>`;
-      });
-      // PC: 전체 / 모바일: [카테고리] 전체
-      subItemsPC = `<a class="cat-subtab${!currentSub ? ' active' : ''}" href="#" data-subkey="">전체</a>` + items;
-      subItemsMo = `<a class="cat-subtab${!currentSub ? ' active' : ''}" href="#" data-subkey="">${cat.name} 전체</a>` + items;
-      // PC용: 선택 카테고리 바로 아래 인라인 삽입
-      html += '<div class="cat-submenu cat-submenu--pc">' + subItemsPC + '</div>';
+    if (isActive) {
+      // DB 하위 카테고리 우선, 없으면 기존 SUBMENUS 폴백
+      const dbSubs = categories.filter(c => c.parent_id === cat.id);
+      let subs;
+      if (dbSubs.length) {
+        subs = dbSubs.map(s => ({ label: s.name, type: 'tag', value: s.slug }));
+      } else {
+        subs = SUBMENUS[cat.slug] || [];
+      }
+      if (subs.length) {
+        activeName = cat.name;
+        let items = '';
+        subs.forEach(sub => {
+          const key = sub.type + ':' + sub.value;
+          items += `<a class="cat-subtab${currentSub === key ? ' active' : ''}" href="#" data-subkey="${key}">${sub.label}</a>`;
+        });
+        subItemsPC = `<a class="cat-subtab${!currentSub ? ' active' : ''}" href="#" data-subkey="">전체</a>` + items;
+        subItemsMo = `<a class="cat-subtab${!currentSub ? ' active' : ''}" href="#" data-subkey="">${cat.name} 전체</a>` + items;
+        html += '<div class="cat-submenu cat-submenu--pc">' + subItemsPC + '</div>';
+      }
     }
   });
   html += '</div>';
