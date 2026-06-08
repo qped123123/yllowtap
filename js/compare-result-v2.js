@@ -99,6 +99,47 @@ function buildSummary(quality,mood){
   return seg.join(', ')+'.';
 }
 
+/* ---------- 5-2. 취향 타입(품질 6 × 무드 8 = 48조합) ---------- */
+const QB_BY_NAME={'수납력':'storage','소재':'material','내구성':'durability','무게':'light','휴대성':'light','희소성':'rarity','활용도':'versatility'};
+const QB_KR={storage:'수납',material:'소재',durability:'내구',light:'경량',versatility:'활용',rarity:'희소'};
+const QB_SHORT={storage:'Storage',material:'Material',durability:'Durable',light:'Light',versatility:'Utility',rarity:'Rare'};
+const QB_PHRASE={storage:'Smart Storage',material:'Material Muse',durability:'Built to Last',light:'Featherlight',versatility:'Everyday Utility',rarity:'Rare Find'};
+const QB_STRENGTH={storage:'수납력과 실용성',material:'소재와 완성도',durability:'튼튼함과 내구성',light:'가볍고 편한 무게감',versatility:'두루 쓰는 활용성',rarity:'특별함과 희소성'};
+const POLE_OF={minimal:['minimal','deco'],color:['mono','color'],cute_chic:['cute','chic'],daily_special:['daily','special']};
+const POLE_KR={minimal:'미니멀',deco:'데코',mono:'무채색',color:'컬러',cute:'귀여움',chic:'시크',daily:'데일리',special:'스페셜'};
+const POLE_EN={minimal:'Minimal',deco:'Decorative',mono:'Mono',color:'Color',cute:'Cute',chic:'Chic',daily:'Daily',special:'Special'};
+const POLE_FLAVOR={minimal:'군더더기 없이 깔끔한',deco:'디테일이 살아있는',mono:'차분한 무채색',color:'색감이 또렷한',cute:'사랑스러운',chic:'시크한',daily:'데일리하게 편한',special:'특별한 자리에 어울리는'};
+function buildTasteType(quality, mood, qAttrs){
+  // 1) 품질 버킷
+  const bucket={};
+  (qAttrs||[]).forEach(a=>{ const b=QB_BY_NAME[a.name]; if(!b)return; const v=clampQ(quality[a.id]); if(bucket[b]==null||v>bucket[b]) bucket[b]=v; });
+  const bE=Object.entries(bucket).sort((x,y)=> y[1]-x[1] || (x[0]<y[0]?-1:1));
+  let qType=null, allround=false;
+  if(bE.length && bE[0][1]>5.5){
+    const highs=bE.filter(([,v])=>v>=7);
+    if(highs.length>=2 && (bE[0][1]-bE[1][1])<1) allround=true; else qType=bE[0][0];
+  }
+  // 2) 무드 극
+  const aS=MKEYS.map(k=>({k,v:clampM(mood[k]),s:Math.abs(clampM(mood[k]))})).sort((a,b)=> b.s-a.s || (MKEYS.indexOf(a.k)-MKEYS.indexOf(b.k)));
+  let pole=null;
+  if(aS[0] && aS[0].s>=2) pole = aS[0].v<0 ? POLE_OF[aS[0].k][0] : POLE_OF[aS[0].k][1];
+  // 3) 조합 → 이름/태그/설명
+  let en='', kr='', tags=[], descQ='', descM='';
+  if(allround){ en='All-Round Eye'; kr='올라운드 꼼꼼형'; tags.push('#올라운드'); descQ='여러 면을 두루 따지는, 요모조모 다 챙기는 타입이에요'; }
+  else if(qType){ en=QB_PHRASE[qType]; kr=QB_KR[qType]+'형'; tags.push('#'+QB_KR[qType]); const s=QB_STRENGTH[qType]; descQ=`${s}${objParticle(s)} 가장 중요하게 보는 타입이에요`; }
+  if(pole){
+    tags.unshift('#'+POLE_KR[pole]);
+    descM=`${POLE_FLAVOR[pole]} 무드를 좋아해요`;
+    if(kr){ kr=POLE_KR[pole]+' '+kr; en=POLE_EN[pole]+(qType?(' '+QB_SHORT[qType]):' All-Rounder'); }
+    else { kr=POLE_KR[pole]+'형'; en=POLE_EN[pole]; }
+  }
+  if(!kr){ en='Balanced'; kr='밸런스형'; tags=['#밸런스']; descQ='특정 항목에 치우치지 않고 두루 균형 있게 보는 편이에요'; }
+  const parts=[]; if(descQ)parts.push(descQ); if(descM)parts.push((descQ?'거기에 ':'')+descM);
+  let desc=parts.join('. '); if(desc && !/[.?!]$/.test(desc)) desc+='.';
+  tags=[...new Set(tags)].slice(0,3);
+  return { type_name_en:en, type_name_kr:kr, description:desc, tags };
+}
+
 /* ---------- 6. 상품 필드 ---------- */
 const pImg=p=>p.image_url||p.image||p.thumbnail||p.thumbnail_url||(Array.isArray(p.images)&&p.images[0])||'';
 const pName=p=>p.name||p.title||p.product_name||'상품';
@@ -170,7 +211,7 @@ function render(){
   let reco2=[];
   otherCatList.forEach(cat=>{
     const items=allProducts.filter(p=>!ids.has(String(p.id)) && pCat(p)===cat)
-      .map(p=>({p,m:matchPercent({},cM,scoreOf(scoreMap,p.id))})).sort((a,b)=>b.m-a.m).slice(0,3).map(x=>x.p);
+      .map(p=>({p,m:matchPercent({},input.mood,scoreOf(scoreMap,p.id))})).sort((a,b)=>b.m-a.m).slice(0,3).map(x=>x.p);
     reco2=reco2.concat(items);
   });
 
@@ -219,7 +260,7 @@ function render(){
           ${renderSliders(input)}
           <div class="criteria">
             <div class="s-eyebrow">내가 선택한 기준</div>
-            <div class="s-text" id="criteriaText">${summary}</div>
+            <div class="s-text" id="criteriaText" style="word-break:keep-all;line-height:1.6;">${summary}</div>
           </div>
         </div>
       </div>
@@ -232,7 +273,7 @@ function render(){
               <div class="tc-eyebrow">나의 취향 타입</div>
               <div class="tc-name serif">${type?.type_name_en||''}</div>
               <div class="tc-alias">${type?.type_name_kr||''}</div>
-              <div class="tc-desc">${type?.description||''}</div>
+              <div class="tc-desc" style="word-break:keep-all;line-height:1.6;">${type?.description||''}</div>
               <div class="tc-tags">${(type?.tags||[]).map(t=>`<span class="tc-tag">${t}</span>`).join('')}</div>
             </div>
             <div class="tc-img"><img src="${STATE.fixedImg}" alt="${pName(sel)}" onerror="this.style.opacity=.15"></div>
@@ -440,7 +481,7 @@ function showEmpty(){ $app.innerHTML=`<div class="cr-empty"><h2>비교 정보가
     const topCat = topCatSlug(input.category || pCat(data.compared[0]) || '', data.cats);
     const qAttrs = (data.attrDefs||[]).filter(a=>a.attr_type==='quality' && a.category===topCat).map(a=>({id:a.id,code:a.code,name:a.name_ko}));
     STATE={ input, ...data, qAttrs, topCat };
-    const type=pickTasteType(input.mood,data.profiles);
+    const type=buildTasteType(input.quality,input.mood,qAttrs);
     // 기본 선택 = 비교 상품 중 매칭% 1순위, 동점이면 id 순으로 고정(결정적)
     let defaultSel = String(data.compared[0].id);
     const ranked = data.compared
