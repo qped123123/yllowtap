@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Yllowtap — Checkout</title>
+<title>Yllowtap — Order</title>
 <link rel="stylesheet" href="./css/style.css">
 <style>
 .co-page{max-width:1100px;margin:0 auto;padding:calc(var(--header-height,88px) + 40px) 40px 80px;min-height:100vh}
@@ -21,7 +21,7 @@
 .co-input:disabled{background:#EFECE6;color:#888}
 .co-select{width:100%;padding:12px 14px;font-size:14px;font-family:inherit;border:1px solid #E5E1DC;background:#F7F5F2;color:#111;appearance:auto}
 .co-textarea{width:100%;padding:12px 14px;font-size:14px;font-family:inherit;border:1px solid #E5E1DC;background:#F7F5F2;color:#111;min-height:60px;resize:vertical;line-height:1.5}
-.co-saved-addr{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px}
+.co-saved-addr{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:16px}
 .co-addr-chip{padding:8px 16px;font-size:12px;border:1px solid #E5E1DC;background:none;cursor:pointer;font-family:inherit;transition:all .2s;border-radius:2px}
 .co-addr-chip:hover{border-color:#111}
 .co-addr-chip.active{background:#111;color:#fff;border-color:#111}
@@ -66,7 +66,7 @@
 <header class="header"><div class="header__logo"><a href="/" style="text-decoration:none;color:inherit;"><span class="header__logo-highlight">Yllowtap</span></a></div></header>
 
 <div class="co-page">
-  <div class="co-header"><h1>Checkout</h1></div>
+  <div class="co-header"><h1>Order</h1></div>
   <div class="co-layout" id="coForm">
     <div>
       <!-- 배송 정보 -->
@@ -281,7 +281,7 @@ async function updateSummary(){
   if(widgets&&total>0){try{await widgets.setAmount({currency:'KRW',value:total});}catch(e){}}
 }
 
-async function loadSavedAddresses(){const{data}=await sb.from('addresses').select('*').eq('user_id',currentUser.id).order('is_default',{ascending:false});if(!data?.length)return;const el=document.getElementById('savedAddresses');el.innerHTML='<div style="font-size:11px;color:#888;margin-bottom:8px;">저장된 배송지:</div>'+data.map((a,i)=>`<button class="co-addr-chip${a.is_default?' active':''}" onclick="fillAddress(${i})" data-idx="${i}">${a.label||a.recipient_name}${a.is_default?' ✓':''}</button>`).join('');const def=data.find(a=>a.is_default)||data[0];if(def)fillAddressData(def);window._savedAddresses=data;}
+async function loadSavedAddresses(){const{data}=await sb.from('addresses').select('*').eq('user_id',currentUser.id).order('is_default',{ascending:false});if(!data?.length)return;const el=document.getElementById('savedAddresses');el.innerHTML='<div style="font-size:11px;color:#888;">저장된 배송지:</div>'+data.map((a,i)=>`<button class="co-addr-chip${a.is_default?' active':''}" onclick="fillAddress(${i})" data-idx="${i}">${a.label||a.recipient_name}${a.is_default?' ✓':''}</button>`).join('');const def=data.find(a=>a.is_default)||data[0];if(def)fillAddressData(def);window._savedAddresses=data;}
 function fillAddress(idx){const addr=window._savedAddresses[idx];if(!addr)return;fillAddressData(addr);document.querySelectorAll('.co-addr-chip').forEach((c,i)=>c.classList.toggle('active',i===idx));}
 function fillAddressData(a){document.getElementById('coName').value=a.recipient_name||'';document.getElementById('coPhone').value=a.phone||'';document.getElementById('coZip').value=a.zipcode||'';document.getElementById('coAddr1').value=a.address1||'';document.getElementById('coAddr2').value=a.address2||'';if(a.delivery_memo){const sel=document.getElementById('coMemo');const opt=Array.from(sel.options).find(o=>o.value===a.delivery_memo);if(opt)sel.value=a.delivery_memo;else{sel.value='직접 입력';document.getElementById('coMemoCustom').value=a.delivery_memo;document.getElementById('coMemoCustomRow').style.display='block';}}}
 function bindMemoSelect(){document.getElementById('coMemo').addEventListener('change',function(){document.getElementById('coMemoCustomRow').style.display=this.value==='직접 입력'?'block':'none';});}
