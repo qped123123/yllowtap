@@ -312,6 +312,7 @@
     <div class="acc-item open"><div class="acc-header" onclick="toggleAcc(this)"><span>찜한 상품<span class="acc-count" id="accWishCnt"></span></span><span class="acc-arrow">▾</span></div><div class="acc-body"><div class="wish-grid" id="wishGrid"></div></div></div>
     <div class="acc-item open"><div class="acc-header" onclick="toggleAcc(this)">최근 본 상품<span class="acc-arrow">▾</span></div><div class="acc-body"><div class="recent-grid" id="recentGrid"></div></div></div>
     <div class="acc-item"><div class="acc-header" onclick="toggleAcc(this)"><span>주문내역<span class="acc-count" id="accOrderCnt"></span></span><span class="acc-arrow">▾</span></div><div class="acc-body"><div id="orderList"></div></div></div>
+    <div class="acc-item"><div class="acc-header" onclick="toggleAcc(this)"><span>저장한 비교<span class="acc-count" id="accSavedCmpCnt"></span></span><span class="acc-arrow">▾</span></div><div class="acc-body"><div id="savedCmpList"></div></div></div>
 
   <div class="acc-item"><div class="acc-header" onclick="toggleAcc(this)">배송지 관리<span class="acc-arrow">▾</span></div><div class="acc-body">
     <div id="addressList"></div>
@@ -465,7 +466,46 @@ function switchMyTab(tab){
   const t=document.getElementById(targetIds[tab]||'panel-'+tab);
   if(t)t.scrollIntoView({behavior:'smooth',block:'start'});
 }
-function loadAll(){loadOrders();loadCoupons();loadPointHistory();loadWishlist();loadRecent();loadAddresses();loadInquiries();loadPointSettings();}
+function loadAll(){loadOrders();loadCoupons();loadPointHistory();loadWishlist();loadRecent();loadAddresses();loadInquiries();loadPointSettings();loadSavedComparisons();}
+
+/* ── 저장한 비교 ── */
+let _savedCmpMap={};
+async function loadSavedComparisons(){
+  const wrap=document.getElementById('savedCmpList');if(!wrap)return;
+  const{data,error}=await sb.from('saved_comparisons').select('*').eq('user_id',currentUser.id).order('created_at',{ascending:false});
+  if(error){wrap.innerHTML='<div style="font-size:13px;color:#999;padding:8px 0;">불러오지 못했어요.</div>';return;}
+  const list=data||[];
+  const cntEl=document.getElementById('accSavedCmpCnt');if(cntEl)cntEl.textContent=list.length?'('+list.length+')':'';
+  if(!list.length){wrap.innerHTML='<div style="font-size:13px;color:#999;padding:8px 0;">아직 저장한 비교가 없어요.</div>';return;}
+  _savedCmpMap={};list.forEach(r=>_savedCmpMap[r.id]=r);
+  wrap.innerHTML=list.map(row=>{
+    const s=row.snapshot||{};
+    const date=new Date(row.created_at).toLocaleDateString('ko-KR');
+    const typeName=(s.type&&(s.type.type_name_en||s.type.type_name_kr))||row.type_name||'비교 결과';
+    const prods=s.products||[];
+    const thumbs=prods.map(p=>`<div style="text-align:center;width:62px;"><div style="width:62px;height:62px;border-radius:6px;overflow:hidden;background:#f3f1ec;">${p.img?`<img src="${p.img}" style="width:100%;height:100%;object-fit:cover;" onerror="this.style.opacity=.15">`:''}</div><div style="font-size:10px;color:#888;margin-top:3px;">${p.match!=null?p.match+'%':''}</div></div>`).join('');
+    return `<div style="border:1px solid #E5E1DC;border-radius:8px;padding:14px;margin-bottom:10px;">
+      <div style="margin-bottom:10px;"><span style="font-size:13px;font-weight:600;">${typeName}</span> <span style="font-size:11px;color:#888;">${date}</span></div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;">${thumbs}</div>
+      <div style="display:flex;gap:8px;margin-top:12px;">
+        <button onclick="viewSavedCmp('${row.id}')" style="flex:1;padding:9px;font-size:12px;font-weight:600;background:#1a1a1a;color:#fff;border:none;border-radius:7px;cursor:pointer;font-family:inherit;">전체 보기</button>
+        <button onclick="deleteSavedCmp('${row.id}')" style="padding:9px 14px;font-size:12px;background:#fff;color:#888;border:1px solid #E5E1DC;border-radius:7px;cursor:pointer;font-family:inherit;">삭제</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+function viewSavedCmp(id){
+  const row=_savedCmpMap[id];if(!row)return;const s=row.snapshot||{};
+  const ids=(s.products||[]).map(p=>p.id);
+  sessionStorage.setItem('yllowtap_compare_v2',JSON.stringify({quality:s.quality,mood:s.mood,products:ids,selected:s.selectedId,category:s.category}));
+  location.href='/compare-result-v2.html?products='+ids.join(',')+'&selected='+(s.selectedId||ids[0]||'');
+}
+async function deleteSavedCmp(id){
+  if(!confirm('이 저장한 비교를 삭제할까요?'))return;
+  const{error}=await sb.from('saved_comparisons').delete().eq('id',id);
+  if(error){alert('삭제 실패: '+error.message);return;}
+  loadSavedComparisons();
+}
 
 /* ── ORDERS ── */
 const TRACK_STEPS=[{k:'pending',l:'주문접수'},{k:'paid',l:'결제완료'},{k:'preparing',l:'상품준비'},{k:'shipped',l:'배송중'},{k:'delivered',l:'배송완료'}];

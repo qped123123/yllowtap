@@ -216,7 +216,7 @@ function renderItems(){
     const p=item.products;if(!p)return'';
     const img=getMainImg(p);const opts=item.selected_options||{};
     const optStr=Object.entries(opts).filter(([k])=>!k.startsWith('_')).map(([k,v])=>k+': '+v).join(' / ');
-    return`<div class="co-item${item.checked?'':' unchecked'}" id="co-item-${i}"><input type="checkbox" class="co-item-check" ${item.checked?'checked':''} onchange="toggleCoItem(${i})">${img?`<img class="co-item-img" src="${img}">`:'<div class="co-item-img"></div>'}<div><div class="co-item-name">${p.name}</div>${optStr?`<div class="co-item-opt">${optStr}</div>`:''}<div class="co-item-qty" style="display:flex;align-items:center;gap:8px;margin-top:6px;"><span style="color:#888;">수량</span><div style="display:inline-flex;align-items:center;border:1px solid #E5E1DC;border-radius:8px;overflow:hidden;"><button type="button" onclick="changeCoQty(${i},-1)" style="width:28px;height:28px;border:none;background:#fff;cursor:pointer;font-size:16px;line-height:1;color:#333;">&minus;</button><span style="min-width:30px;text-align:center;font-size:13px;color:#333;">${item.quantity}</span><button type="button" onclick="changeCoQty(${i},1)" style="width:28px;height:28px;border:none;background:#fff;cursor:pointer;font-size:16px;line-height:1;color:#333;">+</button></div></div></div><div class="co-item-price">${(p.price*item.quantity).toLocaleString()}원</div></div>`;
+    return`<div class="co-item${item.checked?'':' unchecked'}" id="co-item-${i}"><input type="checkbox" class="co-item-check" ${item.checked?'checked':''} onchange="toggleCoItem(${i})">${img?`<img class="co-item-img" src="${img}">`:'<div class="co-item-img"></div>'}<div><div class="co-item-name">${p.name}</div>${optStr?`<div class="co-item-opt">${optStr}</div>`:''}<div class="co-item-qty" style="display:flex;align-items:center;gap:8px;margin-top:6px;"><span style="color:#888;">수량</span><div style="display:inline-flex;align-items:center;border:1px solid #E5E1DC;border-radius:8px;overflow:hidden;"><button type="button" onclick="changeCoQty(${i},-1)" style="width:28px;height:28px;border:none;background:#fff;cursor:pointer;font-size:16px;line-height:1;color:#333;">&minus;</button><span style="min-width:30px;text-align:center;font-size:13px;color:#333;">${item.quantity}</span><button type="button" onclick="changeCoQty(${i},1)" style="width:28px;height:28px;border:none;background:#fff;cursor:pointer;font-size:16px;line-height:1;color:#333;">+</button></div></div></div><div class="co-item-price">${(coUnitPrice(item)*item.quantity).toLocaleString()}원</div></div>`;
   }).join('');
 }
 
@@ -288,13 +288,16 @@ function useAllPoints(){
   document.getElementById('coPointInput').value=v;pointsUsed=v;updateSummary();
 }
 
-function getProductSubtotal(){let s=0;cartItems.filter(i=>i.checked).forEach(i=>{const p=i.products;if(p)s+=p.price*i.quantity;});return s;}
+// 옵션 포함 단가 (장바구니와 동일: _line_price 있으면 그걸, 없으면 기본가)
+function coUnitPrice(it){const o=it.selected_options;return (o&&o._line_price)||it.products.price;}
+
+function getProductSubtotal(){let s=0;cartItems.filter(i=>i.checked).forEach(i=>{const p=i.products;if(p)s+=coUnitPrice(i)*i.quantity;});return s;}
 
 /* ── SUMMARY ── */
 async function updateSummary(){
   const checked=cartItems.filter(i=>i.checked);
   let subtotal=0,discount=0;
-  checked.forEach(item=>{const p=item.products;if(!p)return;subtotal+=p.price*item.quantity;if(p.original_price&&p.original_price>p.price)discount+=(p.original_price-p.price)*item.quantity;});
+  checked.forEach(item=>{const p=item.products;if(!p)return;subtotal+=coUnitPrice(item)*item.quantity;if(p.original_price&&p.original_price>p.price)discount+=(p.original_price-p.price)*item.quantity;});
   const shipping=subtotal>=FREE_SHIPPING?0:(subtotal>0?SHIPPING_FEE:0);
   // 포인트가 결제액 초과하지 않도록
   const afterCoupon=Math.max(0,subtotal-couponDiscount);
@@ -346,7 +349,7 @@ async function submitOrder(){
   const btn=document.getElementById('coSubmitBtn');btn.disabled=true;btn.textContent='처리 중...';hideError();
   try{
     let subtotal=0,discount=0;
-    checked.forEach(item=>{const p=item.products;if(!p)return;subtotal+=p.price*item.quantity;if(p.original_price&&p.original_price>p.price)discount+=(p.original_price-p.price)*item.quantity;});
+    checked.forEach(item=>{const p=item.products;if(!p)return;subtotal+=coUnitPrice(item)*item.quantity;if(p.original_price&&p.original_price>p.price)discount+=(p.original_price-p.price)*item.quantity;});
     const shipping=subtotal>=FREE_SHIPPING?0:SHIPPING_FEE;
     const total=Math.max(0,subtotal+shipping-couponDiscount-pointsUsed);
     const now=new Date();const dateStr=now.getFullYear().toString()+String(now.getMonth()+1).padStart(2,'0')+String(now.getDate()).padStart(2,'0');
@@ -361,7 +364,7 @@ async function submitOrder(){
     if(orderErr)throw orderErr;
     lastCreatedOrderId=order.id;
 
-    const orderItems=checked.map(item=>{const p=item.products;return{order_id:order.id,product_id:p.id,product_name_snapshot:p.name,product_brand_snapshot:p.brand||'YLLOWTAP',product_image_snapshot:getMainImg(p),product_price_snapshot:p.price,product_original_price_snapshot:p.original_price||null,option_snapshot:item.selected_options||{},quantity:item.quantity,item_total:p.price*item.quantity};});
+    const orderItems=checked.map(item=>{const p=item.products;return{order_id:order.id,product_id:p.id,product_name_snapshot:p.name,product_brand_snapshot:p.brand||'YLLOWTAP',product_image_snapshot:getMainImg(p),product_price_snapshot:p.price,product_original_price_snapshot:p.original_price||null,option_snapshot:item.selected_options||{},quantity:item.quantity,item_total:coUnitPrice(item)*item.quantity};});
     const{error:itemsErr}=await sb.from('order_items').insert(orderItems);
     if(itemsErr)throw itemsErr;
 
