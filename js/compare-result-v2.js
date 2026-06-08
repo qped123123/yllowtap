@@ -297,6 +297,13 @@ async function toggleWish(btn){
 function showEmpty(){ $app.innerHTML=`<div class="cr-empty"><h2>비교 정보가 없어요</h2><p>다시 비교를 진행하면 결과를 보여드릴게요.</p><a href="${ROUTE.back}">비교하러 가기</a></div>`; }
 (async function init(){
   const input=readInput(); if(!input){ showEmpty(); return; }
+  // 회원 전용: 데모(?demo=1)는 예외, 그 외엔 로그인 안 했으면 로그인 페이지로
+  if(!input.demo){
+    try{
+      const { data:{ session } } = await sb.auth.getSession();
+      if(!session){ location.href='/login.html'; return; }
+    }catch(e){ location.href='/login.html'; return; }
+  }
   try{
     const data=await loadData(input);
     if(!data.compared.length){ showEmpty(); return; }
