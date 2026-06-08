@@ -292,22 +292,6 @@
   </div>
   <div class="no-membership-border" id="mbSpacer"></div>
 
-  <!-- 대시보드 -->
-  <div class="my-dashboard" id="myDashboard">
-    <div class="dash-section" id="dashOrder" style="display:none;">
-      <div class="dash-title">최근 주문 <a onclick="switchMyTab('orders')">전체보기 →</a></div>
-      <div id="dashOrderContent"></div>
-    </div>
-    <div class="dash-section" id="dashWish" style="display:none;">
-      <div class="dash-title">찜한 상품 <a onclick="switchMyTab('wishlist')">전체보기 →</a></div>
-      <div class="dash-scroll" id="dashWishScroll"></div>
-    </div>
-    <div class="dash-section" id="dashRecent" style="display:none;">
-      <div class="dash-title">최근 본 상품 <a onclick="switchMyTab('recent')">전체보기 →</a></div>
-      <div class="dash-scroll" id="dashRecentScroll"></div>
-    </div>
-  </div>
-
   <div class="my-accordion">
     <div class="acc-item open"><div class="acc-header" onclick="toggleAcc(this)">쿠폰<span class="acc-count" id="accCouponCnt"></span><span class="acc-arrow">▾</span></div><div class="acc-body" id="panel-coupon">
     <div class="coupon-register">
@@ -481,7 +465,7 @@ function switchMyTab(tab){
   const t=document.getElementById(targetIds[tab]||'panel-'+tab);
   if(t)t.scrollIntoView({behavior:'smooth',block:'start'});
 }
-function loadAll(){loadOrders();loadCoupons();loadPointHistory();loadWishlist();loadRecent();loadAddresses();loadInquiries();loadDashboard();loadPointSettings();}
+function loadAll(){loadOrders();loadCoupons();loadPointHistory();loadWishlist();loadRecent();loadAddresses();loadInquiries();loadPointSettings();}
 
 /* ── ORDERS ── */
 const TRACK_STEPS=[{k:'pending',l:'주문접수'},{k:'paid',l:'결제완료'},{k:'preparing',l:'상품준비'},{k:'shipped',l:'배송중'},{k:'delivered',l:'배송완료'}];
@@ -522,7 +506,7 @@ async function loadOrders(){
         <div style="font-size:14px;font-weight:600;color:#2E7D32;margin-bottom:12px;">🎁 리뷰 작성 시 ${pointReview}P 적립</div>
         <div class="review-stars-input" id="review-stars-${o.id}">${[1,2,3,4,5].map(n=>`<span onclick="setReviewStar('${o.id}',${n})" data-n="${n}">★</span>`).join('')}</div>
         <textarea class="review-textarea" id="review-text-${o.id}" placeholder="상품은 어떠셨나요? 솔직한 리뷰를 남겨주세요."></textarea>
-        <div style="margin-top:8px;"><label style="font-size:12px;color:#666;cursor:pointer;display:flex;align-items:center;gap:6px;">사진 첨부 <input type="file" id="review-img-${o.id}" accept="image/*" multiple style="font-size:11px;"></label></div>
+        <div style="margin-top:8px;"><label style="font-size:12px;color:#666;cursor:pointer;display:flex;align-items:center;gap:6px;">사진 첨부 <input type="file" id="review-img-${o.id}" accept="image/*" multiple style="font-size:11px;" onchange="previewReviewImg(this,'${o.id}')"></label><div id="review-preview-${o.id}" style="display:flex;gap:6px;flex-wrap:wrap;margin-top:8px;"></div></div>
         <div class="review-submit-row"><span></span><button class="review-submit-btn" onclick="submitOrderReview('${o.id}')">등록</button></div>
       </div>
     </div>`;
@@ -595,6 +579,20 @@ async function loadPointSettings(){
 /* ── 리뷰 ── */
 let reviewStars={};
 function toggleReviewForm(orderId){const el=document.getElementById('review-form-'+orderId);el.style.display=el.style.display==='none'?'block':'none';}
+function previewReviewImg(input,orderId){
+  const box=document.getElementById('review-preview-'+orderId);
+  box.innerHTML='';
+  Array.from(input.files).forEach(file=>{
+    const reader=new FileReader();
+    reader.onload=e=>{
+      const img=document.createElement('img');
+      img.src=e.target.result;
+      img.style.cssText='width:60px;height:60px;object-fit:cover;border-radius:4px;border:1px solid #E5E1DC;';
+      box.appendChild(img);
+    };
+    reader.readAsDataURL(file);
+  });
+}
 function setReviewStar(orderId,n){
   reviewStars[orderId]=n;
   document.querySelectorAll('#review-stars-'+orderId+' span').forEach(s=>{s.classList.toggle('on',parseInt(s.dataset.n)<=n);});
@@ -689,6 +687,7 @@ async function loadCoupons(){
   if(used.length)html+=`<div class="coupon-section-title" style="margin-top:24px;">사용 완료 / 만료</div>`+used.join('');
   el.innerHTML=html;
   const badge=document.getElementById('accCouponCnt');if(badge)badge.textContent=available.length?` (${available.length}장)`:'';
+  const sc=document.getElementById('statCoupon');if(sc)sc.textContent=available.length;
 }
 async function registerCoupon(){
   const code=document.getElementById('couponCodeInput').value.trim().toUpperCase();
