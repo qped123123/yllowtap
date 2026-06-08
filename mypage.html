@@ -110,7 +110,7 @@
 .coupon-empty{text-align:center;padding:40px 0;color:#aaa;font-size:13px}
 
 /* POINTS */
-.point-balance-card{background:#fff;border:1px solid #E5E1DC;padding:20px 24px;margin-bottom:20px;display:flex;justify-content:space-between;align-items:center}
+.point-balance-card{background:#fff;border:1px solid #E5E1DC;padding:12px 18px;margin-bottom:14px;display:flex;justify-content:space-between;align-items:center}
 .point-row{display:flex;justify-content:space-between;align-items:center;padding:14px 0;border-bottom:1px solid #F0EDE8;font-size:13px}
 .point-row:last-child{border-bottom:none}
 .point-amount{font-weight:700;white-space:nowrap}
@@ -231,13 +231,44 @@
 </style>
 </head>
 <body>
-<header class="header"><div class="header__logo"><a href="/" style="text-decoration:none;color:inherit;"><span class="header__logo-highlight">Yllowtap</span></a></div></header>
+<header class="header">
+  <div class="header__logo"><a href="/" style="text-decoration:none;color:inherit;"><span class="header__logo-highlight">Yllowtap</span></a></div>
+  <nav class="header__nav">
+    <a href="/category.html?cat=best">Best</a>
+    <a href="/category.html?cat=new">New In</a>
+    <a href="/category.html?cat=bags">Bags</a>
+    <a href="/category.html?cat=jewelry">Jewelry</a>
+    <a href="/category.html?cat=accessories">Accessories</a>
+    <a href="/category.html?cat=keyring">Keyring</a>
+    <a href="/category.html?cat=seasonal">Seasonal</a>
+    <a href="/category.html?cat=sale">Sale</a>
+  </nav>
+  <div class="header__actions">
+    <a href="/login.html">Login</a>
+    <a href="/mypage.html?tab=wishlist">Wishlist</a>
+    <a href="/cart.html">Bag (0)</a>
+    <button class="header__hamburger" aria-label="메뉴 열기"><span></span><span></span><span></span></button>
+  </div>
+</header>
+<div class="mobile-menu">
+  <button class="mobile-menu__close" aria-label="메뉴 닫기">✕</button>
+  <a href="/category.html?cat=best">Best</a>
+  <a href="/category.html?cat=new">New In</a>
+  <a href="/category.html?cat=bags">Bags</a>
+  <a href="/category.html?cat=jewelry">Jewelry</a>
+  <a href="/category.html?cat=accessories">Accessories</a>
+  <a href="/category.html?cat=keyring">Keyring</a>
+  <a href="/category.html?cat=seasonal">Seasonal</a>
+  <a href="/category.html?cat=sale">Sale</a>
+  <a href="/login.html">Login</a>
+  <a href="/mypage.html?tab=wishlist">Wishlist</a>
+</div>
 
 <div class="my-page">
   <div class="my-header"><h1>My Page</h1><button class="my-logout" onclick="doLogout()">로그아웃</button></div>
 
   <div class="my-user-card" id="userCard">
-    <div class="my-avatar" id="userAvatar">👤</div>
+    <div class="my-avatar" id="userAvatar"></div>
     <div>
       <div class="my-user-name" id="userName">회원</div>
       <div class="my-user-email" id="userEmail"></div>
@@ -278,7 +309,7 @@
   </div>
 
   <div class="my-accordion">
-    <div class="acc-item open"><div class="acc-header" onclick="toggleAcc(this)">🎟️ 쿠폰<span class="acc-count" id="accCouponCnt"></span><span class="acc-arrow">▾</span></div><div class="acc-body" id="panel-coupon">
+    <div class="acc-item open"><div class="acc-header" onclick="toggleAcc(this)">쿠폰<span class="acc-count" id="accCouponCnt"></span><span class="acc-arrow">▾</span></div><div class="acc-body" id="panel-coupon">
     <div class="coupon-register">
       <div class="coupon-register-icon"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#2E7D32" stroke-width="1.5" stroke-linecap="round"><path d="M15 5v2m0 4v2m0 4v2M5 5h14a2 2 0 012 2v3a2 2 0 000 4v3a2 2 0 01-2 2H5a2 2 0 01-2-2v-3a2 2 0 000-4V7a2 2 0 012-2z"/></svg></div>
       <div class="coupon-register-title">쿠폰 등록</div>
@@ -290,15 +321,15 @@
     </div>
     <div id="couponList"></div>
   </div></div>
-    <div class="acc-item open"><div class="acc-header" onclick="toggleAcc(this)">💰 포인트<span class="acc-count" id="accPointCnt"></span><span class="acc-arrow">▾</span></div><div class="acc-body">
-    <div class="point-balance-card"><div><span style="font-size:12px;color:#888;">보유 포인트</span></div><div style="font-size:24px;font-weight:700;" id="pointBalance">0 P</div></div>
+    <div class="acc-item open"><div class="acc-header" onclick="toggleAcc(this)">포인트<span class="acc-count" id="accPointCnt"></span><span class="acc-arrow">▾</span></div><div class="acc-body">
+    <div class="point-balance-card"><div><span style="font-size:12px;color:#888;">보유 포인트</span></div><div style="font-size:18px;font-weight:700;" id="pointBalance">0 P</div></div>
     <div id="pointList"></div>
   </div></div>
-    <div class="acc-item open"><div class="acc-header" onclick="toggleAcc(this)">❤️ 찜한 상품<span class="acc-count" id="accWishCnt"></span><span class="acc-arrow">▾</span></div><div class="acc-body"><div class="wish-grid" id="wishGrid"></div></div></div>
-    <div class="acc-item open"><div class="acc-header" onclick="toggleAcc(this)">🕐 최근 본 상품<span class="acc-arrow">▾</span></div><div class="acc-body"><div class="recent-grid" id="recentGrid"></div></div></div>
-    <div class="acc-item"><div class="acc-header" onclick="toggleAcc(this)">📦 주문내역<span class="acc-count" id="accOrderCnt"></span><span class="acc-arrow">▾</span></div><div class="acc-body"><div id="orderList"></div></div></div>
+    <div class="acc-item open"><div class="acc-header" onclick="toggleAcc(this)">찜한 상품<span class="acc-count" id="accWishCnt"></span><span class="acc-arrow">▾</span></div><div class="acc-body"><div class="wish-grid" id="wishGrid"></div></div></div>
+    <div class="acc-item open"><div class="acc-header" onclick="toggleAcc(this)">최근 본 상품<span class="acc-arrow">▾</span></div><div class="acc-body"><div class="recent-grid" id="recentGrid"></div></div></div>
+    <div class="acc-item"><div class="acc-header" onclick="toggleAcc(this)">주문내역<span class="acc-count" id="accOrderCnt"></span><span class="acc-arrow">▾</span></div><div class="acc-body"><div id="orderList"></div></div></div>
 
-  <div class="acc-item"><div class="acc-header" onclick="toggleAcc(this)">🏠 배송지 관리<span class="acc-arrow">▾</span></div><div class="acc-body">
+  <div class="acc-item"><div class="acc-header" onclick="toggleAcc(this)">배송지 관리<span class="acc-arrow">▾</span></div><div class="acc-body">
     <div id="addressList"></div>
     <button style="margin-top:16px;padding:12px 24px;font-size:12px;font-weight:500;letter-spacing:1px;border:1px solid #E5E1DC;background:none;cursor:pointer;font-family:inherit" onclick="toggleAddressForm()">+ 새 배송지 추가</button>
     <div id="addressForm" style="display:none;margin-top:20px;max-width:480px;background:#fff;border:1px solid #E5E1DC;padding:24px;">
@@ -314,7 +345,7 @@
     </div>
   </div></div>
 
-  <div class="acc-item"><div class="acc-header" onclick="toggleAcc(this)">💬 1:1 문의<span class="acc-arrow">▾</span></div><div class="acc-body">
+  <div class="acc-item"><div class="acc-header" onclick="toggleAcc(this)">1:1 문의<span class="acc-arrow">▾</span></div><div class="acc-body">
     <div id="inquiryList"></div>
     <button style="margin-top:16px;padding:12px 24px;font-size:12px;font-weight:500;letter-spacing:1px;border:1px solid #E5E1DC;background:none;cursor:pointer;font-family:inherit" onclick="toggleInquiryForm()">+ 새 문의 작성</button>
     <div id="inquiryForm" style="display:none;margin-top:20px;max-width:600px;background:#fff;border:1px solid #E5E1DC;padding:24px;">
@@ -325,7 +356,7 @@
     </div>
   </div></div>
 
-  <div class="acc-item"><div class="acc-header" onclick="toggleAcc(this)">👤 회원정보<span class="acc-arrow">▾</span></div><div class="acc-body">
+  <div class="acc-item"><div class="acc-header" onclick="toggleAcc(this)">회원정보<span class="acc-arrow">▾</span></div><div class="acc-body">
     <div class="profile-form">
       <div class="pf-row"><label class="pf-label">이메일</label><input class="pf-input" id="pfEmail" disabled></div>
       <div class="pf-row"><label class="pf-label">이름</label><input class="pf-input" id="pfName" placeholder="이름"></div>
@@ -491,7 +522,7 @@ async function loadOrders(){
         <div style="font-size:14px;font-weight:600;color:#2E7D32;margin-bottom:12px;">🎁 리뷰 작성 시 ${pointReview}P 적립</div>
         <div class="review-stars-input" id="review-stars-${o.id}">${[1,2,3,4,5].map(n=>`<span onclick="setReviewStar('${o.id}',${n})" data-n="${n}">★</span>`).join('')}</div>
         <textarea class="review-textarea" id="review-text-${o.id}" placeholder="상품은 어떠셨나요? 솔직한 리뷰를 남겨주세요."></textarea>
-        <div style="margin-top:8px;"><label style="font-size:12px;color:#666;cursor:pointer;display:flex;align-items:center;gap:6px;">📷 사진 첨부 <input type="file" id="review-img-${o.id}" accept="image/*" multiple style="font-size:11px;"></label></div>
+        <div style="margin-top:8px;"><label style="font-size:12px;color:#666;cursor:pointer;display:flex;align-items:center;gap:6px;">사진 첨부 <input type="file" id="review-img-${o.id}" accept="image/*" multiple style="font-size:11px;"></label></div>
         <div class="review-submit-row"><span></span><button class="review-submit-btn" onclick="submitOrderReview('${o.id}')">등록</button></div>
       </div>
     </div>`;
@@ -653,7 +684,7 @@ async function loadCoupons(){
     </div>`;
     if(status==='ok')available.push(html);else used.push(html);
   });
-  let html='<div style="font-size:11px;color:#2E7D32;margin-bottom:16px;padding:8px 12px;background:#E8F5E9;border-radius:4px;">💡 보유 쿠폰은 결제 시 자동으로 적용할 수 있습니다</div>';
+  let html='<div style="font-size:11px;color:#2E7D32;margin-bottom:16px;padding:8px 12px;background:#E8F5E9;border-radius:4px;">보유 쿠폰은 결제 시 자동으로 적용할 수 있습니다</div>';
   if(available.length)html+=`<div class="coupon-section-title">사용 가능 (${available.length}장)</div>`+available.join('');
   if(used.length)html+=`<div class="coupon-section-title" style="margin-top:24px;">사용 완료 / 만료</div>`+used.join('');
   el.innerHTML=html;
