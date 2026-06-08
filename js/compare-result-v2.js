@@ -29,14 +29,15 @@ function readInput(){
   const url = new URLSearchParams(location.search);
   const demo = url.get('demo') === '1';
   let saved=null; try{ saved=JSON.parse(sessionStorage.getItem(SS_KEY)||'null'); }catch(e){}
-  let quality, mood;
-  if(saved&&saved.quality&&saved.mood){ quality=saved.quality; mood=saved.mood; }
-  else if(demo){ quality={storage:8,material:8,durability:6,finish:7,weight:5}; mood={minimal:-3,color:-2,cute_chic:2,daily_special:-2}; }
-  else return null;
   let products=(url.get('products')||'').split(',').map(s=>s.trim()).filter(Boolean);
   if(!products.length&&saved&&Array.isArray(saved.products)) products=saved.products.map(String);
+  let quality, mood, category=(saved&&saved.category)||null;
+  if(saved&&saved.quality&&saved.mood){ quality=saved.quality; mood=saved.mood; }
+  else if(demo){ quality={}; mood={minimal:-3,color:-2,cute_chic:2,daily_special:-2}; }
+  else if(products.length){ quality={}; mood={minimal:0,color:0,cute_chic:0,daily_special:0}; }  // URL만 있을 때: 중립값으로라도 렌더
+  else return null;
   let selected=url.get('selected')||(saved&&saved.selected)||products[0]||null;
-  return { quality, mood, products, selected:selected?String(selected):null, category:(saved&&saved.category)||null, demo };
+  return { quality, mood, products, selected:selected?String(selected):null, category, demo };
 }
 
 /* ---------- 2. 정규화 ---------- */
