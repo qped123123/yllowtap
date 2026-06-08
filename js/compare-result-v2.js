@@ -56,10 +56,10 @@ function pickTasteType(q,m,profiles){
 
 /* ---------- 4. 일치도 % ---------- */
 function matchPercent(quality,mood,score){
-  let md=0; for(const k of MKEYS){ const d=clampM(mood[k])-clampM(score[k+'_score']); md+=d*d; }
+  let md=0; for(const k of MKEYS){ const d=Math.round(clampM(mood[k]))-Math.round(clampM(score[k+'_score'])); md+=d*d; }
   const moodScore=1-Math.sqrt(md)/20;
   let sumW=0,sumWS=0,penalty=0;
-  for(const k of QKEYS){ const imp=clampQ(quality[k]),lvl=clampQ(score[k+'_score']); sumW+=imp; sumWS+=imp*lvl; if(lvl<=2)penalty+=0.03; }
+  for(const k of QKEYS){ const imp=Math.round(clampQ(quality[k])),lvl=Math.round(clampQ(score[k+'_score'])); sumW+=imp; sumWS+=imp*lvl; if(lvl<=2)penalty+=0.03; }
   const qFit=sumW>0?(sumWS/(sumW*10)):0.6;
   const qs=Math.max(0,Math.min(1,qFit-penalty));
   return Math.max(55,Math.min(99,Math.round(55+(0.5*moodScore+0.5*qs)*44)));
