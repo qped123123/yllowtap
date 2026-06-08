@@ -127,8 +127,8 @@
 .wish-card-brand{font-size:10px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:#888;margin-bottom:2px}
 .wish-card-name{font-size:13px;font-weight:500;margin-bottom:4px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
 .wish-card-price{font-size:13px;font-weight:700}
-.wish-remove{position:absolute;top:8px;right:8px;width:28px;height:28px;background:rgba(255,255,255,.85);border:none;border-radius:50%;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:14px;color:#C4453C;transition:all .2s}
-.wish-remove:hover{background:#C4453C;color:#fff}
+.wish-remove{position:absolute;top:4px;right:4px;width:24px;height:24px;background:none;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:15px;line-height:1;color:#bbb;padding:0;transition:color .2s}
+.wish-remove:hover{color:#C4453C}
 
 /* ADDRESS */
 .addr-card{background:#fff;border:1px solid #E5E1DC;padding:20px 24px;margin-bottom:12px;display:flex;justify-content:space-between;align-items:center}
@@ -208,10 +208,13 @@
 .scmp-list{display:flex;gap:12px;overflow-x:auto;scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch;padding-bottom:4px;scrollbar-width:none}
 .scmp-list::-webkit-scrollbar{display:none}
 .scmp-card{flex:0 0 auto;width:280px;scroll-snap-align:start;position:relative;border:1px solid #E5E1DC;border-radius:8px;padding:14px;box-sizing:border-box}
-.scmp-arrows{display:none;gap:6px}
-.scmp-arrow{width:28px;height:28px;border:1px solid #E5E1DC;background:#fff;border-radius:50%;cursor:pointer;font-size:15px;line-height:1;color:#666;display:inline-flex;align-items:center;justify-content:center;font-family:inherit;transition:all .15s}
-.scmp-arrow:hover{background:#1a1a1a;color:#fff;border-color:#1a1a1a}
-@media(min-width:769px){.scmp-arrows{display:inline-flex}}
+.scmp-wrap{position:relative}
+.scmp-arrow{display:none}
+@media(min-width:769px){
+  .scmp-arrow{display:flex;align-items:center;justify-content:center;position:absolute;top:50%;transform:translateY(-50%);width:32px;height:32px;border-radius:50%;border:1px solid #E5E1DC;background:#fff;cursor:pointer;font-size:16px;line-height:1;color:#666;z-index:3;box-shadow:0 1px 5px rgba(0,0,0,.12);font-family:inherit;transition:all .15s}
+  .scmp-prev{left:-6px}.scmp-next{right:-6px}
+  .scmp-arrow:hover{background:#1a1a1a;color:#fff;border-color:#1a1a1a}
+}
 @media(max-width:768px){
   .my-page{padding:calc(var(--header-height,60px) + 20px) 16px 60px}
   .my-header h1{font-size:24px}
@@ -330,10 +333,13 @@
         <div style="display:flex;align-items:center;gap:14px;">
           <label style="display:inline-flex;align-items:center;gap:6px;font-size:12px;color:#666;cursor:pointer;"><input type="checkbox" id="scmpAll" onchange="toggleAllSavedCmp(this)" style="width:15px;height:15px;cursor:pointer;accent-color:#1a1a1a;"> 전체 선택</label>
           <button onclick="deleteSelectedSavedCmp()" onmouseover="this.style.color='#C4453C'" onmouseout="this.style.color='#888'" style="display:inline-flex;align-items:center;gap:5px;background:none;border:none;padding:0;font-size:12px;color:#888;cursor:pointer;font-family:inherit;transition:color .15s;"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>선택 삭제</button>
-          <span class="scmp-arrows"><button onclick="slideSavedCmp(-1)" class="scmp-arrow" aria-label="이전">&#8249;</button><button onclick="slideSavedCmp(1)" class="scmp-arrow" aria-label="다음">&#8250;</button></span>
         </div>
       </div>
-      <div id="savedCmpList" class="scmp-list"></div>
+      <div class="scmp-wrap">
+        <button class="scmp-arrow scmp-prev" onclick="slideSavedCmp(-1)" aria-label="이전">&#8249;</button>
+        <div id="savedCmpList" class="scmp-list"></div>
+        <button class="scmp-arrow scmp-next" onclick="slideSavedCmp(1)" aria-label="다음">&#8250;</button>
+      </div>
     </section>
 
   <div class="acc-item"><div class="acc-header" onclick="toggleAcc(this)">배송지 관리<span class="acc-arrow">▾</span></div><div class="acc-body">
