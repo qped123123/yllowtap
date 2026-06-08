@@ -768,7 +768,7 @@ async function openCompare() {
     qDefs.forEach(a => {
       html += `<div class="taste-row">
         <span>${a.name_ko}</span>
-        <input type="range" class="taste-slider" min="0" max="10" value="5" step="1" id="taste-${a.id}">
+        <input type="range" class="taste-slider" min="0" max="10" value="5" step="0.5" id="taste-${a.id}">
         <span></span>
       </div>`;
     });
@@ -785,7 +785,7 @@ async function openCompare() {
     </div>`;
   });
 
-  html += `<button class="taste-confirm-btn" onclick="goCompareResult()">내 취향으로 비교하기</button>
+  html += `<button class="taste-confirm-btn" onclick="calculateMatch()">내 취향으로 비교하기</button>
   </div>`;
 
   document.getElementById('compareContent').innerHTML = html;
@@ -888,61 +888,6 @@ async function selectPreferred(chosenId, rejectedIds) {
       ? ('/checkout.html?selected=' + chosenId)
       : ('/product.html?slug=' + (_prod.slug || chosenId));
   }, 1000);
-}
-
-/* ===== 결과화면(compare-result-v2) 연결 ===== */
-/* 슬라이더 attribute_id → 결과화면이 읽는 키.
-   vw_product_taste_scores VIEW와 100% 동일하게 매핑해야 사용자 입력과 상품 점수가 같은 공간에서 비교됨.
-   11(쥬얼리 착용감)·13(쥬얼리 희소성)·16(액세서리 활용도)·17(액세서리 희소성)은 VIEW에 없어서 결과화면이 안 읽음 → 의도적으로 제외. */
-const COMPARE_ATTR_KEY = {
-  1:  ['mood',    'minimal'],
-  2:  ['mood',    'color'],
-  3:  ['mood',    'cute_chic'],
-  4:  ['mood',    'daily_special'],
-  5:  ['quality', 'storage'],
-  6:  ['quality', 'material'],
-  7:  ['quality', 'durability'],
-  8:  ['quality', 'finish'],
-  9:  ['quality', 'weight'],
-  10: ['quality', 'material'],     // jewelry_grade
-  12: ['quality', 'finish'],       // jewelry_finish
-  14: ['quality', 'material'],     // accessories_material
-  15: ['quality', 'finish'],       // accessories_finish
-  18: ['quality', 'weight'],       // keyring_portability
-  19: ['quality', 'durability'],   // keyring_durability
-  20: ['quality', 'finish']        // keyring_finish
-};
-
-function goCompareResult() {
-  if (compareItems.length < 2) return;
-  const prods = compareItems.map(i => i.products);   // 2~3개
-  const cat = prods[0].category;
-
-  // 결과화면이 읽는 키 모양으로 초기값(중립) — VIEW 기본값과 동일(품질 5 / 무드 0)
-  const quality = { storage: 5, material: 5, durability: 5, finish: 5, weight: 5 };
-  const mood    = { minimal: 0, color: 0, cute_chic: 0, daily_special: 0 };
-
-  // 현재 카테고리 슬라이더 값을 VIEW와 같은 슬롯으로 채움
-  [...compareQualityDefs, ...compareStyleDefs].forEach(a => {
-    const map = COMPARE_ATTR_KEY[a.id];
-    if (!map) return;   // VIEW가 안 쓰는 항목은 건너뜀
-    const el = document.getElementById('taste-' + a.id);
-    if (!el) return;
-    const v = parseFloat(el.value);
-    if (Number.isNaN(v)) return;
-    if (map[0] === 'quality') quality[map[1]] = v;
-    else mood[map[1]] = v;
-  });
-
-  const ids = prods.map(p => p.id);
-  const selected = selectedProductId || ids[0];   // 카드 클릭했으면 그 상품, 아니면 첫 상품
-
-  // 결과화면이 읽는 sessionStorage 저장 (슬라이더값=여기, products/selected=URL로도 전달)
-  sessionStorage.setItem('yllowtap_compare_v2', JSON.stringify({
-    quality, mood, products: ids, selected, category: cat
-  }));
-
-  window.location.href = 'compare-result-v2.html?products=' + ids.join(',') + '&selected=' + selected;
 }
 
 function closeCompare() {
