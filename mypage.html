@@ -462,9 +462,9 @@ function switchMyTab(tab){
   document.querySelectorAll('.acc-item').forEach(a=>{
     if(a.querySelector('#panel-'+tab)||a.querySelector('#orderList')&&tab==='orders'||a.querySelector('#'+tab+'List'))a.classList.add('open');
   });
-  const targetIds={orders:'orderList',coupon:'panel-coupon',point:'pointList',wishlist:'wishGrid',recent:'recentGrid'};
+  const targetIds={orders:'orderList',coupon:'panel-coupon',point:'pointList',wishlist:'wishGrid',recent:'recentGrid',savedcmp:'savedCmpList'};
   const t=document.getElementById(targetIds[tab]||'panel-'+tab);
-  if(t)t.scrollIntoView({behavior:'smooth',block:'start'});
+  if(t){ const acc=t.closest('.acc-item'); if(acc)acc.classList.add('open'); t.scrollIntoView({behavior:'smooth',block:'start'}); }
 }
 function loadAll(){loadOrders();loadCoupons();loadPointHistory();loadWishlist();loadRecent();loadAddresses();loadInquiries();loadPointSettings();loadSavedComparisons();}
 
@@ -478,9 +478,15 @@ async function loadSavedComparisons(){
   const cntEl=document.getElementById('accSavedCmpCnt');if(cntEl)cntEl.textContent=list.length?'('+list.length+')':'';
   if(!list.length){wrap.innerHTML='<div style="font-size:13px;color:#999;padding:8px 0;">아직 저장한 비교가 없어요.</div>';return;}
   _savedCmpMap={};list.forEach(r=>_savedCmpMap[r.id]=r);
-  const cmpBtn="flex:1;padding:9px 6px;font-size:12px;font-weight:600;background:#fff;color:#888;border:1px solid #E5E1DC;border-radius:7px;cursor:pointer;font-family:inherit;transition:background .15s,color .15s,border-color .15s;";
+  const cmpBase="display:inline-flex;align-items:center;justify-content:center;gap:5px;padding:9px 6px;font-size:12px;font-weight:600;background:#fff;color:#888;border:1px solid #E5E1DC;border-radius:7px;cursor:pointer;font-family:inherit;transition:background .15s,color .15s,border-color .15s;";
+  const cmpWide="flex:1;"+cmpBase;
+  const cmpSm="flex:0 0 auto;width:84px;"+cmpBase;
   const hovIn="this.style.background='#1a1a1a';this.style.color='#fff';this.style.borderColor='#1a1a1a';";
   const hovOut="this.style.background='#fff';this.style.color='#888';this.style.borderColor='#E5E1DC';";
+  const icV='<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>';
+  const icS='<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg>';
+  const icB='<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>';
+  const icT='<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>';
   wrap.innerHTML=list.map(row=>{
     const s=row.snapshot||{};
     const date=new Date(row.created_at).toLocaleDateString('ko-KR');
@@ -491,10 +497,10 @@ async function loadSavedComparisons(){
       <div style="margin-bottom:10px;"><span style="font-size:13px;font-weight:600;">${typeName}</span> <span style="font-size:11px;color:#888;">${date}</span></div>
       <div style="display:flex;gap:8px;flex-wrap:wrap;">${thumbs}</div>
       <div style="display:flex;gap:6px;margin-top:12px;">
-        <button onclick="viewSavedCmp('${row.id}')" onmouseover="${hovIn}" onmouseout="${hovOut}" style="${cmpBtn}">전체보기</button>
-        <button onclick="shareSavedCmp('${row.id}',this)" onmouseover="${hovIn}" onmouseout="${hovOut}" style="${cmpBtn}">공유</button>
-        <button onclick="saveSavedCmp('${row.id}',this)" onmouseover="${hovIn}" onmouseout="${hovOut}" style="${cmpBtn}">저장</button>
-        <button onclick="deleteSavedCmp('${row.id}')" onmouseover="${hovIn}" onmouseout="${hovOut}" style="${cmpBtn}">삭제</button>
+        <button onclick="viewSavedCmp('${row.id}')" onmouseover="${hovIn}" onmouseout="${hovOut}" style="${cmpWide}">${icV}전체보기</button>
+        <button onclick="shareSavedCmp('${row.id}',this)" onmouseover="${hovIn}" onmouseout="${hovOut}" style="${cmpSm}">${icS}공유</button>
+        <button onclick="saveSavedCmp('${row.id}',this)" onmouseover="${hovIn}" onmouseout="${hovOut}" style="${cmpSm}">${icB}저장</button>
+        <button onclick="deleteSavedCmp('${row.id}')" onmouseover="${hovIn}" onmouseout="${hovOut}" style="${cmpSm}">${icT}삭제</button>
       </div>
     </div>`;
   }).join('');

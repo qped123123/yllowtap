@@ -329,11 +329,19 @@ async function ensureSaved(){
 async function saveComparison(btn){
   if(STATE.input?.demo){ crToast('데모 모드에선 저장이 안 돼요'); return; }
   if(STATE.input?.share){ crToast('공유받은 결과는 직접 비교해보세요'); return; }
+  if(STATE.savedShareId){ location.href='/mypage.html?tab=savedcmp'; return; } // 이미 저장됨 → 저장 화면으로
   if(!STATE.compared?.length){ crToast('저장할 결과가 없어요'); return; }
   if(btn){ btn.disabled=true; btn.style.opacity='.6'; }
   try{
     const sid = await ensureSaved();
-    if(sid) crToast('마이페이지에 저장했어요');
+    if(sid){
+      crToast('마이페이지에 저장했어요');
+      if(btn){
+        btn.innerHTML='<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>저장 화면으로 가기';
+        btn.style.width='auto'; btn.style.padding='0 18px';
+        btn.onclick=function(){ location.href='/mypage.html?tab=savedcmp'; };
+      }
+    }
   }catch(e){ console.error(e); crToast('저장 중 오류가 났어요'); }
   finally{ if(btn){ btn.disabled=false; btn.style.opacity='1'; } }
 }
