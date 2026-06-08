@@ -1035,10 +1035,24 @@ async function loadCategoriesAdmin() {
 }
 function renderCategoryAdmin() {
   const el = document.getElementById('categoryAdminList'); if(!el) return;
+  const SYS = ['all','best','new','sale'];
   const tops = allCatsAdmin.filter(c => !c.parent_id).sort((a,b)=>(a.display_order||0)-(b.display_order||0));
   if(!tops.length){ el.innerHTML='<div style="font-size:11px;color:var(--text-muted);padding:8px 0;">+ 버튼으로 카테고리를 추가하세요</div>'; return; }
   const actSel=(c)=>`<select class="form-select" style="width:74px;font-size:10px;padding:3px 4px;" onchange="toggleCategoryActive('${c.id}',this.value==='true')"><option value="true"${c.is_active?' selected':''}>표시</option><option value="false"${!c.is_active?' selected':''}>숨김</option></select>`;
   el.innerHTML = tops.map(top => {
+    const isSys = SYS.includes(top.slug);
+    if (isSys) {
+      // 시스템 자동 카테고리 — 표시명만 수정, 하위/삭제 불가
+      return `<div style="border:1px solid var(--border);border-radius:var(--radius);padding:10px;margin-bottom:8px;opacity:0.85;background:rgba(255,255,255,0.02);">
+        <div style="display:flex;gap:6px;align-items:center;">
+          <span style="font-size:9px;color:var(--text-muted);background:var(--bg-hover);padding:2px 6px;border-radius:3px;white-space:nowrap;">시스템</span>
+          <input class="form-input" value="${(top.name||'').replace(/"/g,'&quot;')}" style="flex:1;font-size:12px;font-weight:600;" onchange="renameCategoryAdmin('${top.id}',this.value)">
+          <span style="font-size:10px;color:var(--text-muted);width:70px;">${top.slug}</span>
+          ${actSel(top)}
+          <span style="font-size:9px;color:var(--text-muted);white-space:nowrap;">자동 분류</span>
+        </div>
+      </div>`;
+    }
     const children = allCatsAdmin.filter(c => c.parent_id === top.id).sort((a,b)=>(a.display_order||0)-(b.display_order||0));
     const childHtml = children.map(ch => `
       <div style="display:flex;gap:6px;align-items:center;padding:5px 0 5px 28px;">
