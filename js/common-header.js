@@ -187,15 +187,31 @@
 
   // ── SNS 아이콘 추가 ──
   var NAV_ITEMS = [['Best','best'],['New In','new'],['Bags','bags'],['Jewelry','jewelry'],['Keyring','keyring'],['Sale','sale']];
-  function navLinksHTML() { return NAV_ITEMS.map(function(it){ return '<a href="/category.html?cat=' + it[1] + '">' + it[0] + '</a>'; }).join(''); }
-  function buildNav() {
+  async function getNavCats() {
+    try {
+      var supa = getSb();
+      if (supa) {
+        var res = await supa.from('categories').select('*').eq('is_active', true).is('parent_id', null).order('display_order');
+        if (res && res.data && res.data.length) {
+          return res.data.filter(function(c){ return c.slug !== 'all'; }).map(function(c){ return { slug: c.slug, label: c.name }; });
+        }
+      }
+    } catch (e) {}
+    return NAV_ITEMS.map(function(it){ return { slug: it[1], label: it[0] }; });
+  }
+  function navLinksHTMLFrom(cats) {
+    return cats.map(function(c){ return '<a href="/category.html?cat=' + c.slug + '">' + c.label + '</a>'; }).join('');
+  }
+  async function buildNav() {
+    var cats = await getNavCats();
+    var html = navLinksHTMLFrom(cats);
     var nav = document.querySelector('.header__nav');
-    if (nav) nav.innerHTML = navLinksHTML();
+    if (nav) { nav.innerHTML = html; nav.setAttribute('data-nav-built', '1'); }
     var mm = document.querySelector('.mobile-menu');
     if (mm) {
       mm.querySelectorAll('a').forEach(function(a){ if (!a.closest('.mobile-auth-section')) a.remove(); });
       var auth = mm.querySelector('.mobile-auth-section');
-      var temp = document.createElement('div'); temp.innerHTML = navLinksHTML();
+      var temp = document.createElement('div'); temp.innerHTML = html;
       Array.prototype.slice.call(temp.children).forEach(function(l){ if (auth) mm.insertBefore(l, auth); else mm.appendChild(l); });
     }
   }
