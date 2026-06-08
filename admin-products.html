@@ -333,6 +333,7 @@ body { font-family:var(--font); background:var(--bg); color:var(--text); font-si
       <a onclick="switchPage('orders')" id="nav-orders"><span class="icon">📦</span> 주문 관리</a>
       <a onclick="switchPage('members')" id="nav-members"><span class="icon">👥</span> 회원 관리</a>
       <a onclick="switchPage('faqs')" id="nav-faqs"><span class="icon">❓</span> FAQ 관리</a>
+      <a onclick="switchPage('reviews')" id="nav-reviews"><span class="icon">⭐</span> 리뷰 관리</a>
       <a href="/" target="_blank"><span class="icon">🌐</span> 사이트 보기</a>
       <a onclick="doLogout()" style="margin-top:16px;border-top:1px solid var(--border);padding-top:16px;"><span class="icon">🚪</span> 로그아웃</a>
     </nav>
@@ -627,6 +628,23 @@ body { font-family:var(--font); background:var(--bg); color:var(--text); font-si
           <div>카테고리</div><div>질문 / 답변</div><div>순서</div><div>상태</div><div>관리</div>
         </div>
         <div id="faqAdminList"><div class="empty-list"><p>등록된 FAQ가 없습니다</p></div></div>
+      </div>
+    </div>
+
+    <!-- ============================================ -->
+    <!-- PAGE: 리뷰 관리 -->
+    <!-- ============================================ -->
+    <div class="page-section" id="page-reviews">
+      <div class="top-bar">
+        <h1>리뷰 관리</h1>
+        <select class="form-select" id="reviewVisFilter" style="padding:8px 12px;font-size:11px;width:auto;" onchange="renderReviewsAdmin()">
+          <option value="all">전체</option>
+          <option value="visible">표시중</option>
+          <option value="hidden">숨김</option>
+        </select>
+      </div>
+      <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);">
+        <div id="reviewAdminList"><div class="empty-list"><p>등록된 리뷰가 없습니다</p></div></div>
       </div>
     </div>
 
@@ -1013,7 +1031,7 @@ function switchPage(page) {
 }
 
 async function init() {
-  await Promise.all([loadPopupNotices(), loadCategories(), loadCategoriesAdmin(), loadCollections(), loadProducts(), loadHeroSlides(), loadSettings(), loadInquiries(), loadMembers(), loadOrders(), loadFaqs(), loadAttrDefs(), loadCouponsAdmin()]);
+  await Promise.all([loadPopupNotices(), loadCategories(), loadCategoriesAdmin(), loadCollections(), loadProducts(), loadHeroSlides(), loadSettings(), loadInquiries(), loadMembers(), loadOrders(), loadFaqs(), loadAttrDefs(), loadCouponsAdmin(), loadReviewsAdmin()]);
   bindTagCheckboxes(); bindCustomTagInput(); bindImageUpload(); bindHeroMediaUpload(); bindSettingsImageUpload(); bindPopupNoticeImageUpload(); loadMainImages(); bindMainImagesUpload();
 }
 
@@ -1959,6 +1977,50 @@ async function saveEditData(productId){
   if(formSetItems.length) await sb.from('product_set_items').insert(formSetItems.map((it,i)=>({product_id:productId,item_name:it.item_name||'',item_color:it.item_color||null,item_price:it.item_price||null,item_image_url:it.item_image_url||null,link_product_id:it.link_product_id||null,name_font:it.name_font||'default',name_size:it.name_size||'medium',name_color:it.name_color||null,colors:it.colors||[],display_order:i})));
   if(formBuyOptions.length) await sb.from('product_purchase_options').insert(formBuyOptions.map((o,i)=>({product_id:productId,option_title:o.option_title||'',sub_description:o.sub_description||null,price:o.price||0,badge_text:o.badge_text||null,is_best:!!o.is_best,select_mode:o.select_mode||'multi',items:o.items||[],display_order:i})));
   if(formEditReasons.length) await sb.from('product_edit_reasons').insert(formEditReasons.map((r,i)=>({product_id:productId,image_url:r.image_url||null,subtitle:r.subtitle||null,description:r.description||null,sub_font:r.sub_font||'serif',sub_size:r.sub_size||'medium',sub_color:r.sub_color||null,desc_font:r.desc_font||'default',desc_size:r.desc_size||'medium',desc_color:r.desc_color||null,display_order:i})));
+}
+// ─── 리뷰 관리 ───
+let allReviewsAdmin=[];
+async function loadReviewsAdmin(){
+  const{data}=await sb.from('reviews').select('*, products(name, slug)').order('created_at',{ascending:false});
+  allReviewsAdmin=data||[];
+  renderReviewsAdmin();
+}
+function renderReviewsAdmin(){
+  const el=document.getElementById('reviewAdminList'); if(!el)return;
+  const f=document.getElementById('reviewVisFilter')?.value||'all';
+  let list=allReviewsAdmin;
+  if(f==='visible')list=list.filter(r=>r.is_visible);
+  else if(f==='hidden')list=list.filter(r=>!r.is_visible);
+  if(!list.length){el.innerHTML='<div class="empty-list"><p>리뷰가 없습니다</p></div>';return;}
+  el.innerHTML=list.map(r=>{
+    const stars='★'.repeat(r.rating||0)+'☆'.repeat(5-(r.rating||0));
+    const imgs=(r.images||[]).map(u=>`<img src="${u}" style="width:54px;height:54px;object-fit:cover;border-radius:4px;border:1px solid var(--border);">`).join('');
+    const pname=r.products?.name||'(삭제된 상품)';
+    const date=r.created_at?new Date(r.created_at).toLocaleDateString('ko-KR'):'';
+    return `<div style="padding:14px 16px;border-bottom:1px solid var(--border);${r.is_visible?'':'opacity:0.5;'}">
+      <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:6px;">
+        <div style="font-size:12px;"><span style="font-weight:600;">${pname}</span> <span style="color:var(--accent);">${stars}</span> <span style="color:var(--text-muted);font-size:11px;">· ${r.author_name||'회원'} · ${date}</span></div>
+        <div style="display:flex;gap:6px;white-space:nowrap;">
+          <button class="btn btn-small btn-secondary" onclick="toggleReviewVisible('${r.id}',${!r.is_visible})">${r.is_visible?'숨기기':'표시'}</button>
+          <button class="btn btn-small" style="background:var(--red);color:#fff;border:none;" onclick="deleteReviewAdmin('${r.id}')">삭제</button>
+        </div>
+      </div>
+      <div style="font-size:13px;color:var(--text);white-space:pre-wrap;margin-bottom:${imgs?'8px':'0'};">${(r.content||'').replace(/</g,'&lt;')}</div>
+      ${imgs?`<div style="display:flex;gap:6px;flex-wrap:wrap;">${imgs}</div>`:''}
+      ${r.is_visible?'':'<div style="font-size:10px;color:var(--text-muted);margin-top:6px;">※ 숨김 상태 (사이트에 안 보임)</div>'}
+    </div>`;
+  }).join('');
+}
+async function toggleReviewVisible(id,vis){
+  const{error}=await sb.from('reviews').update({is_visible:vis}).eq('id',id);
+  if(error){showToast('변경 실패: '+error.message,true);return;}
+  showToast(vis?'표시로 변경':'숨김으로 변경'); loadReviewsAdmin();
+}
+async function deleteReviewAdmin(id){
+  if(!confirm('이 리뷰를 삭제하시겠습니까?\n삭제하면 되돌릴 수 없습니다.'))return;
+  const{error}=await sb.from('reviews').delete().eq('id',id);
+  if(error){showToast('삭제 실패: '+error.message,true);return;}
+  showToast('리뷰 삭제 완료'); loadReviewsAdmin();
 }
 // ─── 쿠폰 관리 ───
 let allCoupons=[];
