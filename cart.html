@@ -708,14 +708,18 @@ function updateCompareCheck() {
 let compareScoreMap = {};
 let compareStyleDefs = [];
 let compareQualityDefs = [];
+let compareCat = '';
+function cmpTopCatSlug(slug, cats){ let c=(cats||[]).find(x=>x.slug===slug); let g=0; while(c&&c.parent_id&&g++<6){ const p=(cats||[]).find(x=>x.id===c.parent_id); if(!p)break; c=p; } return c?c.slug:slug; }
 
 async function openCompare() {
   if (compareItems.length < 2) return;
   const prods = compareItems.map(i => i.products);   // 2~3개
-  const cat = prods[0].category;
 
   const { data: attrDefs } = await sb.from('attribute_definitions')
     .select('*').eq('is_active', true).order('sort_order');
+  const { data: catsData } = await sb.from('categories').select('id,slug,parent_id');
+  const cat = cmpTopCatSlug(prods[0].category, catsData || []);   // 하위면 상위로 올림
+  compareCat = cat;
   const ids = prods.map(p => p.id);
   const { data: scores } = await sb.from('product_attributes')
     .select('product_id, attribute_id, value').in('product_id', ids);
@@ -915,30 +919,28 @@ const COMPARE_ATTR_KEY = {
 function goCompareResult() {
   if (compareItems.length < 2) return;
   const prods = compareItems.map(i => i.products);   // 2~3개
-  const cat = prods[0].category;
 
-  // 결과화면이 읽는 키 모양으로 초기값(중립) — VIEW 기본값과 동일(품질 5 / 무드 0)
-  const quality = { storage: 5, material: 5, durability: 5, finish: 5, weight: 5 };
-  const mood    = { minimal: 0, color: 0, cute_chic: 0, daily_special: 0 };
-
-  // 현재 카테고리 슬라이더 값을 VIEW와 같은 슬롯으로 채움
-  [...compareQualityDefs, ...compareStyleDefs].forEach(a => {
-    const map = COMPARE_ATTR_KEY[a.id];
-    if (!map) return;   // VIEW가 안 쓰는 항목은 건너뜀
+  // 품질: 항목ID 그대로 저장 (5칸에 안 욱여넣음 — 입력한 항목 전부 사용)
+  const quality = {};
+  compareQualityDefs.forEach(a => {
     const el = document.getElementById('taste-' + a.id);
-    if (!el) return;
-    const v = parseFloat(el.value);
-    if (Number.isNaN(v)) return;
-    if (map[0] === 'quality') quality[map[1]] = v;
-    else mood[map[1]] = v;
+    if (el && !Number.isNaN(parseFloat(el.value))) quality[a.id] = parseFloat(el.value);
+  });
+
+  // 무드: 코드 → 키
+  const MOODCODE = { minimal_deco:'minimal', mono_color:'color', cute_chic:'cute_chic', daily_special:'daily_special' };
+  const mood = { minimal: 0, color: 0, cute_chic: 0, daily_special: 0 };
+  compareStyleDefs.forEach(a => {
+    const k = MOODCODE[a.code];
+    const el = document.getElementById('taste-' + a.id);
+    if (k && el && !Number.isNaN(parseFloat(el.value))) mood[k] = parseFloat(el.value);
   });
 
   const ids = prods.map(p => p.id);
   const selected = selectedProductId || ids[0];   // 카드 클릭했으면 그 상품, 아니면 첫 상품
 
-  // 결과화면이 읽는 sessionStorage 저장 (슬라이더값=여기, products/selected=URL로도 전달)
   sessionStorage.setItem('yllowtap_compare_v2', JSON.stringify({
-    quality, mood, products: ids, selected, category: cat
+    quality, mood, products: ids, selected, category: compareCat || prods[0].category
   }));
 
   window.location.href = 'compare-result-v2.html?products=' + ids.join(',') + '&selected=' + selected;
