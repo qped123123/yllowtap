@@ -161,11 +161,11 @@ async function init(){
   if(!session){alert('로그인이 필요합니다.');window.location.href='/login.html';return;}
   currentUser=session.user;
   await loadShippingSettings();
+  await loadMyPoints();
+  await loadEarnRates();
   await loadCartItems();
   await loadSavedAddresses();
   await loadMyCoupons();
-  await loadMyPoints();
-  await loadEarnRates();
   bindMemoSelect();
   await initTossWidgets();
 }
@@ -204,7 +204,8 @@ async function loadMyCoupons(){
   const sel=document.getElementById('coCouponSelect');
   sel.innerHTML='<option value="">쿠폰을 선택하세요 ('+myCoupons.length+'장)</option>'+myCoupons.map((uc,i)=>{
     const c=uc.coupons;const v=c.discount_type==='percent'?c.discount_value+'% 할인':c.discount_value.toLocaleString()+'원 할인';
-    return`<option value="${i}">${c.name} — ${v}${c.min_order_amount?' ('+c.min_order_amount.toLocaleString()+'원↑)':''}</option>`;
+    const maxStr=(c.discount_type==='percent'&&c.max_discount)?' (최대 '+c.max_discount.toLocaleString()+'원)':'';
+    return`<option value="${i}">${c.name} — ${v}${maxStr}${c.min_order_amount?' · '+c.min_order_amount.toLocaleString()+'원↑':''}</option>`;
   }).join('');
 }
 function onCouponSelect(){
@@ -213,12 +214,13 @@ function onCouponSelect(){
   const uc=myCoupons[parseInt(idx)];const c=uc.coupons;
   const subtotal=getProductSubtotal();
   if(c.min_order_amount&&subtotal<c.min_order_amount){alert(c.min_order_amount.toLocaleString()+'원 이상 주문 시 사용 가능한 쿠폰입니다.');document.getElementById('coCouponSelect').value='';return;}
-  let disc=0;
-  if(c.discount_type==='percent'){disc=Math.floor(subtotal*c.discount_value/100);if(c.max_discount)disc=Math.min(disc,c.max_discount);}else{disc=c.discount_value;}
+  let disc=0,capped=false;
+  if(c.discount_type==='percent'){disc=Math.floor(subtotal*c.discount_value/100);if(c.max_discount&&disc>c.max_discount){disc=c.max_discount;capped=true;}}else{disc=c.discount_value;}
   selectedCoupon=uc;couponDiscount=disc;
   document.getElementById('coCouponArea').style.display='none';
   document.getElementById('coCouponApplied').style.display='block';
-  document.getElementById('coCouponApplied').innerHTML=`<div class="co-coupon-applied"><span>${c.name}: -${disc.toLocaleString()}원</span><button class="co-coupon-remove" onclick="removeCoupon()">취소</button></div>`;
+  const capNote=capped?` <span style="color:#888;font-size:11px;">(최대 할인 적용)</span>`:'';
+  document.getElementById('coCouponApplied').innerHTML=`<div class="co-coupon-applied"><span>${c.name}: -${disc.toLocaleString()}원${capNote}</span><button class="co-coupon-remove" onclick="removeCoupon()">취소</button></div>`;
   updateSummary();
 }
 function removeCoupon(){selectedCoupon=null;couponDiscount=0;document.getElementById('coCouponArea').style.display='block';document.getElementById('coCouponApplied').style.display='none';document.getElementById('coCouponSelect').value='';updateSummary();}
@@ -273,7 +275,8 @@ async function updateSummary(){
   const rate=earnRates[userGrade]||1;
   const earnPreview=Math.floor(total*rate/100);
   const ep=document.getElementById('coEarnPreview');
-  if(earnPreview>0&&total>0){ep.style.display='block';document.getElementById('coEarnAmount').textContent=earnPreview.toLocaleString();}
+  const gradeLabel=(userGrade||'basic').toUpperCase();
+  if(earnPreview>0&&total>0){ep.style.display='block';ep.innerHTML='🎁 구매확정 시 <strong>'+earnPreview.toLocaleString()+'P</strong> 적립 예정 <span style="color:#888;">('+gradeLabel+' '+rate+'%)</span>';}
   else{ep.style.display='none';}
   if(widgets&&total>0){try{await widgets.setAmount({currency:'KRW',value:total});}catch(e){}}
 }
