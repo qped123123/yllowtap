@@ -809,7 +809,6 @@ const CAT_FONTS = { logo:"var(--font-logo)", serif:"'Bodoni Moda',serif", sans:"
 function renderHomeCats(cats) {
   const container = document.getElementById('homeCatsContainer');
   if (!container) return;
-  container.style.gridTemplateColumns = 'repeat(' + Math.min(cats.length, 4) + ', 1fr)';
   container.innerHTML = cats.map(c => {
     const font = CAT_FONTS[c.font] || CAT_FONTS.logo;
     const color = c.color || '#111';

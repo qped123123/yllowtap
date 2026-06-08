@@ -177,6 +177,20 @@
       // 햄버거 복원
       if (hamburger) actions.appendChild(hamburger);
 
+      // ── 모바일 메뉴: 비로그인 로그인 링크 ──
+      if (mobileMenu) {
+        var oldAuth = mobileMenu.querySelector('.mobile-auth-section');
+        if (oldAuth) oldAuth.remove();
+        var authSection = document.createElement('div');
+        authSection.className = 'mobile-auth-section';
+        authSection.style.cssText = 'margin-top:20px;padding-top:20px;border-top:1px solid #E5E1DC;display:flex;flex-direction:column;align-items:center;gap:16px;';
+        authSection.innerHTML = '\
+          <a href="/login.html" style="font-size:18px;">Login</a>\
+          <a href="/cart.html" style="font-size:18px;">Bag</a>\
+        ';
+        mobileMenu.appendChild(authSection);
+      }
+
       // 비로그인(게스트)도 장바구니 수량 표시
       updateCartCount();
     }
