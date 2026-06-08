@@ -159,7 +159,7 @@
 .pf-save:hover{background:#333}
 .pf-msg{font-size:12px;color:#4CAF50;margin-top:10px;display:none}
 
-.my-empty{text-align:center;padding:60px 0;color:#888}
+.my-empty{text-align:center;padding:36px 0;color:#888}
 .my-empty p{font-size:14px;margin-bottom:16px}
 .my-empty a{display:inline-block;padding:12px 32px;font-size:11px;font-weight:500;letter-spacing:2px;text-transform:uppercase;border:1px solid #111;color:#111;text-decoration:none;transition:all .2s}
 .my-empty a:hover{background:#111;color:#fff;opacity:1}
@@ -682,7 +682,7 @@ async function loadCoupons(){
     </div>`;
     if(status==='ok')available.push(html);else used.push(html);
   });
-  let html='<div style="font-size:11px;color:#2E7D32;margin-bottom:16px;padding:8px 12px;background:#E8F5E9;border-radius:4px;">보유 쿠폰은 결제 시 자동으로 적용할 수 있습니다</div>';
+  let html='<div style="font-size:11px;color:#2E7D32;margin-bottom:16px;padding:8px 12px;background:#E8F5E9;border-radius:4px;">보유 쿠폰은 결제 페이지에서 선택해서 적용할 수 있습니다</div>';
   if(available.length)html+=`<div class="coupon-section-title">사용 가능 (${available.length}장)</div>`+available.join('');
   if(used.length)html+=`<div class="coupon-section-title" style="margin-top:24px;">사용 완료 / 만료</div>`+used.join('');
   el.innerHTML=html;
@@ -721,7 +721,7 @@ async function loadWishlist(){
   const{data}=await sb.from('wishlists').select('*,products(*,product_media(media_url,role,display_order))').eq('user_id',currentUser.id).order('created_at',{ascending:false});
   document.getElementById('statWish').textContent=data?.length||0;
   const el=document.getElementById('wishGrid');
-  if(!data?.length){el.innerHTML='<div class="my-empty" style="grid-column:1/-1"><p>위시리스트가 비어있습니다</p><a href="/category.html">쇼핑하러 가기</a></div>';return;}
+  if(!data?.length){el.innerHTML='<div class="my-empty" style="width:100%"><p>위시리스트가 비어있습니다</p><a href="/category.html">쇼핑하러 가기</a></div>';return;}
   el.innerHTML=data.map(w=>{const p=w.products;if(!p)return'';const img=getMainImg(p);return`<div class="wish-card"><a href="/product.html?slug=${p.slug||p.id}" style="text-decoration:none;color:inherit;"><div class="wish-card-img">${img?`<img src="${img}">`:'<div style="width:100%;height:100%;background:#EAE7E2"></div>'}</div><div class="wish-card-brand">${p.brand||'YLLOWTAP'}</div><div class="wish-card-name">${p.name}</div><div class="wish-card-price">${p.price?.toLocaleString()}원</div></a><button class="wish-remove" onclick="removeWish('${w.id}')" title="삭제">×</button></div>`;}).join('');
 }
 async function removeWish(id){await sb.from('wishlists').delete().eq('id',id);loadWishlist();}
@@ -730,7 +730,7 @@ async function removeWish(id){await sb.from('wishlists').delete().eq('id',id);lo
 async function loadRecent(){
   const{data}=await sb.from('recent_views').select('*,products(*,product_media(media_url,role,display_order))').eq('user_id',currentUser.id).order('viewed_at',{ascending:false}).limit(10);
   const el=document.getElementById('recentGrid');
-  if(!data?.length){el.innerHTML='<div class="my-empty" style="grid-column:1/-1"><p>최근 본 상품이 없습니다</p></div>';return;}
+  if(!data?.length){el.innerHTML='<div class="my-empty" style="width:100%"><p>최근 본 상품이 없습니다</p></div>';return;}
   const seen=new Set();const unique=data.filter(r=>{if(!r.products||seen.has(r.product_id))return false;seen.add(r.product_id);return true;});
   el.innerHTML=unique.map(r=>{const p=r.products;const img=getMainImg(p);return`<a class="recent-card" href="/product.html?slug=${p.slug||p.id}"><div class="recent-card-img">${img?`<img src="${img}">`:'<div style="width:100%;height:100%;background:#EAE7E2"></div>'}</div><div class="recent-card-name">${p.name}</div><div class="recent-card-price">${p.price?.toLocaleString()}원</div></a>`;}).join('');
 }
