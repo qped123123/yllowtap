@@ -453,38 +453,11 @@ body { font-family:var(--font); background:var(--bg); color:var(--text); font-si
         </div>
         <p style="font-size:11px;color:var(--text-muted);margin-bottom:16px;">홈 화면 카테고리 카드 4개 + 선물 배너 + 키링 스튜디오 이미지. 업로드 후 꼭 위 "이미지 저장"을 눌러주세요.</p>
  
-        <div class="setting-row">
-          <div class="setting-label">카테고리 · Bags</div>
-          <div style="display:flex;gap:8px;align-items:center;">
-            <img id="miCatBagsPreview" src="" style="width:54px;height:54px;object-fit:cover;border-radius:4px;background:var(--bg-hover);" onerror="this.style.visibility='hidden'" onload="this.style.visibility='visible'">
-            <input class="form-input" id="miCatBags" placeholder="이미지 URL" style="flex:1;">
-            <label class="btn btn-secondary btn-small" style="cursor:pointer;white-space:nowrap;">📎 업로드<input type="file" id="miCatBagsFile" accept="image/*" style="display:none;"></label>
-          </div>
+        <div style="display:flex;justify-content:space-between;align-items:center;margin:8px 0 12px;">
+          <div style="font-size:11px;color:var(--text-muted);">홈 카테고리 카드 (이름·링크·폰트·색상·크기·두께 + 추가/삭제)</div>
+          <button class="btn btn-secondary btn-small" onclick="addHomeCat()">+ 카테고리 추가</button>
         </div>
-        <div class="setting-row">
-          <div class="setting-label">카테고리 · Jewelry</div>
-          <div style="display:flex;gap:8px;align-items:center;">
-            <img id="miCatJewelryPreview" src="" style="width:54px;height:54px;object-fit:cover;border-radius:4px;background:var(--bg-hover);" onerror="this.style.visibility='hidden'" onload="this.style.visibility='visible'">
-            <input class="form-input" id="miCatJewelry" placeholder="이미지 URL" style="flex:1;">
-            <label class="btn btn-secondary btn-small" style="cursor:pointer;white-space:nowrap;">📎 업로드<input type="file" id="miCatJewelryFile" accept="image/*" style="display:none;"></label>
-          </div>
-        </div>
-        <div class="setting-row">
-          <div class="setting-label">카테고리 · Keyring</div>
-          <div style="display:flex;gap:8px;align-items:center;">
-            <img id="miCatKeyringPreview" src="" style="width:54px;height:54px;object-fit:cover;border-radius:4px;background:var(--bg-hover);" onerror="this.style.visibility='hidden'" onload="this.style.visibility='visible'">
-            <input class="form-input" id="miCatKeyring" placeholder="이미지 URL" style="flex:1;">
-            <label class="btn btn-secondary btn-small" style="cursor:pointer;white-space:nowrap;">📎 업로드<input type="file" id="miCatKeyringFile" accept="image/*" style="display:none;"></label>
-          </div>
-        </div>
-        <div class="setting-row">
-          <div class="setting-label">카테고리 · Seasonal</div>
-          <div style="display:flex;gap:8px;align-items:center;">
-            <img id="miCatSeasonalPreview" src="" style="width:54px;height:54px;object-fit:cover;border-radius:4px;background:var(--bg-hover);" onerror="this.style.visibility='hidden'" onload="this.style.visibility='visible'">
-            <input class="form-input" id="miCatSeasonal" placeholder="이미지 URL" style="flex:1;">
-            <label class="btn btn-secondary btn-small" style="cursor:pointer;white-space:nowrap;">📎 업로드<input type="file" id="miCatSeasonalFile" accept="image/*" style="display:none;"></label>
-          </div>
-        </div>
+        <div id="homeCatAdminList"></div>
         <div class="setting-row">
           <div class="setting-label">선물 배너 (Perfect Gift)</div>
           <div style="display:flex;gap:8px;align-items:center;">
@@ -1680,14 +1653,73 @@ async function saveProductScores(productId) {
 // 메인 이미지 관리 (홈 화면 카테고리/배너)
 // ══════════════════════════════════════════
 const MAIN_IMAGE_KEYS = {
-  miCatBags: 'cat_bags_img',
-  miCatJewelry: 'cat_jewelry_img',
-  miCatKeyring: 'cat_keyring_img',
-  miCatSeasonal: 'cat_seasonal_img',
   miPerfectGift: 'perfect_gift_img',
   miDiyVisual: 'diy_visual_img'
 };
- 
+
+// ── 홈 카테고리 동적 관리 ──
+let homeCats = [];
+const HOMECAT_FONTS = [['logo','로고체'],['serif','세리프'],['sans','고딕']];
+const HOMECAT_WEIGHTS = [['300','얇게'],['400','보통'],['600','중간'],['700','굵게']];
+const DEFAULT_HOMECATS = [
+  {name:'Bags',link:'bags',image:'',font:'logo',color:'#111111',size:24,weight:400},
+  {name:'Jewelry',link:'jewelry',image:'',font:'logo',color:'#111111',size:24,weight:400},
+  {name:'Keyring',link:'keyring',image:'',font:'logo',color:'#111111',size:24,weight:400},
+  {name:'Seasonal',link:'seasonal',image:'',font:'logo',color:'#111111',size:24,weight:400}
+];
+function loadHomeCats() {
+  if (siteSettings.home_categories) {
+    try { homeCats = JSON.parse(siteSettings.home_categories); } catch(e) { homeCats = []; }
+  }
+  if (!Array.isArray(homeCats) || !homeCats.length) {
+    // 기존 이미지 키에서 기본값 생성
+    homeCats = DEFAULT_HOMECATS.map(c => ({...c}));
+    homeCats[0].image = siteSettings.cat_bags_img || '';
+    homeCats[1].image = siteSettings.cat_jewelry_img || '';
+    homeCats[2].image = siteSettings.cat_keyring_img || '';
+    homeCats[3].image = siteSettings.cat_seasonal_img || '';
+  }
+  renderHomeCatAdmin();
+}
+function renderHomeCatAdmin() {
+  const el = document.getElementById('homeCatAdminList'); if (!el) return;
+  if (!homeCats.length) { el.innerHTML = '<div style="font-size:11px;color:var(--text-muted);padding:12px 0;">+ 버튼으로 카테고리를 추가하세요</div>'; return; }
+  el.innerHTML = homeCats.map((c,i) => {
+    const fontOpts = HOMECAT_FONTS.map(([v,l])=>`<option value="${v}"${c.font===v?' selected':''}>${l}</option>`).join('');
+    const weightOpts = HOMECAT_WEIGHTS.map(([v,l])=>`<option value="${v}"${String(c.weight)===v?' selected':''}>${l}</option>`).join('');
+    return `<div style="background:var(--bg-input);border:1px solid var(--border);border-radius:var(--radius);padding:12px;margin-bottom:10px;">
+      <div style="display:flex;gap:8px;align-items:center;margin-bottom:8px;">
+        ${c.image?`<img src="${c.image}" style="width:50px;height:50px;object-fit:cover;border-radius:4px;">`:'<div style="width:50px;height:50px;background:var(--bg-hover);border-radius:4px;"></div>'}
+        <input class="form-input" value="${(c.name||'').replace(/"/g,'&quot;')}" placeholder="카테고리 이름" style="flex:1;" onchange="homeCats[${i}].name=this.value">
+        <input class="form-input" value="${(c.link||'').replace(/"/g,'&quot;')}" placeholder="링크 (예: bags)" style="width:130px;" onchange="homeCats[${i}].link=this.value">
+        <label class="btn btn-secondary btn-small" style="cursor:pointer;white-space:nowrap;">📎<input type="file" accept="image/*" style="display:none;" onchange="uploadHomeCatImg(this,${i})"></label>
+        <button class="btn btn-small" style="background:var(--red);color:#fff;border:none;" onclick="removeHomeCat(${i})">×</button>
+      </div>
+      <div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap;">
+        <span style="font-size:9px;color:var(--text-muted);">글씨체</span>
+        <select class="form-select" style="padding:3px 6px;font-size:10px;width:90px;" onchange="homeCats[${i}].font=this.value">${fontOpts}</select>
+        <span style="font-size:9px;color:var(--text-muted);">두께</span>
+        <select class="form-select" style="padding:3px 6px;font-size:10px;width:80px;" onchange="homeCats[${i}].weight=parseInt(this.value)">${weightOpts}</select>
+        <span style="font-size:9px;color:var(--text-muted);">크기</span>
+        <input class="form-input" type="number" value="${c.size||24}" style="width:60px;font-size:10px;padding:3px 6px;" onchange="homeCats[${i}].size=parseInt(this.value)||24"><span style="font-size:9px;color:var(--text-muted);">px</span>
+        <span style="font-size:9px;color:var(--text-muted);">색상</span>
+        <input type="color" value="${c.color&&c.color[0]==='#'?c.color:'#111111'}" style="width:30px;height:26px;padding:1px;border:1px solid var(--border);border-radius:4px;background:var(--bg-hover);" onchange="homeCats[${i}].color=this.value">
+      </div>
+    </div>`;
+  }).join('');
+}
+function addHomeCat() { homeCats.push({name:'새 카테고리',link:'',image:'',font:'logo',color:'#111111',size:24,weight:400}); renderHomeCatAdmin(); }
+function removeHomeCat(i) { if(!confirm('이 카테고리를 삭제하시겠습니까?'))return; homeCats.splice(i,1); renderHomeCatAdmin(); }
+async function uploadHomeCatImg(input,i) {
+  const file = input.files[0]; if (!file) return;
+  const fn = 'main/' + Date.now() + '_' + Math.random().toString(36).slice(2,8) + '.' + file.name.split('.').pop();
+  const { error } = await sb.storage.from('media').upload(fn, file, { upsert:true, contentType:file.type });
+  if (error) { showToast('업로드 실패: '+error.message, true); return; }
+  const { data:u } = sb.storage.from('media').getPublicUrl(fn);
+  homeCats[i].image = u.publicUrl; renderHomeCatAdmin();
+  showToast('업로드 완료 — "이미지 저장"을 눌러주세요');
+}
+
 function loadMainImages() {
   for (const [inputId, key] of Object.entries(MAIN_IMAGE_KEYS)) {
     const inp = document.getElementById(inputId);
@@ -1695,6 +1727,7 @@ function loadMainImages() {
     const prev = document.getElementById(inputId + 'Preview');
     if (prev && siteSettings[key]) { prev.src = siteSettings[key]; prev.style.visibility = 'visible'; }
   }
+  loadHomeCats();
 }
  
 function bindMainImagesUpload() {
@@ -1723,7 +1756,11 @@ async function saveMainImages() {
       await sb.from('site_settings').upsert({ key, value: val, updated_at: new Date().toISOString() }, { onConflict: 'key' });
       siteSettings[key] = val;
     }
-    showToast('메인 이미지 저장 완료 — 홈 화면에 반영됩니다');
+    // 홈 카테고리 JSON 저장
+    const catsJson = JSON.stringify(homeCats);
+    await sb.from('site_settings').upsert({ key: 'home_categories', value: catsJson, updated_at: new Date().toISOString() }, { onConflict: 'key' });
+    siteSettings.home_categories = catsJson;
+    showToast('메인 이미지 + 카테고리 저장 완료 — 홈 화면에 반영됩니다');
   } catch (err) { showToast('저장 실패: ' + err.message, true); }
 }
 // ══════════════════════════════════════════
