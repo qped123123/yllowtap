@@ -162,6 +162,12 @@ function render(){
   const otherLabel=otherCats.length?otherCats.join(' / '):'다른 아이템';
   const chips=(type?.tags||[]).slice(0,3).map(t=>`<span class="match-chip">${t.replace(/^#/,'')}</span>`).join('');
 
+  // 공유받은 사람이 보는 화면이면(=share) 저장/공유 대신 "내 취향 비교하기" CTA만
+  const shareView = !!input.share;
+  const actionsHtml = shareView
+    ? `<div class="cr-actions" style="display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:center;margin:36px auto 0;max-width:600px;"><a href="/" style="flex:0 0 auto;height:44px;box-sizing:border-box;display:inline-flex;align-items:center;justify-content:center;gap:7px;background:#fff;color:#1a1a1a;border:1px solid #1a1a1a;border-radius:14px;font-size:14px;font-weight:600;padding:0 22px;text-decoration:none;transition:background .15s,color .15s;" onmouseover="this.style.background='#1a1a1a';this.style.color='#fff';" onmouseout="this.style.background='#fff';this.style.color='#1a1a1a';">옐로탭에서 내 취향 비교하기</a></div>`
+    : `<div class="cr-actions" style="display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:center;margin:36px auto 0;max-width:600px;"><a href="${ROUTE.back}" style="flex:0 0 auto;height:44px;box-sizing:border-box;display:inline-flex;align-items:center;justify-content:center;gap:7px;background:#fff;color:#1a1a1a;border:1px solid #1a1a1a;border-radius:14px;font-size:14px;font-weight:600;padding:0 22px;text-decoration:none;transition:background .15s,color .15s;" onmouseover="this.style.background='#1a1a1a';this.style.color='#fff';" onmouseout="this.style.background='#fff';this.style.color='#1a1a1a';"><span style="font-size:16px;line-height:1;">&#8592;</span> 장바구니로 돌아가기</a><button type="button" onclick="shareComparison(this)" style="flex:0 0 auto;height:44px;box-sizing:border-box;width:108px;display:inline-flex;align-items:center;justify-content:center;gap:6px;background:#fff;color:#1a1a1a;border:1px solid #1a1a1a;border-radius:14px;font-size:14px;font-weight:600;padding:0;cursor:pointer;font-family:inherit;transition:background .15s,color .15s;" onmouseover="this.style.background='#1a1a1a';this.style.color='#fff';" onmouseout="this.style.background='#fff';this.style.color='#1a1a1a';"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg>공유</button><button type="button" onclick="saveComparison(this)" style="flex:0 0 auto;height:44px;box-sizing:border-box;width:108px;display:inline-flex;align-items:center;justify-content:center;gap:6px;background:#fff;color:#1a1a1a;border:1px solid #1a1a1a;border-radius:14px;font-size:14px;font-weight:600;padding:0;cursor:pointer;font-family:inherit;transition:background .15s,color .15s;" onmouseover="this.style.background='#1a1a1a';this.style.color='#fff';" onmouseout="this.style.background='#fff';this.style.color='#1a1a1a';"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>저장</button></div>`;
+
   $app.innerHTML=`
     <header class="cr-header fade-up">
       <div class="cr-brand">YLLOWTAP</div>
@@ -236,11 +242,7 @@ function render(){
         </section>
       </div>
     </div>
-    <div class="cr-actions" style="display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:center;margin:36px auto 0;max-width:600px;">
-      <a href="${ROUTE.back}" style="flex:0 0 auto;height:44px;box-sizing:border-box;display:inline-flex;align-items:center;justify-content:center;gap:7px;background:#fff;color:#1a1a1a;border:1px solid #1a1a1a;border-radius:14px;font-size:14px;font-weight:600;padding:0 22px;text-decoration:none;transition:background .15s,color .15s;" onmouseover="this.style.background='#1a1a1a';this.style.color='#fff';" onmouseout="this.style.background='#fff';this.style.color='#1a1a1a';"><span style="font-size:16px;line-height:1;">&#8592;</span> 장바구니로 돌아가기</a>
-      <button type="button" onclick="shareComparison(this)" style="flex:0 0 auto;height:44px;box-sizing:border-box;width:108px;display:inline-flex;align-items:center;justify-content:center;gap:6px;background:#fff;color:#1a1a1a;border:1px solid #1a1a1a;border-radius:14px;font-size:14px;font-weight:600;padding:0;cursor:pointer;font-family:inherit;transition:background .15s,color .15s;" onmouseover="this.style.background='#1a1a1a';this.style.color='#fff';" onmouseout="this.style.background='#fff';this.style.color='#1a1a1a';"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg>공유</button>
-      <button type="button" onclick="saveComparison(this)" style="flex:0 0 auto;height:44px;box-sizing:border-box;width:108px;display:inline-flex;align-items:center;justify-content:center;gap:6px;background:#fff;color:#1a1a1a;border:1px solid #1a1a1a;border-radius:14px;font-size:14px;font-weight:600;padding:0;cursor:pointer;font-family:inherit;transition:background .15s,color .15s;" onmouseover="this.style.background='#1a1a1a';this.style.color='#fff';" onmouseout="this.style.background='#fff';this.style.color='#1a1a1a';"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>저장</button>
-    </div>`;
+    ${actionsHtml}`;
 
   wireEvents(); markWishlisted();
 }
@@ -307,29 +309,57 @@ function buildSnapshot(){
   };
 }
 
+// 저장·공유 공용 — 한 번만 insert하고 share_id를 캐시해 중복 줄 방지
+async function ensureSaved(){
+  if(STATE.savedShareId) return STATE.savedShareId;
+  const { data:{ user } } = await sb.auth.getUser();
+  if(!user){ location.href='/login.html?redirect='+encodeURIComponent(location.pathname+location.search); return null; }
+  const snap = buildSnapshot();
+  const { data, error } = await sb.from('saved_comparisons').insert({
+    user_id: user.id,
+    category: snap.category,
+    type_name: snap.type?.type_name_en || snap.type?.type_name_kr || null,
+    snapshot: snap
+  }).select('share_id').single();
+  if(error || !data){ console.error(error); throw new Error(error?.message||'save failed'); }
+  STATE.savedShareId = data.share_id;
+  return data.share_id;
+}
+
 async function saveComparison(btn){
   if(STATE.input?.demo){ crToast('데모 모드에선 저장이 안 돼요'); return; }
+  if(STATE.input?.share){ crToast('공유받은 결과는 직접 비교해보세요'); return; }
   if(!STATE.compared?.length){ crToast('저장할 결과가 없어요'); return; }
   if(btn){ btn.disabled=true; btn.style.opacity='.6'; }
   try{
-    const { data:{ user } } = await sb.auth.getUser();
-    if(!user){ location.href='/login.html?redirect='+encodeURIComponent(location.pathname+location.search); return; }
-    const snap = buildSnapshot();
-    const { error } = await sb.from('saved_comparisons').insert({
-      user_id: user.id,
-      category: snap.category,
-      type_name: snap.type?.type_name_en || snap.type?.type_name_kr || null,
-      snapshot: snap
-    });
-    if(error){ console.error(error); crToast('저장 실패: '+error.message); }
-    else crToast('마이페이지에 저장했어요');
+    const sid = await ensureSaved();
+    if(sid) crToast('마이페이지에 저장했어요');
   }catch(e){ console.error(e); crToast('저장 중 오류가 났어요'); }
   finally{ if(btn){ btn.disabled=false; btn.style.opacity='1'; } }
 }
 
-// STEP C에서 실제 공유 링크 생성·공유로 연결될 자리
-async function shareComparison(){
-  crToast('공유는 다음 단계(STEP C)에서 연결돼요');
+// 공유: 스냅샷 저장 후 share_id 링크 생성 → 모바일 공유시트 / PC 링크 복사
+async function shareComparison(btn){
+  if(STATE.input?.demo){ crToast('데모 모드에선 공유가 안 돼요'); return; }
+  if(STATE.input?.share){ crToast('공유받은 결과예요 — 직접 비교해보세요'); return; }
+  if(!STATE.compared?.length){ crToast('공유할 결과가 없어요'); return; }
+  if(btn){ btn.disabled=true; btn.style.opacity='.6'; }
+  try{
+    const sid = await ensureSaved();
+    if(!sid) return; // 로그인 페이지로 이동됨
+    const url = location.origin + '/compare-result-v2.html?share=' + encodeURIComponent(sid);
+    const title = STATE.type?.type_name_kr || '나의 취향 비교 결과';
+    if(navigator.share){
+      try{ await navigator.share({ title:'YLLOWTAP 취향 비교', text:title, url }); }
+      catch(e){ /* 사용자가 공유 취소 — 무시 */ }
+    } else if(navigator.clipboard && navigator.clipboard.writeText){
+      await navigator.clipboard.writeText(url);
+      crToast('공유 링크를 복사했어요');
+    } else {
+      prompt('아래 링크를 복사해서 공유하세요', url);
+    }
+  }catch(e){ console.error(e); crToast('공유 중 오류가 났어요'); }
+  finally{ if(btn){ btn.disabled=false; btn.style.opacity='1'; } }
 }
 
 /* ---------- 11. 찜 ---------- */
@@ -352,14 +382,31 @@ async function toggleWish(btn){
 /* ---------- 12. 시작 ---------- */
 function showEmpty(){ $app.innerHTML=`<div class="cr-empty"><h2>비교 정보가 없어요</h2><p>다시 비교를 진행하면 결과를 보여드릴게요.</p><a href="${ROUTE.back}">비교하러 가기</a></div>`; }
 (async function init(){
-  const input=readInput(); if(!input){ showEmpty(); return; }
-  // 회원 전용: 데모(?demo=1)는 예외, 그 외엔 로그인 안 했으면 로그인 페이지로
-  if(!input.demo){
-    const loginUrl = '/login.html?redirect=' + encodeURIComponent(location.pathname + location.search);
+  const url = new URLSearchParams(location.search);
+  const shareId = url.get('share');
+  let input;
+  if(shareId){
+    // 공유 링크로 들어온 사람 — 로그인 없이 snapshot만 받아서 그대로 렌더
     try{
-      const { data:{ session } } = await sb.auth.getSession();
-      if(!session){ location.href=loginUrl; return; }
-    }catch(e){ location.href=loginUrl; return; }
+      const { data:snap, error } = await sb.rpc('get_shared_comparison', { p_share_id: shareId });
+      if(error || !snap){ showEmpty(); return; }
+      input = {
+        quality: snap.quality, mood: snap.mood,
+        products: (snap.products||[]).map(p=>String(p.id)),
+        selected: snap.selectedId ? String(snap.selectedId) : null,
+        category: snap.category || null, demo:false, share:true
+      };
+    }catch(e){ console.error(e); showEmpty(); return; }
+  } else {
+    input = readInput(); if(!input){ showEmpty(); return; }
+    // 회원 전용: 데모(?demo=1)는 예외, 그 외엔 로그인 안 했으면 로그인 페이지로
+    if(!input.demo){
+      const loginUrl = '/login.html?redirect=' + encodeURIComponent(location.pathname + location.search);
+      try{
+        const { data:{ session } } = await sb.auth.getSession();
+        if(!session){ location.href=loginUrl; return; }
+      }catch(e){ location.href=loginUrl; return; }
+    }
   }
   try{
     const data=await loadData(input);
@@ -373,6 +420,8 @@ function showEmpty(){ $app.innerHTML=`<div class="cr-empty"><h2>비교 정보가
         .sort((a,b)=>b.m-a.m)[0];
       if(best) defaultSel = best.id;
     }
+    // 공유 보기일 땐 공유한 사람이 고른 상품을 기본 선택으로
+    if(input.share && input.selected) defaultSel = String(input.selected);
     STATE={ input, ...data, type, selectedId: defaultSel };
     render();
   }catch(e){ console.error(e); showEmpty(); }
