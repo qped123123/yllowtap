@@ -37,11 +37,17 @@
 .membership-tier.active .tier-benefits{color:rgba(255,255,255,.7)}
 .no-membership-border{margin-bottom:40px}
 
-/* TABS */
-.my-tabs{display:flex;border-bottom:1px solid #E5E1DC;margin-bottom:32px;gap:0}
-.my-tab{padding:14px 20px;font-size:12px;font-weight:500;letter-spacing:1px;text-transform:uppercase;color:#888;cursor:pointer;border-bottom:2px solid transparent;background:none;border-top:none;border-left:none;border-right:none;font-family:inherit;transition:all .3s;white-space:nowrap}
-.my-tab:hover{color:#111}
-.my-tab.active{color:#111;border-bottom-color:#111}
+/* TABS → ACCORDION */
+.my-tabs{display:none}
+.my-accordion{margin-bottom:32px}
+.acc-item{background:#fff;border:1px solid #E5E1DC;margin-bottom:8px;overflow:hidden}
+.acc-header{padding:16px 20px;font-size:13px;font-weight:600;letter-spacing:0.5px;cursor:pointer;display:flex;justify-content:space-between;align-items:center;transition:background .2s;user-select:none}
+.acc-header:hover{background:#FAFAF8}
+.acc-count{font-size:11px;color:#888;font-weight:400;margin-left:8px}
+.acc-arrow{font-size:10px;color:#888;transition:transform .3s}
+.acc-item.open .acc-arrow{transform:rotate(180deg)}
+.acc-body{display:none;padding:0 20px 20px}
+.acc-item.open .acc-body{display:block}
 .my-panel{display:none}
 .my-panel.active{display:block}
 
@@ -112,9 +118,10 @@
 .point-amount.use{color:#C4453C}
 
 /* WISHLIST */
-.wish-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
-.wish-card{position:relative;cursor:pointer;text-decoration:none;color:inherit}
-.wish-card-img{aspect-ratio:3/4;overflow:hidden;background:#EAE7E2;margin-bottom:10px}
+.wish-grid{display:flex;gap:14px;overflow-x:auto;scrollbar-width:none;padding-bottom:4px}
+.wish-grid::-webkit-scrollbar{display:none}
+.wish-card{position:relative;cursor:pointer;text-decoration:none;color:inherit;flex-shrink:0;width:140px}
+.wish-card-img{width:140px;height:187px;overflow:hidden;background:#EAE7E2;margin-bottom:8px}
 .wish-card-img img{width:100%;height:100%;object-fit:cover;transition:transform .6s}
 .wish-card:hover .wish-card-img img{transform:scale(1.04)}
 .wish-card-brand{font-size:10px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:#888;margin-bottom:2px}
@@ -133,9 +140,10 @@
 .addr-btn:hover{background:#111;color:#fff;border-color:#111}
 
 /* RECENT */
-.recent-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:14px}
-.recent-card{text-decoration:none;color:inherit}
-.recent-card-img{aspect-ratio:3/4;overflow:hidden;background:#EAE7E2;margin-bottom:8px}
+.recent-grid{display:flex;gap:14px;overflow-x:auto;scrollbar-width:none;padding-bottom:4px}
+.recent-grid::-webkit-scrollbar{display:none}
+.recent-card{text-decoration:none;color:inherit;flex-shrink:0;width:120px}
+.recent-card-img{width:120px;height:160px;overflow:hidden;background:#EAE7E2;margin-bottom:6px}
 .recent-card-img img{width:100%;height:100%;object-fit:cover}
 .recent-card-name{font-size:11px;color:#444;display:-webkit-box;-webkit-line-clamp:1;-webkit-box-orient:vertical;overflow:hidden}
 .recent-card-price{font-size:12px;font-weight:600;margin-top:2px}
@@ -204,13 +212,13 @@
   .my-user-stats{margin-left:0}
   .my-tabs{overflow-x:auto;scrollbar-width:none}
   .my-tab{padding:12px 14px;font-size:11px}
-  .wish-grid{grid-template-columns:repeat(2,1fr)}
-  .recent-grid{grid-template-columns:repeat(3,1fr)}
-  .order-item{flex-wrap:wrap}
-  .addr-card{flex-direction:column;gap:12px;align-items:flex-start}
   .order-actions{flex-direction:column}
   .order-action-btn{width:100%;text-align:center}
   .membership-tiers{grid-template-columns:repeat(2,1fr)}
+  .wish-card{width:120px}
+  .wish-card-img{width:120px;height:160px}
+  .recent-card{width:100px}
+  .recent-card-img{width:100px;height:133px}
   .dash-mini-card{width:110px}
   .dash-mini-img{width:110px;height:140px}
   .order-tracking{gap:0;padding:12px 0 4px}
@@ -269,20 +277,8 @@
     </div>
   </div>
 
-  <div class="my-tabs">
-    <button class="my-tab active" onclick="switchMyTab('orders')">주문내역</button>
-    <button class="my-tab" onclick="switchMyTab('coupon')">쿠폰</button>
-    <button class="my-tab" onclick="switchMyTab('point')">포인트</button>
-    <button class="my-tab" onclick="switchMyTab('wishlist')">위시리스트</button>
-    <button class="my-tab" onclick="switchMyTab('recent')">최근 본 상품</button>
-    <button class="my-tab" onclick="switchMyTab('address')">배송지 관리</button>
-    <button class="my-tab" onclick="switchMyTab('inquiry')">1:1 문의</button>
-    <button class="my-tab" onclick="switchMyTab('profile')">회원정보</button>
-  </div>
-
-  <div class="my-panel active" id="panel-orders"><div id="orderList"></div></div>
-
-  <div class="my-panel" id="panel-coupon">
+  <div class="my-accordion">
+    <div class="acc-item open"><div class="acc-header" onclick="toggleAcc(this)">🎟️ 쿠폰<span class="acc-count" id="accCouponCnt"></span><span class="acc-arrow">▾</span></div><div class="acc-body" id="panel-coupon">
     <div class="coupon-register">
       <div class="coupon-register-icon"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#2E7D32" stroke-width="1.5" stroke-linecap="round"><path d="M15 5v2m0 4v2m0 4v2M5 5h14a2 2 0 012 2v3a2 2 0 000 4v3a2 2 0 01-2 2H5a2 2 0 01-2-2v-3a2 2 0 000-4V7a2 2 0 012-2z"/></svg></div>
       <div class="coupon-register-title">쿠폰 등록</div>
@@ -293,17 +289,16 @@
       </div>
     </div>
     <div id="couponList"></div>
-  </div>
-
-  <div class="my-panel" id="panel-point">
+  </div></div>
+    <div class="acc-item open"><div class="acc-header" onclick="toggleAcc(this)">💰 포인트<span class="acc-count" id="accPointCnt"></span><span class="acc-arrow">▾</span></div><div class="acc-body">
     <div class="point-balance-card"><div><span style="font-size:12px;color:#888;">보유 포인트</span></div><div style="font-size:24px;font-weight:700;" id="pointBalance">0 P</div></div>
     <div id="pointList"></div>
-  </div>
+  </div></div>
+    <div class="acc-item open"><div class="acc-header" onclick="toggleAcc(this)">❤️ 찜한 상품<span class="acc-count" id="accWishCnt"></span><span class="acc-arrow">▾</span></div><div class="acc-body"><div class="wish-grid" id="wishGrid"></div></div></div>
+    <div class="acc-item open"><div class="acc-header" onclick="toggleAcc(this)">🕐 최근 본 상품<span class="acc-arrow">▾</span></div><div class="acc-body"><div class="recent-grid" id="recentGrid"></div></div></div>
+    <div class="acc-item"><div class="acc-header" onclick="toggleAcc(this)">📦 주문내역<span class="acc-count" id="accOrderCnt"></span><span class="acc-arrow">▾</span></div><div class="acc-body"><div id="orderList"></div></div></div>
 
-  <div class="my-panel" id="panel-wishlist"><div class="wish-grid" id="wishGrid"></div></div>
-  <div class="my-panel" id="panel-recent"><div class="recent-grid" id="recentGrid"></div></div>
-
-  <div class="my-panel" id="panel-address">
+  <div class="acc-item"><div class="acc-header" onclick="toggleAcc(this)">🏠 배송지 관리<span class="acc-arrow">▾</span></div><div class="acc-body">
     <div id="addressList"></div>
     <button style="margin-top:16px;padding:12px 24px;font-size:12px;font-weight:500;letter-spacing:1px;border:1px solid #E5E1DC;background:none;cursor:pointer;font-family:inherit" onclick="toggleAddressForm()">+ 새 배송지 추가</button>
     <div id="addressForm" style="display:none;margin-top:20px;max-width:480px;background:#fff;border:1px solid #E5E1DC;padding:24px;">
@@ -317,9 +312,9 @@
       <div class="pf-row"><label style="font-size:12px;color:#444;cursor:pointer;display:flex;align-items:center;gap:6px;"><input type="checkbox" id="afDefault"> 기본 배송지로 설정</label></div>
       <div style="display:flex;gap:8px;margin-top:12px;"><button class="pf-save" onclick="saveAddress()">저장</button><button style="padding:14px 24px;font-size:12px;border:1px solid #E5E1DC;background:none;cursor:pointer;font-family:inherit" onclick="toggleAddressForm()">취소</button></div>
     </div>
-  </div>
+  </div></div>
 
-  <div class="my-panel" id="panel-inquiry">
+  <div class="acc-item"><div class="acc-header" onclick="toggleAcc(this)">💬 1:1 문의<span class="acc-arrow">▾</span></div><div class="acc-body">
     <div id="inquiryList"></div>
     <button style="margin-top:16px;padding:12px 24px;font-size:12px;font-weight:500;letter-spacing:1px;border:1px solid #E5E1DC;background:none;cursor:pointer;font-family:inherit" onclick="toggleInquiryForm()">+ 새 문의 작성</button>
     <div id="inquiryForm" style="display:none;margin-top:20px;max-width:600px;background:#fff;border:1px solid #E5E1DC;padding:24px;">
@@ -328,9 +323,9 @@
       <div class="pf-row"><label class="pf-label">내용</label><textarea class="pf-input" id="iqContent" style="min-height:120px;resize:vertical;line-height:1.6" placeholder="문의 내용을 상세히 작성해주세요"></textarea></div>
       <div style="display:flex;gap:8px;margin-top:12px;"><button class="pf-save" onclick="submitInquiry()">문의 등록</button><button style="padding:14px 24px;font-size:12px;border:1px solid #E5E1DC;background:none;cursor:pointer;font-family:inherit" onclick="toggleInquiryForm()">취소</button></div>
     </div>
-  </div>
+  </div></div>
 
-  <div class="my-panel" id="panel-profile">
+  <div class="acc-item"><div class="acc-header" onclick="toggleAcc(this)">👤 회원정보<span class="acc-arrow">▾</span></div><div class="acc-body">
     <div class="profile-form">
       <div class="pf-row"><label class="pf-label">이메일</label><input class="pf-input" id="pfEmail" disabled></div>
       <div class="pf-row"><label class="pf-label">이름</label><input class="pf-input" id="pfName" placeholder="이름"></div>
@@ -343,7 +338,8 @@
         <button onclick="withdrawAccount()" style="font-size:12px;color:#999;background:none;border:none;cursor:pointer;text-decoration:underline;padding:0;">회원 탈퇴</button>
       </div>
     </div>
-  </div>
+  </div></div>
+  </div><!-- /my-accordion -->
 </div>
 
 <footer class="footer">
@@ -443,12 +439,16 @@ async function withdrawAccount(){
   try{const uid=currentUser.id;await sb.from('cart_items').delete().eq('user_id',uid);await sb.from('wishlists').delete().eq('user_id',uid);await sb.from('recent_views').delete().eq('user_id',uid);await sb.from('addresses').delete().eq('user_id',uid);await sb.from('inquiries').delete().eq('user_id',uid);await sb.from('user_profiles').delete().eq('id',uid);await sb.auth.signOut();alert('회원 탈퇴가 완료되었습니다.');window.location.href='/';}catch(e){alert('탈퇴 처리 중 오류가 발생했습니다. 고객센터로 문의해주세요.');}
 }
 
-/* ── TAB ── */
+/* ── ACCORDION ── */
+function toggleAcc(el){el.closest('.acc-item').classList.toggle('open');}
 function switchMyTab(tab){
-  document.querySelectorAll('.my-tab').forEach(t=>t.classList.remove('active'));
-  document.querySelectorAll('.my-panel').forEach(p=>p.classList.remove('active'));
-  document.getElementById('panel-'+tab).classList.add('active');
-  document.querySelectorAll('.my-tab').forEach(t=>{if(t.getAttribute('onclick')?.includes("'"+tab+"'"))t.classList.add('active');});
+  // URL ?tab= 호환 + 대시보드 링크
+  document.querySelectorAll('.acc-item').forEach(a=>{
+    if(a.querySelector('#panel-'+tab)||a.querySelector('#orderList')&&tab==='orders'||a.querySelector('#'+tab+'List'))a.classList.add('open');
+  });
+  const targetIds={orders:'orderList',coupon:'panel-coupon',point:'pointList',wishlist:'wishGrid',recent:'recentGrid'};
+  const t=document.getElementById(targetIds[tab]||'panel-'+tab);
+  if(t)t.scrollIntoView({behavior:'smooth',block:'start'});
 }
 function loadAll(){loadOrders();loadCoupons();loadPointHistory();loadWishlist();loadRecent();loadAddresses();loadInquiries();loadDashboard();loadPointSettings();}
 
@@ -487,40 +487,52 @@ async function loadOrders(){
         <div class="order-detail-section"><div class="order-detail-label">결제 정보</div><div class="order-detail-row">결제수단: ${o.payment_method||'—'}<br>결제일: ${o.paid_at?new Date(o.paid_at).toLocaleDateString('ko-KR',{year:'numeric',month:'long',day:'numeric',hour:'2-digit',minute:'2-digit'}):'—'}<br>상품 ${(o.subtotal||0).toLocaleString()}원${o.discount_amount?' / 할인 -'+o.discount_amount.toLocaleString()+'원':''}${o.coupon_discount?' / 쿠폰 -'+o.coupon_discount.toLocaleString()+'원':''}${o.points_used?' / 포인트 -'+o.points_used.toLocaleString()+'P':''}${o.shipping_fee!=null?' / 배송비 '+(o.shipping_fee>0?o.shipping_fee.toLocaleString()+'원':'무료'):''}</div></div>
       </div>
       <div class="review-inline" id="review-form-${o.id}" style="display:none;">
-        <div style="font-size:12px;font-weight:600;margin-bottom:10px;">리뷰 작성</div>
+        <div style="font-size:14px;font-weight:600;margin-bottom:4px;">리뷰 작성</div>
+        <div style="font-size:14px;font-weight:600;color:#2E7D32;margin-bottom:12px;">🎁 리뷰 작성 시 ${pointReview}P 적립</div>
         <div class="review-stars-input" id="review-stars-${o.id}">${[1,2,3,4,5].map(n=>`<span onclick="setReviewStar('${o.id}',${n})" data-n="${n}">★</span>`).join('')}</div>
         <textarea class="review-textarea" id="review-text-${o.id}" placeholder="상품은 어떠셨나요? 솔직한 리뷰를 남겨주세요."></textarea>
-        <div class="review-submit-row"><span class="review-point-hint">🎁 리뷰 작성 시 ${pointReview}P 적립</span><button class="review-submit-btn" onclick="submitOrderReview('${o.id}')">등록</button></div>
+        <div style="margin-top:8px;"><label style="font-size:12px;color:#666;cursor:pointer;display:flex;align-items:center;gap:6px;">📷 사진 첨부 <input type="file" id="review-img-${o.id}" accept="image/*" multiple style="font-size:11px;"></label></div>
+        <div class="review-submit-row"><span></span><button class="review-submit-btn" onclick="submitOrderReview('${o.id}')">등록</button></div>
       </div>
     </div>`;
   }).join('');
 }
 function getOrderActions(o){
-  const id=o.id,s=o.status;
+  const id=o.id,s=o.status,tn=o.tracking_number||'';
   let btns='';
   if(['pending','paid','preparing'].includes(s))btns+=`<button class="order-action-btn cancel" onclick="requestCancel('${id}','${o.order_number}','${s}')">주문 취소</button>`;
   if(s==='shipped'){
-    if(o.tracking_number)btns+=`<button class="order-action-btn" onclick="openTracking('${o.tracking_company||''}','${o.tracking_number}')">배송 조회</button>`;
-    btns+=`<button class="order-action-btn" onclick="requestExchange('${id}','${o.order_number}')">교환 요청</button><button class="order-action-btn" onclick="requestReturn('${id}','${o.order_number}')">반품 요청</button>`;
+    if(tn)btns+=`<button class="order-action-btn" onclick="openTracking('${(o.tracking_company||'').replace(/'/g,"\\'")}','${tn}')">배송 조회</button>`;
+    btns+=`<button class="order-action-btn" onclick="requestExchangeReturn('${id}','${o.order_number}')">교환 · 반품</button>`;
   }
   if(s==='delivered'){
     btns+=`<button class="order-action-btn primary" onclick="confirmOrder('${id}','${o.order_number}',${o.total_amount||0})">구매 확정</button>`;
-    if(o.tracking_number)btns+=`<button class="order-action-btn" onclick="openTracking('${o.tracking_company||''}','${o.tracking_number}')">배송 조회</button>`;
+    if(tn)btns+=`<button class="order-action-btn" onclick="openTracking('${(o.tracking_company||'').replace(/'/g,"\\'")}','${tn}')">배송 조회</button>`;
     btns+=`<button class="order-action-btn" onclick="toggleReviewForm('${id}')">리뷰 쓰기</button>`;
-    btns+=`<button class="order-action-btn" onclick="reorderItems('${id}')">재구매</button>`;
-    btns+=`<button class="order-action-btn" onclick="requestExchange('${id}','${o.order_number}')">교환</button><button class="order-action-btn" onclick="requestReturn('${id}','${o.order_number}')">반품</button>`;
+    btns+=`<button class="order-action-btn" onclick="requestExchangeReturn('${id}','${o.order_number}')">교환 · 반품</button>`;
   }
   if(s==='confirmed'){
     btns+=`<button class="order-action-btn" onclick="toggleReviewForm('${id}')">리뷰 쓰기</button>`;
-    btns+=`<button class="order-action-btn" onclick="reorderItems('${id}')">재구매</button>`;
   }
   if(['cancel_requested','exchange_requested','return_requested'].includes(s))btns+=`<div class="order-action-msg">요청이 접수되어 처리 중입니다</div>`;
   return btns;
 }
 function toggleOrderDetail(id){const el=document.getElementById('order-detail-'+id);if(!el)return;const open=el.style.display!=='none';el.style.display=open?'none':'block';el.previousElementSibling.textContent=open?'상세보기 ▾':'접기 ▴';}
 async function requestCancel(id,num,st){let msg='주문을 취소하시겠습니까?\n주문번호: '+num;if(st==='preparing')msg+='\n\n⚠ 상품 준비 중이라 취소가 불가할 수 있습니다.';if(!confirm(msg))return;await sb.from('orders').update({status:'cancel_requested',updated_at:new Date().toISOString()}).eq('id',id);alert('취소 요청이 접수되었습니다.');loadOrders();}
-async function requestExchange(id,num){if(!confirm('교환을 요청하시겠습니까?\n주문번호: '+num))return;await sb.from('orders').update({status:'exchange_requested',updated_at:new Date().toISOString()}).eq('id',id);alert('교환 요청이 접수되었습니다.');loadOrders();}
-async function requestReturn(id,num){if(!confirm('반품을 요청하시겠습니까?\n주문번호: '+num))return;await sb.from('orders').update({status:'return_requested',updated_at:new Date().toISOString()}).eq('id',id);alert('반품 요청이 접수되었습니다.');loadOrders();}
+async function requestExchangeReturn(id,num){
+  const type=prompt('교환 또는 반품 중 선택해주세요.\n\n1. 교환\n2. 반품\n\n번호를 입력하세요:');
+  if(!type)return;
+  const isExchange=type.trim()==='1';
+  const label=isExchange?'교환':'반품';
+  const warning=isExchange
+    ?'⚠ 교환 안내\n\n• 수령 후 7일 이내만 가능합니다\n• 고객 변심 교환 시 왕복 배송비가 발생합니다\n• 상품 훼손·사용 흔적이 있으면 교환이 불가합니다\n• 사진 촬영 후 1:1 문의로 보내주세요'
+    :'⚠ 반품 안내\n\n• 수령 후 7일 이내만 가능합니다\n• 고객 변심 반품 시 왕복 배송비가 차감됩니다\n• 상품 훼손·사용 흔적이 있으면 반품이 불가합니다\n• 사진 촬영 후 1:1 문의로 보내주세요';
+  if(!confirm(warning+'\n\n주문번호: '+num+'\n\n위 내용을 확인하셨습니까?'))return;
+  const status=isExchange?'exchange_requested':'return_requested';
+  await sb.from('orders').update({status,updated_at:new Date().toISOString()}).eq('id',id);
+  alert(label+' 요청이 접수되었습니다.\n1:1 문의에서 상품 사진을 함께 보내주시면 빠르게 처리됩니다.');
+  loadOrders();
+}
 async function confirmOrder(id,num,totalAmount){if(!confirm('구매를 확정하시겠습니까?\n주문번호: '+num+'\n\n확정 후 교환·반품이 제한될 수 있습니다.'))return;await sb.from('orders').update({status:'confirmed',updated_at:new Date().toISOString()}).eq('id',id);
   // 포인트 적립
   const grade=profile?.grade||'basic';
@@ -563,9 +575,18 @@ async function submitOrderReview(orderId){
   const{data:order}=await sb.from('orders').select('order_items(product_id)').eq('id',orderId).single();
   const productId=order?.order_items?.[0]?.product_id;
   if(!productId){alert('상품 정보를 찾을 수 없습니다.');return;}
-  const{error}=await sb.from('reviews').insert({product_id:productId,author_name:profile?.display_name||'회원',rating,content});
+  // 이미지 업로드
+  let imageUrls=[];
+  const fileInput=document.getElementById('review-img-'+orderId);
+  if(fileInput?.files?.length){
+    for(const file of fileInput.files){
+      const fn=`reviews/${Date.now()}_${Math.random().toString(36).slice(2)}.${file.name.split('.').pop()}`;
+      const{error:ue}=await sb.storage.from('media').upload(fn,file,{contentType:file.type});
+      if(!ue){const{data:u}=sb.storage.from('media').getPublicUrl(fn);imageUrls.push(u.publicUrl);}
+    }
+  }
+  const{error}=await sb.from('reviews').insert({product_id:productId,author_name:profile?.display_name||'회원',rating,content,images:imageUrls.length?imageUrls:null});
   if(error){alert('리뷰 등록 실패: '+error.message);return;}
-  // 포인트 적립
   if(pointReview>0){
     const{data:p}=await sb.from('user_profiles').select('point').eq('id',currentUser.id).single();
     await sb.from('user_profiles').update({point:(p?.point||0)+pointReview}).eq('id',currentUser.id);
@@ -574,18 +595,6 @@ async function submitOrderReview(orderId){
     alert('리뷰가 등록되었습니다!\n'+pointReview+'P가 적립되었습니다 🎁');
   }else{alert('리뷰가 등록되었습니다!');}
   toggleReviewForm(orderId);loadPointHistory();renderUserCard();
-}
-
-/* ── 재구매 ── */
-async function reorderItems(orderId){
-  const{data:items}=await sb.from('order_items').select('product_id,quantity,option_snapshot').eq('order_id',orderId);
-  if(!items?.length){alert('상품 정보를 찾을 수 없습니다.');return;}
-  let{data:cart}=await sb.from('carts').select('id').eq('user_id',currentUser.id).single();
-  if(!cart){const r=await sb.from('carts').insert({user_id:currentUser.id}).select().single();cart=r.data;}
-  for(const item of items){
-    await sb.from('cart_items').insert({cart_id:cart.id,product_id:item.product_id,quantity:item.quantity,selected_options:item.option_snapshot||{}});
-  }
-  alert('장바구니에 담았습니다!');window.location.href='/cart.html';
 }
 
 /* ── 배송 조회 ── */
@@ -644,10 +653,11 @@ async function loadCoupons(){
     </div>`;
     if(status==='ok')available.push(html);else used.push(html);
   });
-  let html='';
+  let html='<div style="font-size:11px;color:#2E7D32;margin-bottom:16px;padding:8px 12px;background:#E8F5E9;border-radius:4px;">💡 보유 쿠폰은 결제 시 자동으로 적용할 수 있습니다</div>';
   if(available.length)html+=`<div class="coupon-section-title">사용 가능 (${available.length}장)</div>`+available.join('');
   if(used.length)html+=`<div class="coupon-section-title" style="margin-top:24px;">사용 완료 / 만료</div>`+used.join('');
   el.innerHTML=html;
+  const badge=document.getElementById('accCouponCnt');if(badge)badge.textContent=available.length?` (${available.length}장)`:'';
 }
 async function registerCoupon(){
   const code=document.getElementById('couponCodeInput').value.trim().toUpperCase();
@@ -723,7 +733,7 @@ async function submitInquiry(){const d={user_id:currentUser.id,category:document
 function getMainImg(p){if(p.product_media?.length){const m=p.product_media.filter(x=>x.role==='main').sort((a,b)=>a.display_order-b.display_order);return m.length?m[0].media_url:p.product_media[0].media_url;}return p.image_url;}
 function searchMyAddr(){new daum.Postcode({oncomplete:function(data){document.getElementById('afZip').value=data.zonecode;document.getElementById('afAddr1').value=data.roadAddress||data.jibunAddress;document.getElementById('afAddr2').focus();}}).open();}
 async function doLogout(){await sb.auth.signOut();window.location.href='/login.html';}
-function checkTabParam(){const tab=new URLSearchParams(window.location.search).get('tab');if(tab){document.querySelectorAll('.my-tab').forEach(t=>t.classList.remove('active'));document.querySelectorAll('.my-panel').forEach(p=>p.classList.remove('active'));const panel=document.getElementById('panel-'+tab);if(panel){panel.classList.add('active');const m={orders:'주문내역',coupon:'쿠폰',point:'포인트',wishlist:'위시리스트',recent:'최근',address:'배송지',inquiry:'문의',profile:'회원정보'};document.querySelectorAll('.my-tab').forEach(t=>{if(t.textContent.includes(m[tab]||''))t.classList.add('active');});}}}
+function checkTabParam(){const tab=new URLSearchParams(window.location.search).get('tab');if(tab)switchMyTab(tab);}
 checkAuth();setTimeout(checkTabParam,500);
 </script>
 <script src="./js/common-header.js?v=15"></script>

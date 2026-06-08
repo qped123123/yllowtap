@@ -1687,11 +1687,12 @@ function renderHomeCatAdmin() {
   el.innerHTML = homeCats.map((c,i) => {
     const fontOpts = HOMECAT_FONTS.map(([v,l])=>`<option value="${v}"${c.font===v?' selected':''}>${l}</option>`).join('');
     const weightOpts = HOMECAT_WEIGHTS.map(([v,l])=>`<option value="${v}"${String(c.weight)===v?' selected':''}>${l}</option>`).join('');
+    const catOpts = categories.filter(cat=>!['all'].includes(cat.slug)).map(cat=>`<option value="${cat.slug}"${c.link===cat.slug?' selected':''}>${cat.name} (${cat.slug})</option>`).join('');
     return `<div style="background:var(--bg-input);border:1px solid var(--border);border-radius:var(--radius);padding:12px;margin-bottom:10px;">
       <div style="display:flex;gap:8px;align-items:center;margin-bottom:8px;">
         ${c.image?`<img src="${c.image}" style="width:50px;height:50px;object-fit:cover;border-radius:4px;">`:'<div style="width:50px;height:50px;background:var(--bg-hover);border-radius:4px;"></div>'}
-        <input class="form-input" value="${(c.name||'').replace(/"/g,'&quot;')}" placeholder="카테고리 이름" style="flex:1;" onchange="homeCats[${i}].name=this.value">
-        <input class="form-input" value="${(c.link||'').replace(/"/g,'&quot;')}" placeholder="링크 (예: bags)" style="width:130px;" onchange="homeCats[${i}].link=this.value">
+        <input class="form-input" value="${(c.name||'').replace(/"/g,'&quot;')}" placeholder="화면에 보일 이름 (예: 가방)" style="flex:1;" onchange="homeCats[${i}].name=this.value">
+        <select class="form-select" style="width:200px;" onchange="homeCats[${i}].link=this.value"><option value="">이동할 카테고리 선택</option>${catOpts}</select>
         <label class="btn btn-secondary btn-small" style="cursor:pointer;white-space:nowrap;">📎<input type="file" accept="image/*" style="display:none;" onchange="uploadHomeCatImg(this,${i})"></label>
         <button class="btn btn-small" style="background:var(--red);color:#fff;border:none;" onclick="removeHomeCat(${i})">×</button>
       </div>
