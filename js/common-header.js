@@ -73,12 +73,6 @@
       });
       actions.appendChild(logoutLink);
 
-      // ORDER
-      const orderLink = document.createElement('a');
-      orderLink.href = '/mypage.html?tab=orders';
-      orderLink.textContent = 'Order';
-      actions.appendChild(orderLink);
-
       // WISHLIST (♡)
       const wishLink = document.createElement('a');
       wishLink.href = '/mypage.html?tab=wishlist';
