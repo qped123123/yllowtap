@@ -477,11 +477,19 @@ function renderTracking(status){
     return(i>0?`<div class="track-line${active?' active':''}"></div>`:'')+`<div class="track-step"><div class="track-dot${current?' current':active?' active':''}">${active?'✓':i+1}</div><div class="track-label${active?' active':''}">${s.l}</div></div>`;
   }).join('')+'</div>';
 }
+let reviewedOrders=new Set();
 async function loadOrders(){
   const{data}=await sb.from('orders').select('*,order_items(*)').eq('user_id',currentUser.id).order('created_at',{ascending:false});
   const el=document.getElementById('orderList');
   document.getElementById('statOrders').textContent=data?.length||0;
   if(!data?.length){el.innerHTML='<div class="my-empty"><p>주문 내역이 없습니다</p><a href="/category.html">쇼핑하러 가기</a></div>';return;}
+  // 이미 리뷰 작성한 주문 확인 (중복 방지 + 버튼 잠금)
+  reviewedOrders=new Set();
+  const orderIds=data.map(o=>o.id);
+  if(orderIds.length){
+    const{data:rv}=await sb.from('reviews').select('order_id').in('order_id',orderIds);
+    (rv||[]).forEach(r=>{if(r.order_id)reviewedOrders.add(r.order_id);});
+  }
   el.innerHTML=data.map(o=>{
     const items=(o.order_items||[]).map(i=>`<div class="order-item" style="cursor:pointer;" onclick="window.location.href='/product.html?slug=${i.product_id||''}'">
       ${i.product_image_snapshot?`<img class="order-item-img" src="${i.product_image_snapshot}">`:'<div class="order-item-img"></div>'}
@@ -523,11 +531,11 @@ function getOrderActions(o){
   if(s==='delivered'){
     btns+=`<button class="order-action-btn primary" onclick="confirmOrder('${id}','${o.order_number}',${o.total_amount||0})">구매 확정</button>`;
     if(tn)btns+=`<button class="order-action-btn" onclick="openTracking('${(o.tracking_company||'').replace(/'/g,"\\'")}','${tn}')">배송 조회</button>`;
-    btns+=`<button class="order-action-btn" onclick="toggleReviewForm('${id}')">리뷰 쓰기</button>`;
+    btns+=reviewedOrders.has(id)?`<button class="order-action-btn" disabled style="opacity:.45;cursor:default;">리뷰 작성완료</button>`:`<button class="order-action-btn" onclick="toggleReviewForm('${id}')">리뷰 쓰기</button>`;
     btns+=`<button class="order-action-btn" onclick="requestExchangeReturn('${id}','${o.order_number}')">교환 · 반품</button>`;
   }
   if(s==='confirmed'){
-    btns+=`<button class="order-action-btn" onclick="toggleReviewForm('${id}')">리뷰 쓰기</button>`;
+    btns+=reviewedOrders.has(id)?`<button class="order-action-btn" disabled style="opacity:.45;cursor:default;">리뷰 작성완료</button>`:`<button class="order-action-btn" onclick="toggleReviewForm('${id}')">리뷰 쓰기</button>`;
   }
   if(['cancel_requested','exchange_requested','return_requested'].includes(s))btns+=`<div class="order-action-msg">요청이 접수되어 처리 중입니다</div>`;
   return btns;
@@ -598,9 +606,13 @@ function setReviewStar(orderId,n){
   document.querySelectorAll('#review-stars-'+orderId+' span').forEach(s=>{s.classList.toggle('on',parseInt(s.dataset.n)<=n);});
 }
 async function submitOrderReview(orderId){
+  if(reviewedOrders.has(orderId)){alert('이미 이 주문에 리뷰를 작성하셨습니다.');return;}
   const rating=reviewStars[orderId];if(!rating){alert('별점을 선택해주세요.');return;}
   const content=document.getElementById('review-text-'+orderId).value.trim();
   if(!content){alert('리뷰 내용을 입력해주세요.');return;}
+  // 서버 재확인 (이중 클릭/우회 방지)
+  const{data:dup}=await sb.from('reviews').select('id').eq('order_id',orderId).limit(1);
+  if(dup&&dup.length){alert('이미 이 주문에 리뷰를 작성하셨습니다.');reviewedOrders.add(orderId);loadOrders();return;}
   const{data:order}=await sb.from('orders').select('order_items(product_id)').eq('id',orderId).single();
   const productId=order?.order_items?.[0]?.product_id;
   if(!productId){alert('상품 정보를 찾을 수 없습니다.');return;}
@@ -614,8 +626,9 @@ async function submitOrderReview(orderId){
       if(!ue){const{data:u}=sb.storage.from('media').getPublicUrl(fn);imageUrls.push(u.publicUrl);}
     }
   }
-  const{error}=await sb.from('reviews').insert({product_id:productId,author_name:profile?.display_name||'회원',rating,content,images:imageUrls.length?imageUrls:null});
+  const{error}=await sb.from('reviews').insert({product_id:productId,order_id:orderId,author_name:profile?.display_name||'회원',rating,content,images:imageUrls.length?imageUrls:null,is_visible:true});
   if(error){alert('리뷰 등록 실패: '+error.message);return;}
+  reviewedOrders.add(orderId);
   if(pointReview>0){
     const{data:p}=await sb.from('user_profiles').select('point').eq('id',currentUser.id).single();
     await sb.from('user_profiles').update({point:(p?.point||0)+pointReview}).eq('id',currentUser.id);
@@ -623,8 +636,9 @@ async function submitOrderReview(orderId){
     profile.point=(p?.point||0)+pointReview;
     alert('리뷰가 등록되었습니다!\n'+pointReview+'P가 적립되었습니다 🎁');
   }else{alert('리뷰가 등록되었습니다!');}
-  toggleReviewForm(orderId);loadPointHistory();renderUserCard();
+  toggleReviewForm(orderId);loadOrders();loadPointHistory();renderUserCard();
 }
+
 
 /* ── 배송 조회 ── */
 const TRACKING_URLS={CJ대한통운:'https://www.cjlogistics.com/ko/tool/parcel/tracking?gnbInvcNo=',로젠택배:'https://www.ilogen.com/web/personal/trace/',한진택배:'https://www.hanjin.com/kor/CMS/DeliveryMgr/WaybillResult.do?mession=&wblnum=',우체국:'https://service.epost.go.kr/trace.RetrieveDomRi498.postal?sid1=',롯데택배:'https://www.lotteglogis.com/home/reservation/tracking/link498?InvNo='};
