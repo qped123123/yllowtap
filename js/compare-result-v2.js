@@ -1,6 +1,6 @@
 /* ============================================================
    Yllowtap 취향 비교 결과화면 V2  (compare-result-v2.js)
-   - 카드 3개로 묶음 / 이미지 정사각 / 타입 이미지는 고정(일치도 %만 변경)
+   - 카드 3개로 묶음 / 이미지 정사각 / 타입 이미지는 고정(게이지 바·일치% 만 변경)
    ============================================================ */
 
 /* ---------- 0. 설정 ---------- */
@@ -140,7 +140,7 @@ let STATE={};
 function render(){
   const { input, compared, allProducts, scoreMap, type, selectedId } = STATE;
   const sel=compared.find(p=>String(p.id)===String(selectedId))||compared[0];
-  STATE.fixedImg = pImg(sel); // 타입 카드 이미지는 처음 선택 상품으로 고정(이후 안 바뀜)
+  STATE.fixedImg = pImg(sel); // 타입 카드 이미지는 고정 — 처음 선택 상품으로 박고 이후 안 바뀜
   const g=gaugeInfo(sel); const pct=g.pct;
   const summary=buildSummary(input.quality,input.mood);
 
@@ -273,7 +273,7 @@ function updateSelected(){
   const g=document.getElementById('gauge'); g.style.setProperty('--pct',pct);
   document.getElementById('gNum').textContent=pct+'%';
   document.getElementById('gCap').textContent=info.label;
-  // ※ 타입 카드 이미지는 고정 — 바꾸지 않음
+  // ※ 타입 카드 이미지는 고정 — 바꾸지 않음 (게이지 바·숫자만 변경)
 }
 
 /* ---------- 11. 찜 ---------- */
@@ -308,7 +308,15 @@ function showEmpty(){ $app.innerHTML=`<div class="cr-empty"><h2>비교 정보가
     const data=await loadData(input);
     if(!data.compared.length){ showEmpty(); return; }
     const type=pickTasteType(input.quality,input.mood,data.profiles);
-    STATE={ input, ...data, type, selectedId:input.selected||String(data.compared[0].id) };
+    // 기본 선택 = 비교 상품 중 가장 잘 맞는(매칭% 1순위) 상품 → "더 가까운 상품" 문구와 일치
+    let defaultSel = data.compared.length ? String(data.compared[0].id) : null;
+    if(data.compared.length){
+      const best = data.compared
+        .map(p=>({id:String(p.id), m:matchPercent(input.quality,input.mood,scoreOf(data.scoreMap,p.id))}))
+        .sort((a,b)=>b.m-a.m)[0];
+      if(best) defaultSel = best.id;
+    }
+    STATE={ input, ...data, type, selectedId: defaultSel };
     render();
   }catch(e){ console.error(e); showEmpty(); }
 })();
