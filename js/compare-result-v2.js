@@ -207,7 +207,6 @@ function render(){
   const ids=new Set(compared.map(p=>String(p.id)));
   const reco1=allProducts.filter(p=>!ids.has(String(p.id))&&pCat(p)&&(pCat(p)===compareCat||(isBag(compareCat)&&isBag(pCat(p)))))
     .map(p=>({p,m:matchPercent(input.quality,input.mood,scoreOf(scoreMap,p.id))})).sort((a,b)=>b.m-a.m).slice(0,6).map(x=>x.p);
-  const c=type?type.centroid:{}; const cM={}; MKEYS.forEach(k=>cM[k]=c[k]);
   const otherCatList=[...new Set(allProducts.map(p=>pCat(p)).filter(x=>x && x!==compareCat && !(isBag(compareCat)&&isBag(x))))];
   let reco2=[];
   otherCatList.forEach(cat=>{
