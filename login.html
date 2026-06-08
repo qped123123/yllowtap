@@ -326,8 +326,9 @@ function checkAgreeAll() {
 
 // ── 소셜 로그인 ──
 async function socialLogin(provider) {
+  const r = new URLSearchParams(window.location.search).get('redirect');
   const options = {
-    redirectTo: window.location.origin + '/login.html'
+    redirectTo: window.location.origin + '/login.html' + (r ? ('?redirect=' + encodeURIComponent(r)) : '')
   };
 
   if (provider === 'naver') {
@@ -414,10 +415,20 @@ async function doLogout() {
   window.location.reload();
 }
 
+// ── 로그인 후 돌아갈 주소 (같은 사이트 내부 경로만 허용) ──
+function getRedirect() {
+  const r = new URLSearchParams(window.location.search).get('redirect');
+  // 외부 사이트로 튕기는 것 방지: '/'로 시작하고 '//'는 아닌 내부 경로만 허용
+  return (r && /^\/(?!\/)/.test(r)) ? r : null;
+}
+
 // ── 인증 상태 체크 ──
 async function checkAuth() {
   const { data: { session } } = await sb.auth.getSession();
   if (session) {
+    // 로그인 상태 + 돌아갈 주소가 있으면 원래 자리로 복귀
+    const dest = getRedirect();
+    if (dest) { window.location.replace(dest); return; }
     const user = session.user;
     const name = user.user_metadata?.display_name || user.user_metadata?.name || user.user_metadata?.preferred_username || '회원';
     const email = user.email || '';

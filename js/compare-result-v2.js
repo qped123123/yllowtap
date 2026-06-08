@@ -304,10 +304,11 @@ function showEmpty(){ $app.innerHTML=`<div class="cr-empty"><h2>비교 정보가
   const input=readInput(); if(!input){ showEmpty(); return; }
   // 회원 전용: 데모(?demo=1)는 예외, 그 외엔 로그인 안 했으면 로그인 페이지로
   if(!input.demo){
+    const loginUrl = '/login.html?redirect=' + encodeURIComponent(location.pathname + location.search);
     try{
       const { data:{ session } } = await sb.auth.getSession();
-      if(!session){ location.href='/login.html'; return; }
-    }catch(e){ location.href='/login.html'; return; }
+      if(!session){ location.href=loginUrl; return; }
+    }catch(e){ location.href=loginUrl; return; }
   }
   try{
     const data=await loadData(input);
