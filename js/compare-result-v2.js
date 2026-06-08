@@ -163,6 +163,11 @@ function render(){
   const chips=(type?.tags||[]).slice(0,3).map(t=>`<span class="match-chip">${t.replace(/^#/,'')}</span>`).join('');
 
   $app.innerHTML=`
+    <div class="cr-back-row fade-up" style="text-align:left;margin-bottom:14px;">
+      <a href="${ROUTE.back}" class="cr-back" style="display:inline-flex;align-items:center;gap:7px;font-size:14px;font-weight:500;color:#555;text-decoration:none;padding:10px 18px;border:1px solid #E5E0D8;border-radius:999px;background:#fff;transition:background .15s,color .15s;" onmouseover="this.style.background='#1a1a1a';this.style.color='#fff';" onmouseout="this.style.background='#fff';this.style.color='#555';">
+        <span style="font-size:17px;line-height:1;">&#8592;</span> 장바구니로 돌아가기
+      </a>
+    </div>
     <header class="cr-header fade-up">
       <div class="cr-brand">YLLOWTAP</div>
       <h1>비교 결과</h1>
