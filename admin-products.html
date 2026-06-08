@@ -388,6 +388,14 @@ body { font-family:var(--font); background:var(--bg); color:var(--text); font-si
         <h1>사이트 설정</h1>
         <button class="btn btn-primary" onclick="saveSettings()">저장</button>
       </div>
+      <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:16px 24px;margin-bottom:16px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+          <div style="font-size:12px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:var(--accent);">카테고리 관리 (상위 · 하위)</div>
+          <button class="btn btn-secondary btn-small" onclick="addTopCategory()">+ 상위 카테고리</button>
+        </div>
+        <p style="font-size:11px;color:var(--text-muted);margin-bottom:12px;">네비게이션·사이드바에 뜨는 카테고리예요. 상위 아래 "+ 하위"로 세부 카테고리를 추가할 수 있어요. 이름 바꾸면 자동 저장돼요. ALL·BEST·NEW·SALE은 시스템 기본이라 가급적 두세요.</p>
+        <div id="categoryAdminList"></div>
+      </div>
       <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:16px 24px;">
         <div class="setting-row">
           <div class="setting-label">BGM 사용</div>
@@ -1005,7 +1013,7 @@ function switchPage(page) {
 }
 
 async function init() {
-  await Promise.all([loadPopupNotices(), loadCategories(), loadCollections(), loadProducts(), loadHeroSlides(), loadSettings(), loadInquiries(), loadMembers(), loadOrders(), loadFaqs(), loadAttrDefs(), loadCouponsAdmin()]);
+  await Promise.all([loadPopupNotices(), loadCategories(), loadCategoriesAdmin(), loadCollections(), loadProducts(), loadHeroSlides(), loadSettings(), loadInquiries(), loadMembers(), loadOrders(), loadFaqs(), loadAttrDefs(), loadCouponsAdmin()]);
   bindTagCheckboxes(); bindCustomTagInput(); bindImageUpload(); bindHeroMediaUpload(); bindSettingsImageUpload(); bindPopupNoticeImageUpload(); loadMainImages(); bindMainImagesUpload();
 }
 
@@ -1016,6 +1024,80 @@ async function loadCategories() {
     categories.filter(c => !['all','best','new','sale'].includes(c.slug))
     .map(c => `<option value="${c.slug}">${c.name}</option>`).join('');
   if(typeof renderExcludeCats==='function') renderExcludeCats();
+}
+
+// ── 카테고리 관리 (상위/하위 CRUD) ──
+let allCatsAdmin = [];
+async function loadCategoriesAdmin() {
+  const { data } = await sb.from('categories').select('*').order('display_order');
+  allCatsAdmin = data || [];
+  renderCategoryAdmin();
+}
+function renderCategoryAdmin() {
+  const el = document.getElementById('categoryAdminList'); if(!el) return;
+  const tops = allCatsAdmin.filter(c => !c.parent_id).sort((a,b)=>(a.display_order||0)-(b.display_order||0));
+  if(!tops.length){ el.innerHTML='<div style="font-size:11px;color:var(--text-muted);padding:8px 0;">+ 버튼으로 카테고리를 추가하세요</div>'; return; }
+  const actSel=(c)=>`<select class="form-select" style="width:74px;font-size:10px;padding:3px 4px;" onchange="toggleCategoryActive('${c.id}',this.value==='true')"><option value="true"${c.is_active?' selected':''}>표시</option><option value="false"${!c.is_active?' selected':''}>숨김</option></select>`;
+  el.innerHTML = tops.map(top => {
+    const children = allCatsAdmin.filter(c => c.parent_id === top.id).sort((a,b)=>(a.display_order||0)-(b.display_order||0));
+    const childHtml = children.map(ch => `
+      <div style="display:flex;gap:6px;align-items:center;padding:5px 0 5px 28px;">
+        <span style="font-size:10px;color:var(--text-muted);">└</span>
+        <input class="form-input" value="${(ch.name||'').replace(/"/g,'&quot;')}" style="flex:1;font-size:12px;" onchange="renameCategoryAdmin('${ch.id}',this.value)">
+        <span style="font-size:10px;color:var(--text-muted);width:70px;">${ch.slug}</span>
+        ${actSel(ch)}
+        <button class="btn btn-small" style="background:var(--red);color:#fff;border:none;" onclick="deleteCategoryAdmin('${ch.id}','${(ch.name||'').replace(/'/g,'')}',false)">×</button>
+      </div>`).join('');
+    return `<div style="border:1px solid var(--border);border-radius:var(--radius);padding:10px;margin-bottom:8px;">
+      <div style="display:flex;gap:6px;align-items:center;">
+        <strong style="font-size:9px;color:var(--accent);width:24px;">상위</strong>
+        <input class="form-input" value="${(top.name||'').replace(/"/g,'&quot;')}" style="flex:1;font-size:12px;font-weight:600;" onchange="renameCategoryAdmin('${top.id}',this.value)">
+        <span style="font-size:10px;color:var(--text-muted);width:70px;">${top.slug}</span>
+        ${actSel(top)}
+        <button class="btn btn-secondary btn-small" style="white-space:nowrap;" onclick="addSubCategory('${top.id}')">+ 하위</button>
+        <button class="btn btn-small" style="background:var(--red);color:#fff;border:none;" onclick="deleteCategoryAdmin('${top.id}','${(top.name||'').replace(/'/g,'')}',true)">×</button>
+      </div>
+      ${childHtml}
+    </div>`;
+  }).join('');
+}
+function slugify(s){ return (s||'').toLowerCase().trim().replace(/[^a-z0-9가-힣]+/g,'-').replace(/^-|-$/g,''); }
+async function addTopCategory() {
+  const name = prompt('상위 카테고리 이름 (예: 신상품):'); if(!name) return;
+  const slug = prompt('영문 주소 slug (예: new-item):', slugify(name)); if(!slug) return;
+  const order = allCatsAdmin.filter(c=>!c.parent_id).length;
+  const { error } = await sb.from('categories').insert({ name, slug, is_active:true, display_order:order });
+  if(error){ showToast('추가 실패: '+error.message, true); return; }
+  showToast('상위 카테고리 추가됨'); await loadCategoriesAdmin(); loadCategories();
+}
+async function addSubCategory(parentId) {
+  const name = prompt('하위 카테고리 이름 (예: 토트백):'); if(!name) return;
+  const slug = prompt('영문 주소 slug (예: tote):', slugify(name)); if(!slug) return;
+  const order = allCatsAdmin.filter(c=>c.parent_id===parentId).length;
+  const { error } = await sb.from('categories').insert({ name, slug, parent_id:parentId, is_active:true, display_order:order });
+  if(error){ showToast('추가 실패: '+error.message, true); return; }
+  showToast('하위 카테고리 추가됨'); await loadCategoriesAdmin(); loadCategories();
+}
+async function deleteCategoryAdmin(id, name, hasChildren) {
+  const msg = hasChildren ? `"${name}" 상위 카테고리를 삭제할까요?\n하위 카테고리도 함께 삭제됩니다.` : `"${name}" 카테고리를 삭제할까요?`;
+  if(!confirm(msg)) return;
+  if(hasChildren) await sb.from('categories').delete().eq('parent_id', id);
+  const { error } = await sb.from('categories').delete().eq('id', id);
+  if(error){ showToast('삭제 실패: '+error.message, true); return; }
+  showToast('삭제됨'); await loadCategoriesAdmin(); loadCategories();
+}
+async function toggleCategoryActive(id, active) {
+  const { error } = await sb.from('categories').update({ is_active: active }).eq('id', id);
+  if(error){ showToast('변경 실패: '+error.message, true); return; }
+  const c = allCatsAdmin.find(x=>x.id===id); if(c) c.is_active = active;
+  showToast(active?'표시됨':'숨김'); loadCategories();
+}
+async function renameCategoryAdmin(id, name) {
+  if(!name.trim()) return;
+  const { error } = await sb.from('categories').update({ name: name.trim() }).eq('id', id);
+  if(error){ showToast('수정 실패: '+error.message, true); return; }
+  const c = allCatsAdmin.find(x=>x.id===id); if(c) c.name = name.trim();
+  showToast('이름 변경됨'); loadCategories();
 }
 async function loadCollections() {
   const { data } = await sb.from('collections').select('*').eq('is_active', true).order('display_order');
