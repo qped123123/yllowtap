@@ -224,12 +224,7 @@ function render(){
           </div>
         </div>
 
-        <div class="cr-reco-row" style="display:flex;gap:10px;align-items:stretch;margin-bottom:18px;">
-          <a href="${ROUTE.back}" style="display:inline-flex;align-items:center;justify-content:center;gap:7px;background:#1a1a1a;color:#fff;text-decoration:none;border-radius:14px;font-size:14px;font-weight:600;padding:16px 22px;white-space:nowrap;flex:0 0 auto;transition:opacity .15s;" onmouseover="this.style.opacity='.82';" onmouseout="this.style.opacity='1';">
-            <span style="font-size:16px;line-height:1;">&#8592;</span> 장바구니로 돌아가기
-          </a>
-          <div style="display:flex;align-items:center;justify-content:center;background:#1a1a1a;color:#fff;border-radius:14px;font-size:14px;font-weight:600;padding:16px 22px;flex:1 1 auto;text-align:center;">내 취향과 어울리는 다른 아이템</div>
-        </div>
+        <div class="cr-reco-banner">내 취향과 어울리는 다른 아이템</div>
 
         <section class="fade-up">
           <div class="blk-title">내 취향과 비슷한 ${catLabel}</div>
@@ -240,6 +235,11 @@ function render(){
           <div class="cr-reco">${reco2.length?reco2.map(recoCard).join(''):'<div class="reco-empty">아직 어울리는 상품이 준비되지 않았어요.</div>'}</div>
         </section>
       </div>
+    </div>
+    <div class="cr-actions" style="display:flex;flex-wrap:wrap;gap:10px;justify-content:center;margin:36px auto 0;max-width:600px;">
+      <button type="button" onclick="saveComparison(this)" style="display:inline-flex;align-items:center;justify-content:center;gap:7px;background:#1a1a1a;color:#fff;border:none;border-radius:14px;font-size:14px;font-weight:600;padding:15px 26px;cursor:pointer;font-family:inherit;transition:opacity .15s;" onmouseover="this.style.opacity='.82';" onmouseout="this.style.opacity='1';">저장하기</button>
+      <button type="button" onclick="shareComparison(this)" style="display:inline-flex;align-items:center;justify-content:center;gap:7px;background:#1a1a1a;color:#fff;border:none;border-radius:14px;font-size:14px;font-weight:600;padding:15px 26px;cursor:pointer;font-family:inherit;transition:opacity .15s;" onmouseover="this.style.opacity='.82';" onmouseout="this.style.opacity='1';">공유하기</button>
+      <a href="${ROUTE.back}" style="display:inline-flex;align-items:center;justify-content:center;gap:7px;background:#1a1a1a;color:#fff;text-decoration:none;border-radius:14px;font-size:14px;font-weight:600;padding:15px 26px;transition:opacity .15s;" onmouseover="this.style.opacity='.82';" onmouseout="this.style.opacity='1';"><span style="font-size:16px;line-height:1;">&#8592;</span> 장바구니로 돌아가기</a>
     </div>`;
 
   wireEvents(); markWishlisted();
@@ -279,6 +279,57 @@ function updateSelected(){
   document.getElementById('gNum').textContent=pct+'%';
   document.getElementById('gCap').textContent=info.label;
   // ※ 타입 카드 이미지는 고정 — 바꾸지 않음 (게이지 바·숫자만 변경)
+}
+
+/* ---------- 10-1. 저장 / 공유 ---------- */
+function crToast(msg){
+  let t=document.getElementById('crToast');
+  if(!t){ t=document.createElement('div'); t.id='crToast';
+    t.style.cssText='position:fixed;left:50%;bottom:32px;transform:translateX(-50%) translateY(10px);background:#1a1a1a;color:#fff;padding:13px 22px;border-radius:999px;font-size:13.5px;font-weight:500;opacity:0;transition:opacity .2s,transform .2s;z-index:9999;pointer-events:none;';
+    document.body.appendChild(t); }
+  t.textContent=msg; requestAnimationFrame(()=>{ t.style.opacity='1'; t.style.transform='translateX(-50%) translateY(0)'; });
+  clearTimeout(t._tm); t._tm=setTimeout(()=>{ t.style.opacity='0'; t.style.transform='translateX(-50%) translateY(10px)'; }, 2200);
+}
+
+// 그날 결과를 통째로 스냅샷으로 (나중에 상품이 바뀌어도 그대로 보이게)
+function buildSnapshot(){
+  const { input, compared, type, scoreMap } = STATE;
+  return {
+    category: input.category || pCat(compared[0]) || null,
+    quality: input.quality, mood: input.mood,
+    selectedId: String(STATE.selectedId),
+    type: type || null,
+    products: compared.map(p=>({
+      id:String(p.id), name:pName(p), img:pImg(p),
+      price:(p.price??null), original_price:(p.original_price??null), slug:(p.slug||null),
+      match: matchPercent(input.quality,input.mood,scoreOf(scoreMap,p.id))
+    }))
+  };
+}
+
+async function saveComparison(btn){
+  if(STATE.input?.demo){ crToast('데모 모드에선 저장이 안 돼요'); return; }
+  if(!STATE.compared?.length){ crToast('저장할 결과가 없어요'); return; }
+  if(btn){ btn.disabled=true; btn.style.opacity='.6'; }
+  try{
+    const { data:{ user } } = await sb.auth.getUser();
+    if(!user){ location.href='/login.html?redirect='+encodeURIComponent(location.pathname+location.search); return; }
+    const snap = buildSnapshot();
+    const { error } = await sb.from('saved_comparisons').insert({
+      user_id: user.id,
+      category: snap.category,
+      type_name: snap.type?.type_name_en || snap.type?.type_name_kr || null,
+      snapshot: snap
+    });
+    if(error){ console.error(error); crToast('저장 실패: '+error.message); }
+    else crToast('마이페이지에 저장했어요');
+  }catch(e){ console.error(e); crToast('저장 중 오류가 났어요'); }
+  finally{ if(btn){ btn.disabled=false; btn.style.opacity='1'; } }
+}
+
+// STEP C에서 실제 공유 링크 생성·공유로 연결될 자리
+async function shareComparison(){
+  crToast('공유는 다음 단계(STEP C)에서 연결돼요');
 }
 
 /* ---------- 11. 찜 ---------- */
