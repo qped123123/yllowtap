@@ -1700,14 +1700,27 @@ async function loadAttrDefs() {
   attrDefs = data || [];
 }
  
+// 하위 카테고리 slug → 상위(부모) slug 로 올리기 (품질 항목은 상위 기준)
+function topCatSlug(slug) {
+  let c = categories.find(x => x.slug === slug);
+  let guard = 0;
+  while (c && c.parent_id && guard++ < 6) {
+    const p = categories.find(x => x.id === c.parent_id);
+    if (!p) break;
+    c = p;
+  }
+  return c ? c.slug : slug;
+}
+
 // 카테고리 선택/변경 시 슬라이더 다시 그리기
 function renderScoreSliders() {
-  const cat = document.getElementById('fCategory').value;
+  const rawCat = document.getElementById('fCategory').value;
+  const cat = topCatSlug(rawCat);   // 하위(토트백 등)면 상위(가방)로 올려서 품질 항목 가져옴
  
   // ── 품질 (선택한 카테고리 전용) ──
   const qEl = document.getElementById('qualityScores');
   const qDefs = attrDefs.filter(a => a.attr_type === 'quality' && a.category === cat);
-  if (!cat) {
+  if (!rawCat) {
     qEl.innerHTML = '<div class="score-group-empty">카테고리를 선택하세요</div>';
   } else if (!qDefs.length) {
     qEl.innerHTML = '<div class="score-group-empty">이 카테고리는 품질 항목이 없어요</div>';
