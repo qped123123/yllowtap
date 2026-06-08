@@ -65,7 +65,7 @@
   align-items: flex-start;
 }
 .cat-sidebar {
-  width: 180px;
+  width: 196px;
   flex-shrink: 0;
   position: sticky;
   top: 100px;
@@ -91,7 +91,7 @@
   letter-spacing: 0.3px;
   color: var(--cat-text2);
   text-decoration: none;
-  white-space: nowrap;
+  white-space: normal; line-height: 1.35; word-break: keep-all;
   background: none;
   border: none;
   text-align: left;
@@ -104,6 +104,7 @@
 /* 하위메뉴 */
 .cat-subtab {
   padding: 7px 4px;
+  white-space: normal; line-height: 1.4; word-break: keep-all;
   font-size: 12px;
   font-weight: 400;
   color: var(--cat-text3);
@@ -115,9 +116,11 @@
 .cat-subtab:hover { color: var(--cat-text); }
 .cat-subtab.active { color: var(--cat-text); font-weight: 600; }
 .cat-main { flex: 1; min-width: 0; }
-.cat-head { margin-bottom: 24px; padding-top: 8px; }
+.cat-head { display: none; }
 .cat-head h1 { font-family: var(--cat-font-display); font-size: 30px; font-weight: 400; letter-spacing: 3px; text-transform: uppercase; margin-bottom: 6px; }
 .cat-head p { font-size: 13px; color: var(--cat-text2); letter-spacing: 0.5px; }
+/* 로고 아래 현재 카테고리명 바 */
+.cat-pagetitle { text-align: center; font-family: var(--cat-font-display); font-size: 22px; font-weight: 400; letter-spacing: 3px; text-transform: uppercase; color: var(--cat-text); padding: 26px 20px 20px; }
 .filter-right { display: flex; align-items: center; gap: 16px; }
 .filter-right .category-count { font-size: 11px; color: var(--cat-text3); letter-spacing: 1.5px; white-space: nowrap; }
 
@@ -308,6 +311,7 @@
   .cat-main { padding: 20px 20px 0; }
   .cat-product-grid { grid-template-columns: repeat(2,1fr); gap: 14px 10px; }
   .cat-head h1 { display: none; }
+  .cat-pagetitle { font-size: 18px; padding: 18px 16px 14px; letter-spacing: 2px; }
   .cat-head { margin-bottom: 0; padding-top: 0; }
   .filter-bar { flex-direction: column; gap: 10px; align-items: flex-start; }
 }
@@ -352,6 +356,9 @@
   <a href="/login.html">Login</a>
   <a href="/mypage.html?tab=wishlist">Wishlist</a>
 </div>
+
+<!-- ===== 현재 카테고리명 (로고 아래) ===== -->
+<div class="cat-pagetitle" id="catPageTitle">ALL</div>
 
 <!-- ===== CATEGORY HERO ===== -->
 <!-- ===== 레이아웃: 왼쪽 사이드바 + 오른쪽 상품 ===== -->
@@ -559,13 +566,17 @@ function renderSidebar() {
 
 function updateCategoryUI() {
   document.querySelectorAll('.cat-tab').forEach(tab => tab.classList.toggle('active', tab.dataset.slug === currentCategory));
+  const pt = document.getElementById('catPageTitle');
   if (searchQuery) {
     document.getElementById('categoryTitle').textContent = `"${searchQuery}" 검색 결과`;
     document.getElementById('categoryDesc').textContent = `"${searchQuery}" 검색 결과`;
+    if (pt) pt.textContent = `"${searchQuery}" 검색`;
   } else {
     const cat = categories.find(c => c.slug === currentCategory);
-    document.getElementById('categoryTitle').textContent = cat ? cat.name : 'ALL';
+    const nm = cat ? cat.name : 'ALL';
+    document.getElementById('categoryTitle').textContent = nm;
     document.getElementById('categoryDesc').textContent = '';
+    if (pt) pt.textContent = nm;
   }
 }
 
