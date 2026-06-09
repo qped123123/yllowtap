@@ -435,41 +435,38 @@ async function submitOrder(){
   if(!widgets){showError('결제 수단을 불러오지 못했습니다.');return;}
   const btn=document.getElementById('coSubmitBtn');btn.disabled=true;btn.textContent='처리 중...';hideError();
   try{
-    let subtotal=0,discount=0;
-    checked.forEach(item=>{const p=item.products;if(!p)return;subtotal+=coUnitPrice(item)*item.quantity;if(p.original_price&&p.original_price>p.price)discount+=(p.original_price-p.price)*item.quantity;});
-    const shipping=subtotal>=FREE_SHIPPING?0:SHIPPING_FEE;
-    const total=Math.max(0,subtotal+shipping-couponDiscount-pointsUsed);
-    const now=new Date();const dateStr=now.getFullYear().toString()+String(now.getMonth()+1).padStart(2,'0')+String(now.getDate()).padStart(2,'0');
-    const orderNumber='YT-'+dateStr+'-'+String(Math.floor(Math.random()*10000)).padStart(4,'0');
+    // [STEP 3-A] 서버(create-order)가 금액 계산 + pending 주문 생성. 브라우저 직접 insert 제거.
+    const{data:{session}}=await sb.auth.getSession();
+    const res=await fetch(SUPABASE_URL+'/functions/v1/create-order',{
+      method:'POST',
+      headers:{'Content-Type':'application/json','Authorization':'Bearer '+(session?.access_token||''),'apikey':SUPABASE_ANON},
+      body:JSON.stringify({
+        cartItemIds:checked.map(i=>i.id),
+        recipient:{name,phone,zipcode:zip,address1:addr1,address2:addr2,memo},
+        couponId:selectedCoupon?.coupon_id||null,
+        pointsToUse:pointsUsed
+      })
+    });
+    const result=await res.json();
+    if(!result.success){showError(result.message||'주문을 생성하지 못했습니다.');btn.disabled=false;btn.textContent='결제하기';return;}
 
-    const{data:order,error:orderErr}=await sb.from('orders').insert({
-      order_number:orderNumber,user_id:currentUser.id,status:'pending',
-      recipient_name:name,phone,zipcode:zip,address1:addr1,address2:addr2,delivery_memo:memo,
-      subtotal,shipping_fee:shipping,discount_amount:discount,total_amount:total,
-      coupon_id:selectedCoupon?.coupon_id||null,coupon_discount:couponDiscount,points_used:pointsUsed
-    }).select().single();
-    if(orderErr)throw orderErr;
-    lastCreatedOrderId=order.id;
-
-    const orderItems=checked.map(item=>{const p=item.products;return{order_id:order.id,product_id:p.id,product_name_snapshot:p.name,product_brand_snapshot:p.brand||'YLLOWTAP',product_image_snapshot:getMainImg(p),product_price_snapshot:p.price,product_original_price_snapshot:p.original_price||null,option_snapshot:item.selected_options||{},quantity:item.quantity,item_total:coUnitPrice(item)*item.quantity};});
-    const{error:itemsErr}=await sb.from('order_items').insert(orderItems);
-    if(itemsErr)throw itemsErr;
+    const orderNumber=result.orderId;
+    const total=result.amount;
+    const orderName=result.orderName;
 
     if(document.getElementById('coSaveAddr').checked){await sb.from('addresses').insert({user_id:currentUser.id,label:'주문 시 저장',recipient_name:name,phone,zipcode:zip,address1:addr1,address2:addr2,delivery_memo:memo,is_default:false});}
 
-    // sessionStorage: 결제 성공 후 처리용
+    // sessionStorage: 결제 성공 후 처리용 (서버 확정값)
     sessionStorage.setItem('yt_checkout_cart_ids',JSON.stringify(checked.map(i=>i.id)));
     sessionStorage.setItem('yt_checkout_total',String(total));
-    if(selectedCoupon)sessionStorage.setItem('yt_checkout_coupon_id',selectedCoupon.coupon_id);
-    if(pointsUsed>0)sessionStorage.setItem('yt_checkout_points_used',String(pointsUsed));
+    if(result.couponId)sessionStorage.setItem('yt_checkout_coupon_id',result.couponId);else sessionStorage.removeItem('yt_checkout_coupon_id');
+    if(result.pointsUsed>0)sessionStorage.setItem('yt_checkout_points_used',String(result.pointsUsed));else sessionStorage.removeItem('yt_checkout_points_used');
 
-    const firstName=checked[0].products?.name||'상품';
-    const orderName=checked.length>1?firstName+' 외 '+(checked.length-1)+'건':firstName;
-
+    // [STEP 3-A] Toss 결제 금액을 서버 확정 total 로 재설정 (브라우저 계산값과 불일치 방지)
+    if(widgets){try{await widgets.setAmount({currency:'KRW',value:total});}catch(e){}}
     await widgets.requestPayment({orderId:orderNumber,orderName,successUrl:window.location.origin+'/order-complete.html',failUrl:window.location.origin+'/order-fail.html',customerEmail:currentUser.email||'',customerName:name,customerMobilePhone:phone.replace(/-/g,''),});
   }catch(err){
     console.error('결제:',err);
-    if(lastCreatedOrderId){await sb.from('order_items').delete().eq('order_id',lastCreatedOrderId);await sb.from('orders').delete().eq('id',lastCreatedOrderId);lastCreatedOrderId=null;}
     if(err.code==='USER_CANCEL'||err.code==='INVALID_CARD_COMPANY'){btn.disabled=false;btn.textContent='결제하기';return;}
     showError('결제 요청에 실패했습니다. '+(err.message||''));btn.disabled=false;btn.textContent='결제하기';
   }
