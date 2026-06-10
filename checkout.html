@@ -423,6 +423,9 @@ async function initTossWidgets(){
 function getCurrentTotal(){const s=getProductSubtotal();const sh=s>=FREE_SHIPPING?0:(s>0?SHIPPING_FEE:0);return Math.max(0,s+sh-couponDiscount-pointsUsed);}
 
 async function submitOrder(){
+  // [결제 잠금] false = 오픈 준비중(결제 불가). 결제 열 때 true 로 바꾸기.
+  const CHECKOUT_ENABLED=false;
+  if(!CHECKOUT_ENABLED){showError('현재 오픈 준비중입니다. 결제는 아직 불가합니다.');return;}
   const checked=cartItems.filter(i=>i.checked);
   if(!checked.length){showError('주문할 상품을 선택해주세요.');return;}
   const name=document.getElementById('coName').value.trim(),phone=document.getElementById('coPhone').value.trim(),zip=document.getElementById('coZip').value.trim(),addr1=document.getElementById('coAddr1').value.trim(),addr2=document.getElementById('coAddr2').value.trim();
