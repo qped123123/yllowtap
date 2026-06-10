@@ -1606,7 +1606,17 @@ function showToast(msg,isError=false) { const el=document.getElementById('toast'
 async function checkAuth() { const{data:{session}}=await sb.auth.getSession();if(session){showAdmin();}else{document.getElementById('loginScreen').style.display='flex';document.getElementById('adminLayout').style.display='none';} }
 async function doLogin() { const email=document.getElementById('loginEmail').value.trim();const pw=document.getElementById('loginPw').value;if(!email||!pw)return;const{error}=await sb.auth.signInWithPassword({email,password:pw});if(error){document.getElementById('loginError').style.display='block';return;}document.getElementById('loginError').style.display='none';showAdmin(); }
 async function doLogout() { await sb.auth.signOut();document.getElementById('loginScreen').style.display='flex';document.getElementById('adminLayout').style.display='none'; }
-function showAdmin() { document.getElementById('loginScreen').style.display='none';document.getElementById('adminLayout').style.display='flex';init(); }
+async function showAdmin() {
+  // [STEP4] 관리자 권한을 Supabase DB(is_admin) 기준으로 확인. 통과해야만 adminLayout 표시 + init().
+  const { data: isAdmin, error } = await sb.rpc('is_admin');
+  if (error || !isAdmin) {
+    document.getElementById('adminLayout').style.display = 'none';
+    alert('관리자 권한이 없습니다.');
+    location.replace('/index.html');
+    return;
+  }
+  document.getElementById('loginScreen').style.display='none';document.getElementById('adminLayout').style.display='flex';init();
+}
 
 // ══════════════════════════════════════════
 // 주문 관리 (송장 자동 상태변경 포함)
