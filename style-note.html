@@ -150,6 +150,24 @@ function getMainImg(p){
   return p.image_url||'';
 }
 
+function renderSnBlocks(blocks){
+  return blocks.map(function(b){
+    if(b.block_type==='image'){
+      return b.image_url ? '<img src="'+esc(b.image_url)+'" alt="">' : '';
+    } else if(b.block_type==='video'){
+      return b.image_url ? '<video src="'+esc(b.image_url)+'" controls playsinline></video>' : '';
+    } else {
+      var sizes={small:'14px',medium:'16px',large:'20px',xlarge:'27px'};
+      var st='font-size:'+(sizes[b.font_size]||'16px')+';text-align:'+(b.text_align||'left')+';font-weight:'+(b.font_weight==='bold'?'600':'300')+';';
+      if(b.font_family==='serif') st+='font-family:var(--sn-fd);';
+      else if(b.font_family==='sans') st+="font-family:'Noto Sans KR',sans-serif;";
+      if(b.text_color) st+='color:'+esc(b.text_color)+';';
+      var txt=esc(b.text_content||'').replace(/\n/g,'<br>');
+      return '<p style="'+st+'margin:0 0 22px;line-height:1.9;">'+txt+'</p>';
+    }
+  }).join('');
+}
+
 async function loadNote(){
   const params=new URLSearchParams(location.search);
   const slug=params.get('slug');
@@ -164,7 +182,7 @@ async function loadNote(){
     titleEl.textContent=note.title;
     const subEl=document.getElementById('snSub');
     if(note.subtitle){ subEl.textContent=note.subtitle; subEl.style.display=''; }
-    document.getElementById('snContent').innerHTML=note.content_html||'';
+    try{ const rb=await sb.from('style_note_blocks').select('*').eq('style_note_id',note.id).order('display_order'); const blocks=rb.data||[]; document.getElementById('snContent').innerHTML = blocks.length ? renderSnBlocks(blocks) : (note.content_html||''); }catch(_e){ document.getElementById('snContent').innerHTML=note.content_html||''; }
 
     // Shop the Look
     const ids=(note.related_product_ids||[]).map(String);
