@@ -16,13 +16,7 @@
 }
 .ed-wrap{background:var(--ed-bg);min-height:70vh;padding-top:88px}
 
-/* 상단 타이틀 (전체 너비 가운데, 첨부1처럼 크게 + 부제) */
-.ed-hero{text-align:center;padding:24px 30px 30px;max-width:900px;margin:0 auto}
-.ed-hero__over{font-size:12px;letter-spacing:4px;color:var(--ed-text3);text-transform:uppercase;margin-bottom:16px}
-.ed-hero__title{font-family:var(--ed-fd);font-size:46px;font-weight:400;line-height:1.2;margin-bottom:16px}
-.ed-hero__sub{font-size:14px;color:var(--ed-text2);line-height:1.7;font-weight:300}
-
-/* ===== 레이아웃: category.html과 동일 (max-width:100%, margin:0 → 사이드바 왼쪽 끝) ===== */
+/* ===== 레이아웃: 사이드바가 헤더 바로 아래부터 (category.html과 동일) ===== */
 .cat-layout{max-width:100%;margin:0;padding:10px 56px 90px;display:flex;justify-content:flex-start;gap:56px;align-items:flex-start}
 .cat-sidebar{width:196px;flex-shrink:0;position:sticky;top:100px}
 .cat-sidebar-title{font-family:var(--ed-fb);font-size:11px;font-weight:700;letter-spacing:1.5px;color:var(--ed-text3);padding-bottom:12px;border-bottom:1px solid var(--ed-border);margin-bottom:6px}
@@ -37,6 +31,12 @@
 .cat-subtab:hover{color:var(--ed-text)}
 .cat-subtab.active{color:var(--ed-text);font-weight:600}
 .cat-main{flex:1;min-width:0}
+
+/* 제목: 오른쪽 글 영역 안, 가운데 크게 + 부제 (첨부1 느낌) */
+.ed-head{text-align:center;margin-bottom:34px}
+.ed-head__over{font-size:12px;letter-spacing:4px;color:var(--ed-text3);text-transform:uppercase;margin-bottom:14px}
+.ed-head__title{font-family:var(--ed-fd);font-size:44px;font-weight:400;line-height:1.2;margin-bottom:14px}
+.ed-head__sub{font-size:14px;color:var(--ed-text2);line-height:1.7;font-weight:300}
 
 /* 글 그리드 (PC: 3열 잡지) */
 .ed-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:48px 32px}
@@ -71,8 +71,8 @@
   .cat-submenu--pc{display:none}
   .cat-main{padding:24px 20px 0}
 
-  .ed-hero{padding:18px 20px 24px}
-  .ed-hero__title{font-size:32px}
+  .ed-head{margin-bottom:22px}
+  .ed-head__title{font-size:32px}
 
   .ed-grid{display:flex;grid-template-columns:none;overflow-x:auto;gap:16px;scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch;scrollbar-width:none;padding-bottom:10px}
   .ed-grid::-webkit-scrollbar{display:none}
@@ -107,14 +107,8 @@
 
 <!-- EDITORIAL -->
 <div class="ed-wrap">
-  <div class="ed-hero">
-    <div class="ed-hero__over">Editorial</div>
-    <h1 class="ed-hero__title">Style Notes</h1>
-    <p class="ed-hero__sub">스타일 뒤의 이야기 — 옐로탭이 큐레이션한 무드와 시선을 기록합니다.</p>
-  </div>
-
   <div class="cat-layout">
-    <!-- 왼쪽 사이드바 (화면 왼쪽 끝부터 — category.html과 동일) -->
+    <!-- 왼쪽 사이드바 (헤더 바로 아래부터 — 첨부2와 동일) -->
     <aside class="cat-sidebar">
       <div class="cat-sidebar-title">CATEGORY</div>
       <div class="cat-sidebar-nav" id="categoryNav">
@@ -122,8 +116,13 @@
       </div>
     </aside>
 
-    <!-- 오른쪽 글 목록 -->
+    <!-- 오른쪽: 제목(가운데 크게) + 글 목록 -->
     <div class="cat-main">
+      <div class="ed-head">
+        <div class="ed-head__over">Editorial</div>
+        <h1 class="ed-head__title">Style Notes</h1>
+        <p class="ed-head__sub">스타일 뒤의 이야기 — 옐로탭이 큐레이션한 무드와 시선을 기록합니다.</p>
+      </div>
       <div class="ed-grid" id="edGrid">
         <div class="ed-state">불러오는 중…</div>
       </div>
