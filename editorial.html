@@ -15,29 +15,70 @@
   --ed-fd:'Bodoni Moda',serif;--ed-fb:'Noto Sans KR','Pretendard',sans-serif;
 }
 .ed-wrap{background:var(--ed-bg);min-height:60vh;padding-top:76px}
-.ed-hero{text-align:center;padding:72px 30px 48px;max-width:900px;margin:0 auto}
+
+/* 상단 타이틀 (전체 너비 중앙) */
+.ed-hero{text-align:center;padding:72px 30px 40px;max-width:900px;margin:0 auto}
 .ed-hero__over{font-size:12px;letter-spacing:4px;color:var(--ed-text3);text-transform:uppercase;margin-bottom:18px}
 .ed-hero__title{font-family:var(--ed-fd);font-size:46px;font-weight:400;line-height:1.2;margin-bottom:16px}
 .ed-hero__sub{font-size:14px;color:var(--ed-text2);line-height:1.7;font-weight:300}
-.ed-grid-wrap{max-width:1280px;margin:0 auto;padding:20px 30px 100px}
-.ed-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:48px 32px}
-.ed-card{text-decoration:none;color:inherit;display:block;group:card}
-.ed-card__img{position:relative;aspect-ratio:3/4;overflow:hidden;background:#EAE7E2;margin-bottom:18px}
+
+/* ===== 사이드바 + 콘텐츠 레이아웃 (category.html과 동일) ===== */
+.cat-layout{max-width:1480px;margin:0 auto;padding:20px 56px 90px;display:flex;justify-content:flex-start;gap:56px;align-items:flex-start}
+.cat-sidebar{width:196px;flex-shrink:0;position:sticky;top:100px}
+.cat-sidebar-title{font-family:var(--ed-fb);font-size:11px;font-weight:700;letter-spacing:1.5px;color:var(--ed-text3);padding-bottom:12px;border-bottom:1px solid var(--ed-border);margin-bottom:6px}
+.cat-sidebar-nav{display:flex;flex-direction:column}
+.cat-maintabs{display:flex;flex-direction:column}
+.cat-submenu{display:flex;flex-direction:column;padding:4px 0 8px 12px;margin-top:2px}
+.cat-submenu--mobile{display:none}
+.cat-tab{padding:9px 4px;font-size:13px;font-weight:400;letter-spacing:.3px;color:var(--ed-text2);text-decoration:none;white-space:normal;line-height:1.35;word-break:keep-all;background:none;border:none;text-align:left;cursor:pointer;transition:color .2s;font-family:var(--ed-fb)}
+.cat-tab:hover{color:var(--ed-text)}
+.cat-tab.active{color:var(--ed-text);font-weight:700}
+.cat-subtab{padding:7px 4px;white-space:normal;line-height:1.4;word-break:keep-all;font-size:12px;font-weight:400;color:var(--ed-text3);text-decoration:none;cursor:pointer;transition:color .2s;font-family:var(--ed-fb)}
+.cat-subtab:hover{color:var(--ed-text)}
+.cat-subtab.active{color:var(--ed-text);font-weight:600}
+.cat-main{flex:1;min-width:0}
+
+/* 글 그리드 (PC: 3열) */
+.ed-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:44px 30px}
+.ed-card{text-decoration:none;color:inherit;display:block}
+.ed-card.ed-hidden{display:none}
+.ed-card__img{position:relative;aspect-ratio:1/1;overflow:hidden;background:#EAE7E2;margin-bottom:16px}
 .ed-card__img img{width:100%;height:100%;object-fit:cover;transition:transform .6s ease}
 .ed-card:hover .ed-card__img img{transform:scale(1.04)}
 .ed-card__over{font-size:10px;letter-spacing:2px;color:var(--ed-text3);text-transform:uppercase;margin-bottom:8px}
-.ed-card__title{font-family:var(--ed-fd);font-size:21px;font-weight:400;line-height:1.35;margin-bottom:8px;transition:opacity .3s}
+.ed-card__title{font-family:var(--ed-fd);font-size:20px;font-weight:400;line-height:1.35;margin-bottom:8px;transition:opacity .3s}
 .ed-card:hover .ed-card__title{opacity:.6}
 .ed-card__sub{font-size:13px;color:var(--ed-text2);line-height:1.6;font-weight:300}
 .ed-state{grid-column:1/-1;text-align:center;padding:80px 20px;color:var(--ed-text3);font-size:14px}
+
+/* 더보기 버튼 (PC 전용) */
+.ed-more{text-align:center;margin-top:54px}
+.ed-more__btn{display:inline-block;padding:14px 46px;font-size:11px;font-weight:500;letter-spacing:2px;text-transform:uppercase;color:var(--ed-text);background:none;border:1px solid var(--ed-text);cursor:pointer;font-family:var(--ed-fb);transition:all .3s}
+.ed-more__btn:hover{background:var(--ed-text);color:var(--ed-bg)}
+
+/* ===== 모바일 (≤900px) ===== */
 @media(max-width:900px){
-  .ed-grid{grid-template-columns:repeat(2,1fr);gap:36px 20px}
-  .ed-hero__title{font-size:34px}
-}
-@media(max-width:560px){
-  .ed-grid{grid-template-columns:1fr;gap:40px}
-  .ed-hero{padding:48px 20px 32px}
-  .ed-hero__title{font-size:30px}
+  /* 레이아웃: 사이드바 위(가로 탭) + 콘텐츠 아래 */
+  .cat-layout{flex-direction:column;padding:0 0 60px;gap:0;max-width:100%}
+  .cat-sidebar{width:100%;position:static}
+  .cat-sidebar-title{display:none}
+  .cat-sidebar-nav{gap:0}
+  .cat-maintabs{flex-direction:row;flex-wrap:nowrap;overflow-x:auto;-webkit-overflow-scrolling:touch;touch-action:pan-x;scrollbar-width:none;gap:2px;padding:0 12px;border-bottom:1px solid var(--ed-border)}
+  .cat-maintabs::-webkit-scrollbar{display:none}
+  .cat-tab{padding:14px 12px;font-size:13px;white-space:nowrap;flex-shrink:0;border:none;border-bottom:2px solid transparent;color:var(--ed-text2)}
+  .cat-tab.active{color:var(--ed-text);font-weight:700;border-bottom:2px solid var(--ed-text)}
+  .cat-submenu--pc{display:none}
+  .cat-main{padding:24px 20px 0}
+
+  /* 글 그리드: 한 화면 2개 + 가로 터치 슬라이드 */
+  .ed-grid{display:flex;grid-template-columns:none;overflow-x:auto;gap:16px;scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch;scrollbar-width:none;padding-bottom:10px}
+  .ed-grid::-webkit-scrollbar{display:none}
+  .ed-card{flex:0 0 calc((100% - 16px) / 2);scroll-snap-align:start}
+  .ed-card.ed-hidden{display:block}
+  .ed-more{display:none}
+
+  .ed-hero{padding:44px 20px 28px}
+  .ed-hero__title{font-size:32px}
 }
 </style>
 </head>
@@ -71,9 +112,24 @@
     <h1 class="ed-hero__title">Style Notes</h1>
     <p class="ed-hero__sub">스타일 뒤의 이야기 — 옐로탭이 큐레이션한 무드와 시선을 기록합니다.</p>
   </div>
-  <div class="ed-grid-wrap">
-    <div class="ed-grid" id="edGrid">
-      <div class="ed-state">불러오는 중…</div>
+
+  <div class="cat-layout">
+    <!-- 왼쪽 사이드바 (카테고리) — category.html과 동일 -->
+    <aside class="cat-sidebar">
+      <div class="cat-sidebar-title">CATEGORY</div>
+      <div class="cat-sidebar-nav" id="categoryNav">
+        <div class="ed-state" style="padding:14px;grid-column:auto;">…</div>
+      </div>
+    </aside>
+
+    <!-- 오른쪽 글 목록 -->
+    <div class="cat-main">
+      <div class="ed-grid" id="edGrid">
+        <div class="ed-state">불러오는 중…</div>
+      </div>
+      <div class="ed-more" id="edMore" style="display:none">
+        <button class="ed-more__btn" onclick="showAllNotes()">더보기 +</button>
+      </div>
     </div>
   </div>
 </div>
@@ -100,10 +156,45 @@ const SUPABASE_URL='https://ppihvvpplqikclftrwdb.supabase.co';
 const SUPABASE_ANON='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBwaWh2dnBwbHFpa2NsZnRyd2RiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk3MzE0NTEsImV4cCI6MjA5NTMwNzQ1MX0.shGVcFTQiuYc4u6tdU50x18YMgJdgFUljf8c7QlQU-U';
 const sb=window.supabase.createClient(SUPABASE_URL,SUPABASE_ANON);
 
+const ED_VISIBLE=6;
+const SIDEBAR_HIDDEN=['accessories'];  // category.html과 동일하게 사이드바에서 숨길 카테고리
+
 function esc(s){return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+
+// 왼쪽 카테고리 사이드바 (현재 EDITORIAL 활성)
+async function loadSidebar(){
+  const nav=document.getElementById('categoryNav');
+  if(!nav) return;
+  try{
+    const {data}=await sb.from('categories').select('*').eq('is_active',true).order('display_order');
+    const cats=data||[];
+    let html='<div class="cat-maintabs">';
+    cats.filter(function(c){ return !c.parent_id && SIDEBAR_HIDDEN.indexOf(c.slug)<0; }).forEach(function(cat){
+      const isActive = cat.slug==='editorial';
+      const href = (cat.slug==='editorial') ? '/editorial.html' : '/category.html?cat='+cat.slug;
+      html+='<a class="cat-tab'+(isActive?' active':'')+'" href="'+href+'">'+esc(cat.name)+'</a>';
+      if(isActive){
+        const subs=cats.filter(function(c){ return c.parent_id===cat.id; });
+        if(subs.length){
+          var items=subs.map(function(s){ return '<a class="cat-subtab" href="/editorial.html">'+esc(s.name)+'</a>'; }).join('');
+          html+='<div class="cat-submenu cat-submenu--pc"><a class="cat-subtab active" href="/editorial.html">전체</a>'+items+'</div>';
+        }
+      }
+    });
+    html+='</div>';
+    nav.innerHTML=html;
+  }catch(e){ nav.innerHTML=''; console.warn('loadSidebar',e); }
+}
+
+function showAllNotes(){
+  document.querySelectorAll('.ed-card.ed-hidden').forEach(function(c){ c.classList.remove('ed-hidden'); });
+  var m=document.getElementById('edMore'); if(m) m.style.display='none';
+}
+window.showAllNotes=showAllNotes;
 
 async function loadNotes(){
   const grid=document.getElementById('edGrid');
+  const moreWrap=document.getElementById('edMore');
   try{
     const {data,error}=await sb.from('style_notes').select('*').eq('is_active',true).order('display_order',{ascending:true}).order('created_at',{ascending:false});
     if(error) throw error;
@@ -116,11 +207,18 @@ async function loadNotes(){
         +(n.subtitle?'<div class="ed-card__sub">'+esc(n.subtitle)+'</div>':'')
         +'</a>';
     }).join('');
+    const cards=grid.querySelectorAll('.ed-card');
+    if(cards.length>ED_VISIBLE){
+      cards.forEach(function(c,i){ if(i>=ED_VISIBLE) c.classList.add('ed-hidden'); });
+      if(moreWrap) moreWrap.style.display='';
+    }
   }catch(e){
     grid.innerHTML='<div class="ed-state">스토리를 불러오지 못했어요.</div>';
     console.warn('loadNotes',e);
   }
 }
+
+loadSidebar();
 loadNotes();
 </script>
 <script src="./js/common-header.js"></script>
