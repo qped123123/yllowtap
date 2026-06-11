@@ -157,10 +157,14 @@
 .about-muse__over{font-size:12px;letter-spacing:3px;color:#999;text-transform:uppercase;margin-bottom:14px}
 .about-muse__name{font-size:13px;letter-spacing:1px;color:#888;margin-bottom:6px}
 .about-muse__title{font-family:'Bodoni Moda',serif;font-size:30px;font-weight:400;line-height:1.25;margin-bottom:24px;color:#111}
-.about-muse__body p{font-size:14px;line-height:1.9;color:#555;margin-bottom:15px}
+.about-muse__body p{font-size:14px;line-height:1.9;color:#555;margin-bottom:15px;word-break:keep-all}
 .about-muse__caption{margin-top:26px;padding-top:18px;border-top:1px solid #E5E1DC;font-size:12px;color:#999;line-height:1.7;font-style:italic}
 .about-muse.is-nomedia{max-width:760px;text-align:center}
 .about-muse.is-nomedia .about-muse__media{display:none}
+.muse-blk-img,.muse-blk-vid{margin:18px 0}
+.muse-blk-img img,.muse-blk-vid video{width:100%;display:block}
+.muse-blk-txt{margin-bottom:14px;line-height:1.9;color:#555;word-break:keep-all}
+.about-muse + .about-muse{border-top:1px solid #E5E1DC}
 @media(max-width:768px){
   .about-muse{flex-direction:column;gap:28px;padding:50px 20px}
   .about-muse__media{flex:none;width:100%;aspect-ratio:4/5}
@@ -278,17 +282,8 @@
     <p class="about-quote__author">— Yllowtap</p>
   </div>
 
-  <!-- VIRTUAL MUSE (시우) -->
-  <section class="about-muse" id="aboutMuse" style="display:none">
-    <div class="about-muse__media" id="museMedia"></div>
-    <div class="about-muse__text">
-      <div class="about-muse__over" id="museOver"></div>
-      <div class="about-muse__name" id="museName"></div>
-      <h3 class="about-muse__title" id="museTitle"></h3>
-      <div class="about-muse__body" id="museBody"></div>
-      <div class="about-muse__caption" id="museCaption"></div>
-    </div>
-  </section>
+  <!-- VIRTUAL MUSE (모델 세로 나열) -->
+  <div id="museWrap" style="display:none"></div>
 
   <!-- CTA -->
   <div class="about-cta">
@@ -322,22 +317,52 @@ const sb=window.supabase.createClient(SUPABASE_URL,SUPABASE_ANON);
 function esc(s){return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
 async function loadMuse(){
   try{
-    const {data}=await sb.from('brand_muse').select('*').eq('is_active',true).order('updated_at',{ascending:false}).limit(1).maybeSingle();
-    if(!data) return;
-    const sec=document.getElementById('aboutMuse');
-    const m=document.getElementById('museMedia');
-    if(data.media_url){
-      m.innerHTML = (data.media_type==='video')
-        ? '<video src="'+esc(data.media_url)+'" muted loop autoplay playsinline></video>'
-        : '<img src="'+esc(data.media_url)+'" alt="'+esc(data.title||'Virtual Muse')+'" loading="lazy">';
-    } else { sec.classList.add('is-nomedia'); }
-    document.getElementById('museOver').textContent = data.overline||'';
-    document.getElementById('museName').textContent = data.model_name ? ('Model. '+data.model_name) : '';
-    document.getElementById('museTitle').textContent = data.title||'';
-    document.getElementById('museBody').innerHTML = (data.body_text||'').split(/\n\s*\n/).map(function(p){ return '<p>'+esc(p).replace(/\n/g,'<br>')+'</p>'; }).join('');
-    document.getElementById('museCaption').innerHTML = esc(data.caption||'').replace(/\n/g,'<br>');
-    sec.style.display='';
+    const {data:models}=await sb.from('brand_muse').select('*').eq('is_active',true).order('display_order',{ascending:true}).order('updated_at',{ascending:true});
+    if(!models||!models.length) return;
+    const ids=models.map(function(m){return m.id;});
+    let byModel={};
+    try{
+      const {data:blocks}=await sb.from('muse_blocks').select('*').in('muse_id',ids).order('display_order',{ascending:true});
+      (blocks||[]).forEach(function(b){ (byModel[b.muse_id]=byModel[b.muse_id]||[]).push(b); });
+    }catch(_){}
+    const wrap=document.getElementById('museWrap');
+    wrap.innerHTML = models.map(function(m){ return renderMuseModel(m, byModel[m.id]||[]); }).join('');
+    wrap.style.display='';
   }catch(e){ console.warn('loadMuse',e); }
+}
+function renderMuseModel(m, blocks){
+  var media = m.media_url ? (m.media_type==='video'
+    ? '<video src="'+esc(m.media_url)+'" muted loop autoplay playsinline></video>'
+    : '<img src="'+esc(m.media_url)+'" alt="'+esc(m.title||'')+'" loading="lazy">') : '';
+  var nomedia = m.media_url ? '' : ' is-nomedia';
+  var bodyHtml='';
+  if(blocks.length){
+    bodyHtml = blocks.map(renderMuseBlock).join('');
+  } else if(m.body_text){
+    bodyHtml = m.body_text.split(/\n\s*\n/).map(function(p){ return '<p>'+esc(p.replace(/\s*\n\s*/g,' ').trim())+'</p>'; }).filter(function(p){ return p!=='<p></p>'; }).join('');
+  }
+  return '<section class="about-muse'+nomedia+'">'
+    +'<div class="about-muse__media">'+media+'</div>'
+    +'<div class="about-muse__text">'
+    +(m.overline?'<div class="about-muse__over">'+esc(m.overline)+'</div>':'')
+    +(m.model_name?'<div class="about-muse__name">Model. '+esc(m.model_name)+'</div>':'')
+    +(m.title?'<h3 class="about-muse__title">'+esc(m.title)+'</h3>':'')
+    +'<div class="about-muse__body">'+bodyHtml+'</div>'
+    +(m.caption?'<div class="about-muse__caption">'+esc(m.caption).replace(/\n/g,'<br>')+'</div>':'')
+    +'</div></section>';
+}
+function renderMuseBlock(b){
+  if(b.block_type==='image' && b.image_url) return '<div class="muse-blk-img"><img src="'+esc(b.image_url)+'" loading="lazy"></div>';
+  if(b.block_type==='video' && b.image_url) return '<div class="muse-blk-vid"><video src="'+esc(b.image_url)+'" controls playsinline></video></div>';
+  if(b.block_type==='text'){
+    var sz={small:'13px',medium:'15px',large:'19px',xlarge:'26px'}[b.font_size]||'15px';
+    var al=b.text_align||'left';
+    var fw=b.font_weight||'normal';
+    var ff=b.font_family==='serif'?"'Bodoni Moda',serif":(b.font_family==='sans'?"'Noto Sans KR',sans-serif":'inherit');
+    var col=b.text_color||'';
+    return '<p class="muse-blk-txt" style="font-size:'+sz+';text-align:'+al+';font-weight:'+fw+';font-family:'+ff+';'+(col?'color:'+col+';':'')+'">'+esc(b.text_content||'').replace(/\n/g,'<br>')+'</p>';
+  }
+  return '';
 }
 loadMuse();
 </script>
