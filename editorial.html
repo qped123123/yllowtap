@@ -14,16 +14,10 @@
   --ed-accent:#F4D84E;--ed-border:#E5E1DC;
   --ed-fd:'Bodoni Moda',serif;--ed-fb:'Noto Sans KR','Pretendard',sans-serif;
 }
-.ed-wrap{background:var(--ed-bg);min-height:60vh;padding-top:76px}
+.ed-wrap{background:var(--ed-bg);min-height:70vh;padding-top:76px}
 
-/* 상단 타이틀 (전체 너비 중앙) */
-.ed-hero{text-align:center;padding:72px 30px 40px;max-width:900px;margin:0 auto}
-.ed-hero__over{font-size:12px;letter-spacing:4px;color:var(--ed-text3);text-transform:uppercase;margin-bottom:18px}
-.ed-hero__title{font-family:var(--ed-fd);font-size:46px;font-weight:400;line-height:1.2;margin-bottom:16px}
-.ed-hero__sub{font-size:14px;color:var(--ed-text2);line-height:1.7;font-weight:300}
-
-/* ===== 사이드바 + 콘텐츠 레이아웃 (category.html과 동일) ===== */
-.cat-layout{max-width:1480px;margin:0 auto;padding:20px 56px 90px;display:flex;justify-content:flex-start;gap:56px;align-items:flex-start}
+/* ===== 사이드바 + 콘텐츠 레이아웃 (헤더 바로 아래 맨 위부터) ===== */
+.cat-layout{max-width:1480px;margin:0 auto;padding:34px 56px 90px;display:flex;justify-content:flex-start;gap:56px;align-items:flex-start}
 .cat-sidebar{width:196px;flex-shrink:0;position:sticky;top:100px}
 .cat-sidebar-title{font-family:var(--ed-fb);font-size:11px;font-weight:700;letter-spacing:1.5px;color:var(--ed-text3);padding-bottom:12px;border-bottom:1px solid var(--ed-border);margin-bottom:6px}
 .cat-sidebar-nav{display:flex;flex-direction:column}
@@ -38,27 +32,34 @@
 .cat-subtab.active{color:var(--ed-text);font-weight:600}
 .cat-main{flex:1;min-width:0}
 
-/* 글 그리드 (PC: 3열) */
-.ed-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:44px 30px}
+/* 우측 상단 제목 (Style Notes, 부제 없이 약간 크게) */
+.ed-head{margin-bottom:30px}
+.ed-head__over{font-size:11px;letter-spacing:3px;color:var(--ed-text3);text-transform:uppercase;margin-bottom:10px}
+.ed-head__title{font-family:var(--ed-fd);font-size:34px;font-weight:400;line-height:1.15;letter-spacing:.5px}
+
+/* 글 그리드 (PC: 4열) */
+.ed-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:36px 24px}
 .ed-card{text-decoration:none;color:inherit;display:block}
 .ed-card.ed-hidden{display:none}
-.ed-card__img{position:relative;aspect-ratio:1/1;overflow:hidden;background:#EAE7E2;margin-bottom:16px}
+.ed-card__img{position:relative;aspect-ratio:1/1;overflow:hidden;background:#EAE7E2;margin-bottom:14px}
 .ed-card__img img{width:100%;height:100%;object-fit:cover;transition:transform .6s ease}
 .ed-card:hover .ed-card__img img{transform:scale(1.04)}
-.ed-card__over{font-size:10px;letter-spacing:2px;color:var(--ed-text3);text-transform:uppercase;margin-bottom:8px}
-.ed-card__title{font-family:var(--ed-fd);font-size:20px;font-weight:400;line-height:1.35;margin-bottom:8px;transition:opacity .3s}
+.ed-card__over{font-size:10px;letter-spacing:2px;color:var(--ed-text3);text-transform:uppercase;margin-bottom:7px}
+.ed-card__title{font-family:var(--ed-fd);font-size:18px;font-weight:400;line-height:1.35;margin-bottom:7px;transition:opacity .3s}
 .ed-card:hover .ed-card__title{opacity:.6}
-.ed-card__sub{font-size:13px;color:var(--ed-text2);line-height:1.6;font-weight:300}
+.ed-card__sub{font-size:12.5px;color:var(--ed-text2);line-height:1.55;font-weight:300}
 .ed-state{grid-column:1/-1;text-align:center;padding:80px 20px;color:var(--ed-text3);font-size:14px}
 
 /* 더보기 버튼 (PC 전용) */
-.ed-more{text-align:center;margin-top:54px}
-.ed-more__btn{display:inline-block;padding:14px 46px;font-size:11px;font-weight:500;letter-spacing:2px;text-transform:uppercase;color:var(--ed-text);background:none;border:1px solid var(--ed-text);cursor:pointer;font-family:var(--ed-fb);transition:all .3s}
+.ed-more{text-align:center;margin-top:50px}
+.ed-more__btn{display:inline-block;padding:13px 44px;font-size:11px;font-weight:500;letter-spacing:2px;text-transform:uppercase;color:var(--ed-text);background:none;border:1px solid var(--ed-text);cursor:pointer;font-family:var(--ed-fb);transition:all .3s}
 .ed-more__btn:hover{background:var(--ed-text);color:var(--ed-bg)}
+
+/* 큰 화면에서 한 단계 줄이기 */
+@media(max-width:1200px){ .ed-grid{grid-template-columns:repeat(3,1fr)} }
 
 /* ===== 모바일 (≤900px) ===== */
 @media(max-width:900px){
-  /* 레이아웃: 사이드바 위(가로 탭) + 콘텐츠 아래 */
   .cat-layout{flex-direction:column;padding:0 0 60px;gap:0;max-width:100%}
   .cat-sidebar{width:100%;position:static}
   .cat-sidebar-title{display:none}
@@ -70,15 +71,15 @@
   .cat-submenu--pc{display:none}
   .cat-main{padding:24px 20px 0}
 
+  .ed-head{margin-bottom:20px}
+  .ed-head__title{font-size:27px}
+
   /* 글 그리드: 한 화면 2개 + 가로 터치 슬라이드 */
   .ed-grid{display:flex;grid-template-columns:none;overflow-x:auto;gap:16px;scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch;scrollbar-width:none;padding-bottom:10px}
   .ed-grid::-webkit-scrollbar{display:none}
   .ed-card{flex:0 0 calc((100% - 16px) / 2);scroll-snap-align:start}
   .ed-card.ed-hidden{display:block}
   .ed-more{display:none}
-
-  .ed-hero{padding:44px 20px 28px}
-  .ed-hero__title{font-size:32px}
 }
 </style>
 </head>
@@ -107,23 +108,21 @@
 
 <!-- EDITORIAL -->
 <div class="ed-wrap">
-  <div class="ed-hero">
-    <div class="ed-hero__over">Editorial</div>
-    <h1 class="ed-hero__title">Style Notes</h1>
-    <p class="ed-hero__sub">스타일 뒤의 이야기 — 옐로탭이 큐레이션한 무드와 시선을 기록합니다.</p>
-  </div>
-
   <div class="cat-layout">
-    <!-- 왼쪽 사이드바 (카테고리) — category.html과 동일 -->
+    <!-- 왼쪽 사이드바 (맨 위부터, category.html과 동일) -->
     <aside class="cat-sidebar">
       <div class="cat-sidebar-title">CATEGORY</div>
       <div class="cat-sidebar-nav" id="categoryNav">
-        <div class="ed-state" style="padding:14px;grid-column:auto;">…</div>
+        <div style="padding:14px;color:var(--ed-text3);font-size:13px;">…</div>
       </div>
     </aside>
 
-    <!-- 오른쪽 글 목록 -->
+    <!-- 오른쪽: 제목 + 글 목록 -->
     <div class="cat-main">
+      <div class="ed-head">
+        <div class="ed-head__over">Editorial</div>
+        <h1 class="ed-head__title">Style Notes</h1>
+      </div>
       <div class="ed-grid" id="edGrid">
         <div class="ed-state">불러오는 중…</div>
       </div>
@@ -156,12 +155,11 @@ const SUPABASE_URL='https://ppihvvpplqikclftrwdb.supabase.co';
 const SUPABASE_ANON='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBwaWh2dnBwbHFpa2NsZnRyd2RiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk3MzE0NTEsImV4cCI6MjA5NTMwNzQ1MX0.shGVcFTQiuYc4u6tdU50x18YMgJdgFUljf8c7QlQU-U';
 const sb=window.supabase.createClient(SUPABASE_URL,SUPABASE_ANON);
 
-const ED_VISIBLE=6;
-const SIDEBAR_HIDDEN=['accessories'];  // category.html과 동일하게 사이드바에서 숨길 카테고리
+const ED_VISIBLE=8;   // 4열 × 2줄
+const SIDEBAR_HIDDEN=['accessories'];
 
 function esc(s){return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
 
-// 왼쪽 카테고리 사이드바 (현재 EDITORIAL 활성)
 async function loadSidebar(){
   const nav=document.getElementById('categoryNav');
   if(!nav) return;
