@@ -14,10 +14,10 @@
   --ed-accent:#F4D84E;--ed-border:#E5E1DC;
   --ed-fd:'Bodoni Moda',serif;--ed-fb:'Noto Sans KR','Pretendard',sans-serif;
 }
-.ed-wrap{background:var(--ed-bg);min-height:70vh;padding-top:76px}
+.ed-wrap{background:var(--ed-bg);min-height:70vh;padding-top:88px}
 
 /* ===== 사이드바 + 콘텐츠 레이아웃 (헤더 바로 아래 맨 위부터) ===== */
-.cat-layout{max-width:1480px;margin:0 auto;padding:34px 56px 90px;display:flex;justify-content:flex-start;gap:56px;align-items:flex-start}
+.cat-layout{max-width:1480px;margin:0 auto;padding:12px 56px 90px;display:flex;justify-content:flex-start;gap:56px;align-items:flex-start}
 .cat-sidebar{width:196px;flex-shrink:0;position:sticky;top:100px}
 .cat-sidebar-title{font-family:var(--ed-fb);font-size:11px;font-weight:700;letter-spacing:1.5px;color:var(--ed-text3);padding-bottom:12px;border-bottom:1px solid var(--ed-border);margin-bottom:6px}
 .cat-sidebar-nav{display:flex;flex-direction:column}
@@ -38,14 +38,14 @@
 .ed-head__title{font-family:var(--ed-fd);font-size:34px;font-weight:400;line-height:1.15;letter-spacing:.5px}
 
 /* 글 그리드 (PC: 4열) */
-.ed-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:36px 24px}
+.ed-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:48px 32px}
 .ed-card{text-decoration:none;color:inherit;display:block}
 .ed-card.ed-hidden{display:none}
 .ed-card__img{position:relative;aspect-ratio:1/1;overflow:hidden;background:#EAE7E2;margin-bottom:14px}
-.ed-card__img img{width:100%;height:100%;object-fit:cover;transition:transform .6s ease}
-.ed-card:hover .ed-card__img img{transform:scale(1.04)}
+.ed-card__img img,.ed-card__img video{width:100%;height:100%;object-fit:cover;transition:transform .6s ease}
+.ed-card:hover .ed-card__img img,.ed-card:hover .ed-card__img video{transform:scale(1.04)}
 .ed-card__over{font-size:10px;letter-spacing:2px;color:var(--ed-text3);text-transform:uppercase;margin-bottom:7px}
-.ed-card__title{font-family:var(--ed-fd);font-size:18px;font-weight:400;line-height:1.35;margin-bottom:7px;transition:opacity .3s}
+.ed-card__title{font-family:var(--ed-fd);font-size:20px;font-weight:400;line-height:1.35;margin-bottom:8px;transition:opacity .3s}
 .ed-card:hover .ed-card__title{opacity:.6}
 .ed-card__sub{font-size:12.5px;color:var(--ed-text2);line-height:1.55;font-weight:300}
 .ed-state{grid-column:1/-1;text-align:center;padding:80px 20px;color:var(--ed-text3);font-size:14px}
@@ -155,7 +155,7 @@ const SUPABASE_URL='https://ppihvvpplqikclftrwdb.supabase.co';
 const SUPABASE_ANON='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBwaWh2dnBwbHFpa2NsZnRyd2RiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk3MzE0NTEsImV4cCI6MjA5NTMwNzQ1MX0.shGVcFTQiuYc4u6tdU50x18YMgJdgFUljf8c7QlQU-U';
 const sb=window.supabase.createClient(SUPABASE_URL,SUPABASE_ANON);
 
-const ED_VISIBLE=8;   // 4열 × 2줄
+const ED_VISIBLE=6;   // 3열 × 2줄
 const SIDEBAR_HIDDEN=['accessories'];
 
 function esc(s){return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
@@ -199,7 +199,7 @@ async function loadNotes(){
     if(!data||!data.length){ grid.innerHTML='<div class="ed-state">아직 등록된 스토리가 없어요.</div>'; return; }
     grid.innerHTML=data.map(function(n){
       return '<a class="ed-card" href="/style-note.html?slug='+encodeURIComponent(n.slug)+'">'
-        +'<div class="ed-card__img">'+(n.cover_image?'<img src="'+esc(n.cover_image)+'" alt="'+esc(n.title)+'" loading="lazy">':'')+'</div>'
+        +'<div class="ed-card__img">'+(n.cover_image?(/\.(mp4|webm|mov|m4v)$/i.test(n.cover_image)?'<video src="'+esc(n.cover_image)+'" muted loop autoplay playsinline></video>':'<img src="'+esc(n.cover_image)+'" alt="'+esc(n.title)+'" loading="lazy">'):'')+'</div>'
         +'<div class="ed-card__over">Style Notes</div>'
         +'<div class="ed-card__title">'+esc(n.title)+'</div>'
         +(n.subtitle?'<div class="ed-card__sub">'+esc(n.subtitle)+'</div>':'')
