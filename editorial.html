@@ -175,8 +175,8 @@ async function loadSidebar(){
       if(isActive){
         const subs=cats.filter(function(c){ return c.parent_id===cat.id; });
         if(subs.length){
-          var items=subs.map(function(s){ return '<a class="cat-subtab" href="/editorial.html">'+esc(s.name)+'</a>'; }).join('');
-          html+='<div class="cat-submenu cat-submenu--pc"><a class="cat-subtab active" href="/editorial.html">전체</a>'+items+'</div>';
+          var items=subs.map(function(s,idx){ return '<a class="cat-subtab'+(idx===0?' active':'')+'" href="/editorial.html">'+esc(s.name)+'</a>'; }).join('');
+          html+='<div class="cat-submenu cat-submenu--pc">'+items+'</div>';
         }
       }
     });

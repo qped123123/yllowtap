@@ -508,7 +508,8 @@ function renderSidebar() {
   // 상위 카테고리만 메인 탭으로 (parent_id 없는 것)
   categories.filter(cat => !cat.parent_id && !HIDDEN_CATS.includes(cat.slug)).forEach(cat => {
     const isActive = cat.slug === currentCategory;
-    html += `<a class="cat-tab${isActive ? ' active' : ''}" href="/category.html?cat=${cat.slug}" data-slug="${cat.slug}">${cat.name}</a>`;
+    const tabHref = cat.slug === 'editorial' ? '/editorial.html' : `/category.html?cat=${cat.slug}`;
+    html += `<a class="cat-tab${isActive ? ' active' : ''}" href="${tabHref}" data-slug="${cat.slug}">${cat.name}</a>`;
     if (isActive) {
       // DB 하위 카테고리 우선, 없으면 기존 SUBMENUS 폴백
       const dbSubs = categories.filter(c => c.parent_id === cat.id);
@@ -539,6 +540,7 @@ function renderSidebar() {
   // 큰 카테고리 클릭
   nav.querySelectorAll('.cat-tab').forEach(tab => {
     tab.addEventListener('click', (e) => {
+      if (tab.dataset.slug === 'editorial') return;
       e.preventDefault();
       currentCategory = tab.dataset.slug;
       currentSub = '';
