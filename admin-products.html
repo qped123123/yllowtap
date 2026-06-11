@@ -335,6 +335,7 @@ body { font-family:var(--font); background:var(--bg); color:var(--text); font-si
       <a onclick="switchPage('faqs')" id="nav-faqs"><span class="icon">❓</span> FAQ 관리</a>
       <a onclick="switchPage('reviews')" id="nav-reviews"><span class="icon">⭐</span> 리뷰 관리</a>
       <a onclick="switchPage('stylenotes')" id="nav-stylenotes"><span class="icon">📝</span> Style Notes 관리</a>
+      <a onclick="switchPage('muse')" id="nav-muse"><span class="icon">🎭</span> Virtual Muse</a>
       <a href="/" target="_blank"><span class="icon">🌐</span> 사이트 보기</a>
       <a onclick="doLogout()" style="margin-top:16px;border-top:1px solid var(--border);padding-top:16px;"><span class="icon">🚪</span> 로그아웃</a>
     </nav>
@@ -661,6 +662,22 @@ body { font-family:var(--font); background:var(--bg); color:var(--text); font-si
       </div>
     </div>
 
+    <!-- PAGE: Virtual Muse (시우) -->
+    <div class="page-section" id="page-muse">
+      <div class="top-bar">
+        <h1>Virtual Muse (시우)</h1>
+        <button class="btn btn-primary" onclick="saveMuseAdmin()">저장</button>
+      </div>
+      <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:24px;">
+        <div class="form-row full"><div class="form-group"><label class="form-label">대표 이미지 / 영상</label><div style="display:flex;gap:8px;"><input class="form-input" id="muMediaUrl" placeholder="URL 직접 입력 또는 업로드" style="flex:1;"><label class="btn btn-secondary btn-small" style="cursor:pointer;white-space:nowrap;">📎 업로드<input type="file" id="muMediaFile" accept="image/*,video/mp4" style="display:none;"></label></div></div></div>
+        <div class="form-row"><div class="form-group"><label class="form-label">미디어 타입</label><select class="form-input" id="muMediaType"><option value="image">이미지</option><option value="video">영상</option></select></div><div class="form-group"><label class="form-label">노출</label><select class="form-input" id="muActive"><option value="true">ON</option><option value="false">OFF</option></select></div></div>
+        <div class="form-row"><div class="form-group"><label class="form-label">오버라인 (작은 영문)</label><input class="form-input" id="muOver" placeholder="OUR MUSE"></div><div class="form-group"><label class="form-label">모델 이름</label><input class="form-input" id="muName" placeholder="시우"></div></div>
+        <div class="form-row full"><div class="form-group"><label class="form-label">제목</label><input class="form-input" id="muTitle" placeholder="Yllowtap Virtual Muse"></div></div>
+        <div class="form-row full"><div class="form-group"><label class="form-label">본문 (빈 줄로 문단 구분)</label><textarea class="form-input" id="muBody" rows="14" style="resize:vertical;line-height:1.7;"></textarea></div></div>
+        <div class="form-row full"><div class="form-group"><label class="form-label">측션 (영문 / 법적 표시)</label><textarea class="form-input" id="muCaption" rows="3" style="resize:vertical;"></textarea></div></div>
+      </div>
+    </div>
+
   </div>
 </div>
 
@@ -939,8 +956,8 @@ body { font-family:var(--font); background:var(--bg); color:var(--text); font-si
         <div class="form-row full"><div class="form-group"><label class="form-label">부제목 (한 줄)</label><input class="form-input" id="snSubtitle" placeholder="스토리 상단 한 줄 문구"></div></div>
         <div class="form-row full"><div class="form-group"><label class="form-label">대표 이미지 / 영상</label>
           <input type="file" id="snCoverFile" accept="image/*,video/*" style="display:none" onchange="snUploadCover(this)">
-          <button type="button" class="btn btn-secondary btn-small" onclick="document.getElementById('snCoverFile').click()">📎 이미지 업로드</button>
-          <span class="form-hint" id="snCoverStatus" style="margin-left:8px;">사진 파일을 올리면 자동으로 들어가요 (목록 썰네일)</span>
+          <button type="button" class="btn btn-secondary btn-small" onclick="document.getElementById('snCoverFile').click()">📎 이미지 / 영상 업로드</button>
+          <span class="form-hint" id="snCoverStatus" style="margin-left:8px;">사진·영상 파일을 올리면 자동으로 들어가요 (목록 썰네일)</span>
           <div id="snCoverPreview" style="margin-top:10px;"></div>
           <input type="hidden" id="snCover"></div></div>
       </div>
@@ -1118,7 +1135,7 @@ function renderStyleNoteList() {
 }
 function openStyleNoteForm(){ editingStyleNoteId=null; document.getElementById('styleNoteFormTitle').textContent='새 Style Note 등록'; document.getElementById('snDeleteBtn').style.display='none'; resetStyleNoteForm(); snUpdateSelect(); document.getElementById('styleNoteModal').classList.add('show'); }
 function closeStyleNoteForm(){ document.getElementById('styleNoteModal').classList.remove('show'); }
-function resetStyleNoteForm(){ ['snTitle','snSlug','snSubtitle','snCover'].forEach(function(id){ var e=document.getElementById(id); if(e)e.value=''; }); document.getElementById('snActive').value='true'; document.getElementById('snOrder').value='0'; snRelated=[]; snRenderRelated(); var _cp=document.getElementById('snCoverPreview'); if(_cp)_cp.innerHTML=''; var _cs=document.getElementById('snCoverStatus'); if(_cs)_cs.textContent='사진 파일을 올리면 자동으로 들어가요 (목록 썰네일)'; formSnBlocks=[]; snRenderBlocks(); }
+function resetStyleNoteForm(){ ['snTitle','snSlug','snSubtitle','snCover'].forEach(function(id){ var e=document.getElementById(id); if(e)e.value=''; }); document.getElementById('snActive').value='true'; document.getElementById('snOrder').value='0'; snRelated=[]; snRenderRelated(); var _cp=document.getElementById('snCoverPreview'); if(_cp)_cp.innerHTML=''; var _cs=document.getElementById('snCoverStatus'); if(_cs)_cs.textContent='사진·영상 파일을 올리면 자동으로 들어가요 (목록 썰네일)'; formSnBlocks=[]; snRenderBlocks(); }
 function snAutoSlug(){ if(editingStyleNoteId)return; document.getElementById('snSlug').value=slugify(document.getElementById('snTitle').value); }
 function snUpdateSelect(){ var s=document.getElementById('snRelatedSelect'); if(!s)return; s.innerHTML='<option value="">상품 선택</option>'+allProducts.map(function(p){ return '<option value="'+p.id+'">'+p.name+'</option>'; }).join(''); }
 function snAddRelated(){ var v=document.getElementById('snRelatedSelect').value; if(!v||snRelated.indexOf(v)>=0)return; snRelated.push(v); snRenderRelated(); }
@@ -1155,8 +1172,8 @@ async function snUploadCover(input){ var file=input.files[0]; if(!file)return; v
 async function snUploadContentImg(input){ var file=input.files[0]; if(!file)return; showToast('업로드 중...'); try{ var url=await snUploadImage(file); var ta=document.getElementById('snContent'); var tag='\n<img src="'+url+'" alt="">\n'; var start=(typeof ta.selectionStart==='number')?ta.selectionStart:ta.value.length; ta.value=ta.value.slice(0,start)+tag+ta.value.slice(start); showToast('본문에 이미지 추가됨'); }catch(e){ showToast('업로드 실패: '+e.message,true); } input.value=''; }
 
 async function init() {
-  await Promise.all([loadPopupNotices(), loadCategories(), loadCategoriesAdmin(), loadCollections(), loadProducts(), loadHeroSlides(), loadSettings(), loadInquiries(), loadMembers(), loadOrders(), loadFaqs(), loadAttrDefs(), loadCouponsAdmin(), loadReviewsAdmin(), loadStyleNotes()]);
-  bindTagCheckboxes(); bindCustomTagInput(); bindImageUpload(); bindHeroMediaUpload(); bindSettingsImageUpload(); bindPopupNoticeImageUpload(); loadMainImages(); bindMainImagesUpload();
+  await Promise.all([loadPopupNotices(), loadCategories(), loadCategoriesAdmin(), loadCollections(), loadProducts(), loadHeroSlides(), loadSettings(), loadInquiries(), loadMembers(), loadOrders(), loadFaqs(), loadAttrDefs(), loadCouponsAdmin(), loadReviewsAdmin(), loadStyleNotes(), loadMuseAdmin()]);
+  bindTagCheckboxes(); bindCustomTagInput(); bindImageUpload(); bindHeroMediaUpload(); bindSettingsImageUpload(); bindPopupNoticeImageUpload(); loadMainImages(); bindMainImagesUpload(); bindMuseMediaUpload();
 }
 
 async function loadCategories() {
@@ -1446,6 +1463,33 @@ async function deleteProduct() { if(!editingProductId||!confirm('이 상품을 �
 // ══════════════════════════════════════════
 // 히어로 슬라이드
 // ══════════════════════════════════════════
+let museRecId=null;
+async function loadMuseAdmin(){
+  try{
+    const {data}=await sb.from('brand_muse').select('*').order('updated_at',{ascending:false}).limit(1).maybeSingle();
+    museRecId=data?data.id:null;
+    if(!data)return;
+    document.getElementById('muMediaUrl').value=data.media_url||'';
+    document.getElementById('muMediaType').value=data.media_type||'image';
+    document.getElementById('muOver').value=data.overline||'';
+    document.getElementById('muName').value=data.model_name||'';
+    document.getElementById('muTitle').value=data.title||'';
+    document.getElementById('muBody').value=data.body_text||'';
+    document.getElementById('muCaption').value=data.caption||'';
+    document.getElementById('muActive').value=String(data.is_active);
+  }catch(e){console.warn('loadMuseAdmin',e);}
+}
+async function saveMuseAdmin(){
+  const d={media_url:document.getElementById('muMediaUrl').value.trim()||null,media_type:document.getElementById('muMediaType').value,overline:document.getElementById('muOver').value.trim()||null,model_name:document.getElementById('muName').value.trim()||null,title:document.getElementById('muTitle').value.trim()||null,body_text:document.getElementById('muBody').value.trim()||null,caption:document.getElementById('muCaption').value.trim()||null,is_active:document.getElementById('muActive').value==='true',updated_at:new Date().toISOString()};
+  try{
+    if(museRecId){const{error}=await sb.from('brand_muse').update(d).eq('id',museRecId);if(error)throw error;}
+    else{const{error}=await sb.from('brand_muse').insert(d);if(error)throw error;}
+    showToast('저장 완료');await loadMuseAdmin();
+  }catch(err){showToast('저장 실패: '+err.message,true);}
+}
+function bindMuseMediaUpload(){
+  document.getElementById('muMediaFile').addEventListener('change',async function(e){const file=e.target.files[0];if(!file)return;const ext=file.name.split('.').pop();const fn=`muse/${Date.now()}_${Math.random().toString(36).slice(2,8)}.${ext}`;const{error}=await sb.storage.from('media').upload(fn,file,{upsert:true,contentType:file.type});if(error){showToast('업로드 실패',true);return;}const{data:u}=sb.storage.from('media').getPublicUrl(fn);document.getElementById('muMediaUrl').value=u.publicUrl;document.getElementById('muMediaType').value=file.type.startsWith('video/')?'video':'image';e.target.value='';});
+}
 async function loadHeroSlides() { const{data}=await sb.from('hero_slides').select('*').order('slide_order');heroSlides=data||[];renderHeroList(); }
 function renderHeroList() { const el=document.getElementById('heroList');if(!heroSlides.length){el.innerHTML='<div class="empty-list"><p>슬라이드가 없습니다</p></div>';return;}el.innerHTML=heroSlides.map(h=>`<div class="hero-row" onclick="editHero('${h.id}')" style="cursor:pointer;"><div>${h.media_url?`<img class="hero-row-img" src="${h.media_url}">`:'<div class="hero-row-img"></div>'}</div><div><div class="hero-row-title">${h.title||'(제목 없음)'}</div><div class="hero-row-sub">${h.subtitle||''}</div></div><div><span class="status-badge ${h.is_active?'status-active':'status-inactive'}">${h.is_active?'ON':'OFF'}</span></div><div><button class="btn btn-secondary btn-small" onclick="event.stopPropagation();editHero('${h.id}')">편집</button></div></div>`).join(''); }
 function openHeroForm() { editingHeroId=null;document.getElementById('heroFormTitle').textContent='슬라이드 추가';document.getElementById('heroDeleteBtn').style.display='none';['hMediaUrl','hSubtitle','hTitle','hDesc'].forEach(id=>document.getElementById(id).value='');if(document.getElementById('hBgmUrl'))document.getElementById('hBgmUrl').value='';document.getElementById('hMediaType').value='image';document.getElementById('hOrder').value=heroSlides.length+1;document.getElementById('hCtaText').value='Shop Collection';document.getElementById('hCtaLink').value='/category.html';document.getElementById('hActive').value='true';document.getElementById('heroModal').classList.add('show'); }
