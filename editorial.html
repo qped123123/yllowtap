@@ -14,7 +14,7 @@
   --ed-accent:#F4D84E;--ed-border:#E5E1DC;
   --ed-fd:'Bodoni Moda',serif;--ed-fb:'Noto Sans KR','Pretendard',sans-serif;
 }
-.ed-wrap{background:var(--ed-bg);min-height:70vh;padding-top:88px}
+.ed-wrap{background:var(--ed-bg);min-height:70vh;padding-top:var(--header-height)}
 
 /* ===== 레이아웃: 사이드바가 헤더 바로 아래부터 (category.html과 동일) ===== */
 .cat-layout{max-width:100%;margin:0;padding:10px 56px 90px;display:flex;justify-content:flex-start;gap:56px;align-items:flex-start}
@@ -77,9 +77,10 @@
   .cat-subtab.active{background:none;color:var(--ed-text);font-weight:700;border-bottom:2px solid var(--ed-text)}
   .cat-main{padding:20px 20px 0}
 
-  .ed-head{margin-bottom:22px}
-  .ed-head__title{font-size:32px}
-  .ed-head__sub{word-break:keep-all}
+  .ed-head{margin-bottom:18px}
+  .ed-head__over{margin-bottom:10px}
+  .ed-head__title{font-size:30px;margin-bottom:10px}
+  .ed-head__sub{word-break:keep-all;font-size:13px;line-height:1.6;max-width:300px;margin:0 auto}
 
   .ed-grid{grid-template-columns:repeat(2,1fr);gap:28px 16px}
   .ed-grid.ed-collapsed .ed-card:nth-child(n+5){display:none}
