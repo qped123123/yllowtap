@@ -665,16 +665,11 @@ body { font-family:var(--font); background:var(--bg); color:var(--text); font-si
     <!-- PAGE: Virtual Muse (시우) -->
     <div class="page-section" id="page-muse">
       <div class="top-bar">
-        <h1>Virtual Muse (시우)</h1>
-        <button class="btn btn-primary" onclick="saveMuseAdmin()">저장</button>
+        <h1>Virtual Muse (모델 관리)</h1>
+        <button class="btn btn-primary" onclick="openMuseForm()">+ 새 모델 등록</button>
       </div>
-      <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:24px;">
-        <div class="form-row full"><div class="form-group"><label class="form-label">대표 이미지 / 영상</label><div style="display:flex;gap:8px;"><input class="form-input" id="muMediaUrl" placeholder="URL 직접 입력 또는 업로드" style="flex:1;"><label class="btn btn-secondary btn-small" style="cursor:pointer;white-space:nowrap;">📎 업로드<input type="file" id="muMediaFile" accept="image/*,video/mp4" style="display:none;"></label></div></div></div>
-        <div class="form-row"><div class="form-group"><label class="form-label">미디어 타입</label><select class="form-input" id="muMediaType"><option value="image">이미지</option><option value="video">영상</option></select></div><div class="form-group"><label class="form-label">노출</label><select class="form-input" id="muActive"><option value="true">ON</option><option value="false">OFF</option></select></div></div>
-        <div class="form-row"><div class="form-group"><label class="form-label">오버라인 (작은 영문)</label><input class="form-input" id="muOver" placeholder="OUR MUSE"></div><div class="form-group"><label class="form-label">모델 이름</label><input class="form-input" id="muName" placeholder="시우"></div></div>
-        <div class="form-row full"><div class="form-group"><label class="form-label">제목</label><input class="form-input" id="muTitle" placeholder="Yllowtap Virtual Muse"></div></div>
-        <div class="form-row full"><div class="form-group"><label class="form-label">본문 (빈 줄로 문단 구분)</label><textarea class="form-input" id="muBody" rows="14" style="resize:vertical;line-height:1.7;"></textarea></div></div>
-        <div class="form-row full"><div class="form-group"><label class="form-label">측션 (영문 / 법적 표시)</label><textarea class="form-input" id="muCaption" rows="3" style="resize:vertical;"></textarea></div></div>
+      <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);">
+        <div id="museList"><div class="empty-list"><p>등록된 모델이 없습니다</p></div></div>
       </div>
     </div>
 
@@ -996,6 +991,56 @@ body { font-family:var(--font); background:var(--bg); color:var(--text); font-si
   </div>
 </div>
 
+<!-- ===== MUSE FORM MODAL ===== -->
+<div class="modal-overlay" id="museModal">
+  <div class="modal">
+    <div class="modal-header">
+      <h2 id="museFormTitle">새 모델 등록</h2>
+      <button class="modal-close" onclick="closeMuseForm()">×</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-section">
+        <div class="form-section-title">기본 정보</div>
+        <div class="form-row full"><div class="form-group"><label class="form-label">대표 이미지 / 영상</label>
+          <input type="file" id="muCoverFile" accept="image/*,video/*" style="display:none" onchange="muUploadCover(this)">
+          <button type="button" class="btn btn-secondary btn-small" onclick="document.getElementById('muCoverFile').click()">📎 이미지 / 영상 업로드</button>
+          <span class="form-hint" id="muCoverStatus" style="margin-left:8px;">사진·영상 파일을 올리면 자동으로 들어가요</span>
+          <div id="muCoverPreview" style="margin-top:10px;"></div>
+          <input type="hidden" id="muCover">
+          <input type="hidden" id="muCoverType" value="image"></div></div>
+        <div class="form-row">
+          <div class="form-group"><label class="form-label">오버라인 (작은 영문)</label><input class="form-input" id="muOver" placeholder="OUR MUSE"></div>
+          <div class="form-group"><label class="form-label">모델 이름</label><input class="form-input" id="muName" placeholder="시우"></div>
+        </div>
+        <div class="form-row full"><div class="form-group"><label class="form-label">제목</label><input class="form-input" id="muTitle" placeholder="Yllowtap Virtual Muse"></div></div>
+        <div class="form-row">
+          <div class="form-group"><label class="form-label">노출</label><select class="form-input" id="muActive"><option value="true">ON</option><option value="false">OFF</option></select></div>
+          <div class="form-group"><label class="form-label">순서</label><input class="form-input" id="muOrder" type="number" value="0"></div>
+        </div>
+      </div>
+      <div class="form-section">
+        <div class="form-section-title">본문</div>
+        <p style="font-size:11px;color:var(--text-muted);margin-bottom:12px;">글·사진·영상 블록을 추가해서 위아래로 쌓으세요.</p>
+        <div id="muBlockArea"></div>
+        <div style="display:flex;gap:8px;margin-top:10px;">
+          <button type="button" class="btn btn-secondary btn-small" onclick="muAddBlock('text')">＋ 글</button>
+          <button type="button" class="btn btn-secondary btn-small" onclick="muAddBlock('image')">＋ 사진</button>
+          <button type="button" class="btn btn-secondary btn-small" onclick="muAddBlock('video')">＋ 영상</button>
+        </div>
+      </div>
+      <div class="form-section">
+        <div class="form-section-title">측션 (영문 / 법적 표시)</div>
+        <div class="form-row full"><div class="form-group"><textarea class="form-textarea" id="muCaption" rows="3" placeholder="Created by Yllowtap. ..."></textarea></div></div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeMuseForm()">취소</button>
+      <button class="btn btn-danger" id="muDeleteBtn" style="display:none;" onclick="deleteMuse()">삭제</button>
+      <button class="btn btn-primary" onclick="saveMuse()">저장</button>
+    </div>
+  </div>
+</div>
+
 <!-- ===== HERO FORM MODAL ===== -->
 <div class="modal-overlay" id="heroModal">
   <div class="modal" style="max-width:640px;">
@@ -1172,8 +1217,8 @@ async function snUploadCover(input){ var file=input.files[0]; if(!file)return; v
 async function snUploadContentImg(input){ var file=input.files[0]; if(!file)return; showToast('업로드 중...'); try{ var url=await snUploadImage(file); var ta=document.getElementById('snContent'); var tag='\n<img src="'+url+'" alt="">\n'; var start=(typeof ta.selectionStart==='number')?ta.selectionStart:ta.value.length; ta.value=ta.value.slice(0,start)+tag+ta.value.slice(start); showToast('본문에 이미지 추가됨'); }catch(e){ showToast('업로드 실패: '+e.message,true); } input.value=''; }
 
 async function init() {
-  await Promise.all([loadPopupNotices(), loadCategories(), loadCategoriesAdmin(), loadCollections(), loadProducts(), loadHeroSlides(), loadSettings(), loadInquiries(), loadMembers(), loadOrders(), loadFaqs(), loadAttrDefs(), loadCouponsAdmin(), loadReviewsAdmin(), loadStyleNotes(), loadMuseAdmin()]);
-  bindTagCheckboxes(); bindCustomTagInput(); bindImageUpload(); bindHeroMediaUpload(); bindSettingsImageUpload(); bindPopupNoticeImageUpload(); loadMainImages(); bindMainImagesUpload(); bindMuseMediaUpload();
+  await Promise.all([loadPopupNotices(), loadCategories(), loadCategoriesAdmin(), loadCollections(), loadProducts(), loadHeroSlides(), loadSettings(), loadInquiries(), loadMembers(), loadOrders(), loadFaqs(), loadAttrDefs(), loadCouponsAdmin(), loadReviewsAdmin(), loadStyleNotes(), loadMuseList()]);
+  bindTagCheckboxes(); bindCustomTagInput(); bindImageUpload(); bindHeroMediaUpload(); bindSettingsImageUpload(); bindPopupNoticeImageUpload(); loadMainImages(); bindMainImagesUpload();
 }
 
 async function loadCategories() {
@@ -1463,33 +1508,41 @@ async function deleteProduct() { if(!editingProductId||!confirm('이 상품을 �
 // ══════════════════════════════════════════
 // 히어로 슬라이드
 // ══════════════════════════════════════════
-let museRecId=null;
-async function loadMuseAdmin(){
-  try{
-    const {data}=await sb.from('brand_muse').select('*').order('updated_at',{ascending:false}).limit(1).maybeSingle();
-    museRecId=data?data.id:null;
-    if(!data)return;
-    document.getElementById('muMediaUrl').value=data.media_url||'';
-    document.getElementById('muMediaType').value=data.media_type||'image';
-    document.getElementById('muOver').value=data.overline||'';
-    document.getElementById('muName').value=data.model_name||'';
-    document.getElementById('muTitle').value=data.title||'';
-    document.getElementById('muBody').value=data.body_text||'';
-    document.getElementById('muCaption').value=data.caption||'';
-    document.getElementById('muActive').value=String(data.is_active);
-  }catch(e){console.warn('loadMuseAdmin',e);}
+async function muUploadImage(file){ var ext=(file.name.split('.').pop()||'jpg'); var fn='muse/'+Date.now()+'_'+Math.random().toString(36).slice(2,8)+'.'+ext; var up=await sb.storage.from('media').upload(fn,file,{upsert:true,contentType:file.type}); if(up.error)throw up.error; var pu=sb.storage.from('media').getPublicUrl(fn); return pu.data.publicUrl; }
+let formMuBlocks=[];
+function muMoveBtns(i){ return (i>0?'<button onclick="muMoveBlock('+i+',-1)" style="width:22px;height:22px;border:none;border-radius:4px;background:var(--bg-hover);color:var(--text-dim);font-size:11px;cursor:pointer;">\u2191</button>':'')+(i<formMuBlocks.length-1?'<button onclick="muMoveBlock('+i+',1)" style="width:22px;height:22px;border:none;border-radius:4px;background:var(--bg-hover);color:var(--text-dim);font-size:11px;cursor:pointer;">\u2193</button>':''); }
+function muRenderBlocks(){
+  var area=document.getElementById('muBlockArea'); if(!area)return;
+  if(!formMuBlocks.length){ area.innerHTML='<div style="font-size:12px;color:var(--text-muted);padding:16px 0;text-align:center;border:2px dashed var(--border);border-radius:var(--radius);">\uc544\ub798 \ubc84\ud2bc\uc73c\ub85c \uae00\u00b7\uc0ac\uc9c4\u00b7\uc601\uc0c1 \ube14\ub85d\uc744 \ucd94\uac00\ud558\uc138\uc694</div>'; return; }
+  area.innerHTML=formMuBlocks.map(function(b,i){
+    if(b.block_type==='image'){
+      return '<div style="padding:10px;margin-bottom:8px;background:var(--bg-input);border:1px solid var(--border);border-radius:var(--radius);"><div style="display:flex;gap:8px;align-items:center;"><div style="font-size:10px;color:var(--accent);font-weight:600;width:18px;">'+(i+1)+'</div><span style="font-size:11px;color:var(--text-dim);width:30px;flex-shrink:0;">\uc0ac\uc9c4</span><input class="form-input" value="'+(b.image_url||'')+'" placeholder="\uc774\ubbf8\uc9c0 URL" style="flex:1;font-size:11px;" onchange="formMuBlocks['+i+'].image_url=this.value;muRenderBlocks()"><label class="btn btn-secondary btn-small" style="cursor:pointer;white-space:nowrap;">\U0001f4ce<input type="file" accept="image/*" style="display:none;" onchange="muUploadBlockMedia(this,'+i+')"></label>'+muMoveBtns(i)+'<button style="width:22px;height:22px;border:none;border-radius:4px;background:var(--red);color:#fff;font-size:11px;cursor:pointer;flex-shrink:0;" onclick="muRemoveBlock('+i+')">\u00d7</button></div>'+(b.image_url?'<img src="'+b.image_url+'" style="max-width:220px;margin-top:8px;border-radius:4px;display:block;">':'')+'</div>';
+    } else if(b.block_type==='video'){
+      return '<div style="padding:10px;margin-bottom:8px;background:var(--bg-input);border:1px solid var(--border);border-radius:var(--radius);"><div style="display:flex;gap:8px;align-items:center;"><div style="font-size:10px;color:var(--accent);font-weight:600;width:18px;">'+(i+1)+'</div><span style="font-size:11px;color:var(--text-dim);width:30px;flex-shrink:0;">\uc601\uc0c1</span><input class="form-input" value="'+(b.image_url||'')+'" placeholder="\uc601\uc0c1 URL" style="flex:1;font-size:11px;" onchange="formMuBlocks['+i+'].image_url=this.value;muRenderBlocks()"><label class="btn btn-secondary btn-small" style="cursor:pointer;white-space:nowrap;">\U0001f4ce<input type="file" accept="video/*" style="display:none;" onchange="muUploadBlockMedia(this,'+i+')"></label>'+muMoveBtns(i)+'<button style="width:22px;height:22px;border:none;border-radius:4px;background:var(--red);color:#fff;font-size:11px;cursor:pointer;flex-shrink:0;" onclick="muRemoveBlock('+i+')">\u00d7</button></div>'+(b.image_url?'<video src="'+b.image_url+'" controls playsinline style="max-width:280px;margin-top:8px;border-radius:4px;display:block;"></video>':'')+'</div>';
+    } else {
+      return '<div style="padding:10px;margin-bottom:8px;background:var(--bg-input);border:1px solid var(--border);border-radius:var(--radius);"><div style="display:flex;gap:10px;align-items:flex-start;"><div style="font-size:10px;color:var(--accent);font-weight:600;width:18px;padding-top:8px;flex-shrink:0;">'+(i+1)+'</div><div style="flex:1;min-width:0;"><div style="display:flex;gap:6px;margin-bottom:6px;flex-wrap:wrap;"><select class="form-select" style="padding:4px 8px;font-size:10px;width:96px;" onchange="formMuBlocks['+i+'].font_size=this.value"><option value="small"'+(b.font_size==='small'?' selected':'')+'>\uc18c (13px)</option><option value="medium"'+(b.font_size==='medium'||!b.font_size?' selected':'')+'>\uc911 (15px)</option><option value="large"'+(b.font_size==='large'?' selected':'')+'>\ub300 (19px)</option><option value="xlarge"'+(b.font_size==='xlarge'?' selected':'')+'>\ud2b9\ub300 (26px)</option></select><select class="form-select" style="padding:4px 8px;font-size:10px;width:74px;" onchange="formMuBlocks['+i+'].text_align=this.value"><option value="left"'+(b.text_align==='left'||!b.text_align?' selected':'')+'>\uc67c\ucabd</option><option value="center"'+(b.text_align==='center'?' selected':'')+'>\uac00\uc6b4\ub370</option><option value="right"'+(b.text_align==='right'?' selected':'')+'>\uc624\ub978\ucabd</option></select><select class="form-select" style="padding:4px 8px;font-size:10px;width:64px;" onchange="formMuBlocks['+i+'].font_weight=this.value"><option value="normal"'+(b.font_weight==='normal'||!b.font_weight?' selected':'')+'>\uc77c\ubc18</option><option value="bold"'+(b.font_weight==='bold'?' selected':'')+'>\ubcfc\ub4dc</option></select></div><textarea class="form-textarea" style="width:100%;min-height:60px;font-size:12px;" placeholder="\uae00 \ub0b4\uc6a9 (\uc904\ubc14\uafc8 \uac00\ub2a5)" onchange="formMuBlocks['+i+'].text_content=this.value">'+(b.text_content||'')+'</textarea><div style="display:flex;gap:6px;margin-top:6px;align-items:center;flex-wrap:wrap;"><select class="form-select" style="padding:4px 8px;font-size:10px;width:130px;" onchange="formMuBlocks['+i+'].font_family=this.value"><option value="default"'+(!b.font_family||b.font_family==='default'?' selected':'')+'>\uae30\ubcf8 \uae00\uc528\uccb4</option><option value="serif"'+(b.font_family==='serif'?' selected':'')+'>\uc138\ub9ac\ud504(Bodoni)</option><option value="sans"'+(b.font_family==='sans'?' selected':'')+'>\uace0\ub515(Noto)</option></select><input type="color" value="'+(b.text_color&&b.text_color[0]==='#'?b.text_color:'#333333')+'" style="width:34px;height:28px;padding:2px;border:1px solid var(--border);border-radius:4px;background:var(--bg-input);cursor:pointer;" onchange="formMuBlocks['+i+'].text_color=this.value" title="\uae00\uc790 \uc0c9"><button class="btn btn-secondary btn-small" style="font-size:10px;" onclick="muClearColor('+i+')">\uc0c9 \uae30\ubcf8</button></div></div><div style="display:flex;gap:2px;flex-direction:column;">'+muMoveBtns(i)+'</div><button style="width:22px;height:22px;border:none;border-radius:4px;background:var(--red);color:#fff;font-size:11px;cursor:pointer;flex-shrink:0;" onclick="muRemoveBlock('+i+')">\u00d7</button></div></div>';
+    }
+  }).join('');
 }
-async function saveMuseAdmin(){
-  const d={media_url:document.getElementById('muMediaUrl').value.trim()||null,media_type:document.getElementById('muMediaType').value,overline:document.getElementById('muOver').value.trim()||null,model_name:document.getElementById('muName').value.trim()||null,title:document.getElementById('muTitle').value.trim()||null,body_text:document.getElementById('muBody').value.trim()||null,caption:document.getElementById('muCaption').value.trim()||null,is_active:document.getElementById('muActive').value==='true',updated_at:new Date().toISOString()};
-  try{
-    if(museRecId){const{error}=await sb.from('brand_muse').update(d).eq('id',museRecId);if(error)throw error;}
-    else{const{error}=await sb.from('brand_muse').insert(d);if(error)throw error;}
-    showToast('저장 완료');await loadMuseAdmin();
-  }catch(err){showToast('저장 실패: '+err.message,true);}
-}
-function bindMuseMediaUpload(){
-  document.getElementById('muMediaFile').addEventListener('change',async function(e){const file=e.target.files[0];if(!file)return;const ext=file.name.split('.').pop();const fn=`muse/${Date.now()}_${Math.random().toString(36).slice(2,8)}.${ext}`;const{error}=await sb.storage.from('media').upload(fn,file,{upsert:true,contentType:file.type});if(error){showToast('업로드 실패',true);return;}const{data:u}=sb.storage.from('media').getPublicUrl(fn);document.getElementById('muMediaUrl').value=u.publicUrl;document.getElementById('muMediaType').value=file.type.startsWith('video/')?'video':'image';e.target.value='';});
-}
+function muAddBlock(type){ formMuBlocks.push({block_type:type,image_url:'',text_content:'',font_size:'medium',text_align:'left',font_weight:'normal',font_family:'default',text_color:''}); muRenderBlocks(); }
+function muRemoveBlock(i){ formMuBlocks.splice(i,1); muRenderBlocks(); }
+function muMoveBlock(i,d){ var t=i+d; if(t<0||t>=formMuBlocks.length)return; var tmp=formMuBlocks[i]; formMuBlocks[i]=formMuBlocks[t]; formMuBlocks[t]=tmp; muRenderBlocks(); }
+async function muUploadBlockMedia(input,idx){ var file=input.files[0]; if(!file)return; showToast('\uc5c5\ub85c\ub4dc \uc911...'); try{ var url=await muUploadImage(file); formMuBlocks[idx].image_url=url; muRenderBlocks(); }catch(e){ showToast('\uc5c5\ub85c\ub4dc \uc2e4\ud328: '+e.message,true); } input.value=''; }
+async function loadMuBlocks(noteId){ try{ var r=await sb.from('muse_blocks').select('*').eq('muse_id',noteId).order('display_order'); formMuBlocks=(r.data||[]).map(function(b){ return {block_type:b.block_type,image_url:b.image_url||'',text_content:b.text_content||'',font_size:b.font_size||'medium',text_align:b.text_align||'left',font_weight:b.font_weight||'normal',font_family:b.font_family||'default',text_color:b.text_color||''}; }); }catch(e){ formMuBlocks=[]; } muRenderBlocks(); }
+async function saveMuBlocks(noteId){ if(!noteId)return; try{ await sb.from('muse_blocks').delete().eq('muse_id',noteId); if(formMuBlocks.length){ await sb.from('muse_blocks').insert(formMuBlocks.map(function(b,i){ return {muse_id:noteId,block_type:b.block_type,image_url:b.image_url||null,text_content:b.text_content||null,font_size:b.font_size||'medium',text_align:b.text_align||'left',font_weight:b.font_weight||'normal',font_family:b.font_family||'default',text_color:b.text_color||null,display_order:i}; })); } }catch(e){ console.warn('saveMuBlocks',e); } }
+function muClearColor(i){ formMuBlocks[i].text_color=''; muRenderBlocks(); }
+
+let allMuseModels=[], editingMuseId=null;
+async function loadMuseList(){ try{ const{data}=await sb.from('brand_muse').select('*').order('display_order'); allMuseModels=data||[]; renderMuseList(); }catch(e){ console.warn('loadMuseList',e); } }
+function renderMuseList(){ var el=document.getElementById('museList'); if(!el)return; if(!allMuseModels.length){ el.innerHTML='<div class="empty-list"><p>\ub4f1\ub85d\ub41c \ubaa8\ub378\uc774 \uc5c6\uc2b5\ub2c8\ub2e4</p><button class="btn btn-primary" onclick="openMuseForm()">\uccab \ubaa8\ub378 \ub4f1\ub85d\ud558\uae30</button></div>'; return; } el.innerHTML=allMuseModels.map(function(m){ var thumb=m.media_url?(/\.(mp4|webm|mov|m4v)$/i.test(m.media_url)?'<video src="'+m.media_url+'" style="width:46px;height:46px;object-fit:cover;border-radius:6px;"></video>':'<img src="'+m.media_url+'" style="width:46px;height:46px;object-fit:cover;border-radius:6px;">'):'<div style="width:46px;height:46px;border-radius:6px;background:var(--bg-hover);"></div>'; return '<div onclick="editMuse(\''+m.id+'\')" style="display:flex;align-items:center;gap:14px;padding:14px 20px;border-bottom:1px solid var(--border);cursor:pointer;">'+thumb+'<div style="flex:1;"><div style="font-weight:600;font-size:14px;">'+(m.model_name||m.title||'(\uc774\ub984 \uc5c6\uc74c)')+'</div><div style="font-size:12px;color:var(--text-dim);">'+(m.title||'')+'</div></div><span class="status-badge '+(m.is_active?'status-active':'status-inactive')+'">'+(m.is_active?'ON':'OFF')+'</span></div>'; }).join(''); }
+function openMuseForm(){ editingMuseId=null; document.getElementById('museFormTitle').textContent='\uc0c8 \ubaa8\ub378 \ub4f1\ub85d'; document.getElementById('muDeleteBtn').style.display='none'; resetMuseForm(); document.getElementById('museModal').classList.add('show'); }
+function closeMuseForm(){ document.getElementById('museModal').classList.remove('show'); }
+function resetMuseForm(){ ['muOver','muName','muTitle','muCaption','muCover'].forEach(function(id){ var e=document.getElementById(id); if(e)e.value=''; }); document.getElementById('muCoverType').value='image'; document.getElementById('muActive').value='true'; document.getElementById('muOrder').value='0'; document.getElementById('muCoverPreview').innerHTML=''; document.getElementById('muCoverStatus').textContent='\uc0ac\uc9c4\u00b7\uc601\uc0c1 \ud30c\uc77c\uc744 \uc62c\ub9ac\uba74 \uc790\ub3d9\uc73c\ub85c \ub4e4\uc5b4\uac00\uc694'; formMuBlocks=[]; muRenderBlocks(); }
+function editMuse(id){ var m=allMuseModels.find(function(x){ return String(x.id)===String(id); }); if(!m)return; editingMuseId=id; document.getElementById('museFormTitle').textContent='\ubaa8\ub378 \ud3b8\uc9d1'; document.getElementById('muDeleteBtn').style.display=''; document.getElementById('muOver').value=m.overline||''; document.getElementById('muName').value=m.model_name||''; document.getElementById('muTitle').value=m.title||''; document.getElementById('muCaption').value=m.caption||''; document.getElementById('muCover').value=m.media_url||''; document.getElementById('muCoverType').value=m.media_type||'image'; document.getElementById('muCoverPreview').innerHTML=m.media_url?(/\.(mp4|webm|mov|m4v)$/i.test(m.media_url)?'<video src="'+m.media_url+'" controls playsinline style="width:180px;border-radius:6px;border:1px solid var(--border);"></video>':'<img src="'+m.media_url+'" style="width:120px;height:120px;object-fit:cover;border-radius:6px;border:1px solid var(--border);">'):''; document.getElementById('muActive').value=String(m.is_active); document.getElementById('muOrder').value=m.display_order||0; loadMuBlocks(m.id); document.getElementById('museModal').classList.add('show'); }
+async function muUploadCover(input){ var file=input.files[0]; if(!file)return; document.getElementById('muCoverStatus').textContent='\uc5c5\ub85c\ub4dc \uc911...'; try{ var url=await muUploadImage(file); document.getElementById('muCover').value=url; var isVid=file.type.startsWith('video/'); document.getElementById('muCoverType').value=isVid?'video':'image'; document.getElementById('muCoverPreview').innerHTML=isVid?'<video src="'+url+'" controls playsinline style="width:180px;border-radius:6px;border:1px solid var(--border);"></video>':'<img src="'+url+'" style="width:120px;height:120px;object-fit:cover;border-radius:6px;border:1px solid var(--border);">'; document.getElementById('muCoverStatus').textContent='\uc5c5\ub85c\ub4dc \uc644\ub8cc'; }catch(e){ document.getElementById('muCoverStatus').textContent='\uc5c5\ub85c\ub4dc \uc2e4\ud328'; showToast('\uc5c5\ub85c\ub4dc \uc2e4\ud328: '+e.message,true); } input.value=''; }
+async function saveMuse(){ var payload={ overline:document.getElementById('muOver').value.trim()||null, model_name:document.getElementById('muName').value.trim()||null, title:document.getElementById('muTitle').value.trim()||null, caption:document.getElementById('muCaption').value.trim()||null, media_url:document.getElementById('muCover').value.trim()||null, media_type:document.getElementById('muCoverType').value||'image', is_active:document.getElementById('muActive').value==='true', display_order:parseInt(document.getElementById('muOrder').value)||0, updated_at:new Date().toISOString() }; try{ var error; if(editingMuseId){ var r1=await sb.from('brand_muse').update(payload).eq('id',editingMuseId); error=r1.error; } else { var r2=await sb.from('brand_muse').insert(payload).select().single(); error=r2.error; if(r2.data)editingMuseId=r2.data.id; } if(error)throw error; await saveMuBlocks(editingMuseId); showToast('\uc800\uc7a5 \uc644\ub8cc'); closeMuseForm(); await loadMuseList(); }catch(err){ showToast('\uc800\uc7a5 \uc2e4\ud328: '+err.message,true); } }
+async function deleteMuse(){ if(!editingMuseId||!confirm('\uc774 \ubaa8\ub378\uc744 \uc0ad\uc81c\ud558\uc2dc\uaca0\uc2b5\ub2c8\uae4c?'))return; try{ var r=await sb.from('brand_muse').delete().eq('id',editingMuseId); if(r.error)throw r.error; showToast('\uc0ad\uc81c \uc644\ub8cc'); closeMuseForm(); await loadMuseList(); }catch(err){ showToast('\uc0ad\uc81c \uc2e4\ud328: '+err.message,true); } }
+
 async function loadHeroSlides() { const{data}=await sb.from('hero_slides').select('*').order('slide_order');heroSlides=data||[];renderHeroList(); }
 function renderHeroList() { const el=document.getElementById('heroList');if(!heroSlides.length){el.innerHTML='<div class="empty-list"><p>슬라이드가 없습니다</p></div>';return;}el.innerHTML=heroSlides.map(h=>`<div class="hero-row" onclick="editHero('${h.id}')" style="cursor:pointer;"><div>${h.media_url?`<img class="hero-row-img" src="${h.media_url}">`:'<div class="hero-row-img"></div>'}</div><div><div class="hero-row-title">${h.title||'(제목 없음)'}</div><div class="hero-row-sub">${h.subtitle||''}</div></div><div><span class="status-badge ${h.is_active?'status-active':'status-inactive'}">${h.is_active?'ON':'OFF'}</span></div><div><button class="btn btn-secondary btn-small" onclick="event.stopPropagation();editHero('${h.id}')">편집</button></div></div>`).join(''); }
 function openHeroForm() { editingHeroId=null;document.getElementById('heroFormTitle').textContent='슬라이드 추가';document.getElementById('heroDeleteBtn').style.display='none';['hMediaUrl','hSubtitle','hTitle','hDesc'].forEach(id=>document.getElementById(id).value='');if(document.getElementById('hBgmUrl'))document.getElementById('hBgmUrl').value='';document.getElementById('hMediaType').value='image';document.getElementById('hOrder').value=heroSlides.length+1;document.getElementById('hCtaText').value='Shop Collection';document.getElementById('hCtaLink').value='/category.html';document.getElementById('hActive').value='true';document.getElementById('heroModal').classList.add('show'); }
