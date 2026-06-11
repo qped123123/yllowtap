@@ -150,6 +150,23 @@
   .about-cta { padding:40px 20px 60px; }
   .about-cta__title { font-size:22px; }
 }
+.about-muse{display:flex;gap:56px;align-items:center;max-width:1080px;margin:0 auto;padding:90px 40px}
+.about-muse__media{flex:0 0 42%;aspect-ratio:3/4;background:#EAE7E2;overflow:hidden}
+.about-muse__media img,.about-muse__media video{width:100%;height:100%;object-fit:cover;display:block}
+.about-muse__text{flex:1;min-width:0}
+.about-muse__over{font-size:12px;letter-spacing:3px;color:#999;text-transform:uppercase;margin-bottom:14px}
+.about-muse__name{font-size:13px;letter-spacing:1px;color:#888;margin-bottom:6px}
+.about-muse__title{font-family:'Bodoni Moda',serif;font-size:30px;font-weight:400;line-height:1.25;margin-bottom:24px;color:#111}
+.about-muse__body p{font-size:14px;line-height:1.9;color:#555;margin-bottom:15px}
+.about-muse__caption{margin-top:26px;padding-top:18px;border-top:1px solid #E5E1DC;font-size:12px;color:#999;line-height:1.7;font-style:italic}
+.about-muse.is-nomedia{max-width:760px;text-align:center}
+.about-muse.is-nomedia .about-muse__media{display:none}
+@media(max-width:768px){
+  .about-muse{flex-direction:column;gap:28px;padding:50px 20px}
+  .about-muse__media{flex:none;width:100%;aspect-ratio:4/5}
+  .about-muse__title{font-size:25px}
+  .about-muse.is-nomedia{text-align:left}
+}
 </style>
 </head>
 <body>
@@ -261,6 +278,18 @@
     <p class="about-quote__author">— Yllowtap</p>
   </div>
 
+  <!-- VIRTUAL MUSE (시우) -->
+  <section class="about-muse" id="aboutMuse" style="display:none">
+    <div class="about-muse__media" id="museMedia"></div>
+    <div class="about-muse__text">
+      <div class="about-muse__over" id="museOver"></div>
+      <div class="about-muse__name" id="museName"></div>
+      <h3 class="about-muse__title" id="museTitle"></h3>
+      <div class="about-muse__body" id="museBody"></div>
+      <div class="about-muse__caption" id="museCaption"></div>
+    </div>
+  </section>
+
   <!-- CTA -->
   <div class="about-cta">
     <h3 class="about-cta__title">Stories Behind the Style</h3>
@@ -290,6 +319,27 @@
 const SUPABASE_URL='https://ppihvvpplqikclftrwdb.supabase.co';
 const SUPABASE_ANON='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBwaWh2dnBwbHFpa2NsZnRyd2RiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk3MzE0NTEsImV4cCI6MjA5NTMwNzQ1MX0.shGVcFTQiuYc4u6tdU50x18YMgJdgFUljf8c7QlQU-U';
 const sb=window.supabase.createClient(SUPABASE_URL,SUPABASE_ANON);
+function esc(s){return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+async function loadMuse(){
+  try{
+    const {data}=await sb.from('brand_muse').select('*').eq('is_active',true).order('updated_at',{ascending:false}).limit(1).maybeSingle();
+    if(!data) return;
+    const sec=document.getElementById('aboutMuse');
+    const m=document.getElementById('museMedia');
+    if(data.media_url){
+      m.innerHTML = (data.media_type==='video')
+        ? '<video src="'+esc(data.media_url)+'" muted loop autoplay playsinline></video>'
+        : '<img src="'+esc(data.media_url)+'" alt="'+esc(data.title||'Virtual Muse')+'" loading="lazy">';
+    } else { sec.classList.add('is-nomedia'); }
+    document.getElementById('museOver').textContent = data.overline||'';
+    document.getElementById('museName').textContent = data.model_name ? ('Model. '+data.model_name) : '';
+    document.getElementById('museTitle').textContent = data.title||'';
+    document.getElementById('museBody').innerHTML = (data.body_text||'').split(/\n\s*\n/).map(function(p){ return '<p>'+esc(p).replace(/\n/g,'<br>')+'</p>'; }).join('');
+    document.getElementById('museCaption').innerHTML = esc(data.caption||'').replace(/\n/g,'<br>');
+    sec.style.display='';
+  }catch(e){ console.warn('loadMuse',e); }
+}
+loadMuse();
 </script>
 <script src="./js/common-header.js"></script>
 </body>
