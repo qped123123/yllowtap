@@ -211,7 +211,7 @@
     return NAV_ITEMS.map(function(it){ return { slug: it[1], label: it[0] }; });
   }
   function navLinksHTMLFrom(cats) {
-    return cats.map(function(c){ return '<a href="/category.html?cat=' + c.slug + '">' + c.label + '</a>'; }).join('');
+    return cats.map(function(c){ var href = (c.slug === 'editorial') ? '/editorial.html' : '/category.html?cat=' + c.slug; return '<a href="' + href + '">' + c.label + '</a>'; }).join('');
   }
   async function buildNav() {
     var cats = await getNavCats();
