@@ -334,6 +334,7 @@ body { font-family:var(--font); background:var(--bg); color:var(--text); font-si
       <a onclick="switchPage('members')" id="nav-members"><span class="icon">👥</span> 회원 관리</a>
       <a onclick="switchPage('faqs')" id="nav-faqs"><span class="icon">❓</span> FAQ 관리</a>
       <a onclick="switchPage('reviews')" id="nav-reviews"><span class="icon">⭐</span> 리뷰 관리</a>
+      <a onclick="switchPage('stylenotes')" id="nav-stylenotes"><span class="icon">📝</span> Style Notes 관리</a>
       <a href="/" target="_blank"><span class="icon">🌐</span> 사이트 보기</a>
       <a onclick="doLogout()" style="margin-top:16px;border-top:1px solid var(--border);padding-top:16px;"><span class="icon">🚪</span> 로그아웃</a>
     </nav>
@@ -647,6 +648,18 @@ body { font-family:var(--font); background:var(--bg); color:var(--text); font-si
         <div id="reviewAdminList"><div class="empty-list"><p>등록된 리뷰가 없습니다</p></div></div>
       </div>
     </div>
+    <!-- ============================================ -->
+    <!-- PAGE: Style Notes 관리 -->
+    <!-- ============================================ -->
+    <div class="page-section" id="page-stylenotes">
+      <div class="top-bar">
+        <h1>Style Notes 관리</h1>
+        <button class="btn btn-primary" onclick="openStyleNoteForm()">+ 새 Style Note 등록</button>
+      </div>
+      <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);">
+        <div id="styleNoteList"><div class="empty-list"><p>등록된 Style Note가 없습니다</p></div></div>
+      </div>
+    </div>
 
   </div>
 </div>
@@ -909,6 +922,53 @@ body { font-family:var(--font); background:var(--bg); color:var(--text); font-si
   </div>
 </div>
 
+<!-- ===== STYLE NOTE FORM MODAL ===== -->
+<div class="modal-overlay" id="styleNoteModal">
+  <div class="modal">
+    <div class="modal-header">
+      <h2 id="styleNoteFormTitle">새 Style Note 등록</h2>
+      <button class="modal-close" onclick="closeStyleNoteForm()">×</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-section">
+        <div class="form-section-title">기본 정보</div>
+        <div class="form-row">
+          <div class="form-group"><label class="form-label">제목<span class="required">*</span></label><input class="form-input" id="snTitle" placeholder="가을, 가죽의 결을 읽다" oninput="snAutoSlug()"></div>
+          <div class="form-group"><label class="form-label">슬러그 (URL)<span class="required">*</span></label><input class="form-input" id="snSlug" placeholder="autumn-leather"><span class="form-hint">영문, 숫자, 하이픈만</span></div>
+        </div>
+        <div class="form-row full"><div class="form-group"><label class="form-label">부제목 (한 줄)</label><input class="form-input" id="snSubtitle" placeholder="스토리 상단 한 줄 문구"></div></div>
+        <div class="form-row full"><div class="form-group"><label class="form-label">대표 이미지 URL</label><input class="form-input" id="snCover" placeholder="https://..."><span class="form-hint">목록 썰네일에 쓰여요</span></div></div>
+      </div>
+      <div class="form-section">
+        <div class="form-section-title">본문 (글·이미지·영상 HTML)</div>
+        <p style="font-size:11px;color:var(--text-muted);margin-bottom:12px;">상세 정보처럼 HTML로 작성해요. &lt;img&gt;, &lt;video&gt; 태그도 넣을 수 있어요.</p>
+        <textarea class="form-input" id="snContent" rows="10" style="font-family:monospace;font-size:12px;line-height:1.6;" placeholder="&lt;p&gt;본문...&lt;/p&gt;"></textarea>
+      </div>
+      <div class="form-section">
+        <div class="form-section-title">Shop the Look (이 스토리 속 아이템)</div>
+        <p style="font-size:11px;color:var(--text-muted);margin-bottom:12px;">연결한 상품이 글 하단에 <strong style="color:var(--accent)">Shop the Look</strong> 카드로 떠요. (이미지·가격·세일가 자동)</p>
+        <div class="recommend-list" id="snRelatedList"></div>
+        <div style="display:flex;gap:8px;align-items:center;">
+          <select class="form-select" id="snRelatedSelect" style="flex:1;"><option value="">상품 선택</option></select>
+          <button class="btn btn-secondary btn-small" onclick="snAddRelated()">추가</button>
+        </div>
+      </div>
+      <div class="form-section">
+        <div class="form-section-title">노출</div>
+        <div class="form-row">
+          <div class="form-group"><label class="form-label">상태</label><select class="form-select" id="snActive"><option value="true">표시 (ON)</option><option value="false">숨김 (OFF)</option></select></div>
+          <div class="form-group"><label class="form-label">정렬 순서</label><input class="form-input" type="number" id="snOrder" value="0"></div>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeStyleNoteForm()">취소</button>
+      <button class="btn btn-danger" id="snDeleteBtn" style="display:none;" onclick="deleteStyleNote()">삭제</button>
+      <button class="btn btn-primary" onclick="saveStyleNote()">저장</button>
+    </div>
+  </div>
+</div>
+
 <!-- ===== HERO FORM MODAL ===== -->
 <div class="modal-overlay" id="heroModal">
   <div class="modal" style="max-width:640px;">
@@ -1030,8 +1090,36 @@ function switchPage(page) {
   if (nav) nav.classList.add('active');
 }
 
+// ════ Style Notes 관리 ════
+let allStyleNotes = [], snRelated = [], editingStyleNoteId = null;
+async function loadStyleNotes() {
+  try { const { data } = await sb.from('style_notes').select('*').order('display_order'); allStyleNotes = data || []; renderStyleNoteList(); } catch(e){ console.warn('loadStyleNotes', e); }
+}
+function renderStyleNoteList() {
+  const el = document.getElementById('styleNoteList'); if(!el) return;
+  if(!allStyleNotes.length){ el.innerHTML = '<div class="empty-list"><p>등록된 Style Note가 없습니다</p><button class="btn btn-primary" onclick="openStyleNoteForm()">첫 Style Note 등록하기</button></div>'; return; }
+  el.innerHTML = allStyleNotes.map(function(n){ return '<div onclick="editStyleNote(\''+n.id+'\')" style="display:flex;align-items:center;gap:14px;padding:14px 20px;border-bottom:1px solid var(--border);cursor:pointer;">'
+    + (n.cover_image ? '<img src="'+n.cover_image+'" style="width:48px;height:48px;object-fit:cover;border-radius:4px;">' : '<div style="width:48px;height:48px;border-radius:4px;background:var(--bg-input);"></div>')
+    + '<div style="flex:1;"><div style="font-weight:500;">'+(n.title||'')+'</div><div style="font-size:10px;color:var(--text-dim);margin-top:2px;">'+(n.slug||'')+'</div></div>'
+    + '<div style="font-size:11px;color:var(--text-dim);">'+((n.related_product_ids||[]).length)+'개 연결</div>'
+    + '<span class="status-badge '+(n.is_active?'status-active':'status-inactive')+'">'+(n.is_active?'ON':'OFF')+'</span>'
+    + '<button class="btn btn-secondary btn-small" onclick="event.stopPropagation();editStyleNote(\''+n.id+'\')">편집</button>'
+    + '</div>'; }).join('');
+}
+function openStyleNoteForm(){ editingStyleNoteId=null; document.getElementById('styleNoteFormTitle').textContent='새 Style Note 등록'; document.getElementById('snDeleteBtn').style.display='none'; resetStyleNoteForm(); snUpdateSelect(); document.getElementById('styleNoteModal').classList.add('show'); }
+function closeStyleNoteForm(){ document.getElementById('styleNoteModal').classList.remove('show'); }
+function resetStyleNoteForm(){ ['snTitle','snSlug','snSubtitle','snCover','snContent'].forEach(function(id){ var e=document.getElementById(id); if(e)e.value=''; }); document.getElementById('snActive').value='true'; document.getElementById('snOrder').value='0'; snRelated=[]; snRenderRelated(); }
+function snAutoSlug(){ if(editingStyleNoteId)return; document.getElementById('snSlug').value=slugify(document.getElementById('snTitle').value); }
+function snUpdateSelect(){ var s=document.getElementById('snRelatedSelect'); if(!s)return; s.innerHTML='<option value="">상품 선택</option>'+allProducts.map(function(p){ return '<option value="'+p.id+'">'+p.name+'</option>'; }).join(''); }
+function snAddRelated(){ var v=document.getElementById('snRelatedSelect').value; if(!v||snRelated.indexOf(v)>=0)return; snRelated.push(v); snRenderRelated(); }
+function snRemoveRelated(id){ snRelated=snRelated.filter(function(x){ return x!==id; }); snRenderRelated(); }
+function snRenderRelated(){ var el=document.getElementById('snRelatedList'); if(!el)return; el.innerHTML=snRelated.map(function(id){ var p=allProducts.find(function(x){ return String(x.id)===String(id); }); return '<div style="display:flex;justify-content:space-between;align-items:center;padding:6px 10px;background:var(--bg-input);border-radius:6px;margin-bottom:6px;font-size:12px;"><span>'+(p?p.name:id)+'</span><button class="btn btn-secondary btn-small" onclick="snRemoveRelated(\''+id+'\')">×</button></div>'; }).join(''); }
+function editStyleNote(id){ var n=allStyleNotes.find(function(x){ return String(x.id)===String(id); }); if(!n)return; editingStyleNoteId=id; document.getElementById('styleNoteFormTitle').textContent='Style Note 편집'; document.getElementById('snDeleteBtn').style.display=''; document.getElementById('snTitle').value=n.title||''; document.getElementById('snSlug').value=n.slug||''; document.getElementById('snSubtitle').value=n.subtitle||''; document.getElementById('snCover').value=n.cover_image||''; document.getElementById('snContent').value=n.content_html||''; document.getElementById('snActive').value=String(n.is_active); document.getElementById('snOrder').value=n.display_order||0; snRelated=(n.related_product_ids||[]).map(String); snUpdateSelect(); snRenderRelated(); document.getElementById('styleNoteModal').classList.add('show'); }
+async function saveStyleNote(){ var title=document.getElementById('snTitle').value.trim(), slug=document.getElementById('snSlug').value.trim(); if(!title||!slug){ showToast('제목과 슬러그는 필수예요',true); return; } var payload={ title:title, slug:slug, subtitle:document.getElementById('snSubtitle').value.trim()||null, cover_image:document.getElementById('snCover').value.trim()||null, content_html:document.getElementById('snContent').value, related_product_ids:snRelated, is_active:document.getElementById('snActive').value==='true', display_order:parseInt(document.getElementById('snOrder').value)||0, updated_at:new Date().toISOString() }; try{ var error; if(editingStyleNoteId){ var r1=await sb.from('style_notes').update(payload).eq('id',editingStyleNoteId); error=r1.error; } else { var r2=await sb.from('style_notes').insert(payload); error=r2.error; } if(error)throw error; showToast('저장 완료'); closeStyleNoteForm(); await loadStyleNotes(); }catch(err){ showToast('저장 실패: '+err.message,true); } }
+async function deleteStyleNote(){ if(!editingStyleNoteId||!confirm('이 Style Note를 삭제하시겠습니까?'))return; try{ var r=await sb.from('style_notes').delete().eq('id',editingStyleNoteId); if(r.error)throw r.error; showToast('삭제 완료'); closeStyleNoteForm(); await loadStyleNotes(); }catch(err){ showToast('삭제 실패: '+err.message,true); } }
+
 async function init() {
-  await Promise.all([loadPopupNotices(), loadCategories(), loadCategoriesAdmin(), loadCollections(), loadProducts(), loadHeroSlides(), loadSettings(), loadInquiries(), loadMembers(), loadOrders(), loadFaqs(), loadAttrDefs(), loadCouponsAdmin(), loadReviewsAdmin()]);
+  await Promise.all([loadPopupNotices(), loadCategories(), loadCategoriesAdmin(), loadCollections(), loadProducts(), loadHeroSlides(), loadSettings(), loadInquiries(), loadMembers(), loadOrders(), loadFaqs(), loadAttrDefs(), loadCouponsAdmin(), loadReviewsAdmin(), loadStyleNotes()]);
   bindTagCheckboxes(); bindCustomTagInput(); bindImageUpload(); bindHeroMediaUpload(); bindSettingsImageUpload(); bindPopupNoticeImageUpload(); loadMainImages(); bindMainImagesUpload();
 }
 
