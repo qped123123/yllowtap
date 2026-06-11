@@ -41,7 +41,7 @@
 /* 글 그리드 (PC: 3열 잡지) */
 .ed-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:48px 32px}
 .ed-card{text-decoration:none;color:inherit;display:block}
-.ed-card.ed-hidden{display:none}
+.ed-grid.ed-collapsed .ed-card:nth-child(n+7){display:none}
 .ed-card__img{position:relative;aspect-ratio:1/1;overflow:hidden;background:#EAE7E2;margin-bottom:16px}
 .ed-card__img img,.ed-card__img video{width:100%;height:100%;object-fit:cover;transition:transform .6s ease}
 .ed-card:hover .ed-card__img img,.ed-card:hover .ed-card__img video{transform:scale(1.04)}
@@ -59,26 +59,31 @@
 @media(max-width:1200px){ .ed-grid{grid-template-columns:repeat(3,1fr)} }
 
 /* ===== 모바일 (≤900px) ===== */
-@media(max-width:900px){
+@media(max-width:768px){
   .cat-layout{flex-direction:column;padding:0 0 60px;gap:0;max-width:100%}
   .cat-sidebar{width:100%;position:static}
   .cat-sidebar-title{display:none}
   .cat-sidebar-nav{gap:0}
+  /* 1줄: 큰 카테고리 가로 스크롤 (category.html과 동일) */
   .cat-maintabs{flex-direction:row;flex-wrap:nowrap;overflow-x:auto;-webkit-overflow-scrolling:touch;touch-action:pan-x;scrollbar-width:none;gap:2px;padding:0 12px;border-bottom:1px solid var(--ed-border)}
   .cat-maintabs::-webkit-scrollbar{display:none}
   .cat-tab{padding:14px 12px;font-size:13px;white-space:nowrap;flex-shrink:0;border:none;border-bottom:2px solid transparent;color:var(--ed-text2)}
-  .cat-tab.active{color:var(--ed-text);font-weight:700;border-bottom:2px solid var(--ed-text)}
+  .cat-tab.active{background:none;color:var(--ed-text);font-weight:700;border-bottom:2px solid var(--ed-text)}
+  /* 2줄: 하위메뉴 가로 스크롤 (모바일 전용) */
   .cat-submenu--pc{display:none}
-  .cat-main{padding:24px 20px 0}
+  .cat-submenu--mobile{display:flex;flex-direction:row;flex-wrap:nowrap;overflow-x:auto;-webkit-overflow-scrolling:touch;touch-action:pan-x;scrollbar-width:none;gap:2px;padding:0 12px;margin:0;background:#faf8f5}
+  .cat-submenu::-webkit-scrollbar{display:none}
+  .cat-subtab{padding:11px 12px;font-size:13px;white-space:nowrap;flex-shrink:0;border:none;border-bottom:2px solid transparent;color:var(--ed-text3)}
+  .cat-subtab.active{background:none;color:var(--ed-text);font-weight:700;border-bottom:2px solid var(--ed-text)}
+  .cat-main{padding:20px 20px 0}
 
   .ed-head{margin-bottom:22px}
   .ed-head__title{font-size:32px}
+  .ed-head__sub{word-break:keep-all}
 
-  .ed-grid{display:flex;grid-template-columns:none;overflow-x:auto;gap:16px;scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch;scrollbar-width:none;padding-bottom:10px}
-  .ed-grid::-webkit-scrollbar{display:none}
-  .ed-card{flex:0 0 calc((100% - 16px) / 2);scroll-snap-align:start}
-  .ed-card.ed-hidden{display:block}
-  .ed-more{display:none}
+  .ed-grid{grid-template-columns:repeat(2,1fr);gap:28px 16px}
+  .ed-grid.ed-collapsed .ed-card:nth-child(n+5){display:none}
+  .ed-more{margin-top:36px}
 }
 </style>
 </head>
@@ -127,7 +132,7 @@
         <div class="ed-state">불러오는 중…</div>
       </div>
       <div class="ed-more" id="edMore" style="display:none">
-        <button class="ed-more__btn" onclick="showAllNotes()">더보기 +</button>
+        <button class="ed-more__btn" onclick="showAllNotes()">View More</button>
       </div>
     </div>
   </div>
@@ -168,6 +173,7 @@ async function loadSidebar(){
     const {data}=await sb.from('categories').select('*').eq('is_active',true).order('display_order');
     const cats=data||[];
     let html='<div class="cat-maintabs">';
+    var subItemsMo='';
     cats.filter(function(c){ return !c.parent_id && SIDEBAR_HIDDEN.indexOf(c.slug)<0; }).forEach(function(cat){
       const isActive = cat.slug==='editorial';
       const href = (cat.slug==='editorial') ? '/editorial.html' : '/category.html?cat='+cat.slug;
@@ -177,19 +183,35 @@ async function loadSidebar(){
         if(subs.length){
           var items=subs.map(function(s,idx){ return '<a class="cat-subtab'+(idx===0?' active':'')+'" href="/editorial.html">'+esc(s.name)+'</a>'; }).join('');
           html+='<div class="cat-submenu cat-submenu--pc">'+items+'</div>';
+          subItemsMo=items;
         }
       }
     });
     html+='</div>';
+    if(subItemsMo) html+='<div class="cat-submenu cat-submenu--mobile">'+subItemsMo+'</div>';
     nav.innerHTML=html;
+    // 모바일: 현재 카테고리(EDITORIAL) 탭이 가로스크롤 밖이면 가운데로 끌어와 보이게
+    var act=nav.querySelector('.cat-tab.active');
+    if(act && act.scrollIntoView){ try{ act.scrollIntoView({inline:'center',block:'nearest'}); }catch(_){} }
   }catch(e){ nav.innerHTML=''; console.warn('loadSidebar',e); }
 }
 
+function updateMore(){
+  var grid=document.getElementById('edGrid');
+  var moreWrap=document.getElementById('edMore');
+  if(!grid||!moreWrap) return;
+  var total=grid.querySelectorAll('.ed-card').length;
+  var collapsed=grid.classList.contains('ed-collapsed');
+  var limit=window.matchMedia('(max-width:768px)').matches?4:6;  // 모바일 4개 / 웹 6개
+  moreWrap.style.display=(collapsed && total>limit)?'':'none';
+}
 function showAllNotes(){
-  document.querySelectorAll('.ed-card.ed-hidden').forEach(function(c){ c.classList.remove('ed-hidden'); });
-  var m=document.getElementById('edMore'); if(m) m.style.display='none';
+  var grid=document.getElementById('edGrid');
+  if(grid) grid.classList.remove('ed-collapsed');
+  updateMore();
 }
 window.showAllNotes=showAllNotes;
+window.addEventListener('resize',updateMore);
 
 async function loadNotes(){
   const grid=document.getElementById('edGrid');
@@ -208,11 +230,8 @@ async function loadNotes(){
         +(n.subtitle?'<div class="ed-card__sub">'+esc(n.subtitle)+'</div>':'')
         +'</a>';
     }).join('');
-    const cards=grid.querySelectorAll('.ed-card');
-    if(cards.length>ED_VISIBLE){
-      cards.forEach(function(c,i){ if(i>=ED_VISIBLE) c.classList.add('ed-hidden'); });
-      if(moreWrap) moreWrap.style.display='';
-    }
+    grid.classList.add('ed-collapsed');
+    updateMore();
   }catch(e){
     grid.innerHTML='<div class="ed-state">스토리를 불러오지 못했어요.</div>';
     console.warn('loadNotes',e);
