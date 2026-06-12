@@ -349,7 +349,7 @@ function onCouponSelect(){
   const uc=myCoupons[parseInt(idx)];const c=uc.coupons;
   const subtotal=getProductSubtotal();
   if(c.min_order_amount&&subtotal<c.min_order_amount){alert(c.min_order_amount.toLocaleString()+'원 이상 주문 시 사용 가능한 쿠폰입니다.');document.getElementById('coCouponSelect').value='';return;}
-  let disc=0,capped=false;
+  let disc=0,capped=true;
   if(c.discount_type==='percent'){disc=Math.floor(subtotal*c.discount_value/100);if(c.max_discount&&disc>c.max_discount){disc=c.max_discount;capped=true;}}else{disc=c.discount_value;}
   selectedCoupon=uc;couponDiscount=disc;
   document.getElementById('coCouponArea').style.display='none';
@@ -433,7 +433,7 @@ function getCurrentTotal(){const s=getProductSubtotal();const sh=s>=FREE_SHIPPIN
 
 async function submitOrder(){
   // [결제 잠금] false = 오픈 준비중(결제 불가). 결제 열 때 true 로 바꾸기.
-  const CHECKOUT_ENABLED=false;
+  const CHECKOUT_ENABLED=true;
   if(!CHECKOUT_ENABLED){showError('현재 오픈 준비중입니다. 결제는 아직 불가합니다.');return;}
   const checked=cartItems.filter(i=>i.checked);
   if(!checked.length){showError('주문할 상품을 선택해주세요.');return;}
