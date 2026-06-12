@@ -605,7 +605,13 @@ function renderProducts() {
     if (currentCategory === 'best') filtered = filtered.filter(p => p.tags?.includes('best'));
     else if (currentCategory === 'new') filtered = filtered.filter(p => p.tags?.includes('new'));
     else if (currentCategory === 'sale') filtered = filtered.filter(p => p.original_price && p.original_price > p.price);
-    else filtered = filtered.filter(p => p.category?.toLowerCase() === currentCategory);
+    else {
+      // 상위 카테고리를 보면 그 하위 카테고리에 속한 상품도 함께 보이게 (계층 포함)
+      const _catObj = categories.find(c => c.slug === currentCategory);
+      const _childSlugs = _catObj ? categories.filter(c => c.parent_id === _catObj.id).map(c => (c.slug || '').toLowerCase()) : [];
+      const _allSlugs = [currentCategory.toLowerCase(), ..._childSlugs];
+      filtered = filtered.filter(p => p.category && _allSlugs.includes(p.category.toLowerCase()));
+    }
   }
 
   // 하위메뉴 필터 (currentSub = "tag:tote" 또는 "cat:bags")
