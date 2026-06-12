@@ -455,6 +455,7 @@ async function submitOrder(){
       body:JSON.stringify({
         cartItemIds:checked.map(i=>i.id),
         recipient:{name,phone,zipcode:zip,address1:addr1,address2:addr2,memo},
+        userCouponId:selectedCoupon?.id||null,
         couponId:selectedCoupon?.coupon_id||null,
         pointsToUse:pointsUsed
       })
