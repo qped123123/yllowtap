@@ -1571,7 +1571,10 @@ async function recordView(){
 document.getElementById('mainImg').addEventListener('load',syncThumbs);
 window.addEventListener('resize',syncThumbs);
 document.getElementById('thumbs').addEventListener('scroll',updateThumbHint);
-loadProduct().then(()=>{recordView();loadWishCount();});
+/* [모바일 순서] 갤러리는 그대로, 가격/구매옵션(pd-info)만 갤러리 바로 밑으로 이동. PC는 원위치 */
+function pdMobileOrder(){var g=document.getElementById("gallery"),info=document.querySelector(".pd-info"),cl=document.querySelector(".pd-col-left");if(!g||!info||!cl)return;if(window.innerWidth<=1180){if(g.nextElementSibling!==info)g.after(info);}else{if(cl.nextElementSibling!==info)cl.after(info);}}
+window.addEventListener("resize",pdMobileOrder);
+loadProduct().then(()=>{recordView();loadWishCount();pdMobileOrder();});
 </script>
 <script src="./js/common-header.js?v=15"></script>
 </body>
