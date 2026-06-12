@@ -228,16 +228,19 @@
 @media(max-width:768px){
   .cart-page{padding:calc(var(--header-height,60px) + 20px) 16px 60px}
   .cart-header h1{font-size:24px}
-  .cart-item{grid-template-columns:24px 80px 1fr;gap:10px;padding:16px;align-items:flex-start}
+  .cart-item{grid-template-columns:auto 80px 1fr auto;grid-template-areas:"check img info remove" "check img price compare";column-gap:12px;row-gap:6px;padding:16px;align-items:center}
+  .cart-item>.cart-select-cell{grid-area:check;align-self:center}
+  .cart-item>*:nth-child(2){grid-area:img;align-self:center}
+  .cart-item>.cart-item-info{grid-area:info;align-self:end;min-width:0}
+  .cart-item>*:nth-child(4){grid-area:price;align-self:start}
   .cart-item-img{width:80px;height:80px}
-  .cart-item-price,.cart-qty{grid-column:3}
   .cart-item-price{text-align:left}
   .cart-item-original{text-align:left}
   .cart-item-saleline{justify-content:flex-start}
-  .cart-item-info{padding-right:62px}
+  .cart-item-info{padding-right:0}
   /* 비교·삭제(×)를 YLLOWTAP 글자 줄에 맞춰 상단 우측에 나란히 */
-  .cart-compare-cell{position:absolute;top:13px;right:38px;margin:0}
-  .cart-remove-cell{position:absolute;top:11px;right:8px;margin:0}
+  .cart-compare-cell{position:static;grid-area:compare;justify-self:end;align-self:end;margin:0}
+  .cart-remove-cell{position:static;grid-area:remove;justify-self:end;align-self:start;margin:0}
   .cart-remove{font-size:20px;color:#111;width:24px;height:24px}
   .compare-products{gap:10px;padding:0 16px 16px}
   .compare-section{padding:0 16px}
