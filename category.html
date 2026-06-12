@@ -745,9 +745,11 @@ async function toggleCatWish(productId,btn){
 }
 // ★ 모바일: 상품 영역 좌우 스와이프 → 현재 카테고리의 하위 탭 전환
 function swipeSub(dir){
-  const subs = SUBMENUS[currentCategory];
-  if(!subs || !subs.length) return;                 // 하위 탭 없으면 무시
-  const keys = ['', ...subs.map(s => s.type + ':' + s.value)];  // 전체 + 서브들
+  // ★ 탭과 동일한 소스 사용: 화면에 실제로 그려진 모바일 서브탭에서 키 목록을 읽음
+  //    (SUBMENUS 하드코딩 대신 DOM을 읽어 DB 하위카테고리/태그 어느 쪽이든 탭과 100% 일치)
+  const tabs = [...document.querySelectorAll('.cat-submenu--mobile .cat-subtab')];
+  if(tabs.length < 2) return;                        // 하위 탭 없으면 무시
+  const keys = tabs.map(t => t.dataset.subkey || ''); // '', 'cat:슬러그' 또는 'tag:tote'
   let i = keys.indexOf(currentSub || '');
   if(i < 0) i = 0;
   const ni = i + dir;
