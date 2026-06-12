@@ -242,7 +242,8 @@
   line-height: 1.5; margin-bottom: 7px; text-align: center;
   display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
 }
-.cat-card-price { display: inline-flex; flex-direction: column; align-items: flex-end; gap: 2px; }
+.cat-card-price { display: flex; justify-content: center; }
+.cat-price-col { display: inline-flex; flex-direction: column; align-items: flex-end; gap: 2px; }
 .cat-price-original { font-size: 12px; color: var(--cat-text3); text-decoration: line-through; white-space: nowrap; }
 .cat-price-saleline { display: flex; align-items: baseline; gap: 6px; }
 .cat-price-current { font-size: 14px; font-weight: 700; color: var(--cat-text); white-space: nowrap; }
@@ -669,7 +670,7 @@ function renderProducts() {
       <div class="cat-card-brand">${p.brand || 'YLLOWTAP'}</div>
       <div class="cat-card-name">${p.name}</div>
       <div class="cat-card-price">
-        ${isSale ? `<span class="cat-price-original">${p.original_price.toLocaleString()}원</span><span class="cat-price-saleline"><span class="cat-price-discount">${discount}%</span><span class="cat-price-current">${p.price.toLocaleString()}원</span></span>` : `<span class="cat-price-current">${p.price.toLocaleString()}원</span>`}
+        <span class="cat-price-col">${isSale ? `<span class="cat-price-original">${p.original_price.toLocaleString()}원</span><span class="cat-price-saleline"><span class="cat-price-discount">${discount}%</span><span class="cat-price-current">${p.price.toLocaleString()}원</span></span>` : `<span class="cat-price-current">${p.price.toLocaleString()}원</span>`}</span>
       </div>
     </a>`;
   }).join('');
