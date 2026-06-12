@@ -61,7 +61,7 @@
 }
 .about-two-col--reverse { direction:rtl; }
 .about-two-col--reverse > * { direction:ltr; }
-.about-two-col__img { width:100%; aspect-ratio:4/5; object-fit:cover; }
+.about-two-col__img { width:100%; height:auto; display:block; }
 .about-two-col__label {
   font-size:10px; font-weight:500; letter-spacing:0.25em;
   text-transform:uppercase; color:#888; margin-bottom:16px;
@@ -100,7 +100,7 @@
 .about-value__text { font-size:13px; color:#666; line-height:1.8; word-break:keep-all; overflow-wrap:break-word; }
 
 /* Full Image */
-.about-full-img { width:100%; height:45vh; object-fit:cover; }
+.about-full-img { width:100%; height:auto; display:block; }
 
 /* Quote */
 .about-quote-wrap { background:#EFECE6; padding:80px 40px; text-align:center; }
@@ -139,12 +139,10 @@
   .about-intro__text { font-size:13px; }
   .about-two-col { grid-template-columns:1fr; gap:32px; padding:48px 20px; }
   .about-two-col--reverse { direction:ltr; }
-  .about-two-col__img { aspect-ratio:3/2; }
   .about-values-wrap { padding:48px 20px; }
   .about-values-title { font-size:22px; }
   .about-values { grid-template-columns:1fr; gap:20px; }
   .about-two-col__title { font-size:22px; }
-  .about-full-img { height:30vh; }
   .about-quote-wrap { padding:48px 20px; }
   .about-quote__en { font-size:20px; }
   .about-cta { padding:40px 20px 60px; }
@@ -200,7 +198,7 @@
 <div class="about-page">
 
   <!-- Hero -->
-  <div class="about-hero">
+  <div class="about-hero" id="secHero">
     <img class="about-hero__img" id="abHeroImg" src="https://images.unsplash.com/photo-1558618666-fcd25c85f82e?w=1920&q=80" alt="Yllowtap Brand">
     <div class="about-hero__overlay">
       <h1 class="about-hero__title" id="abHeroTitle">Our Story</h1>
@@ -209,7 +207,7 @@
   </div>
 
   <!-- Intro -->
-  <div class="about-intro">
+  <div class="about-intro" id="secIntro">
     <div class="about-intro__label" id="abIntroLabel">About Yllowtap</div>
     <h2 class="about-intro__title" id="abIntroTitle">감각을 큐레이션하다</h2>
     <p class="about-intro__text" id="abIntroText">
@@ -221,7 +219,7 @@
   <div class="about-divider"></div>
 
   <!-- Philosophy 1 -->
-  <div class="about-two-col">
+  <div class="about-two-col" id="secPhilo1">
     <img class="about-two-col__img" id="abPhilo1Img" src="https://images.unsplash.com/photo-1606760227091-3dd870d97f1d?w=800&q=80" alt="Curation">
     <div class="about-two-col__content">
       <div class="about-two-col__label" id="abPhilo1Label">Our Philosophy</div>
@@ -237,7 +235,7 @@
   <img class="about-full-img" id="abFullImg" src="https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=1920&q=80" alt="Yllowtap Space">
 
   <!-- Philosophy 2 -->
-  <div class="about-two-col about-two-col--reverse">
+  <div class="about-two-col about-two-col--reverse" id="secPhilo2">
     <img class="about-two-col__img" id="abPhilo2Img" src="https://images.unsplash.com/photo-1611085583191-a3b181a88401?w=800&q=80" alt="Accessories">
     <div class="about-two-col__content">
       <div class="about-two-col__label" id="abPhilo2Label">Our Approach</div>
@@ -253,22 +251,22 @@
   <div class="about-divider"></div>
 
   <!-- Values -->
-  <div class="about-values-wrap">
+  <div class="about-values-wrap" id="secValues">
     <div class="about-values-label" id="abValuesLabel">Our Values</div>
     <h2 class="about-values-title" id="abValuesTitle">우리가 중요하게 여기는 것</h2>
     <div class="about-values">
       <div class="about-value">
-        <div class="about-value__icon">✦</div>
+        <div class="about-value__icon" id="abVal1Icon">✦</div>
         <h4 class="about-value__title" id="abVal1Title">Quality First</h4>
         <p class="about-value__text" id="abVal1Text">가격이 아닌 품질로 가치를 증명합니다.</p>
       </div>
       <div class="about-value">
-        <div class="about-value__icon">◇</div>
+        <div class="about-value__icon" id="abVal2Icon">◇</div>
         <h4 class="about-value__title" id="abVal2Title">Timeless Design</h4>
         <p class="about-value__text" id="abVal2Text">유행이 지나도 꺼내 쓰고 싶은 것이 기준입니다.</p>
       </div>
       <div class="about-value">
-        <div class="about-value__icon">○</div>
+        <div class="about-value__icon" id="abVal3Icon">○</div>
         <h4 class="about-value__title" id="abVal3Title">Mindful Choice</h4>
         <p class="about-value__text" id="abVal3Text">더 적게, 더 좋은 것을 고릅니다.</p>
       </div>
@@ -276,7 +274,7 @@
   </div>
 
   <!-- Quote -->
-  <div class="about-quote-wrap">
+  <div class="about-quote-wrap" id="secQuote">
     <p class="about-quote__en" id="abQuoteEn">"The presence that cannot be replaced —<br>it begins within you."</p>
     <p class="about-quote__kr" id="abQuoteKr">대체되지 않는 분위기는 결국 자신에게서 나온다.</p>
     <p class="about-quote__author" id="abQuoteAuthor">— Yllowtap</p>
@@ -286,7 +284,7 @@
   <div id="museWrap" style="display:none"></div>
 
   <!-- CTA -->
-  <div class="about-cta">
+  <div class="about-cta" id="secCta">
     <h3 class="about-cta__title" id="abCtaTitle">Stories Behind the Style</h3>
     <a href="/editorial.html" class="about-cta__btn">Read Our Stories</a>
   </div>
@@ -367,7 +365,8 @@ function renderMuseBlock(b){
 loadMuse();
 function abSetT(id,val){ var e=document.getElementById(id); if(e&&val!=null&&val!=='') e.innerHTML=esc(val).replace(/\n/g,'<br>'); }
 function abSetImg(id,val){ var e=document.getElementById(id); if(e&&val) e.src=val; }
-async function loadAboutContent(){ try{ const{data}=await sb.from('about_content').select('*').limit(1).maybeSingle(); if(!data)return; abSetImg('abHeroImg',data.hero_image);abSetT('abHeroTitle',data.hero_title);abSetT('abHeroSub',data.hero_sub);abSetT('abIntroLabel',data.intro_label);abSetT('abIntroTitle',data.intro_title);abSetT('abIntroText',data.intro_text);abSetImg('abPhilo1Img',data.philo1_image);abSetT('abPhilo1Label',data.philo1_label);abSetT('abPhilo1Title',data.philo1_title);abSetT('abPhilo1Text',data.philo1_text);abSetImg('abFullImg',data.full_image);abSetImg('abPhilo2Img',data.philo2_image);abSetT('abPhilo2Label',data.philo2_label);abSetT('abPhilo2Title',data.philo2_title);abSetT('abPhilo2Text',data.philo2_text);abSetT('abValuesLabel',data.values_label);abSetT('abValuesTitle',data.values_title);abSetT('abVal1Title',data.value1_title);abSetT('abVal1Text',data.value1_text);abSetT('abVal2Title',data.value2_title);abSetT('abVal2Text',data.value2_text);abSetT('abVal3Title',data.value3_title);abSetT('abVal3Text',data.value3_text);abSetT('abQuoteEn',data.quote_en);abSetT('abQuoteKr',data.quote_kr);abSetT('abQuoteAuthor',data.quote_author);abSetT('abCtaTitle',data.cta_title); }catch(e){ console.warn('loadAboutContent',e); } }
+function abShow(id,vis){ var e=document.getElementById(id); if(e&&vis===false) e.style.display='none'; }
+async function loadAboutContent(){ try{ const{data}=await sb.from('about_content').select('*').limit(1).maybeSingle(); if(!data)return; abSetImg('abHeroImg',data.hero_image);abSetT('abHeroTitle',data.hero_title);abSetT('abHeroSub',data.hero_sub);abSetT('abIntroLabel',data.intro_label);abSetT('abIntroTitle',data.intro_title);abSetT('abIntroText',data.intro_text);abSetImg('abPhilo1Img',data.philo1_image);abSetT('abPhilo1Label',data.philo1_label);abSetT('abPhilo1Title',data.philo1_title);abSetT('abPhilo1Text',data.philo1_text);abSetImg('abFullImg',data.full_image);abSetImg('abPhilo2Img',data.philo2_image);abSetT('abPhilo2Label',data.philo2_label);abSetT('abPhilo2Title',data.philo2_title);abSetT('abPhilo2Text',data.philo2_text);abSetT('abValuesLabel',data.values_label);abSetT('abValuesTitle',data.values_title);abSetT('abVal1Title',data.value1_title);abSetT('abVal1Text',data.value1_text);abSetT('abVal2Title',data.value2_title);abSetT('abVal2Text',data.value2_text);abSetT('abVal3Title',data.value3_title);abSetT('abVal3Text',data.value3_text);abSetT('abVal1Icon',data.value1_icon);abSetT('abVal2Icon',data.value2_icon);abSetT('abVal3Icon',data.value3_icon);abSetT('abQuoteEn',data.quote_en);abSetT('abQuoteKr',data.quote_kr);abSetT('abQuoteAuthor',data.quote_author);abSetT('abCtaTitle',data.cta_title); abShow('secHero',data.show_hero);abShow('secIntro',data.show_intro);abShow('secPhilo1',data.show_philo1);abShow('abFullImg',data.show_full);abShow('secPhilo2',data.show_philo2);abShow('secValues',data.show_values);abShow('secQuote',data.show_quote);abShow('museWrap',data.show_muse);abShow('secCta',data.show_cta); }catch(e){ console.warn('loadAboutContent',e); } }
 loadAboutContent();
 </script>
 <script src="./js/common-header.js"></script>
