@@ -213,6 +213,15 @@
   .pd-thumb{width:56px;min-height:56px;height:56px}
   .pd-main{order:1}
   .pd-rec-grid{grid-template-columns:repeat(3,1fr)}
+  /* [모바일 순서] 이미지 -> 가격/구매옵션 -> 탭/상세, 탭 고정 해제 */
+  .pd-top{display:flex;flex-direction:column}
+  .pd-col-left{display:contents}
+  .pd-gallery{order:1}
+  .pd-info{order:2}
+  .pd-editorial{order:3}
+  .pd-why{order:4}
+  .pd-detail{order:5}
+  .pd-tabs{position:static}
 }
 @media(max-width:768px){
   .pd-top{padding:6px 20px 0}.pd-breadcrumb{padding:76px 20px 10px}
