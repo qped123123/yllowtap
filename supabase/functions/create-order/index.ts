@@ -58,7 +58,8 @@ Deno.serve(async (req) => {
     try { body = await req.json(); } catch { return json({ success: false, message: "잘못된 요청입니다" }, 400); }
     const cartItemIds: string[] = Array.isArray(body.cartItemIds) ? body.cartItemIds : [];
     const recipient = body.recipient || {};
-    const couponId = body.couponId || null;
+    const userCouponId = body.userCouponId || null;       // ★ 보유 쿠폰 단위 식별자 (우선)
+    const couponId = body.couponId || null;               // 하위호환 (userCouponId 없을 때만 사용)
     let pointsToUse = Math.max(0, Math.floor(Number(body.pointsToUse) || 0));
 
     if (!cartItemIds.length) return json({ success: false, message: "주문할 상품이 없습니다" }, 400);
@@ -233,22 +234,25 @@ Deno.serve(async (req) => {
     });
     const shipping = subtotal >= FREE_SHIPPING ? 0 : (subtotal > 0 ? SHIPPING_FEE : 0);
 
-    /* ── 6. 쿠폰: 본인 보유 + 미사용 + 활성/유효기간/한도 검증, 할인 서버 재계산 ── */
-    let couponDiscount = 0, validCouponId: string | null = null;
-    if (couponId) {
-      const { data: uc } = await supabase
+    /* ── 6. 쿠폰: user_coupon_id(보유쿠폰) 기준 · 본인소유 + 미사용 + 활성/만료/한도/최소금액 검증, 할인 서버 재계산 ── */
+    let couponDiscount = 0, validCouponId: string | null = null, validUserCouponId: string | null = null;
+    if (userCouponId || couponId) {
+      let q = supabase
         .from("user_coupons")
         .select("*, coupons(*)")
-        .eq("user_id", user.id)
-        .eq("coupon_id", couponId)
-        .eq("is_used", false)
-        .limit(1)
-        .maybeSingle();
+        .eq("user_id", user.id)        // ★ 반드시 본인 소유만 (남의 쿠폰 차단)
+        .eq("is_used", false);
+      if (userCouponId) q = q.eq("id", userCouponId);   // 보유 쿠폰 식별자 우선
+      else q = q.eq("coupon_id", couponId);             // 하위호환
+      const { data: uc } = await q.limit(1).maybeSingle();
       if (!uc || !uc.coupons) return json({ success: false, message: "사용할 수 없는 쿠폰입니다" }, 400);
       const c: any = uc.coupons;
       if (c.is_active === false)
         return json({ success: false, message: "사용할 수 없는 쿠폰입니다 (비활성)" }, 400);
-      if (c.valid_until && new Date(c.valid_until).getTime() < Date.now())
+      // 만료: 보유쿠폰 expires_at 우선, 없으면 쿠폰 마스터 valid_until
+      const expMs = uc.expires_at ? new Date(uc.expires_at).getTime()
+                  : (c.valid_until ? new Date(c.valid_until).getTime() : null);
+      if (expMs !== null && expMs < Date.now())
         return json({ success: false, message: "쿠폰 유효기간이 지났습니다" }, 400);
       if (c.usage_limit && Number(c.used_count || 0) >= Number(c.usage_limit))
         return json({ success: false, message: "쿠폰 사용 한도가 초과되었습니다" }, 400);
@@ -261,7 +265,9 @@ Deno.serve(async (req) => {
         couponDiscount = c.discount_value;
       }
       if (couponDiscount > subtotal) couponDiscount = subtotal;
-      validCouponId = couponId;
+      validCouponId = uc.coupon_id;
+      validUserCouponId = uc.id;
+      // ※ 여기서는 절대 사용처리하지 않는다 (is_used 그대로). 실제 사용처리는 toss-confirm(paid)에서.
     }
 
     /* ── 7. 포인트: user_profiles.point 잔액·한도 검증 ── */
@@ -298,6 +304,7 @@ Deno.serve(async (req) => {
       total_amount: total,
       coupon_id: validCouponId,
       coupon_discount: couponDiscount,
+      user_coupon_id: validUserCouponId,
       points_used: pointsToUse,
     };
 
@@ -350,6 +357,7 @@ Deno.serve(async (req) => {
       amount: total,        // 서버 확정 금액 (Toss 결제창 금액)
       orderName,
       couponId: validCouponId,
+      userCouponId: validUserCouponId,
       pointsUsed: pointsToUse,
     });
   } catch (e) {
