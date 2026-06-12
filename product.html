@@ -1405,7 +1405,7 @@ function collectCartLines(){
   }
   const addonLines=[];
   if(isEdit()&&buyOptions.length){
-    const parts=[]; let any=false;
+    const parts=[]; let any=false; const sel=[];
     buyOptions.forEach((o,oi)=>{
       if(!Array.isArray(o.items)) return;
       const sset=(window.__selItems&&window.__selItems[oi])?[...window.__selItems[oi]]:[];
@@ -1414,9 +1414,10 @@ function collectCartLines(){
         any=true;
         const nm=it.color_name||it.name||'';
         const pr=Number(it.price)||0;
+        sel.push({po_id:o.id, item_index:j});
         if(it.link_product_id && it.link_product_id!==product.id){
           // 다른 상품과 연결됨 → 별도 장바구니 줄로 (가격 = 옵션에 들어간 값 그대로)
-          addonLines.push({product_id:it.link_product_id, price:pr});
+          addonLines.push({product_id:it.link_product_id, price:pr, po_id:o.id, item_index:j});
         }else{
           // 연결 없는 옵션(색상 등) → 메인 상품 줄에 유지
           parts.push(pr>0?`${nm} (+${pr.toLocaleString()}원)`:nm);
@@ -1425,6 +1426,7 @@ function collectCartLines(){
     });
     if(!any){alert('항목을 하나 이상 선택해주세요.');return null;}
     if(parts.length) mainOpts['구성']=parts.join(', ');
+    mainOpts['_sel']=sel;
     const linkedSum=addonLines.reduce((s,a)=>s+a.price,0);
     mainOpts['_line_price']=Math.max(0, allSelectedTotal()-linkedSum);  // 메인 줄 = 전체 − 연결상품
   }
@@ -1459,7 +1461,7 @@ async function buyNow(){
   else{const{data:nc}=await sb.from('carts').insert({user_id:session.user.id}).select().single();cartId=nc.id;}
 
   await addCartLine(cartId, product.id, qty, lines.mainOpts);
-  for(const a of lines.addonLines){ await addCartLine(cartId, a.product_id, qty, {_line_price:a.price}); }
+  for(const a of lines.addonLines){ await addCartLine(cartId, a.product_id, qty, {_line_price:a.price, _addon:true, po_id:a.po_id, item_index:a.item_index}); }
 
   // 방금 담은 상품들만 결제로
   const ids=[...new Set([product.id, ...lines.addonLines.map(a=>a.product_id)])];
@@ -1491,7 +1493,7 @@ async function addToCart(){
 
   // 메인 상품 + 연결 상품(별도 줄) 각각 담기
   await addCartLine(cartId, product.id, qty, lines.mainOpts);
-  for(const a of lines.addonLines){ await addCartLine(cartId, a.product_id, qty, {_line_price:a.price}); }
+  for(const a of lines.addonLines){ await addCartLine(cartId, a.product_id, qty, {_line_price:a.price, _addon:true, po_id:a.po_id, item_index:a.item_index}); }
 
   if(confirm('장바구니에 담았습니다!\n장바구니로 이동하시겠습니까?')){
     window.location.href='/cart.html';
