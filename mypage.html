@@ -205,8 +205,8 @@
 .review-reward-inline{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:600;color:#7a6a1f}
 .review-btns{display:flex;gap:8px}
 .review-point-hint{font-size:11px;color:#2E7D32}
-.review-submit-btn{padding:11px 30px;font-size:12px;font-weight:700;background:#F4D84E;color:#111;border:none;border-radius:6px;cursor:pointer;font-family:inherit}
-.review-cancel-btn{padding:11px 30px;font-size:12px;font-weight:600;background:#fff;color:#111;border:1px solid #111;border-radius:6px;cursor:pointer;font-family:inherit}
+.review-submit-btn,.review-cancel-btn{padding:10px 28px;font-size:12px;font-weight:600;background:#fff;color:#111;border:1px solid #111;border-radius:6px;cursor:pointer;font-family:inherit;transition:background .15s,color .15s}
+.review-submit-btn:hover,.review-cancel-btn:hover{background:#111;color:#fff}
 .review-reward{display:flex;align-items:center;gap:10px;margin:0 0 18px;padding:14px 16px;background:#FBF7E6;border:1px solid #F0E3A8;border-radius:8px;font-size:13px;font-weight:600;color:#7a6a1f}
 .review-reward-ic{width:18px;height:18px;border-radius:50%;background:#F4D84E;color:#7a5d00;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:10px;flex-shrink:0}
 .review-attach-wrap{display:flex;gap:10px;align-items:flex-start;flex-wrap:wrap;margin-top:10px}
@@ -331,7 +331,7 @@
     </div>
     <div id="couponList"></div>
   </div></div>
-    <div class="acc-item open"><div class="acc-header" onclick="toggleAcc(this)"><span>포인트<span class="acc-count" id="accPointCnt"></span></span><span class="acc-arrow">▾</span></div><div class="acc-body">
+    <div class="acc-item"><div class="acc-header" onclick="toggleAcc(this)"><span>포인트<span class="acc-count" id="accPointCnt"></span></span><span class="acc-arrow">▾</span></div><div class="acc-body">
     <div class="point-balance-card"><div><span style="font-size:12px;color:#888;">보유 포인트</span></div><div style="font-size:18px;font-weight:700;" id="pointBalance">0 P</div></div>
     <div id="pointList"></div>
   </div></div>
@@ -711,8 +711,7 @@ async function loadOrders(){
         <div class="order-detail-section"><div class="order-detail-label">결제 정보</div><div class="order-detail-row">결제수단: ${o.payment_method||'—'}<br>결제일: ${o.paid_at?new Date(o.paid_at).toLocaleDateString('ko-KR',{year:'numeric',month:'long',day:'numeric',hour:'2-digit',minute:'2-digit'}):'—'}<br>상품 ${(o.subtotal||0).toLocaleString()}원${o.discount_amount?' / 할인 -'+o.discount_amount.toLocaleString()+'원':''}${o.coupon_discount?' / 쿠폰 -'+o.coupon_discount.toLocaleString()+'원':''}${o.points_used?' / 포인트 -'+o.points_used.toLocaleString()+'P':''}${o.shipping_fee!=null?' / 배송비 '+(o.shipping_fee>0?o.shipping_fee.toLocaleString()+'원':'무료'):''}</div></div>
       </div>
       <div class="review-inline" id="review-form-${o.id}" style="display:none;">
-        <div style="font-size:15px;font-weight:700;margin-bottom:12px;">리뷰 작성</div>
-        <div class="review-stars-input" id="review-stars-${o.id}">${[1,2,3,4,5].map(n=>`<span onclick="setReviewStar('${o.id}',${n})" data-n="${n}" class="on">★</span>`).join('')}</div>
+        <div style="display:flex;align-items:center;gap:14px;margin-bottom:12px;flex-wrap:wrap;"><div style="font-size:15px;font-weight:700;">리뷰 작성</div><div class="review-stars-input" id="review-stars-${o.id}" style="margin-bottom:0;">${[1,2,3,4,5].map(n=>`<span onclick="setReviewStar('${o.id}',${n})" data-n="${n}" class="on">★</span>`).join('')}</div></div>
         <textarea class="review-textarea" id="review-text-${o.id}" placeholder="상품은 어떠셨나요? 솔직한 리뷰를 남겨주세요."></textarea>
         <div class="review-attach-wrap"><label class="review-attach"><span class="plus">+</span><span>사진 첨부</span><input type="file" id="review-img-${o.id}" accept="image/png,image/jpeg,image/gif" multiple style="display:none;" onchange="previewReviewImg(this,'${o.id}')"></label><div id="review-preview-${o.id}"></div></div>
         <div class="review-submit-row"><span class="review-reward-inline"><span class="review-reward-ic">P</span>리뷰 작성 시 ${pointReview}P 적립</span><span class="review-btns"><button class="review-cancel-btn" onclick="toggleReviewForm('${o.id}')">취소</button><button class="review-submit-btn" onclick="submitOrderReview('${o.id}')">등록</button></span></div>
@@ -908,6 +907,7 @@ async function registerCoupon(){
 /* ── POINTS ── */
 async function loadPointHistory(){
   document.getElementById('pointBalance').textContent=(profile?.point||0).toLocaleString()+' P';
+  document.getElementById('accPointCnt').textContent=' '+(profile?.point||0).toLocaleString()+'P';
   const{data}=await sb.from('point_history').select('*').eq('user_id',currentUser.id).order('created_at',{ascending:false}).limit(50);
   const el=document.getElementById('pointList');
   if(!data?.length){el.innerHTML='<div style="text-align:center;padding:14px 0;color:#bbb;font-size:12px;">포인트 내역이 없습니다</div>';return;}
