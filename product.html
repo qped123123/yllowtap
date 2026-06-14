@@ -1294,7 +1294,7 @@ async function submitReview(){
   const{data:prof}=await sb.from('user_profiles').select('display_name').eq('id',session.user.id).single();
   const name=prof?.display_name||'회원';
   const{error}=await sb.from('reviews').insert({
-    product_id:product.id,author_name:name,rating:rfRating,content,images:rfImageUrls
+    product_id:product.id,user_id:session.user.id,author_name:name,rating:rfRating,content,images:rfImageUrls
   });
   if(error){alert('등록 실패: '+error.message);return}
   // 리셋
