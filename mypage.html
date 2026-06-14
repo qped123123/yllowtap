@@ -327,6 +327,7 @@
     <div class="acc-item open"><div class="acc-header" onclick="toggleAcc(this)"><span>찜한 상품<span class="acc-count" id="accWishCnt"></span></span><span class="acc-arrow">▾</span></div><div class="acc-body"><div class="wish-grid" id="wishGrid"></div></div></div>
     <div class="acc-item open"><div class="acc-header" onclick="toggleAcc(this)">최근 본 상품<span class="acc-arrow">▾</span></div><div class="acc-body"><div class="recent-grid" id="recentGrid"></div></div></div>
     <div class="acc-item"><div class="acc-header" onclick="toggleAcc(this)"><span>주문내역<span class="acc-count" id="accOrderCnt"></span></span><span class="acc-arrow">▾</span></div><div class="acc-body"><div id="orderList"></div></div></div>
+    <div class="acc-item"><div class="acc-header" onclick="toggleAcc(this)"><span>내 리뷰<span class="acc-count" id="accReviewCnt"></span></span><span class="acc-arrow">▾</span></div><div class="acc-body"><div id="myReviewList"></div></div></div>
     <section class="scmp-section" style="background:#fff;border:1px solid #E5E1DC;margin-bottom:8px;padding:16px 20px;">
       <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-bottom:12px;">
         <div style="font-size:15px;font-weight:600;">내가 비교한 상품들 <span style="font-size:12px;color:#888;font-weight:400;" id="accSavedCmpCnt"></span></div>
@@ -499,7 +500,72 @@ function switchMyTab(tab){
   const t=document.getElementById(targetIds[tab]||'panel-'+tab);
   if(t){ const acc=t.closest('.acc-item'); if(acc)acc.classList.add('open'); t.scrollIntoView({behavior:'smooth',block:'start'}); }
 }
-function loadAll(){loadOrders();loadCoupons();loadPointHistory();loadWishlist();loadRecent();loadAddresses();loadInquiries();loadPointSettings();loadSavedComparisons();}
+function loadAll(){loadOrders();loadCoupons();loadPointHistory();loadWishlist();loadRecent();loadAddresses();loadInquiries();loadPointSettings();loadSavedComparisons();loadMyReviews();}
+
+/* ── 내 리뷰 (수정/삭제는 RPC 전용, 직접 update/delete 안 함) ── */
+function escapeHTML(v){return String(v??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');}
+let myReviews=[];
+async function loadMyReviews(){
+  const{data,error}=await sb.from('reviews')
+    .select('*, products(name,slug)')
+    .eq('user_id',currentUser.id)
+    .is('deleted_at',null)
+    .order('created_at',{ascending:false});
+  if(error){console.error(error);return;}
+  myReviews=data||[];
+  document.getElementById('accReviewCnt').textContent=myReviews.length?`(${myReviews.length})`:'';
+  const el=document.getElementById('myReviewList');
+  if(!myReviews.length){el.innerHTML='<div class="my-empty"><p>작성한 리뷰가 없습니다</p></div>';return;}
+  el.innerHTML=myReviews.map(r=>{
+    const pname=escapeHTML(r.products?.name||'상품');
+    const stars='★'.repeat(r.rating)+'☆'.repeat(5-r.rating);
+    const date=new Date(r.created_at).toLocaleDateString('ko-KR');
+    const content=escapeHTML(r.content).replace(/\n/g,'<br>');
+    const imgs=(r.images||[]).map(u=>`<img src="${escapeHTML(u)}" style="width:54px;height:54px;object-fit:cover;border-radius:6px;border:1px solid #eee;cursor:pointer;" onclick="window.open(this.src,'_blank')">`).join('');
+    return `<div class="myrv-item" id="myrv-${r.id}" style="border:1px solid #eee;border-radius:10px;padding:14px;margin-bottom:10px;">
+      <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;">
+        <div style="font-weight:600;font-size:14px;">${pname}</div>
+        <div style="font-size:12px;color:#999;">${date}</div>
+      </div>
+      <div style="color:#F4B400;font-size:14px;margin:4px 0;letter-spacing:1px;">${stars}</div>
+      ${imgs?`<div style="display:flex;gap:6px;margin:6px 0;flex-wrap:wrap;">${imgs}</div>`:''}
+      <div style="font-size:13px;color:#444;line-height:1.6;">${content}</div>
+      <div style="display:flex;gap:8px;margin-top:10px;">
+        <button onclick="editMyReview('${r.id}')" style="padding:6px 14px;font-size:12px;border:1px solid #111;background:#fff;border-radius:6px;cursor:pointer;">수정</button>
+        <button onclick="deleteMyReview('${r.id}')" style="padding:6px 14px;font-size:12px;border:none;background:#111;color:#fff;border-radius:6px;cursor:pointer;">삭제</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+function editMyReview(id){
+  const r=myReviews.find(x=>x.id===id); if(!r)return;
+  const box=document.getElementById('myrv-'+id);
+  box.innerHTML=`
+    <div style="font-weight:600;font-size:14px;margin-bottom:8px;">${escapeHTML(r.products?.name||'상품')} · 리뷰 수정</div>
+    <select id="myrv-rating-${id}" style="padding:6px 10px;border:1px solid #ddd;border-radius:6px;margin-bottom:8px;font-size:13px;">
+      ${[5,4,3,2,1].map(n=>`<option value="${n}" ${n===r.rating?'selected':''}>${'★'.repeat(n)} (${n}점)</option>`).join('')}
+    </select>
+    <textarea id="myrv-content-${id}" style="width:100%;min-height:80px;padding:10px;border:1px solid #ddd;border-radius:6px;font-size:13px;box-sizing:border-box;line-height:1.6;">${escapeHTML(r.content)}</textarea>
+    <div style="display:flex;gap:8px;margin-top:10px;">
+      <button onclick="saveMyReview('${id}')" style="padding:6px 14px;font-size:12px;border:none;background:#111;color:#fff;border-radius:6px;cursor:pointer;">저장</button>
+      <button onclick="loadMyReviews()" style="padding:6px 14px;font-size:12px;border:1px solid #111;background:#fff;border-radius:6px;cursor:pointer;">취소</button>
+    </div>`;
+}
+async function saveMyReview(id){
+  const r=myReviews.find(x=>x.id===id); if(!r)return;
+  const rating=parseInt(document.getElementById('myrv-rating-'+id).value);
+  const content=document.getElementById('myrv-content-'+id).value.trim();
+  if(!content){alert('리뷰 내용을 입력해주세요.');return;}
+  const{error}=await sb.rpc('update_my_review',{p_review_id:id,p_rating:rating,p_content:content,p_images:r.images||null});
+  if(error){alert('수정 실패: '+error.message);return;}
+  await loadMyReviews();
+}
+async function deleteMyReview(id){
+  if(!confirm('이 리뷰를 삭제할까요?'))return;
+  const{error}=await sb.rpc('delete_my_review',{p_review_id:id});
+  if(error){alert('삭제 실패: '+error.message);return;}
+  await loadMyReviews();
+}
 
 /* ── 저장한 비교 ── */
 let _savedCmpMap={};
@@ -880,7 +946,14 @@ async function loadInquiries(){
   if(!data?.length){el.innerHTML='<div class="my-empty"><p>문의 내역이 없습니다</p></div>';return;}
   const catMap={general:'일반',order:'주문/결제',shipping:'배송',exchange:'교환',return:'반품/환불',product:'상품'};
   const stMap={pending:'답변 대기',answered:'답변 완료',closed:'종료'};
-  el.innerHTML=data.map(q=>`<div class="order-card"><div class="order-card-top"><div><span style="font-size:11px;color:#888;margin-right:8px;">[${catMap[q.category]||q.category}]</span><span class="order-number">${q.title}</span></div><span class="order-status ${q.status==='answered'?'status-paid':'status-pending'}">${stMap[q.status]||q.status}</span></div><div style="font-size:13px;color:#444;line-height:1.7;margin-bottom:8px;">${q.content.replace(/\n/g,'<br>')}</div><div style="font-size:11px;color:#888;">${new Date(q.created_at).toLocaleDateString('ko-KR')}</div>${q.answer?`<div style="margin-top:12px;padding:14px;background:#F7F5F2;border-left:3px solid #F4D84E;font-size:13px;color:#444;line-height:1.7;"><div style="font-size:11px;font-weight:600;color:#111;margin-bottom:6px;">관리자 답변</div>${q.answer.replace(/\n/g,'<br>')}<div style="font-size:10px;color:#888;margin-top:6px;">${q.answered_at?new Date(q.answered_at).toLocaleDateString('ko-KR'):''}</div></div>`:''}</div>`).join('');
+  el.innerHTML=data.map(q=>{
+    const cat=escapeHTML(catMap[q.category]||q.category||'');
+    const st=escapeHTML(stMap[q.status]||q.status||'');
+    const title=escapeHTML(q.title);
+    const safeContent=escapeHTML(q.content).replace(/\n/g,'<br>');
+    const safeAnswer=escapeHTML(q.answer).replace(/\n/g,'<br>');
+    return `<div class="order-card"><div class="order-card-top"><div><span style="font-size:11px;color:#888;margin-right:8px;">[${cat}]</span><span class="order-number">${title}</span></div><span class="order-status ${q.status==='answered'?'status-paid':'status-pending'}">${st}</span></div><div style="font-size:13px;color:#444;line-height:1.7;margin-bottom:8px;">${safeContent}</div><div style="font-size:11px;color:#888;">${new Date(q.created_at).toLocaleDateString('ko-KR')}</div>${q.answer?`<div style="margin-top:12px;padding:14px;background:#F7F5F2;border-left:3px solid #F4D84E;font-size:13px;color:#444;line-height:1.7;"><div style="font-size:11px;font-weight:600;color:#111;margin-bottom:6px;">관리자 답변</div>${safeAnswer}<div style="font-size:10px;color:#888;margin-top:6px;">${q.answered_at?new Date(q.answered_at).toLocaleDateString('ko-KR'):''}</div></div>`:''}</div>`;
+  }).join('');
 }
 function toggleInquiryForm(){document.getElementById('inquiryForm').style.display=document.getElementById('inquiryForm').style.display==='none'?'block':'none';}
 async function submitInquiry(){const d={user_id:currentUser.id,category:document.getElementById('iqCategory').value,title:document.getElementById('iqTitle').value.trim(),content:document.getElementById('iqContent').value.trim()};if(!d.title||!d.content){alert('제목과 내용을 입력해주세요.');return;}const{error}=await sb.from('inquiries').insert(d);if(error){alert('등록 실패: '+error.message);return;}document.getElementById('iqTitle').value='';document.getElementById('iqContent').value='';toggleInquiryForm();loadInquiries();}
