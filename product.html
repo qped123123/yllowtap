@@ -1209,10 +1209,15 @@ function isVideoUrl(u){return /\.(mp4|mov|webm|quicktime|m4v)$/i.test(String(u||
 function openReviewMedia(url,isVideo){
   const m=document.getElementById('reviewMediaModal');
   if(!m)return;
-  document.getElementById('reviewMediaContent').innerHTML = isVideo
-    ? `<video src="${url}" controls autoplay playsinline style="max-width:90vw;max-height:85vh;border-radius:8px;background:#000;"></video>`
+  const c=document.getElementById('reviewMediaContent');
+  c.innerHTML = isVideo
+    ? `<video src="${url}" controls playsinline style="max-width:90vw;max-height:85vh;border-radius:8px;background:#000;"></video>`
     : `<img src="${url}" style="max-width:90vw;max-height:85vh;border-radius:8px;">`;
   m.style.display='flex';
+  if(isVideo){
+    const v=c.querySelector('video');
+    if(v){ v.play().catch(()=>{ v.muted=true; v.play().catch(()=>{}); }); }
+  }
 }
 function closeReviewMedia(){
   const m=document.getElementById('reviewMediaModal');
