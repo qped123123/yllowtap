@@ -680,19 +680,14 @@ async function requestExchangeReturn(id,num){
   alert(label+' 요청이 접수되었습니다.\n1:1 문의에서 상품 사진을 함께 보내주시면 빠르게 처리됩니다.');
   loadOrders();
 }
-async function confirmOrder(id,num,totalAmount){if(!confirm('구매를 확정하시겠습니까?\n주문번호: '+num+'\n\n확정 후 교환·반품이 제한될 수 있습니다.'))return;await sb.from('orders').update({status:'confirmed',updated_at:new Date().toISOString()}).eq('id',id);
-  // 포인트 적립
-  const grade=profile?.grade||'basic';
-  const rate=pointRates[grade]||1;
-  const earn=Math.floor((totalAmount||0)*rate/100);
-  if(earn>0){
-    const{data:p}=await sb.from('user_profiles').select('point').eq('id',currentUser.id).single();
-    await sb.from('user_profiles').update({point:(p?.point||0)+earn}).eq('id',currentUser.id);
-    await sb.from('point_history').insert({user_id:currentUser.id,amount:earn,type:'earn',description:'구매확정 적립 ('+rate+'%)',order_id:id});
-    profile.point=(p?.point||0)+earn;
-    alert('구매가 확정되었습니다!\n'+earn.toLocaleString()+'P가 적립되었습니다 🎁');
-  }else{alert('구매가 확정되었습니다!');}
-  loadOrders();loadPointHistory();renderUserCard();
+async function confirmOrder(id,num,totalAmount){
+  if(!confirm('구매를 확정하시겠습니까?\n주문번호: '+num+'\n\n확정 후 교환·반품이 제한될 수 있습니다.'))return;
+  // 구매확정 + 적립 = 서버 RPC (status·point·point_history 전부 서버에서 검증·1회 처리)
+  const{data,error}=await sb.rpc('confirm_order',{p_order_id:id});
+  if(error){alert('구매확정 실패: '+error.message);return;}
+  const earned=data?.earned||0;
+  alert(earned>0 ? '구매가 확정되었습니다!\n'+earned.toLocaleString()+'P가 적립되었습니다 🎁' : '구매가 확정되었습니다!');
+  loadProfile();loadOrders();loadPointHistory();
 }
 
 /* ── 포인트 설정 ── */
@@ -736,13 +731,7 @@ async function submitOrderReview(orderId){
   const rating=reviewStars[orderId];if(!rating){alert('별점을 선택해주세요.');return;}
   const content=document.getElementById('review-text-'+orderId).value.trim();
   if(!content){alert('리뷰 내용을 입력해주세요.');return;}
-  // 서버 재확인 (이중 클릭/우회 방지)
-  const{data:dup}=await sb.from('reviews').select('id').eq('order_id',orderId).limit(1);
-  if(dup&&dup.length){alert('이미 이 주문에 리뷰를 작성하셨습니다.');reviewedOrders.add(orderId);loadOrders();return;}
-  const{data:order}=await sb.from('orders').select('order_items(product_id)').eq('id',orderId).single();
-  const productId=order?.order_items?.[0]?.product_id;
-  if(!productId){alert('상품 정보를 찾을 수 없습니다.');return;}
-  // 이미지 업로드
+  // 이미지 업로드만 클라(storage), URL 배열은 RPC로 넘김
   let imageUrls=[];
   const fileInput=document.getElementById('review-img-'+orderId);
   if(fileInput?.files?.length){
@@ -752,17 +741,14 @@ async function submitOrderReview(orderId){
       if(!ue){const{data:u}=sb.storage.from('media').getPublicUrl(fn);imageUrls.push(u.publicUrl);}
     }
   }
-  const{error}=await sb.from('reviews').insert({product_id:productId,order_id:orderId,author_name:profile?.display_name||'회원',rating,content,images:imageUrls.length?imageUrls:null,is_visible:true});
+  // 리뷰 등록 + 적립 = 서버 RPC (검증·주문당 1회 멱등). 상품조회·중복확인·포인트 모두 서버 처리
+  const{data,error}=await sb.rpc('submit_order_review',{p_order_id:orderId,p_rating:rating,p_content:content,p_images:imageUrls.length?imageUrls:null});
   if(error){alert('리뷰 등록 실패: '+error.message);return;}
+  if(data?.status==='already_reviewed'){alert('이미 이 주문에 리뷰를 작성하셨습니다.');reviewedOrders.add(orderId);loadOrders();return;}
   reviewedOrders.add(orderId);
-  if(pointReview>0){
-    const{data:p}=await sb.from('user_profiles').select('point').eq('id',currentUser.id).single();
-    await sb.from('user_profiles').update({point:(p?.point||0)+pointReview}).eq('id',currentUser.id);
-    await sb.from('point_history').insert({user_id:currentUser.id,amount:pointReview,type:'earn',description:'리뷰 작성 적립',order_id:orderId});
-    profile.point=(p?.point||0)+pointReview;
-    alert('리뷰가 등록되었습니다!\n'+pointReview+'P가 적립되었습니다 🎁');
-  }else{alert('리뷰가 등록되었습니다!');}
-  toggleReviewForm(orderId);loadOrders();loadPointHistory();renderUserCard();
+  const earned=data?.earned||0;
+  alert(earned>0 ? '리뷰가 등록되었습니다!\n'+earned+'P가 적립되었습니다 🎁' : '리뷰가 등록되었습니다!');
+  toggleReviewForm(orderId);loadProfile();loadOrders();loadPointHistory();
 }
 
 
