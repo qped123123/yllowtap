@@ -395,6 +395,29 @@
   .pd-color-item img{width:96px;height:120px}
 }
 </style>
+
+<style>
+/* ===== REVIEW R1 목표 디자인 리스타일 ===== */
+#panel-review .pd-review-summary{align-items:center;gap:32px;padding:24px;background:var(--pd-white,#fff);border:1px solid var(--pd-border-lt);border-radius:8px}
+#panel-review .pd-review-avg-num{font-size:44px;letter-spacing:-1px}
+#panel-review .pd-review-avg-stars{font-size:16px}
+#reviewForm{border-radius:8px;padding:28px}
+#reviewForm .pd-review-form-title{font-size:16px;text-align:left;margin-bottom:20px}
+#rfStars{justify-content:flex-start;gap:6px;margin-bottom:22px}
+#rfStars .pd-rf-star{font-size:32px}
+#reviewForm .pd-rf-textarea{min-height:120px;border-radius:6px;line-height:1.7}
+.pd-rf-attach{display:inline-flex;flex-direction:column;align-items:center;justify-content:center;width:84px;height:84px;border:1.5px dashed var(--pd-border);border-radius:8px;background:var(--pd-bg);color:var(--pd-text3);font-size:11px;gap:4px;cursor:pointer;transition:border-color .2s,color .2s}
+.pd-rf-attach:hover{border-color:var(--pd-text2);color:var(--pd-text2)}
+.pd-rf-attach-plus{font-size:22px;line-height:1}
+.pd-rf-img-preview{gap:8px;margin-top:10px}
+.pd-rf-img-preview img{width:84px;height:84px;border-radius:8px;object-fit:cover}
+.pd-rf-reward{display:flex;align-items:center;gap:10px;margin:22px 0 6px;padding:14px 16px;background:#FBF7E6;border:1px solid #F0E3A8;border-radius:8px;font-size:12px;color:#7a6a1f;line-height:1.5}
+.pd-rf-reward-ic{width:20px;height:20px;border-radius:50%;background:#F4D84E;color:#7a5d00;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:11px;flex-shrink:0}
+.pd-rf-reward b{color:#5a4d12}
+.pd-rf-actions{gap:8px;margin-top:8px}
+.pd-rf-actions button{border-radius:6px;flex:1}
+@media(max-width:768px){#panel-review .pd-review-summary{gap:20px;padding:18px}#reviewForm{padding:18px}#rfStars .pd-rf-star{font-size:34px}.pd-rf-attach,.pd-rf-img-preview img{width:72px;height:72px}}
+</style>
 </head>
 <body>
 <div class="pd-loading" id="pageLoading"><div class="pd-spinner"></div></div>
@@ -498,12 +521,17 @@
       <div class="pd-rf-row full">
         <div>
           <div class="pd-rf-label">사진/GIF 첨부 (선택)</div>
-          <label class="btn btn-secondary btn-small" style="display:inline-flex;align-items:center;gap:6px;cursor:pointer;padding:8px 16px;font-size:11px;border:1px solid var(--pd-border);background:var(--pd-bg);border-radius:4px;">
-            📎 이미지 첨부
+          <label class="pd-rf-attach">
+            <span class="pd-rf-attach-plus">+</span>
+            <span>사진 첨부</span>
             <input type="file" id="rfFiles" accept="image/png,image/jpeg,image/gif" multiple style="display:none;">
           </label>
           <div class="pd-rf-img-preview" id="rfImgPreview"></div>
         </div>
+      </div>
+      <div class="pd-rf-reward">
+        <span class="pd-rf-reward-ic">P</span>
+        <span><b>리뷰 등록 시 300원 적립</b> · 사진/동영상 리뷰 시 500원 추가 적립</span>
       </div>
       <div class="pd-rf-actions">
         <button style="padding:10px 24px;font-size:12px;border:1px solid var(--pd-border);background:none;cursor:pointer;font-family:var(--pd-fb);color:var(--pd-text2)" onclick="toggleReviewForm()">취소</button>
