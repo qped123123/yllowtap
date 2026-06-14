@@ -410,10 +410,10 @@ const sb=window.supabase.createClient(SUPABASE_URL,SUPABASE_ANON);
 let currentUser=null,profile=null;
 
 const TIERS={
-  basic: {label:'BASIC', min:0,      benefits:['기본 적립 1%']},
-  silver:{label:'SILVER',min:100000,  benefits:['포인트 2% 적립','생일 쿠폰']},
-  gold:  {label:'GOLD',  min:500000,  benefits:['포인트 3% 적립','생일 쿠폰','무료 배송']},
-  vip:   {label:'VIP',   min:1000000, benefits:['포인트 5% 적립','생일 쿠폰','무료 배송','우선 상담']}
+  basic: {label:'BASIC', min:0,      extra:[]},
+  silver:{label:'SILVER',min:100000,  extra:['생일 쿠폰']},
+  gold:  {label:'GOLD',  min:500000,  extra:['생일 쿠폰','무료 배송']},
+  vip:   {label:'VIP',   min:1000000, extra:['생일 쿠폰','무료 배송','우선 상담']}
 };
 const TIER_ORDER=['basic','silver','gold','vip'];
 
@@ -465,7 +465,9 @@ function renderMembership(){
   }
   document.getElementById('mbTiers').innerHTML=TIER_ORDER.map(t=>{
     const c=TIERS[t];
-    return`<div class="membership-tier${t===g?' active':''}"><div class="tier-name">${c.label}</div><div style="font-size:10px;color:${t===g?'rgba(255,255,255,.6)':'#aaa'};margin-bottom:4px;">${c.min>0?c.min.toLocaleString()+'원~':'가입 시'}</div><div class="tier-benefits">${c.benefits.join('<br>')}</div></div>`;
+    const rateText=(t==='basic'?'기본 적립 ':'포인트 ')+(pointRates[t]||1)+'% 적립';
+    const benefits=[rateText,...c.extra];
+    return`<div class="membership-tier${t===g?' active':''}"><div class="tier-name">${c.label}</div><div style="font-size:10px;color:${t===g?'rgba(255,255,255,.6)':'#aaa'};margin-bottom:4px;">${c.min>0?c.min.toLocaleString()+'원~':'가입 시'}</div><div class="tier-benefits">${benefits.join('<br>')}</div></div>`;
   }).join('');
 }
 function toggleMembership(){
@@ -704,6 +706,8 @@ async function loadPointSettings(){
     if(r.key==='point_rate_vip')pointRates.vip=parseInt(r.value)||5;
     if(r.key==='point_review')pointReview=parseInt(r.value)||500;
   });
+  // 적립률 로드 후 등급카드 다시 그려서 어드민 설정값이 반영되게
+  if(profile)renderMembership();
 }
 
 /* ── 리뷰 ── */
