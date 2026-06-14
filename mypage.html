@@ -521,6 +521,14 @@ function loadAll(){loadOrders();loadCoupons();loadPointHistory();loadWishlist();
 
 /* ── 내 리뷰 (수정/삭제는 RPC 전용, 직접 update/delete 안 함) ── */
 function escapeHTML(v){return String(v??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');}
+function validateReviewContent(text){
+  const v=text||'', nospace=v.replace(/\s/g,'');
+  if(nospace.length<5) return '리뷰는 공백 제외 5자 이상 작성해주세요.';
+  if(v.length>1000) return '리뷰는 1000자 이내로 작성해주세요.';
+  if(!/[가-힣A-Za-z0-9]/.test(nospace)) return '의미 있는 리뷰를 작성해주세요. (ㅇㅇㅇ·특수문자만은 등록할 수 없어요)';
+  if(new Set(nospace).size<2) return '같은 글자 반복만으로는 등록할 수 없어요.';
+  return null;
+}
 function renderMyOrderReview(orderId){
   const r=reviewedOrders.get(orderId); if(!r)return '';
   const stars='★'.repeat(r.rating)+'☆'.repeat(5-r.rating);
@@ -546,7 +554,7 @@ function editOrderReview(orderId){
     <select id="myrv-rating-${orderId}" style="padding:6px 10px;border:1px solid #ddd;border-radius:6px;margin:8px 0;font-size:13px;">
       ${[5,4,3,2,1].map(n=>`<option value="${n}" ${n===r.rating?'selected':''}>${'★'.repeat(n)} (${n}점)</option>`).join('')}
     </select>
-    <textarea id="myrv-content-${orderId}" style="width:100%;min-height:80px;padding:10px;border:1px solid #ddd;border-radius:6px;font-size:13px;box-sizing:border-box;line-height:1.6;">${escapeHTML(r.content)}</textarea>
+    <textarea id="myrv-content-${orderId}" maxlength="1000" style="width:100%;min-height:80px;padding:10px;border:1px solid #ddd;border-radius:6px;font-size:13px;box-sizing:border-box;line-height:1.6;">${escapeHTML(r.content)}</textarea>
     <div style="display:flex;gap:8px;margin-top:10px;">
       <button onclick="saveOrderReview('${orderId}')" style="padding:6px 14px;font-size:12px;border:none;background:#111;color:#fff;border-radius:6px;cursor:pointer;">저장</button>
       <button onclick="loadOrders()" style="padding:6px 14px;font-size:12px;border:1px solid #111;background:#fff;border-radius:6px;cursor:pointer;">취소</button>
@@ -557,6 +565,8 @@ async function saveOrderReview(orderId){
   const rating=parseInt(document.getElementById('myrv-rating-'+orderId).value);
   const content=document.getElementById('myrv-content-'+orderId).value.trim();
   if(!content){alert('리뷰 내용을 입력해주세요.');return;}
+  const verr=validateReviewContent(content);
+  if(verr){alert(verr);return;}
   const{error}=await sb.rpc('update_my_review',{p_review_id:r.id,p_rating:rating,p_content:content,p_images:r.images||null});
   if(error){alert('수정 실패: '+error.message);return;}
   await loadOrders();
@@ -703,7 +713,7 @@ async function loadOrders(){
       ${actions?'<div class="order-actions">'+actions+'</div>':''}
       <div class="review-inline" id="review-form-${o.id}" style="display:none;">
         <div style="display:flex;align-items:center;gap:14px;margin-bottom:12px;flex-wrap:wrap;"><div style="font-size:15px;font-weight:700;">리뷰 작성</div><div class="review-stars-input" id="review-stars-${o.id}" style="margin-bottom:0;">${[1,2,3,4,5].map(n=>`<span onclick="setReviewStar('${o.id}',${n})" data-n="${n}" class="on">★</span>`).join('')}</div></div>
-        <textarea class="review-textarea" id="review-text-${o.id}" placeholder="상품은 어떠셨나요? 솔직한 리뷰를 남겨주세요."></textarea>
+        <textarea class="review-textarea" id="review-text-${o.id}" maxlength="1000" placeholder="상품은 어떠셨나요? 솔직한 리뷰를 남겨주세요."></textarea>
         <div class="review-attach-wrap"><label class="review-attach"><span class="plus">+</span><span>사진/동영상</span><input type="file" id="review-img-${o.id}" accept="image/png,image/jpeg,image/gif,video/mp4,video/quicktime,video/webm" multiple style="display:none;" onchange="previewReviewImg(this,'${o.id}')"></label><div id="review-preview-${o.id}"></div></div>
         <div class="review-submit-row"><span class="review-reward-inline"><span class="review-reward-ic">P</span>리뷰 작성 시 ${pointReview}P 적립</span><span class="review-btns"><button class="review-cancel-btn" onclick="toggleReviewForm('${o.id}')">취소</button><button class="review-submit-btn" onclick="submitOrderReview('${o.id}')">등록</button></span></div>
       </div>
@@ -816,6 +826,8 @@ async function submitOrderReview(orderId){
   const rating=reviewStars[orderId]||5;
   const content=document.getElementById('review-text-'+orderId).value.trim();
   if(!content){alert('리뷰 내용을 입력해주세요.');return;}
+  const verr=validateReviewContent(content);
+  if(verr){alert(verr);return;}
   // 이미지 업로드만 클라(storage), URL 배열은 RPC로 넘김
   let imageUrls=[];
   const files=reviewFiles[orderId]||[];
@@ -829,12 +841,11 @@ async function submitOrderReview(orderId){
   // 리뷰 등록 + 적립 = 서버 RPC (검증·주문당 1회 멱등). 상품조회·중복확인·포인트 모두 서버 처리
   const{data,error}=await sb.rpc('submit_order_review',{p_order_id:orderId,p_rating:rating,p_content:content,p_images:imageUrls.length?imageUrls:null});
   if(error){alert('리뷰 등록 실패: '+error.message);return;}
-  if(data?.status==='already_reviewed'){alert('이미 이 주문에 리뷰를 작성하셨습니다.');reviewedOrders.add(orderId);loadOrders();return;}
-  reviewedOrders.add(orderId);
+  if(data?.status==='already_reviewed'){alert('이미 이 주문에 리뷰를 작성하셨습니다.');await loadOrders();return;}
   reviewFiles[orderId]=[];
   const earned=data?.earned||0;
   alert(earned>0 ? '리뷰가 등록되었습니다!\n'+earned+'P가 적립되었습니다 🎁' : '리뷰가 등록되었습니다!');
-  toggleReviewForm(orderId);loadProfile();loadOrders();loadPointHistory();
+  toggleReviewForm(orderId);await loadProfile();await loadOrders();await loadPointHistory();
 }
 
 
