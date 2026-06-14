@@ -173,7 +173,16 @@
 .pd-review-zoom{position:absolute;right:4px;bottom:4px;color:#fff;font-size:11px;background:rgba(0,0,0,.5);border-radius:3px;padding:1px 5px;pointer-events:none}
 .pd-rvphoto-head{display:flex;justify-content:space-between;align-items:center;margin:0 0 12px;font-size:14px;font-weight:600}
 .pd-rvphoto-all{background:none;border:none;color:var(--pd-text3);font-size:12px;cursor:pointer;font-family:inherit}
-.pd-rvphoto-grid{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:24px}
+.pd-rvphoto-wrap{position:relative;margin-bottom:24px}
+.pd-rvphoto-grid{display:flex;gap:8px;overflow-x:auto;scroll-behavior:smooth;-webkit-overflow-scrolling:touch;padding-bottom:6px}
+.pd-rvphoto-grid::-webkit-scrollbar{height:6px}
+.pd-rvphoto-grid::-webkit-scrollbar-thumb{background:var(--pd-border);border-radius:3px}
+.pd-rvphoto-grid::-webkit-scrollbar-track{background:transparent}
+.pd-rvphoto-grid .pd-review-media{flex:0 0 auto}
+.pd-rvphoto-arrow{position:absolute;top:46%;transform:translateY(-50%);width:32px;height:32px;border-radius:50%;background:#fff;border:1px solid var(--pd-border);cursor:pointer;z-index:2;display:flex;align-items:center;justify-content:center;font-size:18px;color:var(--pd-text);box-shadow:0 1px 5px rgba(0,0,0,.12);padding:0}
+.pd-rvphoto-arrow.left{left:-14px}
+.pd-rvphoto-arrow.right{right:-14px}
+@media(max-width:768px){.pd-rvphoto-arrow{display:none}}
 .pd-review-controls{display:flex;justify-content:space-between;align-items:center;margin:0 0 16px;border-bottom:1px solid var(--pd-border-lt);padding-bottom:12px}
 .pd-rv-sort{background:none;border:none;font-size:13px;color:var(--pd-text3);cursor:pointer;padding:4px 8px;font-family:inherit}
 .pd-rv-sort.on{color:var(--pd-text);font-weight:700}
@@ -1206,9 +1215,17 @@ function renderReviewPhotos(){
   const media=[];
   allReviews.forEach(r=>(r.images||[]).forEach(u=>media.push(u)));
   if(!media.length){box.innerHTML='';return;}
-  const show=media.slice(0,5);
-  box.innerHTML=`<div class="pd-rvphoto-head"><span>포토 &amp; 동영상 리뷰 (${media.length})</span>${media.length>5?`<button class="pd-rvphoto-all" onclick="var f=document.getElementById('rvPhotoFilter');if(f)f.checked=true;toggleReviewPhotoOnly()">전체보기 ›</button>`:''}</div>
-    <div class="pd-rvphoto-grid">${show.map(u=>{const su=escapeHTML(u);return isVideoUrl(u)?`<div class="pd-review-media" onclick="openReviewMedia('${su}',true)"><video src="${su}" autoplay muted loop playsinline></video><span class="pd-review-zoom">⛶</span></div>`:`<div class="pd-review-media" onclick="openReviewMedia('${su}',false)"><img src="${su}"></div>`;}).join('')}</div>`;
+  const arrows = media.length>5;
+  box.innerHTML=`<div class="pd-rvphoto-head"><span>포토 &amp; 동영상 리뷰 (${media.length})</span></div>
+    <div class="pd-rvphoto-wrap">
+      ${arrows?`<button class="pd-rvphoto-arrow left" onclick="scrollRvPhotos(-1)">‹</button>`:''}
+      <div class="pd-rvphoto-grid" id="rvPhotoGrid">${media.map(u=>{const su=escapeHTML(u);return isVideoUrl(u)?`<div class="pd-review-media" onclick="openReviewMedia('${su}',true)"><video src="${su}" autoplay muted loop playsinline></video><span class="pd-review-zoom">⛶</span></div>`:`<div class="pd-review-media" onclick="openReviewMedia('${su}',false)"><img src="${su}"></div>`;}).join('')}</div>
+      ${arrows?`<button class="pd-rvphoto-arrow right" onclick="scrollRvPhotos(1)">›</button>`:''}
+    </div>`;
+}
+function scrollRvPhotos(dir){
+  const g=document.getElementById('rvPhotoGrid');
+  if(g)g.scrollBy({left:dir*220,behavior:'smooth'});
 }
 
 function renderReviewSummary(){
