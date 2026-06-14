@@ -410,10 +410,13 @@
 .pd-rf-attach:hover{border-color:var(--pd-text2);color:var(--pd-text2)}
 .pd-rf-attach-plus{font-size:22px;line-height:1}
 .pd-rf-img-preview{gap:8px;margin-top:10px}
+.pd-rf-attach-wrap{display:flex;gap:10px;align-items:flex-start;flex-wrap:wrap;margin-top:8px}
+.pd-rf-attach-wrap .pd-rf-img-preview{margin-top:0}
 .pd-rf-img-preview img{width:84px;height:84px;border-radius:8px;object-fit:cover}
 .pd-rf-reward{display:flex;align-items:center;gap:10px;margin:22px 0 6px;padding:14px 16px;background:#FBF7E6;border:1px solid #F0E3A8;border-radius:8px;font-size:12px;color:#7a6a1f;line-height:1.5}
 .pd-rf-reward-ic{width:20px;height:20px;border-radius:50%;background:#F4D84E;color:#7a5d00;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:11px;flex-shrink:0}
 .pd-rf-reward b{color:#5a4d12}
+.pd-rf-reward-note{font-size:12px;color:var(--pd-text2);margin:18px 0 4px;line-height:1.5}
 .pd-rf-actions{gap:8px;margin-top:8px}
 .pd-rf-actions button{border-radius:6px;flex:1}
 @media(max-width:768px){#panel-review .pd-review-summary{gap:20px;padding:18px}#reviewForm{padding:18px}#rfStars .pd-rf-star{font-size:34px}.pd-rf-attach,.pd-rf-img-preview img{width:72px;height:72px}}
@@ -511,31 +514,26 @@
         <span class="pd-rf-star" data-v="3">★</span><span class="pd-rf-star" data-v="4">★</span>
         <span class="pd-rf-star" data-v="5">★</span>
       </div>
-      <div class="pd-rf-row">
-        <div><div class="pd-rf-label">작성자명</div><input class="pd-rf-input" id="rfName" placeholder="홍길동"></div>
-        <div><div class="pd-rf-label">비밀번호 (삭제 시 필요)</div><input class="pd-rf-input" id="rfPw" type="password" placeholder="****"></div>
-      </div>
       <div class="pd-rf-row full">
         <div><div class="pd-rf-label">후기 내용</div><textarea class="pd-rf-textarea" id="rfContent" placeholder="상품 후기를 작성해주세요."></textarea></div>
       </div>
       <div class="pd-rf-row full">
         <div>
           <div class="pd-rf-label">사진/GIF 첨부 (선택)</div>
+          <div class="pd-rf-attach-wrap">
           <label class="pd-rf-attach">
             <span class="pd-rf-attach-plus">+</span>
             <span>사진 첨부</span>
             <input type="file" id="rfFiles" accept="image/png,image/jpeg,image/gif" multiple style="display:none;">
           </label>
           <div class="pd-rf-img-preview" id="rfImgPreview"></div>
+          </div>
         </div>
       </div>
-      <div class="pd-rf-reward">
-        <span class="pd-rf-reward-ic">P</span>
-        <span><b>리뷰 등록 시 300원 적립</b> · 사진/동영상 리뷰 시 500원 추가 적립</span>
-      </div>
+      <div class="pd-rf-reward-note">구매 리뷰 적립은 마이페이지 주문내역에서 작성한 리뷰에 적용돼요.</div>
       <div class="pd-rf-actions">
-        <button style="padding:10px 24px;font-size:12px;border:1px solid var(--pd-border);background:none;cursor:pointer;font-family:var(--pd-fb);color:var(--pd-text2)" onclick="toggleReviewForm()">취소</button>
-        <button style="padding:10px 24px;font-size:12px;border:none;background:var(--pd-accent);cursor:pointer;font-family:var(--pd-fb);color:var(--pd-text);font-weight:600" onclick="submitReview()">등록</button>
+        <button style="padding:10px 24px;font-size:12px;border:1px solid #111;background:#fff;cursor:pointer;font-family:var(--pd-fb);color:#111" onclick="toggleReviewForm()">취소</button>
+        <button style="padding:10px 24px;font-size:12px;border:none;background:#111;cursor:pointer;font-family:var(--pd-fb);color:#fff;font-weight:600" onclick="submitReview()">등록</button>
       </div>
     </div>
     <div id="reviewList"></div>
@@ -1218,20 +1216,29 @@ function renderReviewList(){
   if(!allReviews.length){el.innerHTML='<div class="pd-review-empty">아직 작성된 후기가 없습니다.</div>';return}
   el.innerHTML=allReviews.map(r=>{
     const stars='★'.repeat(r.rating)+'☆'.repeat(5-r.rating);
-    const name=maskName(r.author_name);
+    const name=escapeHTML(maskName(r.author_name));
     const date=new Date(r.created_at).toLocaleDateString('ko-KR');
-    const imgs=(r.images||[]).map(url=>`<img src="${url}" alt="후기 이미지" onclick="window.open('${url}','_blank')">`).join('');
+    const imgs=(r.images||[]).map(url=>{const u=escapeHTML(url);return `<img src="${u}" alt="후기 이미지" onclick="window.open(this.src,'_blank')">`;}).join('');
+    const safeContent=escapeHTML(r.content).replace(/\n/g,'<br>');
     return `<div class="pd-review-item">
       <div class="pd-review-item-top">
         <div><span class="pd-review-item-stars">${stars}</span> <span class="pd-review-item-author">${name}</span></div>
         <div class="pd-review-item-date">${date}</div>
       </div>
       ${imgs?`<div class="pd-review-item-images">${imgs}</div>`:''}
-      <div class="pd-review-item-text">${r.content.replace(/\n/g,'<br>')}</div>
+      <div class="pd-review-item-text">${safeContent}</div>
     </div>`;
   }).join('');
 }
 
+function escapeHTML(v){
+  return String(v ?? '')
+    .replace(/&/g,'&amp;')
+    .replace(/</g,'&lt;')
+    .replace(/>/g,'&gt;')
+    .replace(/"/g,'&quot;')
+    .replace(/'/g,'&#39;');
+}
 function maskName(name){
   if(!name) return '***';
   if(name.length<=2) return name[0]+'*';
@@ -1280,16 +1287,18 @@ function renderRfImgPreview(){
 }
 
 async function submitReview(){
-  const name=document.getElementById('rfName').value.trim();
+  const{data:{session}}=await sb.auth.getSession();
+  if(!session){alert('로그인이 필요합니다.');window.location.href='/login.html';return}
   const content=document.getElementById('rfContent').value.trim();
-  if(!name){alert('작성자명을 입력해주세요.');return}
   if(!content){alert('후기 내용을 입력해주세요.');return}
+  const{data:prof}=await sb.from('user_profiles').select('display_name').eq('id',session.user.id).single();
+  const name=prof?.display_name||'회원';
   const{error}=await sb.from('reviews').insert({
     product_id:product.id,author_name:name,rating:rfRating,content,images:rfImageUrls
   });
   if(error){alert('등록 실패: '+error.message);return}
   // 리셋
-  document.getElementById('rfName').value='';document.getElementById('rfContent').value='';
+  document.getElementById('rfContent').value='';
   rfRating=5;rfImageUrls=[];
   document.querySelectorAll('.pd-rf-star').forEach(s=>s.classList.add('on'));
   renderRfImgPreview();
@@ -1312,13 +1321,15 @@ function renderQnaList(){
   const el=document.getElementById('qnaList');
   if(!allQnas.length){el.innerHTML='<div class="pd-review-empty">등록된 문의가 없습니다.</div>';return}
   el.innerHTML=allQnas.map(q=>{
-    const name=maskName(q.author_name);
+    const name=escapeHTML(maskName(q.author_name));
     const date=new Date(q.created_at).toLocaleDateString('ko-KR');
+    const safeContent=escapeHTML(q.content).replace(/\n/g,'<br>');
+    const safeAnswer=escapeHTML(q.answer).replace(/\n/g,'<br>');
     if(q.is_secret) return`<div class="pd-review-item"><div class="pd-review-item-top"><div><span class="pd-review-item-author">🔒 ${name}</span></div><div class="pd-review-item-date">${date}</div></div><div class="pd-review-item-text" style="color:var(--pd-text3);">비밀글입니다.</div></div>`;
     return`<div class="pd-review-item">
       <div class="pd-review-item-top"><div><span class="pd-review-item-author">${name}</span></div><div class="pd-review-item-date">${date}</div></div>
-      <div class="pd-review-item-text">${q.content.replace(/\n/g,'<br>')}</div>
-      ${q.answer?`<div style="margin-top:12px;padding:12px 14px;background:#FBF8EC;border-left:3px solid var(--pd-accent);font-size:13px;color:var(--pd-text2);line-height:1.7;"><div style="font-size:11px;font-weight:600;color:var(--pd-text);margin-bottom:4px;">관리자 답변</div>${q.answer.replace(/\n/g,'<br>')}</div>`:'<div style="margin-top:8px;font-size:11px;color:var(--pd-accent);font-weight:500;">답변 대기 중</div>'}
+      <div class="pd-review-item-text">${safeContent}</div>
+      ${q.answer?`<div style="margin-top:12px;padding:12px 14px;background:#FBF8EC;border-left:3px solid var(--pd-accent);font-size:13px;color:var(--pd-text2);line-height:1.7;"><div style="font-size:11px;font-weight:600;color:var(--pd-text);margin-bottom:4px;">관리자 답변</div>${safeAnswer}</div>`:'<div style="margin-top:8px;font-size:11px;color:var(--pd-accent);font-weight:500;">답변 대기 중</div>'}
     </div>`;
   }).join('');
 }
