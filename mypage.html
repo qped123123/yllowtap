@@ -45,6 +45,7 @@
 .acc-header:hover{background:#FAFAF8}
 .acc-count{font-size:11px;color:#888;font-weight:400;margin-left:8px}
 .acc-point-amt{font-size:16px;font-weight:700;color:#111}
+.acc-item.open .acc-point-amt{display:none}
 .acc-arrow{font-size:10px;color:#888;transition:transform .3s}
 .acc-item.open .acc-arrow{transform:rotate(180deg)}
 .acc-body{display:none;padding:0 20px 20px}
@@ -215,7 +216,9 @@
 .review-attach:hover{border-color:#999;color:#777}
 .review-attach .plus{font-size:22px;line-height:1}
 [id^="review-preview-"]{display:flex;gap:8px;flex-wrap:wrap}
-[id^="review-preview-"] img,[id^="review-preview-"] video{width:84px;height:84px;object-fit:cover;border-radius:8px;border:1px solid #E5E1DC}
+[id^="review-preview-"] img,[id^="review-preview-"] video{width:84px;height:84px;object-fit:cover;border-radius:8px;border:1px solid #E5E1DC;display:block}
+.review-prev-item{position:relative;display:inline-block;line-height:0}
+.review-prev-del{position:absolute;top:-6px;right:-6px;width:18px;height:18px;border-radius:50%;background:#111;color:#fff;border:none;font-size:12px;line-height:1;cursor:pointer;display:flex;align-items:center;justify-content:center;padding:0}
 
 .scmp-list{display:flex;gap:12px;overflow-x:auto;scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch;padding-bottom:4px;scrollbar-width:none}
 .scmp-list::-webkit-scrollbar{display:none}
@@ -332,7 +335,7 @@
     </div>
     <div id="couponList"></div>
   </div></div>
-    <div class="acc-item"><div class="acc-header" onclick="toggleAcc(this)"><span style="flex:1;">포인트</span><span style="font-size:12px;color:#888;font-weight:400;">상세보기 <span class="acc-arrow">▾</span></span><span class="acc-point-amt" id="accPointCnt" style="flex:1;text-align:right;"></span></div><div class="acc-body">
+    <div class="acc-item"><div class="acc-header" onclick="toggleAcc(this)"><span style="flex:1;">포인트</span><span style="font-size:12px;color:#888;font-weight:400;">내 포인트 상세보기 <span class="acc-arrow">▾</span></span><span class="acc-point-amt" id="accPointCnt" style="flex:1;text-align:right;"></span></div><div class="acc-body">
     <div class="point-balance-card"><div><span style="font-size:12px;color:#888;">보유 포인트</span></div><div style="font-size:18px;font-weight:700;" id="pointBalance">0 P</div></div>
     <div id="pointList"></div>
   </div></div>
@@ -785,20 +788,36 @@ async function loadPointSettings(){
 let reviewStars={};
 function toggleReviewForm(orderId){const el=document.getElementById('review-form-'+orderId);el.style.display=el.style.display==='none'?'block':'none';}
 function isVideoUrl(u){return /\.(mp4|mov|webm|quicktime|m4v)$/i.test(String(u||''));}
+let reviewFiles={};
 function previewReviewImg(input,orderId){
+  const files=Array.from(input.files).filter(f=>{
+    if(f.size>50*1024*1024){alert(f.name+' : 50MB를 초과해 첨부할 수 없어요.');return false;}
+    return true;
+  });
+  reviewFiles[orderId]=files;
+  renderReviewPreview(orderId);
+}
+function renderReviewPreview(orderId){
   const box=document.getElementById('review-preview-'+orderId);
+  if(!box)return;
+  const files=reviewFiles[orderId]||[];
   box.innerHTML='';
-  Array.from(input.files).forEach(file=>{
-    if(file.size>50*1024*1024){alert(file.name+' : 50MB를 초과해 첨부할 수 없어요.');return;}
+  files.forEach((file,i)=>{
     const reader=new FileReader();
     reader.onload=e=>{
-      let el;
-      if(file.type.startsWith('video/')){el=document.createElement('video');el.src=e.target.result;el.muted=true;el.playsInline=true;}
-      else{el=document.createElement('img');el.src=e.target.result;}
-      box.appendChild(el);
+      const wrap=document.createElement('div');wrap.className='review-prev-item';
+      let media;
+      if(file.type.startsWith('video/')){media=document.createElement('video');media.src=e.target.result;media.muted=true;media.playsInline=true;}
+      else{media=document.createElement('img');media.src=e.target.result;}
+      const del=document.createElement('button');del.type='button';del.className='review-prev-del';del.textContent='×';del.onclick=()=>removeReviewFile(orderId,i);
+      wrap.appendChild(media);wrap.appendChild(del);box.appendChild(wrap);
     };
     reader.readAsDataURL(file);
   });
+}
+function removeReviewFile(orderId,idx){
+  if(reviewFiles[orderId])reviewFiles[orderId].splice(idx,1);
+  renderReviewPreview(orderId);
 }
 function setReviewStar(orderId,n){
   reviewStars[orderId]=n;
@@ -811,10 +830,9 @@ async function submitOrderReview(orderId){
   if(!content){alert('리뷰 내용을 입력해주세요.');return;}
   // 이미지 업로드만 클라(storage), URL 배열은 RPC로 넘김
   let imageUrls=[];
-  const fileInput=document.getElementById('review-img-'+orderId);
-  if(fileInput?.files?.length){
-    for(const file of fileInput.files){
-      if(file.size>50*1024*1024){alert(file.name+' : 50MB 초과로 제외했어요.');continue;}
+  const files=reviewFiles[orderId]||[];
+  if(files.length){
+    for(const file of files){
       const fn=`reviews/${Date.now()}_${Math.random().toString(36).slice(2)}.${file.name.split('.').pop()}`;
       const{error:ue}=await sb.storage.from('media').upload(fn,file,{contentType:file.type});
       if(!ue){const{data:u}=sb.storage.from('media').getPublicUrl(fn);imageUrls.push(u.publicUrl);}
@@ -825,6 +843,7 @@ async function submitOrderReview(orderId){
   if(error){alert('리뷰 등록 실패: '+error.message);return;}
   if(data?.status==='already_reviewed'){alert('이미 이 주문에 리뷰를 작성하셨습니다.');reviewedOrders.add(orderId);loadOrders();return;}
   reviewedOrders.add(orderId);
+  reviewFiles[orderId]=[];
   const earned=data?.earned||0;
   alert(earned>0 ? '리뷰가 등록되었습니다!\n'+earned+'P가 적립되었습니다 🎁' : '리뷰가 등록되었습니다!');
   toggleReviewForm(orderId);loadProfile();loadOrders();loadPointHistory();
