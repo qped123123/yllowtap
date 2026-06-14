@@ -349,7 +349,7 @@ function onCouponSelect(){
   const uc=myCoupons[parseInt(idx)];const c=uc.coupons;
   const subtotal=getProductSubtotal();
   if(c.min_order_amount&&subtotal<c.min_order_amount){alert(c.min_order_amount.toLocaleString()+'원 이상 주문 시 사용 가능한 쿠폰입니다.');document.getElementById('coCouponSelect').value='';return;}
-  let disc=0,capped=true;
+  let disc=0,capped=false;
   if(c.discount_type==='percent'){disc=Math.floor(subtotal*c.discount_value/100);if(c.max_discount&&disc>c.max_discount){disc=c.max_discount;capped=true;}}else{disc=c.discount_value;}
   selectedCoupon=uc;couponDiscount=disc;
   document.getElementById('coCouponArea').style.display='none';
@@ -371,11 +371,13 @@ async function loadEarnRates(){
   if(data)data.forEach(r=>{const g=r.key.replace('point_rate_','');if(earnRates[g]!==undefined)earnRates[g]=parseInt(r.value)||earnRates[g];});
 }
 function onPointInput(){
-  let v=parseInt(document.getElementById('coPointInput').value)||0;
+  const el=document.getElementById('coPointInput');
+  let v=parseInt(el.value)||0;
   if(v<0)v=0;
   if(v>userPoints)v=userPoints;
-  const maxUsable=getProductSubtotal()-couponDiscount;
-  if(v>maxUsable)v=Math.max(0,maxUsable);
+  const maxUsable=Math.max(0,getProductSubtotal()-couponDiscount);
+  if(v>maxUsable)v=maxUsable;
+  if(String(v)!==el.value)el.value=v;   // 잔액·결제액 초과 시 입력칸도 그 한도로 고정
   pointsUsed=v;updateSummary();
 }
 function useAllPoints(){
