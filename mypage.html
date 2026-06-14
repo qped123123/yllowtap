@@ -219,6 +219,9 @@
 [id^="review-preview-"] img,[id^="review-preview-"] video{width:84px;height:84px;object-fit:cover;border-radius:8px;border:1px solid #E5E1DC;display:block}
 .review-prev-item{position:relative;display:inline-block;line-height:0}
 .review-prev-del{position:absolute;top:-6px;right:-6px;width:18px;height:18px;border-radius:50%;background:#111;color:#fff;border:none;font-size:12px;line-height:1;cursor:pointer;display:flex;align-items:center;justify-content:center;padding:0}
+.myrv-inline{border:1px solid #F0EDE8;background:#FAFAF8;border-radius:10px;padding:14px 16px;margin-top:12px}
+.myrv-head{display:flex;justify-content:space-between;align-items:center;gap:8px}
+.myrv-label{font-size:13px;font-weight:700;color:#111}
 
 .scmp-list{display:flex;gap:12px;overflow-x:auto;scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch;padding-bottom:4px;scrollbar-width:none}
 .scmp-list::-webkit-scrollbar{display:none}
@@ -342,7 +345,6 @@
     <div class="acc-item open"><div class="acc-header" onclick="toggleAcc(this)"><span>찜한 상품<span class="acc-count" id="accWishCnt"></span></span><span class="acc-arrow">▾</span></div><div class="acc-body"><div class="wish-grid" id="wishGrid"></div></div></div>
     <div class="acc-item open"><div class="acc-header" onclick="toggleAcc(this)">최근 본 상품<span class="acc-arrow">▾</span></div><div class="acc-body"><div class="recent-grid" id="recentGrid"></div></div></div>
     <div class="acc-item"><div class="acc-header" onclick="toggleAcc(this)"><span>주문내역<span class="acc-count" id="accOrderCnt"></span></span><span class="acc-arrow">▾</span></div><div class="acc-body"><div id="orderList"></div></div></div>
-    <div class="acc-item"><div class="acc-header" onclick="toggleAcc(this)"><span>내 리뷰<span class="acc-count" id="accReviewCnt"></span></span><span class="acc-arrow">▾</span></div><div class="acc-body"><div id="myReviewList"></div></div></div>
     <section class="scmp-section" style="background:#fff;border:1px solid #E5E1DC;margin-bottom:8px;padding:16px 20px;">
       <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-bottom:12px;">
         <div style="font-size:15px;font-weight:600;">내가 비교한 상품들 <span style="font-size:12px;color:#888;font-weight:400;" id="accSavedCmpCnt"></span></div>
@@ -515,71 +517,56 @@ function switchMyTab(tab){
   const t=document.getElementById(targetIds[tab]||'panel-'+tab);
   if(t){ const acc=t.closest('.acc-item'); if(acc)acc.classList.add('open'); t.scrollIntoView({behavior:'smooth',block:'start'}); }
 }
-function loadAll(){loadOrders();loadCoupons();loadPointHistory();loadWishlist();loadRecent();loadAddresses();loadInquiries();loadPointSettings();loadSavedComparisons();loadMyReviews();}
+function loadAll(){loadOrders();loadCoupons();loadPointHistory();loadWishlist();loadRecent();loadAddresses();loadInquiries();loadPointSettings();loadSavedComparisons();}
 
 /* ── 내 리뷰 (수정/삭제는 RPC 전용, 직접 update/delete 안 함) ── */
 function escapeHTML(v){return String(v??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');}
-let myReviews=[];
-async function loadMyReviews(){
-  const{data,error}=await sb.from('reviews')
-    .select('*, products(name,slug)')
-    .eq('user_id',currentUser.id)
-    .is('deleted_at',null)
-    .order('created_at',{ascending:false});
-  if(error){console.error(error);return;}
-  myReviews=data||[];
-  document.getElementById('accReviewCnt').textContent=myReviews.length?`(${myReviews.length})`:'';
-  const el=document.getElementById('myReviewList');
-  if(!myReviews.length){el.innerHTML='<div class="my-empty"><p>작성한 리뷰가 없습니다</p></div>';return;}
-  el.innerHTML=myReviews.map(r=>{
-    const pname=escapeHTML(r.products?.name||'상품');
-    const stars='★'.repeat(r.rating)+'☆'.repeat(5-r.rating);
-    const date=new Date(r.created_at).toLocaleDateString('ko-KR');
-    const content=escapeHTML(r.content).replace(/\n/g,'<br>');
-    const imgs=(r.images||[]).map(u=>{const su=escapeHTML(u);return isVideoUrl(u)?`<video src="${su}" muted playsinline style="width:54px;height:54px;object-fit:cover;border-radius:6px;border:1px solid #eee;cursor:pointer;" onclick="window.open(this.src,'_blank')"></video>`:`<img src="${su}" style="width:54px;height:54px;object-fit:cover;border-radius:6px;border:1px solid #eee;cursor:pointer;" onclick="window.open(this.src,'_blank')">`;}).join('');
-    return `<div class="myrv-item" id="myrv-${r.id}" style="border:1px solid #eee;border-radius:10px;padding:14px;margin-bottom:10px;">
-      <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;">
-        <div style="font-weight:600;font-size:14px;">${pname}</div>
-        <div style="font-size:12px;color:#999;">${date}</div>
-      </div>
-      <div style="color:#F4B400;font-size:14px;margin:4px 0;letter-spacing:1px;">${stars}</div>
-      ${imgs?`<div style="display:flex;gap:6px;margin:6px 0;flex-wrap:wrap;">${imgs}</div>`:''}
-      <div style="font-size:13px;color:#444;line-height:1.6;">${content}</div>
-      <div style="display:flex;gap:8px;margin-top:10px;">
-        <button onclick="editMyReview('${r.id}')" style="padding:6px 14px;font-size:12px;border:1px solid #111;background:#fff;border-radius:6px;cursor:pointer;">수정</button>
-        <button onclick="deleteMyReview('${r.id}')" style="padding:6px 14px;font-size:12px;border:none;background:#111;color:#fff;border-radius:6px;cursor:pointer;">삭제</button>
-      </div>
-    </div>`;
-  }).join('');
+function renderMyOrderReview(orderId){
+  const r=reviewedOrders.get(orderId); if(!r)return '';
+  const stars='★'.repeat(r.rating)+'☆'.repeat(5-r.rating);
+  const date=new Date(r.created_at).toLocaleDateString('ko-KR');
+  const content=escapeHTML(r.content).replace(/\n/g,'<br>');
+  const imgs=(r.images||[]).map(u=>{const su=escapeHTML(u);return isVideoUrl(u)?`<video src="${su}" muted playsinline style="width:60px;height:60px;object-fit:cover;border-radius:6px;border:1px solid #eee;cursor:pointer;" onclick="window.open(this.src,'_blank')"></video>`:`<img src="${su}" style="width:60px;height:60px;object-fit:cover;border-radius:6px;border:1px solid #eee;cursor:pointer;" onclick="window.open(this.src,'_blank')">`;}).join('');
+  return `<div class="myrv-inline" id="myrv-${orderId}">
+    <div class="myrv-head"><span class="myrv-label">내가 쓴 리뷰</span><span style="font-size:12px;color:#999;">${date}</span></div>
+    <div style="color:#F4B400;font-size:14px;margin:4px 0;letter-spacing:1px;">${stars}</div>
+    ${imgs?`<div style="display:flex;gap:6px;margin:6px 0;flex-wrap:wrap;">${imgs}</div>`:''}
+    <div style="font-size:13px;color:#444;line-height:1.6;">${content}</div>
+    <div style="display:flex;gap:8px;margin-top:10px;">
+      <button onclick="editOrderReview('${orderId}')" style="padding:6px 14px;font-size:12px;border:1px solid #111;background:#fff;border-radius:6px;cursor:pointer;">수정</button>
+      <button onclick="deleteOrderReview('${orderId}')" style="padding:6px 14px;font-size:12px;border:none;background:#111;color:#fff;border-radius:6px;cursor:pointer;">삭제</button>
+    </div>
+  </div>`;
 }
-function editMyReview(id){
-  const r=myReviews.find(x=>x.id===id); if(!r)return;
-  const box=document.getElementById('myrv-'+id);
+function editOrderReview(orderId){
+  const r=reviewedOrders.get(orderId); if(!r)return;
+  const box=document.getElementById('myrv-'+orderId);
   box.innerHTML=`
-    <div style="font-weight:600;font-size:14px;margin-bottom:8px;">${escapeHTML(r.products?.name||'상품')} · 리뷰 수정</div>
-    <select id="myrv-rating-${id}" style="padding:6px 10px;border:1px solid #ddd;border-radius:6px;margin-bottom:8px;font-size:13px;">
+    <div class="myrv-head"><span class="myrv-label">리뷰 수정</span></div>
+    <select id="myrv-rating-${orderId}" style="padding:6px 10px;border:1px solid #ddd;border-radius:6px;margin:8px 0;font-size:13px;">
       ${[5,4,3,2,1].map(n=>`<option value="${n}" ${n===r.rating?'selected':''}>${'★'.repeat(n)} (${n}점)</option>`).join('')}
     </select>
-    <textarea id="myrv-content-${id}" style="width:100%;min-height:80px;padding:10px;border:1px solid #ddd;border-radius:6px;font-size:13px;box-sizing:border-box;line-height:1.6;">${escapeHTML(r.content)}</textarea>
+    <textarea id="myrv-content-${orderId}" style="width:100%;min-height:80px;padding:10px;border:1px solid #ddd;border-radius:6px;font-size:13px;box-sizing:border-box;line-height:1.6;">${escapeHTML(r.content)}</textarea>
     <div style="display:flex;gap:8px;margin-top:10px;">
-      <button onclick="saveMyReview('${id}')" style="padding:6px 14px;font-size:12px;border:none;background:#111;color:#fff;border-radius:6px;cursor:pointer;">저장</button>
-      <button onclick="loadMyReviews()" style="padding:6px 14px;font-size:12px;border:1px solid #111;background:#fff;border-radius:6px;cursor:pointer;">취소</button>
+      <button onclick="saveOrderReview('${orderId}')" style="padding:6px 14px;font-size:12px;border:none;background:#111;color:#fff;border-radius:6px;cursor:pointer;">저장</button>
+      <button onclick="loadOrders()" style="padding:6px 14px;font-size:12px;border:1px solid #111;background:#fff;border-radius:6px;cursor:pointer;">취소</button>
     </div>`;
 }
-async function saveMyReview(id){
-  const r=myReviews.find(x=>x.id===id); if(!r)return;
-  const rating=parseInt(document.getElementById('myrv-rating-'+id).value);
-  const content=document.getElementById('myrv-content-'+id).value.trim();
+async function saveOrderReview(orderId){
+  const r=reviewedOrders.get(orderId); if(!r)return;
+  const rating=parseInt(document.getElementById('myrv-rating-'+orderId).value);
+  const content=document.getElementById('myrv-content-'+orderId).value.trim();
   if(!content){alert('리뷰 내용을 입력해주세요.');return;}
-  const{error}=await sb.rpc('update_my_review',{p_review_id:id,p_rating:rating,p_content:content,p_images:r.images||null});
+  const{error}=await sb.rpc('update_my_review',{p_review_id:r.id,p_rating:rating,p_content:content,p_images:r.images||null});
   if(error){alert('수정 실패: '+error.message);return;}
-  await loadMyReviews();
+  await loadOrders();
 }
-async function deleteMyReview(id){
+async function deleteOrderReview(orderId){
+  const r=reviewedOrders.get(orderId); if(!r)return;
   if(!confirm('이 리뷰를 삭제할까요?'))return;
-  const{error}=await sb.rpc('delete_my_review',{p_review_id:id});
+  const{error}=await sb.rpc('delete_my_review',{p_review_id:r.id});
   if(error){alert('삭제 실패: '+error.message);return;}
-  await loadMyReviews();
+  await loadOrders();
 }
 
 /* ── 저장한 비교 ── */
@@ -682,18 +669,18 @@ function renderTracking(status){
     return(i>0?`<div class="track-line${active?' active':''}"></div>`:'')+`<div class="track-step"><div class="track-dot${current?' current':active?' active':''}">${active?'✓':i+1}</div><div class="track-label${active?' active':''}">${s.l}</div></div>`;
   }).join('')+'</div>';
 }
-let reviewedOrders=new Set();
+let reviewedOrders=new Map();
 async function loadOrders(){
   const{data}=await sb.from('orders').select('*,order_items(*)').eq('user_id',currentUser.id).order('created_at',{ascending:false});
   const el=document.getElementById('orderList');
   document.getElementById('statOrders').textContent=data?.length||0;
   if(!data?.length){el.innerHTML='<div class="my-empty"><p>주문 내역이 없습니다</p><a href="/category.html">쇼핑하러 가기</a></div>';return;}
   // 이미 리뷰 작성한 주문 확인 (중복 방지 + 버튼 잠금)
-  reviewedOrders=new Set();
+  reviewedOrders=new Map();
   const orderIds=data.map(o=>o.id);
   if(orderIds.length){
-    const{data:rv}=await sb.from('reviews').select('order_id').in('order_id',orderIds);
-    (rv||[]).forEach(r=>{if(r.order_id)reviewedOrders.add(r.order_id);});
+    const{data:rv}=await sb.from('reviews').select('id,order_id,rating,content,images,created_at').in('order_id',orderIds).is('deleted_at',null);
+    (rv||[]).forEach(r=>{if(r.order_id)reviewedOrders.set(r.order_id,r);});
   }
   el.innerHTML=data.map(o=>{
     const items=(o.order_items||[]).map(i=>`<div class="order-item" style="cursor:pointer;" onclick="window.location.href='/product.html?slug=${i.product_id||''}'">
@@ -720,6 +707,7 @@ async function loadOrders(){
         <div class="review-attach-wrap"><label class="review-attach"><span class="plus">+</span><span>사진/동영상</span><input type="file" id="review-img-${o.id}" accept="image/png,image/jpeg,image/gif,video/mp4,video/quicktime,video/webm" multiple style="display:none;" onchange="previewReviewImg(this,'${o.id}')"></label><div id="review-preview-${o.id}"></div></div>
         <div class="review-submit-row"><span class="review-reward-inline"><span class="review-reward-ic">P</span>리뷰 작성 시 ${pointReview}P 적립</span><span class="review-btns"><button class="review-cancel-btn" onclick="toggleReviewForm('${o.id}')">취소</button><button class="review-submit-btn" onclick="submitOrderReview('${o.id}')">등록</button></span></div>
       </div>
+      ${reviewedOrders.has(o.id)?renderMyOrderReview(o.id):''}
     </div>`;
   }).join('');
 }
@@ -734,11 +722,11 @@ function getOrderActions(o){
   if(s==='delivered'){
     btns+=`<button class="order-action-btn primary" onclick="confirmOrder('${id}','${o.order_number}',${o.total_amount||0})">구매 확정</button>`;
     if(tn)btns+=`<button class="order-action-btn" onclick="openTracking('${(o.tracking_company||'').replace(/'/g,"\\'")}','${tn}')">배송 조회</button>`;
-    btns+=reviewedOrders.has(id)?`<button class="order-action-btn" disabled style="opacity:.45;cursor:default;">리뷰 작성완료</button>`:`<button class="order-action-btn" onclick="toggleReviewForm('${id}')">리뷰 쓰기</button>`;
+    btns+=reviewedOrders.has(id)?'':`<button class="order-action-btn" onclick="toggleReviewForm('${id}')">리뷰 쓰기</button>`;
     btns+=`<button class="order-action-btn" onclick="requestExchangeReturn('${id}','${o.order_number}')">교환 · 반품</button>`;
   }
   if(s==='confirmed'){
-    btns+=reviewedOrders.has(id)?`<button class="order-action-btn" disabled style="opacity:.45;cursor:default;">리뷰 작성완료</button>`:`<button class="order-action-btn" onclick="toggleReviewForm('${id}')">리뷰 쓰기</button>`;
+    btns+=reviewedOrders.has(id)?'':`<button class="order-action-btn" onclick="toggleReviewForm('${id}')">리뷰 쓰기</button>`;
   }
   if(['cancel_requested','exchange_requested','return_requested'].includes(s))btns+=`<div class="order-action-msg">요청이 접수되어 처리 중입니다</div>`;
   return btns;
