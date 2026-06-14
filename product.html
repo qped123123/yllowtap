@@ -171,6 +171,13 @@
 .pd-review-media img,.pd-review-media video{width:100%;height:100%;object-fit:cover;display:block}
 .pd-review-play{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:#fff;font-size:20px;background:rgba(0,0,0,.28);text-shadow:0 1px 4px rgba(0,0,0,.6);pointer-events:none}
 .pd-review-zoom{position:absolute;right:4px;bottom:4px;color:#fff;font-size:11px;background:rgba(0,0,0,.5);border-radius:3px;padding:1px 5px;pointer-events:none}
+.pd-rvlb-wrap{display:flex;max-width:92vw;max-height:88vh;background:#fff;border-radius:10px;overflow:hidden}
+.pd-rvlb-media{width:min(58vw,560px);max-height:88vh;object-fit:contain;background:#000;display:block;flex:none}
+.pd-rvlb-info{width:340px;flex:none;padding:26px 24px;overflow-y:auto}
+.pd-rvlb-stars{color:var(--pd-accent,#222);font-size:16px;letter-spacing:2px}
+.pd-rvlb-meta{font-size:12px;color:var(--pd-text3,#999);margin:8px 0 18px}
+.pd-rvlb-text{font-size:14px;line-height:1.75;color:var(--pd-text2,#444);white-space:normal}
+@media(max-width:768px){.pd-rvlb-wrap{flex-direction:column;max-width:92vw;max-height:90vh}.pd-rvlb-media{width:92vw;max-height:50vh}.pd-rvlb-info{width:auto;max-height:36vh;padding:18px}}
 .pd-rvphoto-head{display:flex;justify-content:space-between;align-items:center;margin:0 0 12px;font-size:14px;font-weight:600}
 .pd-rvphoto-all{background:none;border:none;color:var(--pd-text3);font-size:12px;cursor:pointer;font-family:inherit}
 .pd-rvphoto-wrap{position:relative;margin-bottom:24px;padding:0 40px}
@@ -1213,13 +1220,13 @@ function renderReviewPhotos(){
   const box=document.getElementById('reviewPhotos');
   if(!box)return;
   const media=[];
-  allReviews.forEach(r=>(r.images||[]).forEach(u=>media.push(u)));
+  allReviews.forEach(r=>(r.images||[]).forEach(u=>media.push({u:u,rid:r.id})));
   if(!media.length){box.innerHTML='';return;}
   const arrows = media.length>5;
   box.innerHTML=`<div class="pd-rvphoto-head"><span>포토 &amp; 동영상 리뷰 (${media.length})</span></div>
     <div class="pd-rvphoto-wrap">
       ${arrows?`<button class="pd-rvphoto-arrow left" onclick="scrollRvPhotos(-1)">‹</button>`:''}
-      <div class="pd-rvphoto-grid" id="rvPhotoGrid">${media.map(u=>{const su=escapeHTML(u);return isVideoUrl(u)?`<div class="pd-review-media" onclick="openReviewMedia('${su}',true)"><video src="${su}" autoplay muted loop playsinline></video><span class="pd-review-zoom">⛶</span></div>`:`<div class="pd-review-media" onclick="openReviewMedia('${su}',false)"><img src="${su}"></div>`;}).join('')}</div>
+      <div class="pd-rvphoto-grid" id="rvPhotoGrid">${media.map(m=>{const su=escapeHTML(m.u);return isVideoUrl(m.u)?`<div class="pd-review-media" onclick="openReviewMedia('${su}',true,'${m.rid}')"><video src="${su}" autoplay muted loop playsinline></video><span class="pd-review-zoom">⛶</span></div>`:`<div class="pd-review-media" onclick="openReviewMedia('${su}',false,'${m.rid}')"><img src="${su}"></div>`;}).join('')}</div>
       ${arrows?`<button class="pd-rvphoto-arrow right" onclick="scrollRvPhotos(1)">›</button>`:''}
     </div>`;
 }
@@ -1263,7 +1270,7 @@ function renderReviewList(){
     const stars='★'.repeat(r.rating)+'☆'.repeat(5-r.rating);
     const name=escapeHTML(maskName(r.author_name));
     const date=new Date(r.created_at).toLocaleDateString('ko-KR');
-    const imgs=(r.images||[]).map(url=>{const u=escapeHTML(url);return isVideoUrl(url)?`<div class="pd-review-media" onclick="openReviewMedia('${u}',true)"><video src="${u}" autoplay muted loop playsinline></video><span class="pd-review-zoom">⛶</span></div>`:`<div class="pd-review-media" onclick="openReviewMedia('${u}',false)"><img src="${u}" alt="후기 이미지"></div>`;}).join('');
+    const imgs=(r.images||[]).map(url=>{const u=escapeHTML(url);return isVideoUrl(url)?`<div class="pd-review-media" onclick="openReviewMedia('${u}',true,'${r.id}')"><video src="${u}" autoplay muted loop playsinline></video><span class="pd-review-zoom">⛶</span></div>`:`<div class="pd-review-media" onclick="openReviewMedia('${u}',false,'${r.id}')"><img src="${u}" alt="후기 이미지"></div>`;}).join('');
     const safeContent=escapeHTML(r.content).replace(/\n/g,'<br>');
     return `<div class="pd-review-item">
       <div class="pd-review-item-top">
@@ -1282,13 +1289,28 @@ function renderReviewList(){
 }
 
 function isVideoUrl(u){return /\.(mp4|mov|webm|quicktime|m4v)$/i.test(String(u||''));}
-function openReviewMedia(url,isVideo){
+function openReviewMedia(url,isVideo,reviewId){
   const m=document.getElementById('reviewMediaModal');
   if(!m)return;
   const c=document.getElementById('reviewMediaContent');
-  c.innerHTML = isVideo
-    ? `<video src="${url}" controls autoplay muted playsinline style="max-width:90vw;max-height:85vh;border-radius:8px;background:#000;"></video>`
-    : `<img src="${url}" style="max-width:90vw;max-height:85vh;border-radius:8px;">`;
+  const r=(typeof allReviews!=='undefined') ? allReviews.find(x=>String(x.id)===String(reviewId)) : null;
+  const mediaHtml = isVideo
+    ? `<video src="${url}" controls autoplay muted playsinline class="pd-rvlb-media"></video>`
+    : `<img src="${url}" class="pd-rvlb-media">`;
+  let infoHtml='';
+  if(r){
+    const rt=Math.max(0,Math.min(5,Number(r.rating)||0));
+    const stars='★'.repeat(rt)+'☆'.repeat(5-rt);
+    const nm=escapeHTML(maskName(r.author_name));
+    const dt=r.created_at?new Date(r.created_at).toLocaleDateString('ko-KR'):'';
+    const body=escapeHTML(r.content||'').replace(/\n/g,'<br>');
+    infoHtml=`<div class="pd-rvlb-info">
+      <div class="pd-rvlb-stars">${stars}</div>
+      <div class="pd-rvlb-meta">${nm}${dt?' · '+dt:''}</div>
+      <div class="pd-rvlb-text">${body}</div>
+    </div>`;
+  }
+  c.innerHTML=`<div class="pd-rvlb-wrap">${mediaHtml}${infoHtml}</div>`;
   m.style.display='flex';
   if(isVideo){
     const v=c.querySelector('video');
