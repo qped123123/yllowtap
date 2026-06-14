@@ -506,36 +506,7 @@
   <!-- REVIEW PANEL -->
   <div class="pd-panel" id="panel-review">
     <div id="reviewSummary"></div>
-    <button class="pd-review-write-btn" onclick="toggleReviewForm()">후기 작성하기</button>
-    <div class="pd-review-form" id="reviewForm">
-      <div class="pd-review-form-title">후기 작성</div>
-      <div class="pd-rf-stars" id="rfStars">
-        <span class="pd-rf-star" data-v="1">★</span><span class="pd-rf-star" data-v="2">★</span>
-        <span class="pd-rf-star" data-v="3">★</span><span class="pd-rf-star" data-v="4">★</span>
-        <span class="pd-rf-star" data-v="5">★</span>
-      </div>
-      <div class="pd-rf-row full">
-        <div><div class="pd-rf-label">후기 내용</div><textarea class="pd-rf-textarea" id="rfContent" placeholder="상품 후기를 작성해주세요."></textarea></div>
-      </div>
-      <div class="pd-rf-row full">
-        <div>
-          <div class="pd-rf-label">사진/GIF 첨부 (선택)</div>
-          <div class="pd-rf-attach-wrap">
-          <label class="pd-rf-attach">
-            <span class="pd-rf-attach-plus">+</span>
-            <span>사진 첨부</span>
-            <input type="file" id="rfFiles" accept="image/png,image/jpeg,image/gif" multiple style="display:none;">
-          </label>
-          <div class="pd-rf-img-preview" id="rfImgPreview"></div>
-          </div>
-        </div>
-      </div>
-      <div class="pd-rf-reward-note">구매 리뷰 적립은 마이페이지 주문내역에서 작성한 리뷰에 적용돼요.</div>
-      <div class="pd-rf-actions">
-        <button style="padding:10px 24px;font-size:12px;border:1px solid #111;background:#fff;cursor:pointer;font-family:var(--pd-fb);color:#111" onclick="toggleReviewForm()">취소</button>
-        <button style="padding:10px 24px;font-size:12px;border:none;background:#111;cursor:pointer;font-family:var(--pd-fb);color:#fff;font-weight:600" onclick="submitReview()">등록</button>
-      </div>
-    </div>
+    <div style="text-align:center;padding:18px;background:var(--pd-bg);border:1px solid var(--pd-border);border-radius:8px;font-size:13px;color:var(--pd-text2);line-height:1.6;margin:0 0 20px;">상품 구매 후 <a href="/mypage.html" style="color:var(--pd-text);font-weight:600;text-decoration:underline;">마이페이지 주문내역</a>에서 리뷰를 작성할 수 있어요 <span style="color:var(--pd-text3);">(작성 시 포인트 적립)</span></div>
     <div id="reviewList"></div>
   </div>
   <div class="pd-panel" id="panel-qna">
@@ -666,7 +637,7 @@ const SUPABASE_URL='https://ppihvvpplqikclftrwdb.supabase.co';
 const SUPABASE_ANON='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBwaWh2dnBwbHFpa2NsZnRyd2RiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk3MzE0NTEsImV4cCI6MjA5NTMwNzQ1MX0.shGVcFTQiuYc4u6tdU50x18YMgJdgFUljf8c7QlQU-U';
 const sb=window.supabase.createClient(SUPABASE_URL,SUPABASE_ANON);
 
-let product=null,qty=1,allGalleryImgs=[],currentImgIdx=0,rfRating=5,rfImageUrls=[];
+let product=null,qty=1,allGalleryImgs=[],currentImgIdx=0;
 let colorImages=[];
 let buyOptions=[],selectedBuyOption=null;   // v1: 구매옵션 상태
 
@@ -1246,65 +1217,6 @@ function maskName(name){
 }
 
 // ── REVIEW FORM ──
-function toggleReviewForm(){
-  document.getElementById('reviewForm').classList.toggle('show');
-}
-
-// Star rating
-document.querySelectorAll('.pd-rf-star').forEach(star=>{
-  star.addEventListener('click',()=>{
-    rfRating=parseInt(star.dataset.v);
-    document.querySelectorAll('.pd-rf-star').forEach((s,i)=>s.classList.toggle('on',i<rfRating));
-  });
-  star.addEventListener('mouseenter',()=>{
-    const v=parseInt(star.dataset.v);
-    document.querySelectorAll('.pd-rf-star').forEach((s,i)=>s.classList.toggle('on',i<v));
-  });
-});
-document.getElementById('rfStars').addEventListener('mouseleave',()=>{
-  document.querySelectorAll('.pd-rf-star').forEach((s,i)=>s.classList.toggle('on',i<rfRating));
-});
-// 초기 별 5개
-document.querySelectorAll('.pd-rf-star').forEach(s=>s.classList.add('on'));
-
-// Image upload
-document.getElementById('rfFiles').addEventListener('change',async function(e){
-  const files=Array.from(e.target.files);
-  for(const file of files){
-    const ext=file.name.split('.').pop();
-    const fn=`reviews/${Date.now()}_${Math.random().toString(36).slice(2,8)}.${ext}`;
-    const{error}=await sb.storage.from('media').upload(fn,file,{upsert:true,contentType:file.type});
-    if(error){alert('이미지 업로드 실패');continue}
-    const{data:u}=sb.storage.from('media').getPublicUrl(fn);
-    rfImageUrls.push(u.publicUrl);
-  }
-  renderRfImgPreview();
-  e.target.value='';
-});
-
-function renderRfImgPreview(){
-  document.getElementById('rfImgPreview').innerHTML=rfImageUrls.map(url=>`<img src="${url}">`).join('');
-}
-
-async function submitReview(){
-  const{data:{session}}=await sb.auth.getSession();
-  if(!session){alert('로그인이 필요합니다.');window.location.href='/login.html';return}
-  const content=document.getElementById('rfContent').value.trim();
-  if(!content){alert('후기 내용을 입력해주세요.');return}
-  const{data:prof}=await sb.from('user_profiles').select('display_name').eq('id',session.user.id).single();
-  const name=prof?.display_name||'회원';
-  const{error}=await sb.from('reviews').insert({
-    product_id:product.id,user_id:session.user.id,author_name:name,rating:rfRating,content,images:rfImageUrls
-  });
-  if(error){alert('등록 실패: '+error.message);return}
-  // 리셋
-  document.getElementById('rfContent').value='';
-  rfRating=5;rfImageUrls=[];
-  document.querySelectorAll('.pd-rf-star').forEach(s=>s.classList.add('on'));
-  renderRfImgPreview();
-  toggleReviewForm();
-  await loadReviews();
-}
 
 // ══════════════════════════════════════════
 // QNA (상품 문의)
