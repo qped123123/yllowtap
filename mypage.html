@@ -196,17 +196,19 @@
 .track-line.active{background:#111}
 
 /* REVIEW FORM */
-.review-inline{margin-top:14px;padding:24px;background:#fff;border:1px solid #E5E1DC;border-radius:10px}
-.review-stars-input{display:flex;gap:4px;margin-bottom:12px;cursor:pointer}
-.review-stars-input span{font-size:32px;color:#E5E1DC;transition:color .15s}
+.review-inline{margin-top:14px;padding:18px 20px;background:#fff;border:1px solid #E5E1DC;border-radius:10px}
+.review-stars-input{display:flex;gap:4px;margin-bottom:10px;cursor:pointer}
+.review-stars-input span{font-size:26px;color:#E5E1DC;transition:color .15s}
 .review-stars-input span.on{color:#F4D84E}
 .review-textarea{width:100%;padding:10px 12px;font-size:13px;font-family:inherit;border:1px solid #E5E1DC;background:#fff;min-height:80px;resize:vertical;line-height:1.6}
-.review-submit-row{display:flex;justify-content:flex-end;gap:8px;align-items:center;margin-top:14px}
+.review-submit-row{display:flex;justify-content:space-between;align-items:center;margin-top:16px;gap:10px;flex-wrap:wrap}
+.review-reward-inline{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:600;color:#7a6a1f}
+.review-btns{display:flex;gap:8px}
 .review-point-hint{font-size:11px;color:#2E7D32}
 .review-submit-btn{padding:11px 30px;font-size:12px;font-weight:700;background:#F4D84E;color:#111;border:none;border-radius:6px;cursor:pointer;font-family:inherit}
 .review-cancel-btn{padding:11px 30px;font-size:12px;font-weight:600;background:#fff;color:#111;border:1px solid #111;border-radius:6px;cursor:pointer;font-family:inherit}
 .review-reward{display:flex;align-items:center;gap:10px;margin:0 0 18px;padding:14px 16px;background:#FBF7E6;border:1px solid #F0E3A8;border-radius:8px;font-size:13px;font-weight:600;color:#7a6a1f}
-.review-reward-ic{width:22px;height:22px;border-radius:50%;background:#F4D84E;color:#7a5d00;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:12px;flex-shrink:0}
+.review-reward-ic{width:18px;height:18px;border-radius:50%;background:#F4D84E;color:#7a5d00;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:10px;flex-shrink:0}
 .review-attach-wrap{display:flex;gap:10px;align-items:flex-start;flex-wrap:wrap;margin-top:10px}
 .review-attach{display:inline-flex;flex-direction:column;align-items:center;justify-content:center;width:84px;height:84px;border:1.5px dashed #ddd;border-radius:8px;background:#fafafa;color:#aaa;font-size:11px;gap:4px;cursor:pointer;transition:border-color .2s,color .2s}
 .review-attach:hover{border-color:#999;color:#777}
@@ -709,12 +711,11 @@ async function loadOrders(){
         <div class="order-detail-section"><div class="order-detail-label">결제 정보</div><div class="order-detail-row">결제수단: ${o.payment_method||'—'}<br>결제일: ${o.paid_at?new Date(o.paid_at).toLocaleDateString('ko-KR',{year:'numeric',month:'long',day:'numeric',hour:'2-digit',minute:'2-digit'}):'—'}<br>상품 ${(o.subtotal||0).toLocaleString()}원${o.discount_amount?' / 할인 -'+o.discount_amount.toLocaleString()+'원':''}${o.coupon_discount?' / 쿠폰 -'+o.coupon_discount.toLocaleString()+'원':''}${o.points_used?' / 포인트 -'+o.points_used.toLocaleString()+'P':''}${o.shipping_fee!=null?' / 배송비 '+(o.shipping_fee>0?o.shipping_fee.toLocaleString()+'원':'무료'):''}</div></div>
       </div>
       <div class="review-inline" id="review-form-${o.id}" style="display:none;">
-        <div style="font-size:16px;font-weight:700;margin-bottom:14px;">리뷰 작성</div>
-        <div class="review-reward"><span class="review-reward-ic">P</span><span>리뷰 작성 시 ${pointReview}P 적립</span></div>
+        <div style="font-size:15px;font-weight:700;margin-bottom:12px;">리뷰 작성</div>
         <div class="review-stars-input" id="review-stars-${o.id}">${[1,2,3,4,5].map(n=>`<span onclick="setReviewStar('${o.id}',${n})" data-n="${n}" class="on">★</span>`).join('')}</div>
         <textarea class="review-textarea" id="review-text-${o.id}" placeholder="상품은 어떠셨나요? 솔직한 리뷰를 남겨주세요."></textarea>
         <div class="review-attach-wrap"><label class="review-attach"><span class="plus">+</span><span>사진 첨부</span><input type="file" id="review-img-${o.id}" accept="image/png,image/jpeg,image/gif" multiple style="display:none;" onchange="previewReviewImg(this,'${o.id}')"></label><div id="review-preview-${o.id}"></div></div>
-        <div class="review-submit-row"><button class="review-cancel-btn" onclick="toggleReviewForm('${o.id}')">취소</button><button class="review-submit-btn" onclick="submitOrderReview('${o.id}')">등록</button></div>
+        <div class="review-submit-row"><span class="review-reward-inline"><span class="review-reward-ic">P</span>리뷰 작성 시 ${pointReview}P 적립</span><span class="review-btns"><button class="review-cancel-btn" onclick="toggleReviewForm('${o.id}')">취소</button><button class="review-submit-btn" onclick="submitOrderReview('${o.id}')">등록</button></span></div>
       </div>
     </div>`;
   }).join('');
