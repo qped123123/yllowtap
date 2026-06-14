@@ -198,12 +198,19 @@
 /* REVIEW FORM */
 .review-inline{margin-top:14px;padding:16px;background:#F7F5F2;border:1px solid #E5E1DC}
 .review-stars-input{display:flex;gap:4px;margin-bottom:12px;cursor:pointer}
-.review-stars-input span{font-size:24px;color:#E5E1DC;transition:color .15s}
+.review-stars-input span{font-size:32px;color:#E5E1DC;transition:color .15s}
 .review-stars-input span.on{color:#F4D84E}
 .review-textarea{width:100%;padding:10px 12px;font-size:13px;font-family:inherit;border:1px solid #E5E1DC;background:#fff;min-height:80px;resize:vertical;line-height:1.6}
-.review-submit-row{display:flex;justify-content:space-between;align-items:center;margin-top:10px}
+.review-submit-row{display:flex;justify-content:flex-end;gap:8px;align-items:center;margin-top:14px}
 .review-point-hint{font-size:11px;color:#2E7D32}
 .review-submit-btn{padding:10px 24px;font-size:11px;font-weight:600;background:#111;color:#fff;border:none;cursor:pointer;font-family:inherit}
+.review-cancel-btn{padding:10px 24px;font-size:11px;font-weight:600;background:#fff;color:#111;border:1px solid #111;cursor:pointer;font-family:inherit}
+.review-attach-wrap{display:flex;gap:10px;align-items:flex-start;flex-wrap:wrap;margin-top:10px}
+.review-attach{display:inline-flex;flex-direction:column;align-items:center;justify-content:center;width:84px;height:84px;border:1.5px dashed #ddd;border-radius:8px;background:#fafafa;color:#aaa;font-size:11px;gap:4px;cursor:pointer;transition:border-color .2s,color .2s}
+.review-attach:hover{border-color:#999;color:#777}
+.review-attach .plus{font-size:22px;line-height:1}
+[id^="review-preview-"]{display:flex;gap:8px;flex-wrap:wrap}
+[id^="review-preview-"] img{width:84px;height:84px;object-fit:cover;border-radius:8px;border:1px solid #E5E1DC}
 
 .scmp-list{display:flex;gap:12px;overflow-x:auto;scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch;padding-bottom:4px;scrollbar-width:none}
 .scmp-list::-webkit-scrollbar{display:none}
@@ -704,8 +711,8 @@ async function loadOrders(){
         <div style="font-size:14px;font-weight:600;color:#2E7D32;margin-bottom:12px;">🎁 리뷰 작성 시 ${pointReview}P 적립</div>
         <div class="review-stars-input" id="review-stars-${o.id}">${[1,2,3,4,5].map(n=>`<span onclick="setReviewStar('${o.id}',${n})" data-n="${n}">★</span>`).join('')}</div>
         <textarea class="review-textarea" id="review-text-${o.id}" placeholder="상품은 어떠셨나요? 솔직한 리뷰를 남겨주세요."></textarea>
-        <div style="margin-top:8px;"><label style="font-size:12px;color:#666;cursor:pointer;display:flex;align-items:center;gap:6px;">사진 첨부 <input type="file" id="review-img-${o.id}" accept="image/*" multiple style="font-size:11px;" onchange="previewReviewImg(this,'${o.id}')"></label><div id="review-preview-${o.id}" style="display:flex;gap:6px;flex-wrap:wrap;margin-top:8px;"></div></div>
-        <div class="review-submit-row"><span></span><button class="review-submit-btn" onclick="submitOrderReview('${o.id}')">등록</button></div>
+        <div class="review-attach-wrap"><label class="review-attach"><span class="plus">+</span><span>사진 첨부</span><input type="file" id="review-img-${o.id}" accept="image/png,image/jpeg,image/gif" multiple style="display:none;" onchange="previewReviewImg(this,'${o.id}')"></label><div id="review-preview-${o.id}"></div></div>
+        <div class="review-submit-row"><button class="review-cancel-btn" onclick="toggleReviewForm('${o.id}')">취소</button><button class="review-submit-btn" onclick="submitOrderReview('${o.id}')">등록</button></div>
       </div>
     </div>`;
   }).join('');
@@ -782,7 +789,6 @@ function previewReviewImg(input,orderId){
     reader.onload=e=>{
       const img=document.createElement('img');
       img.src=e.target.result;
-      img.style.cssText='width:60px;height:60px;object-fit:cover;border-radius:4px;border:1px solid #E5E1DC;';
       box.appendChild(img);
     };
     reader.readAsDataURL(file);
