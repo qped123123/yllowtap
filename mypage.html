@@ -222,6 +222,9 @@
 .myrv-inline{border:1px solid #F0EDE8;background:#FAFAF8;border-radius:10px;padding:14px 16px;margin-top:12px}
 .myrv-head{display:flex;justify-content:space-between;align-items:center;gap:8px}
 .myrv-label{font-size:13px;font-weight:700;color:#111}
+.review-charcount{font-size:11px;color:#bbb;margin-top:6px}
+.review-charcount.rc-ok{color:#555}
+.review-charcount .rc-num{font-weight:600}
 
 .scmp-list{display:flex;gap:12px;overflow-x:auto;scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch;padding-bottom:4px;scrollbar-width:none}
 .scmp-list::-webkit-scrollbar{display:none}
@@ -529,6 +532,14 @@ function validateReviewContent(text){
   if(new Set(nospace).size<2) return '같은 글자 반복만으로는 등록할 수 없어요.';
   return null;
 }
+function updateReviewCount(el,key){
+  const len=el.value.length;
+  const nospace=el.value.replace(/\s/g,'').length;
+  const box=document.getElementById('review-count-'+key);
+  if(!box)return;
+  box.querySelector('.rc-num').textContent=len;
+  box.classList.toggle('rc-ok', nospace>=5);
+}
 function renderMyOrderReview(orderId){
   const r=reviewedOrders.get(orderId); if(!r)return '';
   const stars='★'.repeat(r.rating)+'☆'.repeat(5-r.rating);
@@ -554,7 +565,8 @@ function editOrderReview(orderId){
     <select id="myrv-rating-${orderId}" style="padding:6px 10px;border:1px solid #ddd;border-radius:6px;margin:8px 0;font-size:13px;">
       ${[5,4,3,2,1].map(n=>`<option value="${n}" ${n===r.rating?'selected':''}>${'★'.repeat(n)} (${n}점)</option>`).join('')}
     </select>
-    <textarea id="myrv-content-${orderId}" maxlength="1000" style="width:100%;min-height:80px;padding:10px;border:1px solid #ddd;border-radius:6px;font-size:13px;box-sizing:border-box;line-height:1.6;">${escapeHTML(r.content)}</textarea>
+    <textarea id="myrv-content-${orderId}" maxlength="1000" oninput="updateReviewCount(this,'edit-${orderId}')" style="width:100%;min-height:80px;padding:10px;border:1px solid #ddd;border-radius:6px;font-size:13px;box-sizing:border-box;line-height:1.6;">${escapeHTML(r.content)}</textarea>
+    <div class="review-charcount rc-ok" id="review-count-edit-${orderId}">공백 제외 최소 5자 · <span class="rc-num">${(r.content||'').length}</span> / 1000</div>
     <div style="display:flex;gap:8px;margin-top:10px;">
       <button onclick="saveOrderReview('${orderId}')" style="padding:6px 14px;font-size:12px;border:none;background:#111;color:#fff;border-radius:6px;cursor:pointer;">저장</button>
       <button onclick="loadOrders()" style="padding:6px 14px;font-size:12px;border:1px solid #111;background:#fff;border-radius:6px;cursor:pointer;">취소</button>
@@ -713,7 +725,8 @@ async function loadOrders(){
       ${actions?'<div class="order-actions">'+actions+'</div>':''}
       <div class="review-inline" id="review-form-${o.id}" style="display:none;">
         <div style="display:flex;align-items:center;gap:14px;margin-bottom:12px;flex-wrap:wrap;"><div style="font-size:15px;font-weight:700;">리뷰 작성</div><div class="review-stars-input" id="review-stars-${o.id}" style="margin-bottom:0;">${[1,2,3,4,5].map(n=>`<span onclick="setReviewStar('${o.id}',${n})" data-n="${n}" class="on">★</span>`).join('')}</div></div>
-        <textarea class="review-textarea" id="review-text-${o.id}" maxlength="1000" placeholder="상품은 어떠셨나요? 솔직한 리뷰를 남겨주세요."></textarea>
+        <textarea class="review-textarea" id="review-text-${o.id}" maxlength="1000" oninput="updateReviewCount(this,'write-${o.id}')" placeholder="상품은 어떠셨나요? 솔직한 리뷰를 남겨주세요."></textarea>
+        <div class="review-charcount" id="review-count-write-${o.id}">공백 제외 최소 5자 · <span class="rc-num">0</span> / 1000</div>
         <div class="review-attach-wrap"><label class="review-attach"><span class="plus">+</span><span>사진/동영상</span><input type="file" id="review-img-${o.id}" accept="image/png,image/jpeg,image/gif,video/mp4,video/quicktime,video/webm" multiple style="display:none;" onchange="previewReviewImg(this,'${o.id}')"></label><div id="review-preview-${o.id}"></div></div>
         <div class="review-submit-row"><span class="review-reward-inline"><span class="review-reward-ic">P</span>리뷰 작성 시 ${pointReview}P 적립</span><span class="review-btns"><button class="review-cancel-btn" onclick="toggleReviewForm('${o.id}')">취소</button><button class="review-submit-btn" onclick="submitOrderReview('${o.id}')">등록</button></span></div>
       </div>
