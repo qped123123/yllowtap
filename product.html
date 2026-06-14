@@ -177,8 +177,10 @@
 .pd-review-controls{display:flex;justify-content:space-between;align-items:center;margin:0 0 16px;border-bottom:1px solid var(--pd-border-lt);padding-bottom:12px}
 .pd-rv-sort{background:none;border:none;font-size:13px;color:var(--pd-text3);cursor:pointer;padding:4px 8px;font-family:inherit}
 .pd-rv-sort.on{color:var(--pd-text);font-weight:700}
-.pd-rv-filter{background:none;border:1px solid var(--pd-border);border-radius:16px;font-size:12px;color:var(--pd-text2);cursor:pointer;padding:5px 12px;font-family:inherit}
-.pd-rv-filter.on{background:var(--pd-text);color:#fff;border-color:var(--pd-text)}
+.pd-rv-filter{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--pd-text2);cursor:pointer;font-family:inherit;user-select:none}
+.pd-rv-filter input{cursor:pointer;accent-color:var(--pd-text)}
+.pd-rv-more{display:block;width:100%;padding:13px;margin-top:10px;background:none;border:1px solid var(--pd-border);border-radius:8px;font-size:13px;color:var(--pd-text2);cursor:pointer;font-family:inherit}
+.pd-rv-more:hover{background:var(--pd-bg)}
 .pd-review-item-text{font-size:13px;line-height:1.7;color:var(--pd-text2)}
 .pd-review-more{text-align:center;margin-top:20px}
 .pd-review-empty{text-align:center;padding:40px 0;color:var(--pd-text3);font-size:13px}
@@ -526,7 +528,7 @@
         <button class="pd-rv-sort" data-sort="high" onclick="setReviewSort('high')">평점 높은순</button>
         <button class="pd-rv-sort" data-sort="low" onclick="setReviewSort('low')">평점 낮은순</button>
       </div>
-      <button class="pd-rv-filter" id="rvPhotoFilter" onclick="toggleReviewPhotoOnly()">사진·동영상</button>
+      <label class="pd-rv-filter"><input type="checkbox" id="rvPhotoFilter" onchange="toggleReviewPhotoOnly()"> 포토·동영상 리뷰만 보기</label>
     </div>
     <div id="reviewList"></div>
   </div>
@@ -1178,15 +1180,16 @@ async function loadReviews(){
   renderReviewList();
 }
 
-let reviewSort='latest', reviewPhotoOnly=false;
+let reviewSort='latest', reviewPhotoOnly=false, reviewExpanded=false;
 function setReviewSort(s){
-  reviewSort=s;
+  reviewSort=s; reviewExpanded=false;
   document.querySelectorAll('.pd-rv-sort').forEach(b=>b.classList.toggle('on',b.dataset.sort===s));
   renderReviewList();
 }
 function toggleReviewPhotoOnly(){
-  reviewPhotoOnly=!reviewPhotoOnly;
-  const f=document.getElementById('rvPhotoFilter'); if(f)f.classList.toggle('on',reviewPhotoOnly);
+  const f=document.getElementById('rvPhotoFilter');
+  reviewPhotoOnly = f ? f.checked : !reviewPhotoOnly;
+  reviewExpanded=false;
   renderReviewList();
 }
 function getViewReviews(){
@@ -1204,8 +1207,8 @@ function renderReviewPhotos(){
   allReviews.forEach(r=>(r.images||[]).forEach(u=>media.push(u)));
   if(!media.length){box.innerHTML='';return;}
   const show=media.slice(0,5);
-  box.innerHTML=`<div class="pd-rvphoto-head"><span>포토 &amp; 동영상 리뷰 (${media.length})</span>${media.length>5?`<button class="pd-rvphoto-all" onclick="if(!reviewPhotoOnly)toggleReviewPhotoOnly()">전체보기 ›</button>`:''}</div>
-    <div class="pd-rvphoto-grid">${show.map(u=>{const su=escapeHTML(u);return isVideoUrl(u)?`<div class="pd-review-media" onclick="openReviewMedia('${su}',true)"><video src="${su}#t=0.1" muted playsinline></video><span class="pd-review-zoom">⛶</span></div>`:`<div class="pd-review-media" onclick="openReviewMedia('${su}',false)"><img src="${su}"></div>`;}).join('')}</div>`;
+  box.innerHTML=`<div class="pd-rvphoto-head"><span>포토 &amp; 동영상 리뷰 (${media.length})</span>${media.length>5?`<button class="pd-rvphoto-all" onclick="var f=document.getElementById('rvPhotoFilter');if(f)f.checked=true;toggleReviewPhotoOnly()">전체보기 ›</button>`:''}</div>
+    <div class="pd-rvphoto-grid">${show.map(u=>{const su=escapeHTML(u);return isVideoUrl(u)?`<div class="pd-review-media" onclick="openReviewMedia('${su}',true)"><video src="${su}" autoplay muted loop playsinline></video><span class="pd-review-zoom">⛶</span></div>`:`<div class="pd-review-media" onclick="openReviewMedia('${su}',false)"><img src="${su}"></div>`;}).join('')}</div>`;
 }
 
 function renderReviewSummary(){
@@ -1238,7 +1241,8 @@ function renderReviewList(){
   const el=document.getElementById('reviewList');
   const list=getViewReviews();
   if(!list.length){el.innerHTML='<div class="pd-review-empty">'+(reviewPhotoOnly?'사진·동영상 리뷰가 없습니다.':'아직 작성된 후기가 없습니다.')+'</div>';return}
-  el.innerHTML=list.map(r=>{
+  const show=reviewExpanded?list:list.slice(0,3);
+  el.innerHTML=show.map(r=>{
     const stars='★'.repeat(r.rating)+'☆'.repeat(5-r.rating);
     const name=escapeHTML(maskName(r.author_name));
     const date=new Date(r.created_at).toLocaleDateString('ko-KR');
@@ -1253,6 +1257,11 @@ function renderReviewList(){
       <div class="pd-review-item-text">${safeContent}</div>
     </div>`;
   }).join('');
+  if(list.length>3){
+    el.innerHTML += reviewExpanded
+      ? `<button class="pd-rv-more" onclick="reviewExpanded=false;renderReviewList()">접기 ▲</button>`
+      : `<button class="pd-rv-more" onclick="reviewExpanded=true;renderReviewList()">후기 더보기 (${list.length-3}) ▼</button>`;
+  }
 }
 
 function isVideoUrl(u){return /\.(mp4|mov|webm|quicktime|m4v)$/i.test(String(u||''));}
