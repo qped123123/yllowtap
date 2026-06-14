@@ -44,6 +44,7 @@
 .acc-header{padding:16px 20px;font-size:13px;font-weight:600;letter-spacing:0.5px;cursor:pointer;display:flex;justify-content:space-between;align-items:center;transition:background .2s;user-select:none}
 .acc-header:hover{background:#FAFAF8}
 .acc-count{font-size:11px;color:#888;font-weight:400;margin-left:8px}
+.acc-point-amt{font-size:16px;font-weight:700;color:#111}
 .acc-arrow{font-size:10px;color:#888;transition:transform .3s}
 .acc-item.open .acc-arrow{transform:rotate(180deg)}
 .acc-body{display:none;padding:0 20px 20px}
@@ -214,7 +215,7 @@
 .review-attach:hover{border-color:#999;color:#777}
 .review-attach .plus{font-size:22px;line-height:1}
 [id^="review-preview-"]{display:flex;gap:8px;flex-wrap:wrap}
-[id^="review-preview-"] img{width:84px;height:84px;object-fit:cover;border-radius:8px;border:1px solid #E5E1DC}
+[id^="review-preview-"] img,[id^="review-preview-"] video{width:84px;height:84px;object-fit:cover;border-radius:8px;border:1px solid #E5E1DC}
 
 .scmp-list{display:flex;gap:12px;overflow-x:auto;scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch;padding-bottom:4px;scrollbar-width:none}
 .scmp-list::-webkit-scrollbar{display:none}
@@ -331,7 +332,7 @@
     </div>
     <div id="couponList"></div>
   </div></div>
-    <div class="acc-item"><div class="acc-header" onclick="toggleAcc(this)"><span>포인트<span class="acc-count" id="accPointCnt"></span></span><span class="acc-arrow">▾</span></div><div class="acc-body">
+    <div class="acc-item"><div class="acc-header" onclick="toggleAcc(this)"><span style="flex:1;">포인트</span><span style="font-size:12px;color:#888;font-weight:400;">상세보기 <span class="acc-arrow">▾</span></span><span class="acc-point-amt" id="accPointCnt" style="flex:1;text-align:right;"></span></div><div class="acc-body">
     <div class="point-balance-card"><div><span style="font-size:12px;color:#888;">보유 포인트</span></div><div style="font-size:18px;font-weight:700;" id="pointBalance">0 P</div></div>
     <div id="pointList"></div>
   </div></div>
@@ -532,7 +533,7 @@ async function loadMyReviews(){
     const stars='★'.repeat(r.rating)+'☆'.repeat(5-r.rating);
     const date=new Date(r.created_at).toLocaleDateString('ko-KR');
     const content=escapeHTML(r.content).replace(/\n/g,'<br>');
-    const imgs=(r.images||[]).map(u=>`<img src="${escapeHTML(u)}" style="width:54px;height:54px;object-fit:cover;border-radius:6px;border:1px solid #eee;cursor:pointer;" onclick="window.open(this.src,'_blank')">`).join('');
+    const imgs=(r.images||[]).map(u=>{const su=escapeHTML(u);return isVideoUrl(u)?`<video src="${su}" muted playsinline style="width:54px;height:54px;object-fit:cover;border-radius:6px;border:1px solid #eee;cursor:pointer;" onclick="window.open(this.src,'_blank')"></video>`:`<img src="${su}" style="width:54px;height:54px;object-fit:cover;border-radius:6px;border:1px solid #eee;cursor:pointer;" onclick="window.open(this.src,'_blank')">`;}).join('');
     return `<div class="myrv-item" id="myrv-${r.id}" style="border:1px solid #eee;border-radius:10px;padding:14px;margin-bottom:10px;">
       <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;">
         <div style="font-weight:600;font-size:14px;">${pname}</div>
@@ -704,16 +705,16 @@ async function loadOrders(){
       ${items}
       ${o.tracking_number?`<div style="font-size:11px;color:#888;margin-top:8px;">운송장: ${o.tracking_company||''} ${o.tracking_number}</div>`:''}
       <div class="order-total">총 ${o.total_amount?.toLocaleString()}원</div>
-      ${actions?'<div class="order-actions">'+actions+'</div>':''}
-      <button class="order-detail-toggle" onclick="toggleOrderDetail('${o.id}')">상세보기 ▾</button>
+      <button class="order-detail-toggle" onclick="toggleOrderDetail('${o.id}')">주문내역 상세보기 ▾</button>
       <div class="order-detail" id="order-detail-${o.id}" style="display:none;">
         <div class="order-detail-section"><div class="order-detail-label">배송 정보</div><div class="order-detail-row">${o.recipient_name||''} / ${o.phone||''}<br>[${o.zipcode||''}] ${o.address1||''} ${o.address2||''}<br>${o.delivery_memo?'메모: '+o.delivery_memo:''}</div></div>
         <div class="order-detail-section"><div class="order-detail-label">결제 정보</div><div class="order-detail-row">결제수단: ${o.payment_method||'—'}<br>결제일: ${o.paid_at?new Date(o.paid_at).toLocaleDateString('ko-KR',{year:'numeric',month:'long',day:'numeric',hour:'2-digit',minute:'2-digit'}):'—'}<br>상품 ${(o.subtotal||0).toLocaleString()}원${o.discount_amount?' / 할인 -'+o.discount_amount.toLocaleString()+'원':''}${o.coupon_discount?' / 쿠폰 -'+o.coupon_discount.toLocaleString()+'원':''}${o.points_used?' / 포인트 -'+o.points_used.toLocaleString()+'P':''}${o.shipping_fee!=null?' / 배송비 '+(o.shipping_fee>0?o.shipping_fee.toLocaleString()+'원':'무료'):''}</div></div>
       </div>
+      ${actions?'<div class="order-actions">'+actions+'</div>':''}
       <div class="review-inline" id="review-form-${o.id}" style="display:none;">
         <div style="display:flex;align-items:center;gap:14px;margin-bottom:12px;flex-wrap:wrap;"><div style="font-size:15px;font-weight:700;">리뷰 작성</div><div class="review-stars-input" id="review-stars-${o.id}" style="margin-bottom:0;">${[1,2,3,4,5].map(n=>`<span onclick="setReviewStar('${o.id}',${n})" data-n="${n}" class="on">★</span>`).join('')}</div></div>
         <textarea class="review-textarea" id="review-text-${o.id}" placeholder="상품은 어떠셨나요? 솔직한 리뷰를 남겨주세요."></textarea>
-        <div class="review-attach-wrap"><label class="review-attach"><span class="plus">+</span><span>사진 첨부</span><input type="file" id="review-img-${o.id}" accept="image/png,image/jpeg,image/gif" multiple style="display:none;" onchange="previewReviewImg(this,'${o.id}')"></label><div id="review-preview-${o.id}"></div></div>
+        <div class="review-attach-wrap"><label class="review-attach"><span class="plus">+</span><span>사진/동영상</span><input type="file" id="review-img-${o.id}" accept="image/png,image/jpeg,image/gif,video/mp4,video/quicktime,video/webm" multiple style="display:none;" onchange="previewReviewImg(this,'${o.id}')"></label><div id="review-preview-${o.id}"></div></div>
         <div class="review-submit-row"><span class="review-reward-inline"><span class="review-reward-ic">P</span>리뷰 작성 시 ${pointReview}P 적립</span><span class="review-btns"><button class="review-cancel-btn" onclick="toggleReviewForm('${o.id}')">취소</button><button class="review-submit-btn" onclick="submitOrderReview('${o.id}')">등록</button></span></div>
       </div>
     </div>`;
@@ -783,15 +784,18 @@ async function loadPointSettings(){
 /* ── 리뷰 ── */
 let reviewStars={};
 function toggleReviewForm(orderId){const el=document.getElementById('review-form-'+orderId);el.style.display=el.style.display==='none'?'block':'none';}
+function isVideoUrl(u){return /\.(mp4|mov|webm|quicktime|m4v)$/i.test(String(u||''));}
 function previewReviewImg(input,orderId){
   const box=document.getElementById('review-preview-'+orderId);
   box.innerHTML='';
   Array.from(input.files).forEach(file=>{
+    if(file.size>50*1024*1024){alert(file.name+' : 50MB를 초과해 첨부할 수 없어요.');return;}
     const reader=new FileReader();
     reader.onload=e=>{
-      const img=document.createElement('img');
-      img.src=e.target.result;
-      box.appendChild(img);
+      let el;
+      if(file.type.startsWith('video/')){el=document.createElement('video');el.src=e.target.result;el.muted=true;el.playsInline=true;}
+      else{el=document.createElement('img');el.src=e.target.result;}
+      box.appendChild(el);
     };
     reader.readAsDataURL(file);
   });
@@ -810,6 +814,7 @@ async function submitOrderReview(orderId){
   const fileInput=document.getElementById('review-img-'+orderId);
   if(fileInput?.files?.length){
     for(const file of fileInput.files){
+      if(file.size>50*1024*1024){alert(file.name+' : 50MB 초과로 제외했어요.');continue;}
       const fn=`reviews/${Date.now()}_${Math.random().toString(36).slice(2)}.${file.name.split('.').pop()}`;
       const{error:ue}=await sb.storage.from('media').upload(fn,file,{contentType:file.type});
       if(!ue){const{data:u}=sb.storage.from('media').getPublicUrl(fn);imageUrls.push(u.publicUrl);}
@@ -907,7 +912,7 @@ async function registerCoupon(){
 /* ── POINTS ── */
 async function loadPointHistory(){
   document.getElementById('pointBalance').textContent=(profile?.point||0).toLocaleString()+' P';
-  document.getElementById('accPointCnt').textContent=' '+(profile?.point||0).toLocaleString()+'P';
+  document.getElementById('accPointCnt').textContent=(profile?.point||0).toLocaleString()+' P';
   const{data}=await sb.from('point_history').select('*').eq('user_id',currentUser.id).order('created_at',{ascending:false}).limit(50);
   const el=document.getElementById('pointList');
   if(!data?.length){el.innerHTML='<div style="text-align:center;padding:14px 0;color:#bbb;font-size:12px;">포인트 내역이 없습니다</div>';return;}
