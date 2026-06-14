@@ -1300,7 +1300,7 @@ function renderReviewList(){
   }
 }
 
-function isVideoUrl(u){return /\.(mp4|mov|webm|quicktime|m4v)$/i.test(String(u||''));}
+function isVideoUrl(u){return /\.(mp4|mov|webm|quicktime|m4v)(\?|$)/i.test(String(u||''));}
 function openReviewMedia(url,isVideo,reviewId){
   const m=document.getElementById('reviewMediaModal');
   if(!m)return;
