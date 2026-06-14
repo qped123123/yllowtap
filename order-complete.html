@@ -94,12 +94,9 @@ const sb=window.supabase.createClient(SUPABASE_URL,SUPABASE_ANON);
     const result=await res.json();
     if(!res.ok||!result.success){showFail(result.message||'결제 승인에 실패했습니다.',result.code?'오류 코드: '+result.code:'');return;}
 
-    // 후처리: 카트 삭제 → 쿠폰 사용 → 포인트 차감 → 프로필 업데이트
-    const uid=session.user.id;
+    // 후처리: 장바구니 정리만. (쿠폰 사용·포인트 차감 = 서버 finalize_paid_order,
+    //  누적금액·주문수·등급 = auto_upgrade_grade 트리거가 처리 — 클라에서 절대 안 건드림)
     await cleanupCart();
-    await markCouponUsed(uid,orderId);
-    await deductPoints(uid,orderId);
-    await updateProfile(uid,Number(amount));
     showSuccess(orderId,result);
   }catch(e){
     console.error('결제 확인:',e);
@@ -111,32 +108,9 @@ async function cleanupCart(){
   try{const raw=sessionStorage.getItem('yt_checkout_cart_ids');if(raw){const ids=JSON.parse(raw);for(const id of ids)await sb.from('cart_items').delete().eq('id',id);sessionStorage.removeItem('yt_checkout_cart_ids');}sessionStorage.removeItem('yt_checkout_total');}catch(e){console.warn('카트 정리:',e);}
 }
 
-async function markCouponUsed(uid,orderNumber){
-  try{
-    const couponId=sessionStorage.getItem('yt_checkout_coupon_id');
-    if(!couponId)return;
-    // 주문 ID 조회
-    const{data:order}=await sb.from('orders').select('id').eq('order_number',orderNumber).single();
-    await sb.from('user_coupons').update({is_used:true,used_at:new Date().toISOString(),order_id:order?.id||null}).eq('coupon_id',couponId).eq('user_id',uid);
-    sessionStorage.removeItem('yt_checkout_coupon_id');
-  }catch(e){console.warn('쿠폰 처리:',e);}
-}
+// (B-0 보안 정리) markCouponUsed·deductPoints·updateProfile 제거됨.
+//  쿠폰 사용·포인트 차감 = 서버 finalize_paid_order / 누적금액·주문수·등급 = auto_upgrade_grade 트리거.
 
-async function deductPoints(uid,orderNumber){
-  try{
-    const pts=parseInt(sessionStorage.getItem('yt_checkout_points_used')||'0');
-    if(pts<=0)return;
-    const{data:profile}=await sb.from('user_profiles').select('point').eq('id',uid).single();
-    if(profile){await sb.from('user_profiles').update({point:Math.max(0,(profile.point||0)-pts)}).eq('id',uid);}
-    const{data:order}=await sb.from('orders').select('id').eq('order_number',orderNumber).single();
-    await sb.from('point_history').insert({user_id:uid,amount:pts,type:'use',description:'주문 사용',order_id:order?.id||null});
-    sessionStorage.removeItem('yt_checkout_points_used');
-  }catch(e){console.warn('포인트 처리:',e);}
-}
-
-async function updateProfile(uid,totalAmount){
-  try{const{data:p}=await sb.from('user_profiles').select('order_count,total_spent').eq('id',uid).single();if(p)await sb.from('user_profiles').update({order_count:(p.order_count||0)+1,total_spent:(p.total_spent||0)+totalAmount,updated_at:new Date().toISOString()}).eq('id',uid);}catch(e){console.warn('프로필:',e);}
-}
 
 function showSuccess(orderNumber,result){
   document.getElementById('ocLoading').style.display='none';
