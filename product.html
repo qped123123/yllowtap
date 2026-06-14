@@ -167,6 +167,9 @@
 .pd-review-item-images{display:flex;gap:8px;margin:12px 0;flex-wrap:wrap}
 .pd-review-item-images img,.pd-review-item-images video{width:100px;height:100px;object-fit:cover;border-radius:4px;cursor:pointer;transition:transform .2s}
 .pd-review-item-images img:hover,.pd-review-item-images video:hover{transform:scale(1.05)}
+.pd-review-media{position:relative;width:100px;height:100px;border-radius:4px;overflow:hidden;cursor:pointer;border:1px solid var(--pd-border)}
+.pd-review-media img,.pd-review-media video{width:100%;height:100%;object-fit:cover;display:block}
+.pd-review-play{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:#fff;font-size:20px;background:rgba(0,0,0,.28);text-shadow:0 1px 4px rgba(0,0,0,.6);pointer-events:none}
 .pd-review-item-text{font-size:13px;line-height:1.7;color:var(--pd-text2)}
 .pd-review-more{text-align:center;margin-top:20px}
 .pd-review-empty{text-align:center;padding:40px 0;color:var(--pd-text3);font-size:13px}
@@ -1189,7 +1192,7 @@ function renderReviewList(){
     const stars='★'.repeat(r.rating)+'☆'.repeat(5-r.rating);
     const name=escapeHTML(maskName(r.author_name));
     const date=new Date(r.created_at).toLocaleDateString('ko-KR');
-    const imgs=(r.images||[]).map(url=>{const u=escapeHTML(url);return isVideoUrl(url)?`<video src="${u}" controls muted playsinline></video>`:`<img src="${u}" alt="후기 이미지" onclick="window.open(this.src,'_blank')">`;}).join('');
+    const imgs=(r.images||[]).map(url=>{const u=escapeHTML(url);return isVideoUrl(url)?`<div class="pd-review-media" onclick="openReviewMedia('${u}',true)"><video src="${u}#t=0.1" muted playsinline preload="metadata"></video><span class="pd-review-play">▶</span></div>`:`<div class="pd-review-media" onclick="openReviewMedia('${u}',false)"><img src="${u}" alt="후기 이미지"></div>`;}).join('');
     const safeContent=escapeHTML(r.content).replace(/\n/g,'<br>');
     return `<div class="pd-review-item">
       <div class="pd-review-item-top">
@@ -1203,6 +1206,20 @@ function renderReviewList(){
 }
 
 function isVideoUrl(u){return /\.(mp4|mov|webm|quicktime|m4v)$/i.test(String(u||''));}
+function openReviewMedia(url,isVideo){
+  const m=document.getElementById('reviewMediaModal');
+  if(!m)return;
+  document.getElementById('reviewMediaContent').innerHTML = isVideo
+    ? `<video src="${url}" controls autoplay playsinline style="max-width:90vw;max-height:85vh;border-radius:8px;background:#000;"></video>`
+    : `<img src="${url}" style="max-width:90vw;max-height:85vh;border-radius:8px;">`;
+  m.style.display='flex';
+}
+function closeReviewMedia(){
+  const m=document.getElementById('reviewMediaModal');
+  if(!m)return;
+  document.getElementById('reviewMediaContent').innerHTML='';
+  m.style.display='none';
+}
 function escapeHTML(v){
   return String(v ?? '')
     .replace(/&/g,'&amp;')
@@ -1529,5 +1546,9 @@ window.addEventListener("resize",pdMobileOrder);
 loadProduct().then(()=>{recordView();loadWishCount();pdMobileOrder();});
 </script>
 <script src="./js/common-header.js?v=15"></script>
+<div id="reviewMediaModal" onclick="closeReviewMedia()" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.88);z-index:99999;align-items:center;justify-content:center;">
+  <div id="reviewMediaContent" onclick="event.stopPropagation()"></div>
+  <span onclick="closeReviewMedia()" style="position:absolute;top:18px;right:24px;color:#fff;font-size:30px;line-height:1;cursor:pointer;">&times;</span>
+</div>
 </body>
 </html>
