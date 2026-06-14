@@ -127,7 +127,7 @@
         <div id="coCouponApplied" style="display:none;"></div>
         <label class="co-label" style="margin-top:16px;">포인트</label>
         <div class="co-point-row">
-          <input class="co-input" id="coPointInput" type="number" min="0" placeholder="0" style="flex:1" oninput="onPointInput()">
+          <input class="co-input" id="coPointInput" type="number" min="0" step="10" placeholder="0" style="flex:1" oninput="onPointInput()" onblur="onPointBlur()">
           <button type="button" onclick="useAllPoints()" style="padding:12px 16px;font-size:11px;font-weight:500;background:#111;color:#fff;border:none;cursor:pointer;font-family:inherit;white-space:nowrap;">전액 사용</button>
         </div>
         <div class="co-point-info" id="coPointInfo">보유 포인트: 0 P</div>
@@ -364,7 +364,7 @@ function removeCoupon(){selectedCoupon=null;couponDiscount=0;document.getElement
 async function loadMyPoints(){
   const{data}=await sb.from('user_profiles').select('point,grade').eq('id',currentUser.id).single();
   userPoints=data?.point||0;userGrade=data?.grade||'basic';
-  document.getElementById('coPointInfo').textContent='보유 포인트: '+userPoints.toLocaleString()+' P';
+  document.getElementById('coPointInfo').textContent='보유 포인트: '+userPoints.toLocaleString()+' P (10P 단위 사용 가능)';
 }
 async function loadEarnRates(){
   const{data}=await sb.from('site_settings').select('*').in('key',['point_rate_basic','point_rate_silver','point_rate_gold','point_rate_vip']);
@@ -380,9 +380,19 @@ function onPointInput(){
   if(String(v)!==el.value)el.value=v;   // 잔액·결제액 초과 시 입력칸도 그 한도로 고정
   pointsUsed=v;updateSummary();
 }
+function onPointBlur(){
+  const el=document.getElementById('coPointInput');
+  let v=parseInt(el.value)||0;
+  if(v>userPoints)v=userPoints;
+  const maxUsable=Math.max(0,getProductSubtotal()-couponDiscount);
+  if(v>maxUsable)v=maxUsable;
+  v=Math.floor(v/10)*10;                 // 10P 단위로 내림
+  el.value=v||'';
+  pointsUsed=v;updateSummary();
+}
 function useAllPoints(){
   const maxUsable=Math.max(0,getProductSubtotal()-couponDiscount);
-  const v=Math.min(userPoints,maxUsable);
+  let v=Math.floor(Math.min(userPoints,maxUsable)/10)*10;   // 10P 단위
   document.getElementById('coPointInput').value=v;pointsUsed=v;updateSummary();
 }
 
