@@ -170,6 +170,7 @@
 .pd-review-media{position:relative;width:100px;height:100px;border-radius:4px;overflow:hidden;cursor:pointer;border:1px solid var(--pd-border)}
 .pd-review-media img,.pd-review-media video{width:100%;height:100%;object-fit:cover;display:block}
 .pd-review-play{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:#fff;font-size:20px;background:rgba(0,0,0,.28);text-shadow:0 1px 4px rgba(0,0,0,.6);pointer-events:none}
+.pd-review-zoom{position:absolute;right:4px;bottom:4px;color:#fff;font-size:11px;background:rgba(0,0,0,.5);border-radius:3px;padding:1px 5px;pointer-events:none}
 .pd-review-item-text{font-size:13px;line-height:1.7;color:var(--pd-text2)}
 .pd-review-more{text-align:center;margin-top:20px}
 .pd-review-empty{text-align:center;padding:40px 0;color:var(--pd-text3);font-size:13px}
@@ -1192,7 +1193,7 @@ function renderReviewList(){
     const stars='★'.repeat(r.rating)+'☆'.repeat(5-r.rating);
     const name=escapeHTML(maskName(r.author_name));
     const date=new Date(r.created_at).toLocaleDateString('ko-KR');
-    const imgs=(r.images||[]).map(url=>{const u=escapeHTML(url);return isVideoUrl(url)?`<div class="pd-review-media" onclick="openReviewMedia('${u}',true)"><video src="${u}#t=0.1" muted playsinline preload="metadata"></video><span class="pd-review-play">▶</span></div>`:`<div class="pd-review-media" onclick="openReviewMedia('${u}',false)"><img src="${u}" alt="후기 이미지"></div>`;}).join('');
+    const imgs=(r.images||[]).map(url=>{const u=escapeHTML(url);return isVideoUrl(url)?`<div class="pd-review-media" onclick="openReviewMedia('${u}',true)"><video src="${u}" autoplay muted loop playsinline preload="metadata"></video><span class="pd-review-zoom">⛶</span></div>`:`<div class="pd-review-media" onclick="openReviewMedia('${u}',false)"><img src="${u}" alt="후기 이미지"></div>`;}).join('');
     const safeContent=escapeHTML(r.content).replace(/\n/g,'<br>');
     return `<div class="pd-review-item">
       <div class="pd-review-item-top">
