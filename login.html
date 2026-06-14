@@ -393,15 +393,17 @@ async function emailSignup() {
     return;
   }
 
-  // user_profiles에 약관 동의 + 알림 설정 저장
+  // user_profiles에 이름 + 약관 동의 + 알림 설정 저장
   if (data.user) {
-    await sb.from('user_profiles').update({
+    const { error: profErr } = await sb.from('user_profiles').update({
+      display_name: name,
       agreed_terms: agreeTerms,
       agreed_privacy: agreePrivacy,
       agreed_marketing: agreeMarketing,
       notification_email: notiEmail,
       notification_kakao: notiKakao
     }).eq('id', data.user.id);
+    if (profErr) console.warn('[signup] user_profiles 저장 실패:', profErr.message);
   }
 
   document.getElementById('signupSuccess').textContent = '가입 완료! 로그인해주세요.';
