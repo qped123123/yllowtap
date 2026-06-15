@@ -831,6 +831,7 @@ body { font-family:var(--font); background:var(--bg); color:var(--text); font-si
       </div>
     </div>
     <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="deleteProductInquiry()" style="margin-right:auto;color:#e66;border-color:#e66;">삭제</button>
       <button class="btn btn-secondary" onclick="closeProductInquiryModal()">취소</button>
       <button class="btn btn-primary" onclick="saveProductInquiryAnswer()">답변 저장</button>
     </div>
@@ -2048,7 +2049,8 @@ function renderProductInquiryList(){
     const secret=q.is_secret?'🔒 ':'';
     const author=pqEsc(q.author_name||'');
     const preview=pqEsc((q.content||'').substring(0,50));
-    return`<div class="hero-row" style="cursor:pointer;grid-template-columns:1fr 100px 80px 100px;" onclick="openProductInquiryModal('${q.id}')"><div><div style="font-weight:500;font-size:13px;">${secret}${pname}</div><div style="font-size:11px;color:var(--text-dim);margin-top:2px;">${author} · ${preview}${(q.content||'').length>50?'...':''}</div></div><div style="font-size:11px;color:var(--text-dim);">${new Date(q.created_at).toLocaleDateString('ko-KR')}</div><div><span class="status-badge ${statusColor}">${statusText}</span></div><div><button class="btn btn-secondary btn-small" onclick="event.stopPropagation();openProductInquiryModal('${q.id}')">${q.status==='answered'?'수정':'답변'}</button></div></div>`;
+    const slug=pqEsc(q.products?.slug||q.product_id||'');
+    return`<div class="hero-row" style="cursor:pointer;grid-template-columns:1fr 90px 70px 140px;" onclick="openProductInquiryModal('${q.id}')"><div><div style="font-weight:500;font-size:13px;">${secret}<a href="/product.html?slug=${slug}" target="_blank" onclick="event.stopPropagation()" style="color:inherit;text-decoration:underline;">${pname}</a></div><div style="font-size:11px;color:var(--text-dim);margin-top:2px;">${author} · ${preview}${(q.content||'').length>50?'...':''}</div></div><div style="font-size:11px;color:var(--text-dim);">${new Date(q.created_at).toLocaleDateString('ko-KR')}</div><div><span class="status-badge ${statusColor}">${statusText}</span></div><div style="display:flex;gap:4px;"><button class="btn btn-secondary btn-small" onclick="event.stopPropagation();openProductInquiryModal('${q.id}')">${q.status==='answered'?'수정':'답변'}</button><button class="btn btn-secondary btn-small" onclick="event.stopPropagation();deleteProductInquiryDirect('${q.id}')" style="color:#e66;">삭제</button></div></div>`;
   }).join('');
 }
 function openProductInquiryModal(id){
@@ -2068,6 +2070,19 @@ async function saveProductInquiryAnswer(){
   const{error}=await sb.from('product_inquiries').update({answer,status:'answered',answered_at:new Date().toISOString()}).eq('id',editingPqId);
   if(error){showToast('저장 실패: '+error.message,true);return;}
   showToast('답변 저장 완료');closeProductInquiryModal();await loadProductInquiries();
+}
+async function deleteProductInquiry(){
+  if(!editingPqId)return;
+  if(!confirm('이 상품문의를 삭제할까요? 되돌릴 수 없어요.'))return;
+  const{error}=await sb.from('product_inquiries').delete().eq('id',editingPqId);
+  if(error){showToast('삭제 실패: '+error.message,true);return;}
+  showToast('삭제 완료');closeProductInquiryModal();await loadProductInquiries();
+}
+async function deleteProductInquiryDirect(id){
+  if(!confirm('이 상품문의를 삭제할까요? 되돌릴 수 없어요.'))return;
+  const{error}=await sb.from('product_inquiries').delete().eq('id',id);
+  if(error){showToast('삭제 실패: '+error.message,true);return;}
+  showToast('삭제 완료');await loadProductInquiries();
 }
 
 // ══════════════════════════════════════════
