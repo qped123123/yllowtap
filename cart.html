@@ -426,9 +426,19 @@ async function mergeGuestCart(userId,userCartId){
   if(!guestCart||guestCart.id===userCartId)return;
   const{data:guestItems}=await sb.from('cart_items').select('*').eq('cart_id',guestCart.id);
   if(guestItems&&guestItems.length){
+    // 옵션 비교용: selected_options를 키 순서 무관하게 정규화한 문자열로
+    const optKey=(o)=>{
+      if(!o||typeof o!=='object')return '';
+      const clean={};
+      Object.keys(o).filter(k=>!k.startsWith('_')).sort().forEach(k=>{clean[k]=o[k];});
+      return JSON.stringify(clean);
+    };
     let allOk=true;
     for(const item of guestItems){
-      const{data:existing}=await sb.from('cart_items').select('*').eq('cart_id',userCartId).eq('product_id',item.product_id).maybeSingle();
+      // 같은 product_id 항목들을 모두 가져와서(여러 행 가능) 옵션까지 일치하는 것만 동일 취급
+      const{data:sameProduct}=await sb.from('cart_items').select('*').eq('cart_id',userCartId).eq('product_id',item.product_id);
+      const itemKey=optKey(item.selected_options);
+      const existing=(sameProduct||[]).find(e=>optKey(e.selected_options)===itemKey);
       if(existing){
         const{error}=await sb.from('cart_items').update({quantity:existing.quantity+item.quantity}).eq('id',existing.id);
         if(error){allOk=false;console.error('[merge] 수량합산 실패',error);}
