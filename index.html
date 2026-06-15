@@ -240,7 +240,36 @@
   .home-cat__img, .home-diy__img, .home-gift__img { transition: opacity 0.4s ease; }
   .home-cat__img.is-ready, .home-diy__img.is-ready, .home-gift__img.is-ready { opacity: 1; }
 
-  </style>
+  
+/* ── 쿠폰 다운로드 팝업 ── */
+.cpop-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.55);z-index:10000;display:none;align-items:center;justify-content:center;opacity:0;animation:popupFadeIn 0.3s ease forwards;}
+.cpop-overlay.hiding{animation:popupFadeOut 0.25s ease forwards;}
+.cpop-card{position:relative;background:#fff;width:360px;max-width:92%;border-radius:4px;overflow:hidden;box-shadow:0 12px 40px rgba(0,0,0,0.25);}
+.cpop-head{background:#111;color:#fff;text-align:center;padding:26px 20px 22px;}
+.cpop-head .cpop-eyebrow{font-size:11px;letter-spacing:3px;color:#C8B68F;margin-bottom:8px;}
+.cpop-head h3{font-family:'Bodoni Moda',serif;font-size:24px;font-weight:400;letter-spacing:1px;margin:0;}
+.cpop-head p{font-size:12px;color:#bbb;margin-top:8px;line-height:1.6;}
+.cpop-body{padding:20px;max-height:50vh;overflow-y:auto;}
+.cpop-coupon{display:flex;align-items:center;justify-content:space-between;gap:12px;border:1px solid #E5E1DC;border-radius:3px;padding:16px;margin-bottom:12px;background:#FAF8F5;}
+.cpop-coupon:last-child{margin-bottom:0;}
+.cpop-coupon-info{flex:1;min-width:0;}
+.cpop-coupon-val{font-size:20px;font-weight:700;color:#111;letter-spacing:-0.5px;}
+.cpop-coupon-name{font-size:12px;color:#555;margin-top:3px;}
+.cpop-coupon-cond{font-size:11px;color:#999;margin-top:4px;line-height:1.5;}
+.cpop-get-btn{flex-shrink:0;padding:11px 18px;font-size:12px;font-weight:600;letter-spacing:0.5px;background:#111;color:#fff;border:none;border-radius:3px;cursor:pointer;transition:opacity 0.2s;white-space:nowrap;}
+.cpop-get-btn:hover{opacity:0.85;}
+.cpop-get-btn:disabled{cursor:default;}
+.cpop-get-btn.got{background:#fff;color:#999;border:1px solid #E5E1DC;cursor:default;}
+.cpop-footer{display:flex;align-items:center;justify-content:space-between;padding:14px 20px;border-top:1px solid #F0EDE8;font-size:12px;}
+.cpop-footer label{display:flex;align-items:center;gap:6px;color:#888;cursor:pointer;}
+.cpop-footer label input{accent-color:#B89B72;}
+.cpop-footer .cpop-close-txt{color:#888;cursor:pointer;text-decoration:underline;}
+@media (max-width:480px){
+  .cpop-card{width:92%;max-width:360px;}
+  .cpop-coupon{flex-direction:column;text-align:center;gap:10px;}
+  .cpop-get-btn{width:100%;}
+}
+</style>
 </head>
 <body>
 
@@ -252,6 +281,22 @@
     <div class="popup-footer" id="popupFooter" style="display:none;">
       <label><input type="checkbox" id="popupDontShow"> 오늘 하루 안 보기</label>
       <label style="cursor:pointer;display:flex;align-items:center;gap:6px;"><input type="checkbox" onchange="if(this.checked)closeAllPopups()" style="accent-color:#B89B72;"> 전체 닫기</label>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ 쿠폰 다운로드 팝업 ═══ -->
+<div class="cpop-overlay" id="cpopOverlay">
+  <div class="cpop-card">
+    <div class="cpop-head">
+      <div class="cpop-eyebrow">YLLOWTAP COUPON</div>
+      <h3>쿠폰을 받아가세요</h3>
+      <p>받은 쿠폰은 결제 시 선택해서 사용할 수 있어요</p>
+    </div>
+    <div class="cpop-body" id="cpopBody"></div>
+    <div class="cpop-footer">
+      <label><input type="checkbox" id="cpopDontShow"> 오늘 하루 안 보기</label>
+      <span class="cpop-close-txt" onclick="closeCouponPopup()">닫기</span>
     </div>
   </div>
 </div>
@@ -554,6 +599,135 @@ document.getElementById('popupOverlay').addEventListener('click', function(e) {
 });
 
 // ══════════════════════════════════════════
+// 쿠폰 다운로드 팝업
+// ══════════════════════════════════════════
+let cpopCoupons = [];
+
+function fmtCouponVal(c){
+  return c.discount_type === 'percent'
+    ? c.discount_value + '%'
+    : Number(c.discount_value).toLocaleString() + '원';
+}
+function fmtCouponCond(c){
+  const parts = [];
+  if (c.discount_type === 'percent' && c.max_discount) parts.push('최대 ' + Number(c.max_discount).toLocaleString() + '원');
+  if (c.min_order_amount) parts.push(Number(c.min_order_amount).toLocaleString() + '원 이상 구매 시');
+  if (c.valid_until) parts.push('~' + new Date(c.valid_until).toLocaleDateString('ko-KR'));
+  return parts.join(' · ');
+}
+
+// 반환값: 팝업을 띄웠으면 true
+async function loadCouponPopup(){
+  // 오늘 안 보기 체크
+  const hideUntil = localStorage.getItem('yllowtap_coupon_popup_hide');
+  if (hideUntil && Date.now() < parseInt(hideUntil)) return false;
+
+  // 노출 대상 쿠폰: 활성 + 팝업노출 + 만료 안 됨 + 소진 안 됨
+  let data;
+  try {
+    const r = await sb.from('coupons').select('*')
+      .eq('is_active', true).eq('show_in_popup', true)
+      .order('created_at', { ascending: false });
+    data = r.data;
+  } catch(e){ return false; }
+  if (!data || !data.length) return false;
+
+  const now = new Date();
+  cpopCoupons = data.filter(c => {
+    if (c.valid_until && new Date(c.valid_until) < now) return false;
+    if (c.usage_limit && c.used_count >= c.usage_limit) return false;
+    return true;
+  });
+  if (!cpopCoupons.length) return false;
+
+  // 로그인 회원이면 이미 받은 쿠폰 표시용으로 조회
+  let ownedIds = new Set();
+  try {
+    const { data: { session } } = await sb.auth.getSession();
+    if (session) {
+      const { data: ucs } = await sb.from('user_coupons').select('coupon_id').eq('user_id', session.user.id);
+      (ucs || []).forEach(u => ownedIds.add(u.coupon_id));
+    }
+  } catch(e){}
+
+  const body = document.getElementById('cpopBody');
+  body.innerHTML = cpopCoupons.map((c, i) => {
+    const owned = ownedIds.has(c.id);
+    const cond = fmtCouponCond(c);
+    return `<div class="cpop-coupon">
+      <div class="cpop-coupon-info">
+        <div class="cpop-coupon-val">${fmtCouponVal(c)} 할인</div>
+        <div class="cpop-coupon-name">${c.name || ''}</div>
+        ${cond ? `<div class="cpop-coupon-cond">${cond}</div>` : ''}
+      </div>
+      <button class="cpop-get-btn${owned ? ' got' : ''}" id="cpopBtn-${i}" ${owned ? 'disabled' : ''} onclick="claimCoupon(${i})">${owned ? '받음' : '쿠폰 받기'}</button>
+    </div>`;
+  }).join('');
+
+  document.getElementById('cpopOverlay').style.display = 'flex';
+  return true;
+}
+
+async function claimCoupon(idx){
+  const c = cpopCoupons[idx];
+  if (!c) return;
+  const btn = document.getElementById('cpopBtn-' + idx);
+  if (btn) btn.disabled = true;
+
+  // 로그인 체크
+  const { data: { session } } = await sb.auth.getSession();
+  if (!session) {
+    if (confirm('쿠폰을 받으려면 로그인이 필요해요. 로그인 페이지로 이동할까요?')) {
+      location.href = '/login.html?redirect=' + encodeURIComponent('/');
+    } else {
+      if (btn) btn.disabled = false;
+    }
+    return;
+  }
+
+  const uid = session.user.id;
+  try {
+    // 만료/소진 재확인 (DB 최신값)
+    const { data: fresh } = await sb.from('coupons').select('*').eq('id', c.id).single();
+    if (!fresh || !fresh.is_active) { alert('지금은 받을 수 없는 쿠폰이에요.'); if(btn) btn.disabled=false; return; }
+    if (fresh.valid_until && new Date(fresh.valid_until) < new Date()) { alert('만료된 쿠폰이에요.'); if(btn) btn.disabled=false; return; }
+    if (fresh.usage_limit && fresh.used_count >= fresh.usage_limit) { alert('쿠폰이 모두 소진되었어요.'); if(btn) btn.disabled=false; return; }
+
+    // 중복 발급 체크
+    const { data: existing } = await sb.from('user_coupons').select('id').eq('user_id', uid).eq('coupon_id', c.id).maybeSingle();
+    if (existing) {
+      if (btn) { btn.classList.add('got'); btn.textContent = '받음'; }
+      alert('이미 받은 쿠폰이에요. 결제 시 사용할 수 있어요.');
+      return;
+    }
+
+    const { error } = await sb.from('user_coupons').insert({ user_id: uid, coupon_id: c.id });
+    if (error) { alert('쿠폰 받기에 실패했어요: ' + error.message); if(btn) btn.disabled=false; return; }
+
+    if (btn) { btn.classList.add('got'); btn.textContent = '받음'; }
+    alert('쿠폰을 받았어요! 결제할 때 선택해서 사용하세요.');
+  } catch(e) {
+    alert('쿠폰 받기 중 오류가 났어요. 잠시 후 다시 시도해주세요.');
+    if (btn) btn.disabled = false;
+  }
+}
+
+function closeCouponPopup(){
+  if (document.getElementById('cpopDontShow').checked) {
+    const midnight = new Date();
+    midnight.setHours(23, 59, 59, 999);
+    localStorage.setItem('yllowtap_coupon_popup_hide', midnight.getTime());
+  }
+  const overlay = document.getElementById('cpopOverlay');
+  overlay.classList.add('hiding');
+  setTimeout(() => { overlay.style.display = 'none'; overlay.classList.remove('hiding'); }, 250);
+}
+
+document.getElementById('cpopOverlay').addEventListener('click', function(e){
+  if (e.target === this) closeCouponPopup();
+});
+
+// ══════════════════════════════════════════
 // 히어로 슬라이드 — 기존 그대로
 // ══════════════════════════════════════════
 async function loadHero() {
@@ -845,8 +1019,11 @@ async function loadNew() {
 }
 // ══════════════════════════════════════════
 async function init() {
-  await Promise.all([loadHero(), loadSettings(), loadBest(), loadNew(), loadPopup()]);
+  await Promise.all([loadHero(), loadSettings(), loadBest(), loadNew()]);
   await loadMyWishes();
+  // 쿠폰 팝업 우선 → 떴으면 공지 팝업은 스킵
+  const couponShown = await loadCouponPopup();
+  if (!couponShown) loadPopup();
 }
 init();
 </script>
