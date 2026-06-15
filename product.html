@@ -1473,7 +1473,10 @@ async function submitPdReview(){
 // ══════════════════════════════════════════
 let allQnas=[];
 
+let myQnaUid=null;
 async function loadQnas(){
+  const{data:{session}}=await sb.auth.getSession();
+  myQnaUid=session?.user?.id||null;
   const{data}=await sb.from('product_inquiries').select('*').eq('product_id',product.id).order('created_at',{ascending:false});
   allQnas=data||[];
   document.getElementById('qnaCnt').textContent=`(${allQnas.length})`;
@@ -1488,12 +1491,28 @@ function renderQnaList(){
     const safeContent=escapeHTML(q.content).replace(/\n/g,'<br>');
     const safeAnswer=escapeHTML(q.answer).replace(/\n/g,'<br>');
     const lock=q.is_secret?'🔒 ':'';
+    const mine=myQnaUid&&q.user_id===myQnaUid;
+    const delBtn=mine?`<button onclick="deleteMyQna('${q.id}')" style="margin-left:8px;font-size:11px;color:var(--pd-text3);background:none;border:none;cursor:pointer;text-decoration:underline;">삭제</button>`:'';
     return`<div class="pd-review-item">
-      <div class="pd-review-item-top"><div><span class="pd-review-item-author">${lock}${name}</span></div><div class="pd-review-item-date">${date}</div></div>
+      <div class="pd-review-item-top"><div><span class="pd-review-item-author">${lock}${name}</span></div><div class="pd-review-item-date">${date}${delBtn}</div></div>
       <div class="pd-review-item-text">${safeContent}</div>
       ${q.answer?`<div style="margin-top:12px;padding:12px 14px;background:#FBF8EC;border-left:3px solid var(--pd-accent);font-size:13px;color:var(--pd-text2);line-height:1.7;"><div style="font-size:11px;font-weight:600;color:var(--pd-text);margin-bottom:4px;">관리자 답변</div>${safeAnswer}</div>`:'<div style="margin-top:8px;font-size:11px;color:var(--pd-accent);font-weight:500;">답변 대기 중</div>'}
     </div>`;
   }).join('');
+}
+async function deleteMyQna(id){
+  if(!confirm('이 문의를 삭제할까요?'))return;
+  const{error}=await sb.from('product_inquiries').delete().eq('id',id);
+  if(error){alert('삭제 실패: '+error.message);return}
+  await loadQnas();
+}
+async function getMemberName(session){
+  try{
+    const{data:prof}=await sb.from('user_profiles').select('display_name').eq('id',session.user.id).maybeSingle();
+    if(prof&&prof.display_name) return prof.display_name;
+  }catch(e){}
+  const m=(session.user&&session.user.user_metadata)||{};
+  return m.name||m.full_name||m.display_name||(session.user.email?session.user.email.split('@')[0]:'회원');
 }
 async function toggleQnaForm(){
   const f=document.getElementById('qnaForm');
@@ -1506,8 +1525,7 @@ async function toggleQnaForm(){
     // 작성자명 기본값 = 회원 이름 (비어있을 때만 채움)
     const nameEl=document.getElementById('qfName');
     if(nameEl && !nameEl.value){
-      const{data:prof}=await sb.from('user_profiles').select('display_name').eq('id',session.user.id).maybeSingle();
-      nameEl.value=prof?.display_name||'';
+      nameEl.value=await getMemberName(session);
     }
   }
   f.classList.toggle('show');
@@ -1519,10 +1537,7 @@ async function submitQna(){
   const content=document.getElementById('qfContent').value.trim();
   if(!content){alert('문의 내용을 입력해주세요.');return}
   let author=name;
-  if(!author){
-    const{data:prof}=await sb.from('user_profiles').select('display_name').eq('id',session.user.id).maybeSingle();
-    author=prof?.display_name||'회원';
-  }
+  if(!author){ author=await getMemberName(session); }
   const{error}=await sb.from('product_inquiries').insert({product_id:product.id,user_id:session.user.id,author_name:author,content,is_secret:document.getElementById('qfSecret').checked});
   if(error){alert('등록 실패: '+error.message);return}
   document.getElementById('qfName').value='';document.getElementById('qfContent').value='';document.getElementById('qfSecret').checked=false;
