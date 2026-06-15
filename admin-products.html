@@ -2548,7 +2548,14 @@ async function saveCouponAdmin(){
   let err;
   if(id){const r=await sb.from('coupons').update(d).eq('id',id);err=r.error;}
   else{const r=await sb.from('coupons').insert(d);err=r.error;}
-  if(err){showToast('저장 실패: '+err.message,true);return;}
+  if(err){
+    if(err.code==='23505'||/duplicate key|coupons_code_key/i.test(err.message||'')){
+      showToast('이미 사용 중인 쿠폰 코드예요. 다른 코드를 입력해주세요.',true);
+    }else{
+      showToast('저장 실패: '+err.message,true);
+    }
+    return;
+  }
   showToast(id?'쿠폰이 수정되었어요':'쿠폰이 추가되었어요');
   closeCouponForm();loadCouponsAdmin();
 }
