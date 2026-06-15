@@ -34,6 +34,17 @@
 .faq-contact p{font-size:14px;color:#444;margin-bottom:12px}
 .faq-contact a{display:inline-block;padding:12px 32px;font-size:12px;font-weight:500;letter-spacing:1.5px;text-transform:uppercase;border:1px solid #111;color:#111;text-decoration:none;transition:all .2s}
 .faq-contact a:hover{background:#111;color:#fff;opacity:1}
+.faq-mbox{display:none;margin-bottom:32px;padding:32px;background:#FAF8F5;border:1px solid #E5E1DC}
+.faq-mbox.show{display:block}
+.faq-mbox h3{font-family:'Bodoni Moda',serif;font-size:22px;font-weight:400;letter-spacing:1px;margin-bottom:6px;color:#111}
+.faq-mbox .faq-mbox-sub{font-size:12px;color:#888;margin-bottom:20px}
+.faq-mbox-grades{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:22px}
+.faq-mbox-grade{flex:1 1 140px;min-width:120px;padding:14px 12px;background:#fff;border:1px solid #ECE8E3;text-align:center}
+.faq-mbox-grade .g-name{font-size:12px;font-weight:700;letter-spacing:1px;color:#111;margin-bottom:4px}
+.faq-mbox-grade .g-cond{font-size:11px;color:#888;line-height:1.5}
+.faq-mbox-btn{display:inline-block;width:100%;box-sizing:border-box;text-align:center;padding:15px 24px;font-size:13px;font-weight:600;letter-spacing:1.5px;background:#111;color:#fff;border:none;cursor:pointer;font-family:inherit;transition:opacity .2s}
+.faq-mbox-btn:hover{opacity:.85}
+.faq-mbox-hint{font-size:11px;color:#aaa;text-align:center;margin-top:10px}
 
 @media(max-width:768px){
   .faq-page{padding:calc(var(--header-height,60px) + 30px) 16px 60px}
@@ -81,6 +92,19 @@
     <button class="faq-cat" data-cat="return">반품/환불</button>
     <button class="faq-cat" data-cat="membership">멤버십</button>
     <button class="faq-cat" data-cat="general">일반</button>
+  </div>
+
+  <div class="faq-mbox" id="faqMbox">
+    <h3>Yllowtap 멤버십</h3>
+    <div class="faq-mbox-sub">누적 결제액에 따라 등급과 혜택이 올라가요</div>
+    <div class="faq-mbox-grades">
+      <div class="faq-mbox-grade"><div class="g-name">BASIC</div><div class="g-cond">가입 즉시</div></div>
+      <div class="faq-mbox-grade"><div class="g-name">SILVER</div><div class="g-cond">누적 10만원</div></div>
+      <div class="faq-mbox-grade"><div class="g-name">GOLD</div><div class="g-cond">누적 50만원</div></div>
+      <div class="faq-mbox-grade"><div class="g-name">VIP</div><div class="g-cond">누적 100만원</div></div>
+    </div>
+    <button type="button" class="faq-mbox-btn" id="faqMboxBtn">내 멤버십 확인하기</button>
+    <div class="faq-mbox-hint" id="faqMboxHint"></div>
   </div>
 
   <div class="faq-list" id="faqList"></div>
@@ -189,6 +213,8 @@ document.querySelectorAll('.faq-cat').forEach(btn => {
 
 function renderFaqs(){
   const filtered=currentFilter==='all'?allFaqs:allFaqs.filter(f=>f.category===currentFilter);
+  const mbox=document.getElementById('faqMbox');
+  if(mbox) mbox.classList.toggle('show', currentFilter==='membership');
   const el=document.getElementById('faqList');
   if(!filtered.length){el.innerHTML='<div class="faq-empty">등록된 FAQ가 없습니다</div>';return;}
   el.innerHTML=filtered.map((f,i)=>`
@@ -211,6 +237,31 @@ function toggleFaq(i){
   const item=document.getElementById('faq-'+i);
   item.classList.toggle('open');
 }
+
+// 내 멤버십 확인하기 버튼
+(function(){
+  const btn=document.getElementById('faqMboxBtn');
+  const hint=document.getElementById('faqMboxHint');
+  if(!btn) return;
+  btn.addEventListener('click', async function(){
+    btn.disabled=true;
+    if(hint) hint.textContent='';
+    try{
+      const { data:{ user } } = await sb.auth.getUser();
+      if(user){
+        location.href='/mypage.html?tab=membership';
+      }else{
+        if(hint) hint.textContent='로그인 후 확인할 수 있어요. 로그인 페이지로 이동할게요.';
+        setTimeout(function(){ location.href='/login.html?redirect=' + encodeURIComponent('/mypage.html?tab=membership'); }, 900);
+      }
+    }catch(e){
+      if(hint) hint.textContent='로그인 후 확인할 수 있어요. 로그인 페이지로 이동할게요.';
+      setTimeout(function(){ location.href='/login.html'; }, 900);
+    }finally{
+      setTimeout(function(){ btn.disabled=false; }, 1200);
+    }
+  });
+})();
 
 loadFaqs();
 </script>

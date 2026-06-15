@@ -513,6 +513,11 @@ async function withdrawAccount(){
 function toggleAcc(el){el.closest('.acc-item').classList.toggle('open');}
 function switchMyTab(tab){
   // URL ?tab= 호환 + 대시보드 링크
+  if(tab==='membership'){
+    const md=document.getElementById('membershipDetail');
+    if(md){ md.classList.add('open'); const sp=document.getElementById('mbSpacer'); if(sp) sp.style.display='none'; md.scrollIntoView({behavior:'smooth',block:'start'}); }
+    return;
+  }
   document.querySelectorAll('.acc-item').forEach(a=>{
     if(a.querySelector('#panel-'+tab)||a.querySelector('#orderList')&&tab==='orders'||a.querySelector('#'+tab+'List'))a.classList.add('open');
   });
