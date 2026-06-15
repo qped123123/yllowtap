@@ -1778,7 +1778,10 @@ async function editPopupNotice(id){
   document.getElementById('pnOrder').value=p.display_order||0;
   document.getElementById('pnActive').value=String(p.is_active);
   // 쿠폰 옵션 로드 (allCoupons 비어있으면 한 번 불러옴)
-  if(typeof allCoupons==='undefined'||!allCoupons.length){try{await loadCouponsAdmin();}catch(e){}}
+  // 쿠폰 옵션 로드 (allCoupons 비어있으면 직접 조회해서 채움)
+  if(typeof allCoupons==='undefined'||!allCoupons.length){
+    try{ const{data}=await sb.from('coupons').select('*').order('created_at',{ascending:false}); allCoupons=data||[]; }catch(e){}
+  }
   document.getElementById('pnButtonType').value=p.button_type||'link';
   document.getElementById('pnButtonText').value=p.button_text||'';
   fillPnCouponOptions(p.coupon_id||'');
@@ -2552,11 +2555,18 @@ async function saveCouponAdmin(){
 async function deleteCouponAdmin(){
   const id=document.getElementById('cpEditId').value;
   if(!id)return;
-  if(!confirm('이 쿠폰을 삭제하시겠어요?\n이미 고객이 받은 쿠폰이라면 마이페이지에서도 사라질 수 있어요.'))return;
+  if(!confirm('이 쿠폰을 삭제하시겠어요?'))return;
   const{error}=await sb.from('coupons').delete().eq('id',id);
-  if(error){showToast('삭제 실패: '+error.message+' (결제내역과 연결된 쿠폰은 비활성화로 두세요)',true);return;}
-  showToast('쿠폰이 삭제되었어요');
-  closeCouponForm();loadCouponsAdmin();
+  if(!error){showToast('쿠폰이 삭제되었어요');closeCouponForm();loadCouponsAdmin();return;}
+  if(error.code==='23503'||/foreign key|violates/i.test(error.message||'')){
+    if(confirm('이 쿠폰은 이미 받은 회원이 있어 삭제할 수 없어요.\n대신 비활성화(OFF)해서 더 이상 발급·사용되지 않게 할까요?')){
+      const{error:e2}=await sb.from('coupons').update({is_active:false}).eq('id',id);
+      if(e2){showToast('비활성화 실패: '+e2.message,true);return;}
+      showToast('쿠폰을 비활성화했어요');closeCouponForm();loadCouponsAdmin();
+    }
+    return;
+  }
+  showToast('삭제 실패: '+error.message,true);
 }
 
 // ─── 시작 ───
