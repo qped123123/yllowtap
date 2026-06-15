@@ -508,7 +508,7 @@ function cartItemHTML(item,i){
   if(!p)return'';
   const img=getMainImg(p);
   const opts=item.selected_options||{};
-  const optStr=Object.entries(opts).filter(([k])=>!k.startsWith('_')).map(([k,v])=>k+': '+v).join(' / ');
+  const optStr=Object.entries(opts).filter(([k])=>!k.startsWith('_')&&!['po_id','item_index','product_id','option_id','po','idx'].includes(k)).map(([k,v])=>k+': '+v).join(' / ');
   const isSale=p.original_price&&p.original_price>p.price;
   return`<div class="cart-item">
       <div class="cart-select-cell"><input type="checkbox" class="cart-sel-check" data-idx="${i}" ${item.checked?'checked':''} onchange="toggleItemSelect(${i},this.checked)"></div>

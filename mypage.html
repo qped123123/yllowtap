@@ -329,8 +329,8 @@
   <div class="no-membership-border" id="mbSpacer"></div>
 
   <div class="my-accordion">
-    <div class="acc-item open"><div class="acc-header" onclick="toggleAcc(this)"><span>주문내역 &amp; 리뷰쓰기<span class="acc-count" id="accOrderCnt"></span></span><span class="acc-arrow">▾</span></div><div class="acc-body"><div id="orderList"></div></div></div>
-    <div class="acc-item open"><div class="acc-header" onclick="toggleAcc(this)"><span>쿠폰<span class="acc-count" id="accCouponCnt"></span></span><span class="acc-arrow">▾</span></div><div class="acc-body" id="panel-coupon">
+    <div class="acc-item"><div class="acc-header" onclick="toggleAcc(this)"><span>주문내역 &amp; 리뷰쓰기<span class="acc-count" id="accOrderCnt"></span></span><span class="acc-arrow">▾</span></div><div class="acc-body"><div id="orderList"></div></div></div>
+    <div class="acc-item"><div class="acc-header" onclick="toggleAcc(this)"><span>쿠폰<span class="acc-count" id="accCouponCnt"></span></span><span class="acc-arrow">▾</span></div><div class="acc-body" id="panel-coupon">
     <div class="coupon-register">
       <div class="coupon-register-icon"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#2E7D32" stroke-width="1.5" stroke-linecap="round"><path d="M15 5v2m0 4v2m0 4v2M5 5h14a2 2 0 012 2v3a2 2 0 000 4v3a2 2 0 01-2 2H5a2 2 0 01-2-2v-3a2 2 0 000-4V7a2 2 0 012-2z"/></svg></div>
       <div class="coupon-register-title">쿠폰 등록</div>
@@ -346,9 +346,9 @@
     <div class="point-balance-card"><div><span style="font-size:12px;color:#888;">보유 포인트</span></div><div style="font-size:18px;font-weight:700;" id="pointBalance">0 P</div></div>
     <div id="pointList"></div>
   </div></div>
-    <div class="acc-item open"><div class="acc-header" onclick="toggleAcc(this)"><span>찜한 상품<span class="acc-count" id="accWishCnt"></span></span><span class="acc-arrow">▾</span></div><div class="acc-body"><div class="wish-grid" id="wishGrid"></div></div></div>
-    <div class="acc-item open"><div class="acc-header" onclick="toggleAcc(this)">최근 본 상품<span class="acc-arrow">▾</span></div><div class="acc-body"><div class="recent-grid" id="recentGrid"></div></div></div>
-    <section class="scmp-section" style="background:#fff;border:1px solid #E5E1DC;margin-bottom:8px;padding:16px 20px;">
+    <div class="acc-item"><div class="acc-header" onclick="toggleAcc(this)"><span>찜한 상품<span class="acc-count" id="accWishCnt"></span></span><span class="acc-arrow">▾</span></div><div class="acc-body"><div class="wish-grid" id="wishGrid"></div></div></div>
+    <div class="acc-item"><div class="acc-header" onclick="toggleAcc(this)">최근 본 상품<span class="acc-arrow">▾</span></div><div class="acc-body"><div class="recent-grid" id="recentGrid"></div></div></div>
+    <section class="scmp-section" id="scmpSection" style="background:#fff;border:1px solid #E5E1DC;margin-bottom:8px;padding:16px 20px;">
       <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-bottom:12px;">
         <div style="font-size:15px;font-weight:600;">내가 비교한 상품들 <span style="font-size:12px;color:#888;font-weight:400;" id="accSavedCmpCnt"></span></div>
         <div style="display:flex;align-items:center;gap:14px;">
@@ -603,8 +603,10 @@ async function loadSavedComparisons(){
   const{data,error}=await sb.from('saved_comparisons').select('*').eq('user_id',currentUser.id).order('created_at',{ascending:false});
   if(error){wrap.innerHTML='<div style="font-size:13px;color:#999;padding:8px 0;">불러오지 못했어요.</div>';return;}
   const list=data||[];
+  const sec=document.getElementById('scmpSection');
   const cntEl=document.getElementById('accSavedCmpCnt');if(cntEl)cntEl.textContent=list.length?'('+list.length+')':'';
-  if(!list.length){wrap.innerHTML='<div style="font-size:13px;color:#999;padding:8px 0;">아직 비교한 상품이 없어요.</div>';return;}
+  if(!list.length){ if(sec)sec.style.display='none'; wrap.innerHTML=''; return; }
+  if(sec)sec.style.display='';
   _savedCmpMap={};list.forEach(r=>_savedCmpMap[r.id]=r);
   const cmpBase="display:inline-flex;align-items:center;justify-content:center;gap:5px;padding:9px 10px;font-size:12px;font-weight:600;white-space:nowrap;background:#fff;color:#888;border:1px solid #E5E1DC;border-radius:7px;cursor:pointer;font-family:inherit;transition:background .15s,color .15s,border-color .15s;";
   const cmpResult="flex:0 0 auto;"+cmpBase;
@@ -712,7 +714,7 @@ async function loadOrders(){
   el.innerHTML=data.map(o=>{
     const items=(o.order_items||[]).map(i=>`<div class="order-item" style="cursor:pointer;" onclick="window.location.href='/product.html?slug=${i.product_id||''}'">
       ${i.product_image_snapshot?`<img class="order-item-img" src="${i.product_image_snapshot}">`:'<div class="order-item-img"></div>'}
-      <div><div class="order-item-name">${i.product_name_snapshot}</div><div class="order-item-option">${i.option_snapshot?Object.entries(i.option_snapshot).filter(([k])=>!k.startsWith('_')).map(([k,v])=>k+': '+v).join(' / '):''} · ${i.quantity}개</div></div>
+      <div><div class="order-item-name">${i.product_name_snapshot}</div><div class="order-item-option">${i.option_snapshot?Object.entries(i.option_snapshot).filter(([k])=>!k.startsWith('_')&&!['po_id','item_index','product_id','option_id','po','idx'].includes(k)).map(([k,v])=>k+': '+v).join(' / '):''} · ${i.quantity}개</div></div>
       <div class="order-item-price">${i.item_total?.toLocaleString()}원</div></div>`).join('');
     const showTrack=['pending','paid','preparing','shipped','delivered','confirmed'].includes(o.status);
     const actions=getOrderActions(o);
