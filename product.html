@@ -1723,7 +1723,7 @@ async function toggleWishlist(){
   if(!product)return;
 
   const btn=document.getElementById('wishBtn');
-  const{data:existing}=await sb.from('wishlists').select('id').eq('user_id',session.user.id).eq('product_id',product.id).single();
+  const{data:existing}=await sb.from('wishlists').select('id').eq('user_id',session.user.id).eq('product_id',product.id).maybeSingle();
   if(existing){
     await sb.from('wishlists').delete().eq('id',existing.id);
     btn.classList.remove('active');
@@ -1737,18 +1737,20 @@ async function toggleWishlist(){
 // 찜 개수 로드 + 내가 찜했는지 체크
 async function loadWishCount(){
   if(!product)return;
-  const{data:all}=await sb.from('wishlists').select('id,user_id').eq('product_id',product.id);
-  const count=all?.length||0;
+  // 전체 찜 수 = RPC (RLS로 본인 행만 보이므로 전체 카운트는 security definer 함수로)
+  const{data:cnt}=await sb.rpc('get_wishlist_count',{p_product_id:product.id});
   const el=document.getElementById('wishCount');
-  if(el) el.textContent=count>0?count:'';
+  if(el) el.textContent=(cnt&&cnt>0)?cnt:'';
 
-  // 내가 찜했는지 체크
+  // 내가 찜했는지 체크 (RLS로 본인 행만 조회됨)
   const{data:{session}}=await sb.auth.getSession();
-  if(session&&all){
-    const mine=all.find(w=>w.user_id===session.user.id);
-    const btn=document.getElementById('wishBtn');
-    if(mine) btn.classList.add('active');
-    else btn.classList.remove('active');
+  const btn=document.getElementById('wishBtn');
+  if(!btn)return;
+  if(session){
+    const{data:mine}=await sb.from('wishlists').select('id').eq('product_id',product.id).eq('user_id',session.user.id).maybeSingle();
+    if(mine) btn.classList.add('active'); else btn.classList.remove('active');
+  } else {
+    btn.classList.remove('active');
   }
 }
 
