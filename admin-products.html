@@ -551,9 +551,22 @@ body { font-family:var(--font); background:var(--bg); color:var(--text); font-si
           </select>
         </div>
       </div>
-      <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);">
-        <div id="inquiryAdminList">
-          <div class="empty-list"><p>문의가 없습니다</p></div>
+      <div class="inq-tabs" style="display:flex;gap:8px;margin-bottom:16px;">
+        <button id="inqTab-onetoone" class="btn btn-primary btn-small" onclick="switchInquiryTab('onetoone')">1:1 문의</button>
+        <button id="inqTab-product" class="btn btn-secondary btn-small" onclick="switchInquiryTab('product')">상품문의</button>
+      </div>
+      <div id="inqPane-onetoone">
+        <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);">
+          <div id="inquiryAdminList">
+            <div class="empty-list"><p>문의가 없습니다</p></div>
+          </div>
+        </div>
+      </div>
+      <div id="inqPane-product" style="display:none;">
+        <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);">
+          <div id="productInquiryAdminList">
+            <div class="empty-list"><p>상품문의가 없습니다</p></div>
+          </div>
         </div>
       </div>
     </div>
@@ -796,6 +809,30 @@ body { font-family:var(--font); background:var(--bg); color:var(--text); font-si
     <div class="modal-footer">
       <button class="btn btn-secondary" onclick="closeInquiryModal()">취소</button>
       <button class="btn btn-primary" onclick="saveInquiryAnswer()">답변 저장</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="productInquiryModal">
+  <div class="modal" style="max-width:640px;">
+    <div class="modal-header"><h2>상품문의 답변</h2><button class="modal-close" onclick="closeProductInquiryModal()">×</button></div>
+    <div class="modal-body">
+      <div style="margin-bottom:16px;">
+        <div style="display:flex;gap:8px;align-items:center;margin-bottom:8px;">
+          <span style="font-size:13px;font-weight:600;" id="pqmProduct"></span>
+          <span style="font-size:11px;color:var(--text-muted);" id="pqmDate"></span>
+        </div>
+        <div style="font-size:13px;color:var(--text-dim);line-height:1.7;" id="pqmContent"></div>
+        <div style="font-size:11px;color:var(--text-muted);margin-top:8px;" id="pqmUser"></div>
+      </div>
+      <div class="form-group" style="margin-top:20px;">
+        <label class="form-label">답변 작성</label>
+        <textarea class="form-textarea" id="pqmAnswer" style="min-height:120px;" placeholder="답변을 입력하세요"></textarea>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeProductInquiryModal()">취소</button>
+      <button class="btn btn-primary" onclick="saveProductInquiryAnswer()">답변 저장</button>
     </div>
   </div>
 </div>
@@ -1974,6 +2011,56 @@ function renderInquiryList() { const el=document.getElementById('inquiryAdminLis
 function openInquiryModal(id) { const q=allInquiries.find(x=>x.id===id);if(!q)return;editingInquiryId=id;const catMap={general:'일반',order:'주문/결제',shipping:'배송',exchange:'교환',return:'반품/환불',product:'상품'};document.getElementById('iqmCategory').textContent=catMap[q.category]||q.category;document.getElementById('iqmDate').textContent=new Date(q.created_at).toLocaleDateString('ko-KR');document.getElementById('iqmTitle').textContent=q.title;document.getElementById('iqmContent').innerHTML=q.content?.replace(/\n/g,'<br>')||'';document.getElementById('iqmUser').textContent='작성자 ID: '+q.user_id;document.getElementById('iqmAnswer').value=q.answer||'';document.getElementById('inquiryModal').classList.add('show'); }
 function closeInquiryModal() { document.getElementById('inquiryModal').classList.remove('show'); }
 async function saveInquiryAnswer() { if(!editingInquiryId)return;const answer=document.getElementById('iqmAnswer').value.trim();if(!answer){showToast('답변을 입력해주세요',true);return;}const{error}=await sb.from('inquiries').update({answer,status:'answered',answered_at:new Date().toISOString()}).eq('id',editingInquiryId);if(error){showToast('저장 실패: '+error.message,true);return;}showToast('답변 저장 완료');closeInquiryModal();await loadInquiries(); }
+
+// ===== 상품문의(product_inquiries) 관리 =====
+let allProductInquiries=[], editingPqId=null;
+function pqEsc(v){var s=v==null?"":String(v);s=s.split("&").join("&amp;");s=s.split("<").join("&lt;");s=s.split(">").join("&gt;");s=s.split(String.fromCharCode(34)).join("&quot;");s=s.split(String.fromCharCode(39)).join("&#39;");return s;}
+function switchInquiryTab(tab){
+  const t1=document.getElementById('inqTab-onetoone'), t2=document.getElementById('inqTab-product');
+  t1.className='btn btn-small '+(tab==='onetoone'?'btn-primary':'btn-secondary');
+  t2.className='btn btn-small '+(tab==='product'?'btn-primary':'btn-secondary');
+  document.getElementById('inqPane-onetoone').style.display=tab==='onetoone'?'':'none';
+  document.getElementById('inqPane-product').style.display=tab==='product'?'':'none';
+  const flt=document.getElementById('inquiryFilter'); if(flt) flt.style.display=tab==='onetoone'?'':'none';
+  if(tab==='product') loadProductInquiries();
+}
+async function loadProductInquiries(){
+  const{data,error}=await sb.from('product_inquiries').select('id,product_id,user_id,author_name,content,answer,status,is_secret,created_at,answered_at,products(name,slug)').order('created_at',{ascending:false});
+  if(error){showToast('상품문의 로딩 실패: '+error.message,true);}
+  allProductInquiries=data||[];
+  renderProductInquiryList();
+}
+function renderProductInquiryList(){
+  const el=document.getElementById('productInquiryAdminList');
+  if(!allProductInquiries.length){el.innerHTML='<div class="empty-list"><p>상품문의가 없습니다</p></div>';return;}
+  el.innerHTML=allProductInquiries.map(q=>{
+    const statusColor=q.status==='answered'?'status-active':'status-inactive';
+    const statusText=q.status==='answered'?'답변완료':'대기중';
+    const pname=pqEsc(q.products?.name||'(상품)');
+    const secret=q.is_secret?'🔒 ':'';
+    const author=pqEsc(q.author_name||'');
+    const preview=pqEsc((q.content||'').substring(0,50));
+    return`<div class="hero-row" style="cursor:pointer;grid-template-columns:1fr 100px 80px 100px;" onclick="openProductInquiryModal('${q.id}')"><div><div style="font-weight:500;font-size:13px;">${secret}${pname}</div><div style="font-size:11px;color:var(--text-dim);margin-top:2px;">${author} · ${preview}${(q.content||'').length>50?'...':''}</div></div><div style="font-size:11px;color:var(--text-dim);">${new Date(q.created_at).toLocaleDateString('ko-KR')}</div><div><span class="status-badge ${statusColor}">${statusText}</span></div><div><button class="btn btn-secondary btn-small" onclick="event.stopPropagation();openProductInquiryModal('${q.id}')">${q.status==='answered'?'수정':'답변'}</button></div></div>`;
+  }).join('');
+}
+function openProductInquiryModal(id){
+  const q=allProductInquiries.find(x=>x.id===id);if(!q)return;editingPqId=id;
+  document.getElementById('pqmProduct').textContent=(q.products?.name||'(상품)')+(q.is_secret?' 🔒':'');
+  document.getElementById('pqmDate').textContent=new Date(q.created_at).toLocaleDateString('ko-KR');
+  document.getElementById('pqmContent').innerHTML=pqEsc(q.content||'').replace(/\n/g,'<br>');
+  document.getElementById('pqmUser').textContent='작성자: '+(q.author_name||'')+(q.user_id?' (회원)':'');
+  document.getElementById('pqmAnswer').value=q.answer||'';
+  document.getElementById('productInquiryModal').classList.add('show');
+}
+function closeProductInquiryModal(){document.getElementById('productInquiryModal').classList.remove('show');}
+async function saveProductInquiryAnswer(){
+  if(!editingPqId)return;
+  const answer=document.getElementById('pqmAnswer').value.trim();
+  if(!answer){showToast('답변을 입력해주세요',true);return;}
+  const{error}=await sb.from('product_inquiries').update({answer,status:'answered',answered_at:new Date().toISOString()}).eq('id',editingPqId);
+  if(error){showToast('저장 실패: '+error.message,true);return;}
+  showToast('답변 저장 완료');closeProductInquiryModal();await loadProductInquiries();
+}
 
 // ══════════════════════════════════════════
 // FAQ 관리

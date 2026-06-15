@@ -1503,6 +1503,12 @@ async function toggleQnaForm(){
       if(confirm('상품 문의는 로그인 후 작성할 수 있어요.\n로그인 페이지로 이동할까요?')) location.href='/login.html';
       return;
     }
+    // 작성자명 기본값 = 회원 이름 (비어있을 때만 채움)
+    const nameEl=document.getElementById('qfName');
+    if(nameEl && !nameEl.value){
+      const{data:prof}=await sb.from('user_profiles').select('display_name').eq('id',session.user.id).maybeSingle();
+      nameEl.value=prof?.display_name||'';
+    }
   }
   f.classList.toggle('show');
 }
