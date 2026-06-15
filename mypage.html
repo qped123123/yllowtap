@@ -234,6 +234,8 @@
 @media(min-width:769px){
   .scmp-arrow{display:flex;align-items:center;justify-content:center;position:absolute;top:50%;transform:translateY(-50%);width:32px;height:32px;border-radius:50%;border:1px solid #E5E1DC;background:#fff;cursor:pointer;font-size:16px;line-height:1;color:#666;z-index:3;box-shadow:0 1px 5px rgba(0,0,0,.12);font-family:inherit;transition:all .15s}
   .scmp-prev{left:-36px}.scmp-next{right:-36px}
+  .recent-prev{left:4px}.recent-next{right:4px}
+  .recent-wrap .scmp-arrow{top:64px;transform:translateY(-50%)}
   .scmp-arrow:hover{background:#1a1a1a;color:#fff;border-color:#1a1a1a}
 }
 @media(max-width:768px){
@@ -347,7 +349,7 @@
     <div id="pointList"></div>
   </div></div>
     <div class="acc-item"><div class="acc-header" onclick="toggleAcc(this)"><span>찜한 상품<span class="acc-count" id="accWishCnt"></span></span><span class="acc-arrow">▾</span></div><div class="acc-body"><div class="wish-grid" id="wishGrid"></div></div></div>
-    <div class="acc-item"><div class="acc-header" onclick="toggleAcc(this)">최근 본 상품<span class="acc-arrow">▾</span></div><div class="acc-body"><div class="scmp-wrap"><button class="scmp-arrow scmp-prev" onclick="slideRecent(-1)" aria-label="이전">&#8249;</button><div class="recent-grid" id="recentGrid"></div><button class="scmp-arrow scmp-next" onclick="slideRecent(1)" aria-label="다음">&#8250;</button></div></div></div>
+    <div class="acc-item"><div class="acc-header" onclick="toggleAcc(this)">최근 본 상품<span class="acc-arrow">▾</span></div><div class="acc-body"><div class="scmp-wrap recent-wrap"><button class="scmp-arrow recent-prev" onclick="slideRecent(-1)" aria-label="이전">&#8249;</button><div class="recent-grid" id="recentGrid"></div><button class="scmp-arrow recent-next" onclick="slideRecent(1)" aria-label="다음">&#8250;</button></div></div></div>
     <section class="scmp-section" id="scmpSection" style="background:#fff;border:1px solid #E5E1DC;margin-bottom:8px;padding:16px 20px;">
       <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-bottom:12px;">
         <div style="font-size:15px;font-weight:600;">내가 비교한 상품들 <span style="font-size:12px;color:#888;font-weight:400;" id="accSavedCmpCnt"></span></div>
