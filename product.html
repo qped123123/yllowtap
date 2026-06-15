@@ -1487,21 +1487,37 @@ function renderQnaList(){
     const date=new Date(q.created_at).toLocaleDateString('ko-KR');
     const safeContent=escapeHTML(q.content).replace(/\n/g,'<br>');
     const safeAnswer=escapeHTML(q.answer).replace(/\n/g,'<br>');
-    if(q.is_secret) return`<div class="pd-review-item"><div class="pd-review-item-top"><div><span class="pd-review-item-author">🔒 ${name}</span></div><div class="pd-review-item-date">${date}</div></div><div class="pd-review-item-text" style="color:var(--pd-text3);">비밀글입니다.</div></div>`;
+    const lock=q.is_secret?'🔒 ':'';
     return`<div class="pd-review-item">
-      <div class="pd-review-item-top"><div><span class="pd-review-item-author">${name}</span></div><div class="pd-review-item-date">${date}</div></div>
+      <div class="pd-review-item-top"><div><span class="pd-review-item-author">${lock}${name}</span></div><div class="pd-review-item-date">${date}</div></div>
       <div class="pd-review-item-text">${safeContent}</div>
       ${q.answer?`<div style="margin-top:12px;padding:12px 14px;background:#FBF8EC;border-left:3px solid var(--pd-accent);font-size:13px;color:var(--pd-text2);line-height:1.7;"><div style="font-size:11px;font-weight:600;color:var(--pd-text);margin-bottom:4px;">관리자 답변</div>${safeAnswer}</div>`:'<div style="margin-top:8px;font-size:11px;color:var(--pd-accent);font-weight:500;">답변 대기 중</div>'}
     </div>`;
   }).join('');
 }
-function toggleQnaForm(){document.getElementById('qnaForm').classList.toggle('show');}
+async function toggleQnaForm(){
+  const f=document.getElementById('qnaForm');
+  if(!f.classList.contains('show')){
+    const{data:{session}}=await sb.auth.getSession();
+    if(!session){
+      if(confirm('상품 문의는 로그인 후 작성할 수 있어요.\n로그인 페이지로 이동할까요?')) location.href='/login.html';
+      return;
+    }
+  }
+  f.classList.toggle('show');
+}
 async function submitQna(){
+  const{data:{session}}=await sb.auth.getSession();
+  if(!session){ alert('로그인 후 작성할 수 있어요.'); location.href='/login.html'; return; }
   const name=document.getElementById('qfName').value.trim();
   const content=document.getElementById('qfContent').value.trim();
-  if(!name){alert('작성자명을 입력해주세요.');return}
   if(!content){alert('문의 내용을 입력해주세요.');return}
-  const{error}=await sb.from('product_inquiries').insert({product_id:product.id,author_name:name,content,is_secret:document.getElementById('qfSecret').checked});
+  let author=name;
+  if(!author){
+    const{data:prof}=await sb.from('user_profiles').select('display_name').eq('id',session.user.id).maybeSingle();
+    author=prof?.display_name||'회원';
+  }
+  const{error}=await sb.from('product_inquiries').insert({product_id:product.id,user_id:session.user.id,author_name:author,content,is_secret:document.getElementById('qfSecret').checked});
   if(error){alert('등록 실패: '+error.message);return}
   document.getElementById('qfName').value='';document.getElementById('qfContent').value='';document.getElementById('qfSecret').checked=false;
   toggleQnaForm();
