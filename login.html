@@ -351,13 +351,15 @@ async function socialLogin(provider) {
       }
     });
     if (error) { showError('loginError', error.message); }
-  } else {
+  } else if (provider === 'google') {
     // google (Supabase 기본 지원)
     const { error } = await sb.auth.signInWithOAuth({
       provider: 'google',
       options
     });
     if (error) { showError('loginError', error.message); }
+  } else {
+    showError('loginError', '지원하지 않는 로그인 방식입니다.');
   }
 }
 

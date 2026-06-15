@@ -456,7 +456,13 @@ async function checkAuth(){
 async function loadProfile(){
   const{data}=await sb.from('user_profiles').select('*').eq('id',currentUser.id).single();
   if(data){profile=data;}
-  else{const name=currentUser.user_metadata?.display_name||currentUser.user_metadata?.name||'회원';await sb.from('user_profiles').insert({id:currentUser.id,display_name:name});profile={display_name:name,grade:'basic',point:0,order_count:0};}
+  else{
+    const m=currentUser.user_metadata||{};
+    const emailPrefix=(currentUser.email||'').split('@')[0]||'회원';
+    const name=m.display_name||m.full_name||m.name||emailPrefix;
+    await sb.from('user_profiles').insert({id:currentUser.id,display_name:name});
+    profile={display_name:name,grade:'basic',point:0,order_count:0};
+  }
   renderUserCard();renderMembership();
 }
 function renderUserCard(){
