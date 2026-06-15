@@ -347,7 +347,7 @@
     <div id="pointList"></div>
   </div></div>
     <div class="acc-item"><div class="acc-header" onclick="toggleAcc(this)"><span>찜한 상품<span class="acc-count" id="accWishCnt"></span></span><span class="acc-arrow">▾</span></div><div class="acc-body"><div class="wish-grid" id="wishGrid"></div></div></div>
-    <div class="acc-item"><div class="acc-header" onclick="toggleAcc(this)">최근 본 상품<span class="acc-arrow">▾</span></div><div class="acc-body"><div class="recent-grid" id="recentGrid"></div></div></div>
+    <div class="acc-item"><div class="acc-header" onclick="toggleAcc(this)">최근 본 상품<span class="acc-arrow">▾</span></div><div class="acc-body"><div class="scmp-wrap"><button class="scmp-arrow scmp-prev" onclick="slideRecent(-1)" aria-label="이전">&#8249;</button><div class="recent-grid" id="recentGrid"></div><button class="scmp-arrow scmp-next" onclick="slideRecent(1)" aria-label="다음">&#8250;</button></div></div></div>
     <section class="scmp-section" id="scmpSection" style="background:#fff;border:1px solid #E5E1DC;margin-bottom:8px;padding:16px 20px;">
       <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-bottom:12px;">
         <div style="font-size:15px;font-weight:600;">내가 비교한 상품들 <span style="font-size:12px;color:#888;font-weight:400;" id="accSavedCmpCnt"></span></div>
@@ -972,12 +972,18 @@ async function removeWish(id){await sb.from('wishlists').delete().eq('id',id);lo
 
 /* ── RECENT ── */
 async function loadRecent(){
-  const{data}=await sb.from('recent_views').select('*,products(*,product_media(media_url,role,display_order))').eq('user_id',currentUser.id).order('viewed_at',{ascending:false}).limit(10);
+  // 90일 지난 기록은 DB에서 통째로 정리 (limit과 무관하게 전체 대상)
+  const cutoffIso=new Date(Date.now()-90*24*60*60*1000).toISOString();
+  try{ await sb.from('recent_views').delete().eq('user_id',currentUser.id).lt('viewed_at',cutoffIso); }catch(e){}
+  const{data}=await sb.from('recent_views').select('*,products(*,product_media(media_url,role,display_order))').eq('user_id',currentUser.id).order('viewed_at',{ascending:false}).limit(20);
   const el=document.getElementById('recentGrid');
-  if(!data?.length){el.innerHTML='<div class="my-empty" style="width:100%"><p>최근 본 상품이 없습니다</p></div>';return;}
-  const seen=new Set();const unique=data.filter(r=>{if(!r.products||seen.has(r.product_id))return false;seen.add(r.product_id);return true;});
+  const wrap=el.closest('.scmp-wrap');
+  const fresh=data||[];
+  if(!fresh.length){el.innerHTML='<div class="my-empty" style="width:100%"><p>최근 본 상품이 없습니다</p></div>';if(wrap)wrap.querySelectorAll('.scmp-arrow').forEach(b=>b.style.display='none');return;}
+  const seen=new Set();const unique=fresh.filter(r=>{if(!r.products||seen.has(r.product_id))return false;seen.add(r.product_id);return true;});
   el.innerHTML=unique.map(r=>{const p=r.products;const img=getMainImg(p);return`<a class="recent-card" href="/product.html?slug=${p.slug||p.id}"><div class="recent-card-img">${img?`<img src="${img}">`:'<div style="width:100%;height:100%;background:#EAE7E2"></div>'}</div><div class="recent-card-name">${p.name}</div><div class="recent-card-price">${p.price?.toLocaleString()}원</div></a>`;}).join('');
 }
+function slideRecent(dir){ const el=document.getElementById('recentGrid'); if(el) el.scrollBy({left:dir*300,behavior:'smooth'}); }
 
 /* ── ADDRESSES ── */
 async function loadAddresses(){
@@ -1004,11 +1010,17 @@ async function loadInquiries(){
     const title=escapeHTML(q.title);
     const safeContent=escapeHTML(q.content).replace(/\n/g,'<br>');
     const safeAnswer=escapeHTML(q.answer).replace(/\n/g,'<br>');
-    return `<div class="order-card"><div class="order-card-top"><div><span style="font-size:11px;color:#888;margin-right:8px;">[${cat}]</span><span class="order-number">${title}</span></div><span class="order-status ${q.status==='answered'?'status-paid':'status-pending'}">${st}</span></div><div style="font-size:13px;color:#444;line-height:1.7;margin-bottom:8px;">${safeContent}</div><div style="font-size:11px;color:#888;">${new Date(q.created_at).toLocaleDateString('ko-KR')}</div>${q.answer?`<div style="margin-top:12px;padding:14px;background:#F7F5F2;border-left:3px solid #F4D84E;font-size:13px;color:#444;line-height:1.7;"><div style="font-size:11px;font-weight:600;color:#111;margin-bottom:6px;">관리자 답변</div>${safeAnswer}<div style="font-size:10px;color:#888;margin-top:6px;">${q.answered_at?new Date(q.answered_at).toLocaleDateString('ko-KR'):''}</div></div>`:''}</div>`;
+    return `<div class="order-card"><div class="order-card-top"><div><span style="font-size:11px;color:#888;margin-right:8px;">[${cat}]</span><span class="order-number">${title}</span></div><span class="order-status ${q.status==='answered'?'status-paid':'status-pending'}">${st}</span></div><div style="font-size:13px;color:#444;line-height:1.7;margin-bottom:8px;">${safeContent}</div><div style="font-size:11px;color:#888;display:flex;justify-content:space-between;align-items:center;">${new Date(q.created_at).toLocaleDateString('ko-KR')}${q.status!=='answered'?`<button onclick="deleteInquiry('${q.id}')" style="background:none;border:none;color:#C4453C;font-size:11px;cursor:pointer;text-decoration:underline;font-family:inherit;padding:0;">삭제</button>`:''}</div>${q.answer?`<div style="margin-top:12px;padding:14px;background:#F7F5F2;border-left:3px solid #F4D84E;font-size:13px;color:#444;line-height:1.7;"><div style="font-size:11px;font-weight:600;color:#111;margin-bottom:6px;">관리자 답변</div>${safeAnswer}<div style="font-size:10px;color:#888;margin-top:6px;">${q.answered_at?new Date(q.answered_at).toLocaleDateString('ko-KR'):''}</div></div>`:''}</div>`;
   }).join('');
 }
 function toggleInquiryForm(){document.getElementById('inquiryForm').style.display=document.getElementById('inquiryForm').style.display==='none'?'block':'none';}
 async function submitInquiry(){const d={user_id:currentUser.id,category:document.getElementById('iqCategory').value,title:document.getElementById('iqTitle').value.trim(),content:document.getElementById('iqContent').value.trim()};if(!d.title||!d.content){alert('제목과 내용을 입력해주세요.');return;}const{error}=await sb.from('inquiries').insert(d);if(error){alert('등록 실패: '+error.message);return;}document.getElementById('iqTitle').value='';document.getElementById('iqContent').value='';toggleInquiryForm();loadInquiries();}
+async function deleteInquiry(id){
+  if(!confirm('이 문의를 삭제하시겠어요?'))return;
+  const{error}=await sb.from('inquiries').delete().eq('id',id).eq('user_id',currentUser.id);
+  if(error){alert('삭제 실패: '+error.message);return;}
+  loadInquiries();
+}
 
 /* ── HELPERS ── */
 function getMainImg(p){if(p.product_media?.length){const m=p.product_media.filter(x=>x.role==='main').sort((a,b)=>a.display_order-b.display_order);return m.length?m[0].media_url:p.product_media[0].media_url;}return p.image_url;}

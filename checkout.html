@@ -53,7 +53,8 @@
 .co-agree{margin-top:20px;padding-top:16px;border-top:1px solid #E5E1DC}
 .co-agree label{display:flex;align-items:flex-start;gap:8px;font-size:12px;color:#444;line-height:1.5;cursor:pointer;margin-bottom:8px}
 .co-agree input{margin-top:2px;flex-shrink:0}
-.co-toss-agree{margin-top:12px}
+.co-toss-agree-label{margin-top:14px;padding-top:14px;border-top:1px solid #eee;margin-bottom:8px;font-size:12px;font-weight:600;color:#555}
+.co-toss-agree{margin-top:0}
 .co-submit{display:block;width:100%;padding:18px;margin-top:20px;font-size:14px;font-weight:700;letter-spacing:2px;text-transform:uppercase;text-align:center;background:#111;color:#fff;border:none;cursor:pointer;font-family:inherit;transition:background .2s}
 .co-submit:hover{background:#333}
 .co-submit:disabled{background:#ccc;cursor:not-allowed}
@@ -155,6 +156,7 @@
         <label><input type="checkbox" class="agree-item" id="agreePrivacy"> [필수] 개인정보 수집 및 이용 동의</label>
         <label><input type="checkbox" class="agree-item" id="agreePayment"> [필수] 결제 진행 동의</label>
       </div>
+      <div class="co-toss-agree-label">토스 결제 약관</div>
       <div id="toss-agreement" class="co-toss-agree"></div>
       <button class="co-submit" id="coSubmitBtn" onclick="submitOrder()">결제하기</button>
     </div>
@@ -220,7 +222,8 @@ function renderItems(){
   document.getElementById('coItems').innerHTML=cartItems.map((item,i)=>{
     const p=item.products;if(!p)return'';
     const img=getMainImg(p);const opts=item.selected_options||{};
-    const optStr=Object.entries(opts).filter(([k])=>!k.startsWith('_')).map(([k,v])=>k+': '+v).join(' / ');
+    const HIDE_OPT_KEYS=['po_id','item_index','product_id','option_id','po','idx'];
+    const optStr=Object.entries(opts).filter(([k])=>!k.startsWith('_')&&!HIDE_OPT_KEYS.includes(k)).map(([k,v])=>k+': '+v).join(' / ');
     return`<div class="co-item${item.checked?'':' unchecked'}" id="co-item-${i}"><input type="checkbox" class="co-item-check" ${item.checked?'checked':''} onchange="toggleCoItem(${i})">${img?`<img class="co-item-img" src="${img}">`:'<div class="co-item-img"></div>'}<div><div class="co-item-name">${p.name}</div>${optStr?`<div class="co-item-opt">${optStr}</div>`:''}<button type="button" onclick="changeCoOption(${i})" style="margin-top:4px;font-size:11px;color:#888;background:none;border:none;padding:0;cursor:pointer;text-decoration:underline;font-family:inherit;">옵션 변경</button><div class="co-item-qty" style="display:flex;align-items:center;gap:8px;margin-top:6px;"><span style="color:#888;">수량</span><div style="display:inline-flex;align-items:center;border:1px solid #E5E1DC;border-radius:8px;overflow:hidden;"><button type="button" onclick="changeCoQty(${i},-1)" style="width:28px;height:28px;border:none;background:#fff;cursor:pointer;font-size:16px;line-height:1;color:#333;">&minus;</button><span style="min-width:30px;text-align:center;font-size:13px;color:#333;">${item.quantity}</span><button type="button" onclick="changeCoQty(${i},1)" style="width:28px;height:28px;border:none;background:#fff;cursor:pointer;font-size:16px;line-height:1;color:#333;">+</button></div></div></div><div class="co-item-price">${(coUnitPrice(item)*item.quantity).toLocaleString()}원</div></div>`;
   }).join('');
 }
@@ -375,11 +378,13 @@ function onPointInput(){
   const el=document.getElementById('coPointInput');
   let v=parseInt(el.value)||0;
   if(v<0)v=0;
-  if(v>userPoints)v=userPoints;
+  // 입력 중에는 입력칸 값을 덮어쓰지 않음(커서 튐 방지). 한도 초과분은 계산에만 반영하고
+  // 입력칸 정리는 onPointBlur에서 처리.
   const maxUsable=Math.max(0,getProductSubtotal()-couponDiscount);
-  if(v>maxUsable)v=maxUsable;
-  if(String(v)!==el.value)el.value=v;   // 잔액·결제액 초과 시 입력칸도 그 한도로 고정
-  pointsUsed=v;updateSummary();
+  let used=v;
+  if(used>userPoints)used=userPoints;
+  if(used>maxUsable)used=maxUsable;
+  pointsUsed=used;updateSummary();
 }
 function onPointBlur(){
   const el=document.getElementById('coPointInput');

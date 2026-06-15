@@ -1803,12 +1803,21 @@ async function recordView(){
   if(!product)return;
   try{
     const{data:{session}}=await sb.auth.getSession();
-    if(session){
-      await sb.from('recent_views').insert({user_id:session.user.id,product_id:product.id});
-    }else{
-      const gid=localStorage.getItem('yllowtap_guest_id')||crypto.randomUUID();
+    const key = session ? {user_id:session.user.id} : null;
+    let gid=null;
+    if(!session){
+      gid=localStorage.getItem('yllowtap_guest_id')||crypto.randomUUID();
       localStorage.setItem('yllowtap_guest_id',gid);
-      await sb.from('recent_views').insert({guest_id:gid,product_id:product.id});
+    }
+    const owner = session ? {col:'user_id', val:session.user.id} : {col:'guest_id', val:gid};
+    // 같은 상품 기존 기록 삭제(중복 방지) → 다시 insert(최신으로 갱신)
+    await sb.from('recent_views').delete().eq(owner.col,owner.val).eq('product_id',product.id);
+    await sb.from('recent_views').insert({[owner.col]:owner.val, product_id:product.id, viewed_at:new Date().toISOString()});
+    // 최근 20개만 유지: 21번째부터 삭제
+    const{data:rows}=await sb.from('recent_views').select('id').eq(owner.col,owner.val).order('viewed_at',{ascending:false});
+    if(rows&&rows.length>20){
+      const old=rows.slice(20).map(r=>r.id);
+      if(old.length) await sb.from('recent_views').delete().in('id',old);
     }
   }catch(e){}
 }
