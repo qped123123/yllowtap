@@ -152,6 +152,14 @@
 
 /* PROFILE */
 .profile-form{max-width:480px}
+.pf-avatar-row{display:flex;align-items:center;gap:16px;margin-bottom:24px;padding-bottom:24px;border-bottom:1px solid #E5E1DC}
+.pf-avatar{width:72px;height:72px;border-radius:50%;background:#EAE7E2;flex-shrink:0;overflow:hidden;display:flex;align-items:center;justify-content:center;font-size:26px;color:#999}
+.pf-avatar img{width:100%;height:100%;object-fit:cover}
+.pf-avatar-actions{display:flex;flex-direction:column;gap:6px}
+.pf-avatar-btn{padding:8px 16px;font-size:12px;font-family:inherit;border:1px solid #111;background:#fff;color:#111;cursor:pointer;width:fit-content}
+.pf-avatar-btn:hover{background:#111;color:#fff}
+.pf-avatar-remove{padding:0;font-size:11px;font-family:inherit;border:none;background:none;color:#C4453C;cursor:pointer;text-decoration:underline;width:fit-content}
+.pf-avatar-hint{font-size:11px;color:#999}
 .pf-row{margin-bottom:18px}
 .pf-label{display:block;font-size:11px;font-weight:500;letter-spacing:1px;color:#666;margin-bottom:6px;text-transform:uppercase}
 .pf-input{width:100%;padding:12px 14px;font-size:14px;font-family:inherit;border:1px solid #E5E1DC;background:#F7F5F2;color:#111}
@@ -395,6 +403,15 @@
 
   <div class="acc-item"><div class="acc-header" onclick="toggleAcc(this)">회원정보<span class="acc-arrow">▾</span></div><div class="acc-body">
     <div class="profile-form">
+      <div class="pf-avatar-row">
+        <div class="pf-avatar" id="pfAvatar"></div>
+        <div class="pf-avatar-actions">
+          <button type="button" class="pf-avatar-btn" onclick="document.getElementById('pfAvatarInput').click()">사진 변경</button>
+          <button type="button" class="pf-avatar-remove" id="pfAvatarRemoveBtn" onclick="removeAvatar()" style="display:none;">사진 삭제</button>
+          <input type="file" id="pfAvatarInput" accept="image/jpeg,image/png,image/webp" style="display:none;" onchange="uploadAvatar(this)">
+          <div class="pf-avatar-hint">JPG, PNG, WEBP · 5MB 이하</div>
+        </div>
+      </div>
       <div class="pf-row"><label class="pf-label">이메일</label><input class="pf-input" id="pfEmail" disabled></div>
       <div class="pf-row"><label class="pf-label">이름</label><input class="pf-input" id="pfName" placeholder="이름"></div>
       <div class="pf-row"><label class="pf-label">연락처</label><input class="pf-input" id="pfPhone" placeholder="010-0000-0000"></div>
@@ -475,6 +492,17 @@ function renderUserCard(){
   document.getElementById('pfName').value=profile?.display_name||'';
   document.getElementById('pfPhone').value=profile?.phone||'';
   document.getElementById('pfBirthday').value=profile?.birthday||'';
+  // 프로필 사진 표시 (상단 아바타 + 편집폼 미리보기)
+  renderAvatar(profile?.profile_image_url||'');
+}
+function renderAvatar(url){
+  const top=document.getElementById('userAvatar');
+  const pf=document.getElementById('pfAvatar');
+  const removeBtn=document.getElementById('pfAvatarRemoveBtn');
+  const html = url ? `<img src="${url}" alt="프로필">` : '<span style="font-size:24px;color:#999;">👤</span>';
+  if(top)top.innerHTML=html;
+  if(pf)pf.innerHTML = url ? `<img src="${url}" alt="프로필">` : '👤';
+  if(removeBtn)removeBtn.style.display = url ? 'block' : 'none';
 }
 function renderMembership(){
   const g=profile?.grade||'basic';
@@ -510,6 +538,42 @@ async function saveProfile(){
   if(error){alert('저장 실패: '+error.message);return;}
   profile={...profile,...d};renderUserCard();
   const msg=document.getElementById('pfMsg');msg.style.display='block';setTimeout(()=>msg.style.display='none',3000);
+}
+async function uploadAvatar(input){
+  if(!currentUser||!currentUser.id){alert('로그인이 필요해요.');return;}
+  const file=input.files&&input.files[0];
+  if(!file)return;
+  // 검증: 형식 + 용량(5MB)
+  if(!['image/jpeg','image/png','image/webp'].includes(file.type)){alert('JPG, PNG, WEBP 이미지만 올릴 수 있어요.');input.value='';return;}
+  if(file.size>5*1024*1024){alert('5MB 이하 이미지만 올릴 수 있어요.');input.value='';return;}
+  const btn=document.querySelector('.pf-avatar-btn');const orig=btn?btn.textContent:'';
+  if(btn){btn.textContent='업로드 중...';btn.disabled=true;}
+  try{
+    const ext=(file.name.split('.').pop()||'jpg').toLowerCase();
+    const path='avatars/'+currentUser.id+'/profile-'+Date.now()+'.'+ext;
+    const{error:upErr}=await sb.storage.from('media').upload(path,file,{upsert:true,contentType:file.type});
+    if(upErr)throw upErr;
+    const{data:pub}=sb.storage.from('media').getPublicUrl(path);
+    const url=pub.publicUrl;
+    const{error:dbErr}=await sb.from('user_profiles').update({profile_image_url:url,updated_at:new Date().toISOString()}).eq('id',currentUser.id);
+    if(dbErr)throw dbErr;
+    profile={...profile,profile_image_url:url};
+    renderAvatar(url);
+  }catch(e){
+    alert('사진 업로드에 실패했어요. 다시 시도해주세요.');console.error('[avatar]',e);
+  }finally{
+    if(btn){btn.textContent=orig||'사진 변경';btn.disabled=false;}
+    input.value='';
+  }
+}
+async function removeAvatar(){
+  if(!confirm('프로필 사진을 삭제할까요?'))return;
+  try{
+    const{error}=await sb.from('user_profiles').update({profile_image_url:null,updated_at:new Date().toISOString()}).eq('id',currentUser.id);
+    if(error)throw error;
+    profile={...profile,profile_image_url:null};
+    renderAvatar('');
+  }catch(e){alert('삭제에 실패했어요.');console.error('[avatar remove]',e);}
 }
 async function withdrawAccount(){
   if(!confirm('정말 탈퇴하시겠습니까?\n\n탈퇴 시 모든 정보가 삭제되며 복구할 수 없습니다.'))return;
