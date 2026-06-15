@@ -2025,9 +2025,17 @@ function switchInquiryTab(tab){
   if(tab==='product') loadProductInquiries();
 }
 async function loadProductInquiries(){
-  const{data,error}=await sb.from('product_inquiries').select('id,product_id,user_id,author_name,content,answer,status,is_secret,created_at,answered_at,products(name,slug)').order('created_at',{ascending:false});
+  const{data,error}=await sb.from('product_inquiries').select('id,product_id,user_id,author_name,content,answer,status,is_secret,created_at,answered_at').order('created_at',{ascending:false});
   if(error){showToast('상품문의 로딩 실패: '+error.message,true);}
-  allProductInquiries=data||[];
+  let rows=data||[];
+  const ids=[...new Set(rows.map(r=>r.product_id).filter(Boolean))];
+  let pmap={};
+  if(ids.length){
+    const{data:prods}=await sb.from('products').select('id,name,slug').in('id',ids);
+    (prods||[]).forEach(p=>{pmap[p.id]=p;});
+  }
+  rows.forEach(r=>{r.products=pmap[r.product_id]||null;});
+  allProductInquiries=rows;
   renderProductInquiryList();
 }
 function renderProductInquiryList(){
