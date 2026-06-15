@@ -530,16 +530,10 @@ body { font-family:var(--font); background:var(--bg); color:var(--text); font-si
           <div class="form-group"><label class="form-label">발급 제한 수</label><input class="form-input" id="cpUsageLimit" type="number" placeholder="비우면 무제한"><div class="form-hint">비우면 무제한 발급</div></div>
           <div class="form-group"><label class="form-label">상태</label><select class="form-select" id="cpActive"><option value="true">활성</option><option value="false">비활성</option></select></div>
         </div>
-        <div class="form-row">
-          <div class="form-group" style="display:flex;align-items:center;gap:8px;padding-top:8px;">
-            <input type="checkbox" id="cpShowPopup" style="width:18px;height:18px;cursor:pointer;">
-            <label for="cpShowPopup" class="form-label" style="margin:0;cursor:pointer;">홈 쿠폰 팝업에 노출</label>
-          </div>
-          <div class="form-group"><div class="form-hint" style="padding-top:12px;">체크하면 홈화면 팝업에서 고객이 '쿠폰 받기'로 다운로드할 수 있어요 (활성화 상태일 때만)</div></div>
-        </div>
         <div style="display:flex;gap:8px;margin-top:16px;">
           <button class="btn btn-primary" onclick="saveCouponAdmin()">저장</button>
           <button class="btn btn-secondary" onclick="closeCouponForm()">취소</button>
+          <button class="btn btn-small" id="cpDeleteBtn" style="background:var(--red);color:#fff;border:none;display:none;margin-left:auto;" onclick="deleteCouponAdmin()">이 쿠폰 삭제</button>
         </div>
       </div>
     </div>
@@ -1230,6 +1224,8 @@ body { font-family:var(--font); background:var(--bg); color:var(--text); font-si
       <div class="form-group"><label class="form-label">이미지</label><div style="display:flex;gap:8px;align-items:center;"><input class="form-input" id="pnImage" placeholder="이미지 URL" style="flex:1;"><label class="btn btn-secondary btn-small" style="cursor:pointer;">📎 업로드<input type="file" id="pnImageFile" accept="image/*" style="display:none;"></label></div></div>
       <div class="form-group"><label class="form-label">텍스트</label><textarea class="form-textarea" id="pnText" placeholder="공지 내용 (줄바꿈 가능)" style="min-height:80px;"></textarea></div>
       <div class="form-group"><label class="form-label">클릭 시 이동 링크</label><input class="form-input" id="pnLink" placeholder="https:// 또는 /category.html"></div>
+      <div class="form-row"><div class="form-group"><label class="form-label">버튼 유형</label><select class="form-select" id="pnButtonType" onchange="onPnButtonTypeChange()"><option value="link">링크 이동 (기존)</option><option value="coupon">쿠폰 받기</option><option value="none">버튼 없음</option></select></div><div class="form-group" id="pnButtonTextWrap"><label class="form-label">버튼 문구</label><input class="form-input" id="pnButtonText" placeholder="예: 쿠폰 받기"></div></div>
+      <div class="form-group" id="pnCouponWrap" style="display:none;"><label class="form-label">연결할 쿠폰</label><select class="form-select" id="pnCouponId"></select><div class="form-hint">할인율·금액·조건은 쿠폰관리에서 관리돼요. 팝업은 발급 버튼만 담당해요.</div></div>
       <div class="form-row"><div class="form-group"><label class="form-label">순서</label><input class="form-input" id="pnOrder" type="number" value="0"></div><div class="form-group"><label class="form-label">활성</label><select class="form-select" id="pnActive"><option value="true">ON</option><option value="false">OFF</option></select></div></div>
     </div>
     <div class="modal-footer"><button class="btn btn-secondary" onclick="closePopupNoticeModal()">취소</button><button class="btn btn-primary" onclick="savePopupNotice()">저장</button></div>
@@ -1759,7 +1755,20 @@ async function deletePopupNotice(id){
   if(error){showToast('삭제 실패',true);return;}
   showToast('팝업 삭제됨');await loadPopupNotices();
 }
-function editPopupNotice(id){
+function fillPnCouponOptions(selectedId){
+  const sel=document.getElementById('pnCouponId');
+  const list=(typeof allCoupons!=='undefined'&&allCoupons.length)?allCoupons:[];
+  sel.innerHTML='<option value="">쿠폰을 선택하세요</option>'+list.map(c=>{
+    const v=c.discount_type==='percent'?c.discount_value+'%':Number(c.discount_value).toLocaleString()+'원';
+    return '<option value="'+c.id+'"'+(c.id===selectedId?' selected':'')+'>'+c.code+' / '+(c.name||'')+' ('+v+')</option>';
+  }).join('');
+}
+function onPnButtonTypeChange(){
+  const t=document.getElementById('pnButtonType').value;
+  document.getElementById('pnCouponWrap').style.display=(t==='coupon')?'block':'none';
+  document.getElementById('pnButtonTextWrap').style.display=(t==='none')?'none':'block';
+}
+async function editPopupNotice(id){
   const p=popupNotices.find(x=>x.id===id);if(!p)return;
   editingPopupId=id;
   document.getElementById('pnTitle').value=p.title||'';
@@ -1768,15 +1777,24 @@ function editPopupNotice(id){
   document.getElementById('pnLink').value=p.link_url||'';
   document.getElementById('pnOrder').value=p.display_order||0;
   document.getElementById('pnActive').value=String(p.is_active);
+  // 쿠폰 옵션 로드 (allCoupons 비어있으면 한 번 불러옴)
+  if(typeof allCoupons==='undefined'||!allCoupons.length){try{await loadCouponsAdmin();}catch(e){}}
+  document.getElementById('pnButtonType').value=p.button_type||'link';
+  document.getElementById('pnButtonText').value=p.button_text||'';
+  fillPnCouponOptions(p.coupon_id||'');
+  onPnButtonTypeChange();
   document.getElementById('popupNoticeModal').classList.add('show');
 }
 function closePopupNoticeModal(){document.getElementById('popupNoticeModal').classList.remove('show');}
 let editingPopupId=null;
 async function savePopupNotice(){
   if(!editingPopupId)return;
-  const d={title:document.getElementById('pnTitle').value.trim(),image_url:document.getElementById('pnImage').value.trim()||null,text_content:document.getElementById('pnText').value.trim()||null,link_url:document.getElementById('pnLink').value.trim()||null,display_order:parseInt(document.getElementById('pnOrder').value)||0,is_active:document.getElementById('pnActive').value==='true',updated_at:new Date().toISOString()};
+  const btnType=document.getElementById('pnButtonType').value;
+  const couponId=(btnType==='coupon')?(document.getElementById('pnCouponId').value||null):null;
+  if(btnType==='coupon'&&!couponId){showToast('연결할 쿠폰을 선택해주세요',true);return;}
+  const d={title:document.getElementById('pnTitle').value.trim(),image_url:document.getElementById('pnImage').value.trim()||null,text_content:document.getElementById('pnText').value.trim()||null,link_url:document.getElementById('pnLink').value.trim()||null,display_order:parseInt(document.getElementById('pnOrder').value)||0,is_active:document.getElementById('pnActive').value==='true',button_type:btnType,coupon_id:couponId,button_text:document.getElementById('pnButtonText').value.trim()||null,updated_at:new Date().toISOString()};
   const{error}=await sb.from('popup_notices').update(d).eq('id',editingPopupId);
-  if(error){showToast('저장 실패',true);return;}
+  if(error){showToast('저장 실패: '+error.message,true);return;}
   showToast('팝업 저장 완료');closePopupNoticeModal();await loadPopupNotices();
 }
 function bindPopupNoticeImageUpload(){
@@ -2481,7 +2499,7 @@ function openCouponForm(){
   document.getElementById('cpMaxDiscount').value='';document.getElementById('cpMinOrder').value='';
   document.getElementById('cpValidFrom').value='';document.getElementById('cpValidUntil').value='';
   document.getElementById('cpUsageLimit').value='';document.getElementById('cpActive').value='true';
-  document.getElementById('cpShowPopup').checked=false;
+  document.getElementById('cpDeleteBtn').style.display='none';
   document.getElementById('couponFormTitle').textContent='새 쿠폰 추가';
   document.getElementById('cpCode').disabled=false;
   document.getElementById('couponFormWrap').style.display='block';
@@ -2501,7 +2519,7 @@ function editCouponAdmin(id){
   document.getElementById('cpValidUntil').value=c.valid_until?c.valid_until.split('T')[0]:'';
   document.getElementById('cpUsageLimit').value=c.usage_limit||'';
   document.getElementById('cpActive').value=c.is_active?'true':'false';
-  document.getElementById('cpShowPopup').checked=!!c.show_in_popup;
+  document.getElementById('cpDeleteBtn').style.display='inline-flex';
   document.getElementById('couponFormTitle').textContent='쿠폰 수정';
   document.getElementById('couponFormWrap').style.display='block';
   document.getElementById('couponFormWrap').scrollIntoView({behavior:'smooth'});
@@ -2522,14 +2540,22 @@ async function saveCouponAdmin(){
     valid_from:document.getElementById('cpValidFrom').value?new Date(document.getElementById('cpValidFrom').value).toISOString():new Date().toISOString(),
     valid_until:document.getElementById('cpValidUntil').value?new Date(document.getElementById('cpValidUntil').value+'T23:59:59').toISOString():null,
     usage_limit:parseInt(document.getElementById('cpUsageLimit').value)||null,
-    is_active:document.getElementById('cpActive').value==='true',
-    show_in_popup:document.getElementById('cpShowPopup').checked
+    is_active:document.getElementById('cpActive').value==='true'
   };
   let err;
   if(id){const r=await sb.from('coupons').update(d).eq('id',id);err=r.error;}
   else{const r=await sb.from('coupons').insert(d);err=r.error;}
   if(err){showToast('저장 실패: '+err.message,true);return;}
   showToast(id?'쿠폰이 수정되었어요':'쿠폰이 추가되었어요');
+  closeCouponForm();loadCouponsAdmin();
+}
+async function deleteCouponAdmin(){
+  const id=document.getElementById('cpEditId').value;
+  if(!id)return;
+  if(!confirm('이 쿠폰을 삭제하시겠어요?\n이미 고객이 받은 쿠폰이라면 마이페이지에서도 사라질 수 있어요.'))return;
+  const{error}=await sb.from('coupons').delete().eq('id',id);
+  if(error){showToast('삭제 실패: '+error.message+' (결제내역과 연결된 쿠폰은 비활성화로 두세요)',true);return;}
+  showToast('쿠폰이 삭제되었어요');
   closeCouponForm();loadCouponsAdmin();
 }
 
