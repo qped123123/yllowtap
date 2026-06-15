@@ -44,6 +44,8 @@
 .co-coupon-applied>span{flex:1;min-width:0;line-height:1.5;word-break:keep-all}
 .co-coupon-remove{flex-shrink:0;white-space:nowrap;background:none;border:none;color:#C4453C;cursor:pointer;font-size:12px;text-decoration:underline;font-family:inherit;padding:0}
 .co-point-row{display:flex;gap:8px;align-items:center}
+.co-point-input::-webkit-outer-spin-button,.co-point-input::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}
+.co-point-input{-moz-appearance:textfield;appearance:textfield}
 .co-point-info{font-size:11px;color:#888;margin-top:6px}
 /* SUMMARY */
 .co-summary{background:#fff;border:1px solid #E5E1DC;padding:28px 24px;position:sticky;top:calc(var(--header-height,88px) + 20px)}
@@ -129,9 +131,10 @@
         <div id="coCouponApplied" style="display:none;"></div>
         <label class="co-label" style="margin-top:16px;">포인트</label>
         <div class="co-point-row">
-          <input class="co-input" id="coPointInput" type="number" min="0" step="10" placeholder="0" style="flex:1" oninput="onPointInput()" onblur="onPointBlur()">
+          <input class="co-input co-point-input" id="coPointInput" type="number" min="0" step="10" placeholder="0" style="flex:1" oninput="onPointInput()" onblur="onPointBlur()">
           <button type="button" onclick="useAllPoints()" style="padding:12px 16px;font-size:11px;font-weight:500;background:#111;color:#fff;border:none;cursor:pointer;font-family:inherit;white-space:nowrap;">전액 사용</button>
         </div>
+        <div class="co-point-warn" id="coPointWarn" style="display:none;font-size:12px;color:#C4453C;margin-top:6px;">보유 금액 이상은 사용할 수 없어요.</div>
         <div class="co-point-info" id="coPointInfo">보유 포인트: 0 P</div>
       </div>
       <!-- 결제 수단 -->
@@ -376,24 +379,32 @@ async function loadEarnRates(){
 }
 function onPointInput(){
   const el=document.getElementById('coPointInput');
+  const warn=document.getElementById('coPointWarn');
   let v=parseInt(el.value)||0;
   if(v<0)v=0;
-  // 입력 중에는 입력칸 값을 덮어쓰지 않음(커서 튐 방지). 한도 초과분은 계산에만 반영하고
-  // 입력칸 정리는 onPointBlur에서 처리.
   const maxUsable=Math.max(0,getProductSubtotal()-couponDiscount);
-  let used=v;
-  if(used>userPoints)used=userPoints;
-  if(used>maxUsable)used=maxUsable;
-  pointsUsed=used;updateSummary();
+  const cap=Math.min(userPoints,maxUsable);   // 보유량과 결제가능액 중 작은 값이 한도
+  // 한도를 넘게 입력하면 즉시 한도로 고정 + 경고 (정상 범위는 안 건드려 커서 튐 방지)
+  if(v>cap){
+    v=cap;
+    el.value=cap;
+    if(warn){ warn.textContent = (userPoints<maxUsable)?'보유 금액 이상은 사용할 수 없어요.':'결제 금액 이상은 사용할 수 없어요.'; warn.style.display='block'; }
+  }else{
+    if(warn)warn.style.display='none';
+  }
+  pointsUsed=v;updateSummary();
 }
 function onPointBlur(){
   const el=document.getElementById('coPointInput');
+  const warn=document.getElementById('coPointWarn');
   let v=parseInt(el.value)||0;
-  if(v>userPoints)v=userPoints;
+  if(v<0)v=0;
   const maxUsable=Math.max(0,getProductSubtotal()-couponDiscount);
-  if(v>maxUsable)v=maxUsable;
+  const cap=Math.min(userPoints,maxUsable);
+  if(v>cap)v=cap;
   v=Math.floor(v/10)*10;                 // 10P 단위로 내림
   el.value=v||'';
+  if(warn)warn.style.display='none';
   pointsUsed=v;updateSummary();
 }
 function useAllPoints(){
