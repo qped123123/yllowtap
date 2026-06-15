@@ -19,12 +19,12 @@
 .cart-select-cell{display:flex;align-items:center;justify-content:center}
 .cart-select-cell input{width:16px;height:16px;cursor:pointer}
 .cart-item:last-child{border-bottom:none}
-.cart-item-img{width:100px;height:100px;object-fit:cover;object-position:center;background:#EAE7E2}
+.cart-item-img{width:100px;height:100px;object-fit:cover;object-position:center;background:#EAE7E2;cursor:pointer}
 .cart-item-brand{font-size:10px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:#888;margin-bottom:3px}
 .cart-item-name{font-size:14px;font-weight:500;margin-bottom:4px}
 .cart-item-name a{color:#111;text-decoration:none}
 .cart-item-name a:hover{opacity:.7}
-.cart-item-option{font-size:11px;color:#888;line-height:1.5}
+.cart-item-option{font-size:11px;color:#888;line-height:1.5;word-break:keep-all}
 .cart-item-price{font-size:15px;font-weight:700;text-align:right;white-space:nowrap}
 .cart-item-original{font-size:11px;color:#999;text-decoration:line-through;text-align:right;margin-bottom:2px;white-space:nowrap}
 .cart-item-saleline{display:flex;align-items:baseline;gap:5px;justify-content:flex-end}
@@ -512,7 +512,7 @@ function cartItemHTML(item,i){
   const isSale=p.original_price&&p.original_price>p.price;
   return`<div class="cart-item">
       <div class="cart-select-cell"><input type="checkbox" class="cart-sel-check" data-idx="${i}" ${item.checked?'checked':''} onchange="toggleItemSelect(${i},this.checked)"></div>
-      <div>${img?`<img class="cart-item-img" src="${img}">`:'<div class="cart-item-img"></div>'}</div>
+      <div>${img?`<a href="/product.html?slug=${p.slug||p.id}"><img class="cart-item-img" src="${img}"></a>`:'<div class="cart-item-img"></div>'}</div>
       <div class="cart-item-info">
         <div class="cart-item-brand">${p.brand||'YLLOWTAP'}</div>
         <div class="cart-item-name"><a href="/product.html?slug=${p.slug||p.id}">${p.name}</a></div>
