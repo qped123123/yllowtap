@@ -511,26 +511,33 @@ async function withdrawAccount(){
   if(!confirm('마지막 확인입니다. 회원 탈퇴를 진행하시겠습니까?'))return;
   try{
     const uid=currentUser.id;
+    const fails=[];
+    const run=async(label,promise)=>{const{error}=await promise;if(error){fails.push(label);console.error('[탈퇴]'+label+' 실패',error);}};
     // 장바구니: cart_items엔 user_id가 없으므로 carts→cart_id 기준으로 삭제
     const{data:myCarts}=await sb.from('carts').select('id').eq('user_id',uid);
     const cartIds=(myCarts||[]).map(c=>c.id);
     if(cartIds.length){
-      await sb.from('cart_items').delete().in('cart_id',cartIds);
-      await sb.from('carts').delete().eq('user_id',uid);
+      await run('장바구니 상품',sb.from('cart_items').delete().in('cart_id',cartIds));
+      await run('장바구니',sb.from('carts').delete().eq('user_id',uid));
     }
     // 개인 활동 데이터 삭제
-    await sb.from('wishlists').delete().eq('user_id',uid);
-    await sb.from('recent_views').delete().eq('user_id',uid);
-    await sb.from('saved_comparisons').delete().eq('user_id',uid);
-    await sb.from('addresses').delete().eq('user_id',uid);
+    await run('찜',sb.from('wishlists').delete().eq('user_id',uid));
+    await run('최근 본 상품',sb.from('recent_views').delete().eq('user_id',uid));
+    await run('저장한 비교',sb.from('saved_comparisons').delete().eq('user_id',uid));
+    await run('배송지',sb.from('addresses').delete().eq('user_id',uid));
     // 미사용 쿠폰만 삭제 (사용한 쿠폰 = 주문/결제 기록과 연결되어 보존)
-    await sb.from('user_coupons').delete().eq('user_id',uid).eq('is_used',false);
+    await run('미사용 쿠폰',sb.from('user_coupons').delete().eq('user_id',uid).eq('is_used',false));
     // 미답변 문의만 삭제 (답변완료/분쟁 문의는 보존)
-    await sb.from('inquiries').delete().eq('user_id',uid).eq('status','pending');
+    await run('미답변 문의',sb.from('inquiries').delete().eq('user_id',uid).eq('status','pending'));
     // 프로필 삭제
-    await sb.from('user_profiles').delete().eq('id',uid);
+    await run('프로필',sb.from('user_profiles').delete().eq('id',uid));
     // ※ orders/order_items/결제·배송·환불 기록은 전자상거래법상 보존 대상이라 삭제하지 않음
     // ※ Auth 계정 완전 삭제는 service role 필요 (Edge Function). 여기서는 로그아웃 처리
+    // 일부 삭제 실패 시 탈퇴 중단 (데이터가 남은 채 "완료" 뜨는 것 방지)
+    if(fails.length){
+      alert('탈퇴 처리 중 일부 데이터('+fails.join(', ')+')가 삭제되지 않았어요.\n잠시 후 다시 시도하시거나 고객센터로 문의해주세요.');
+      return;
+    }
     await sb.auth.signOut();
     alert('회원 탈퇴가 완료되었습니다.');
     window.location.href='/';
