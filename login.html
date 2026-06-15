@@ -301,6 +301,32 @@
   </div>
 </div>
 
+<div id="termsModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:9999;align-items:center;justify-content:center;padding:20px;">
+  <div style="background:#fff;max-width:420px;width:100%;padding:32px 28px;border-radius:4px;max-height:90vh;overflow-y:auto;">
+    <h2 style="font-size:18px;font-weight:600;margin:0 0 8px;color:#111;">약관 동의</h2>
+    <p style="font-size:13px;color:#888;margin:0 0 24px;line-height:1.6;">Yllowtap 서비스 이용을 위해 약관 동의가 필요해요.</p>
+    <div style="display:flex;flex-direction:column;gap:14px;">
+      <label style="display:flex;align-items:flex-start;gap:8px;font-size:13px;color:#333;cursor:pointer;">
+        <input type="checkbox" id="tmTerms" style="margin-top:2px;flex-shrink:0;">
+        <span><a href="/terms.html" target="_blank" style="color:#111;text-decoration:underline;">이용약관</a> 동의 <span style="color:#C4453C;">(필수)</span></span>
+      </label>
+      <label style="display:flex;align-items:flex-start;gap:8px;font-size:13px;color:#333;cursor:pointer;">
+        <input type="checkbox" id="tmPrivacy" style="margin-top:2px;flex-shrink:0;">
+        <span><a href="/privacy.html" target="_blank" style="color:#111;text-decoration:underline;">개인정보처리방침</a> 동의 <span style="color:#C4453C;">(필수)</span></span>
+      </label>
+      <label style="display:flex;align-items:flex-start;gap:8px;font-size:13px;color:#333;cursor:pointer;">
+        <input type="checkbox" id="tmMarketing" style="margin-top:2px;flex-shrink:0;">
+        <span>마케팅 정보 수신 동의 <span style="color:#999;">(선택)</span></span>
+      </label>
+    </div>
+    <div id="tmError" style="display:none;font-size:12px;color:#C4453C;margin-top:14px;">필수 약관에 동의해주세요.</div>
+    <div style="display:flex;gap:8px;margin-top:28px;">
+      <button onclick="declineTerms()" style="flex:1;padding:13px;font-size:13px;font-family:inherit;border:1px solid #E5E1DC;background:#fff;color:#888;cursor:pointer;">취소</button>
+      <button onclick="agreeTermsSubmit()" style="flex:2;padding:13px;font-size:13px;font-family:inherit;border:none;background:#111;color:#fff;cursor:pointer;">동의하고 시작하기</button>
+    </div>
+  </div>
+</div>
+
 <script src="./js/main.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <script>
@@ -319,12 +345,13 @@ function switchTab(tab) {
 
 // ── 전체 동의 / 개별 체크 ──
 function toggleAllAgree(checked) {
-  ['agreeTerms','agreePrivacy','agreeMarketing','agreeNotiEmail','agreeNotiKakao'].forEach(id => {
+  // 준비 중인 agreeNotiKakao(display:none)는 전체동의 계산에서 제외
+  ['agreeTerms','agreePrivacy','agreeMarketing','agreeNotiEmail'].forEach(id => {
     document.getElementById(id).checked = checked;
   });
 }
 function checkAgreeAll() {
-  const all = ['agreeTerms','agreePrivacy','agreeMarketing','agreeNotiEmail','agreeNotiKakao']
+  const all = ['agreeTerms','agreePrivacy','agreeMarketing','agreeNotiEmail']
     .every(id => document.getElementById(id).checked);
   document.getElementById('agreeAll').checked = all;
 }
@@ -409,14 +436,21 @@ async function emailSignup() {
 
   // user_profiles에 이름 + 약관 동의 + 알림 설정 저장
   if (data.user) {
-    const { error: profErr } = await sb.from('user_profiles').update({
+    const now = new Date().toISOString();
+    const { error: profErr } = await sb.from('user_profiles').upsert({
+      id: data.user.id,
+      email: data.user.email || null,
       display_name: name,
       agreed_terms: agreeTerms,
       agreed_privacy: agreePrivacy,
       agreed_marketing: agreeMarketing,
+      agreed_terms_at: agreeTerms ? now : null,
+      agreed_privacy_at: agreePrivacy ? now : null,
+      agreed_marketing_at: agreeMarketing ? now : null,
       notification_email: notiEmail,
-      notification_kakao: notiKakao
-    }).eq('id', data.user.id);
+      notification_kakao: notiKakao,
+      updated_at: now
+    }, { onConflict: 'id' });
     if (profErr) console.warn('[signup] user_profiles 저장 실패:', profErr.message);
   }
 
@@ -431,6 +465,50 @@ async function doLogout() {
   window.location.reload();
 }
 
+// ── 소셜 가입 약관 동의 모달 ──
+function showTermsModal() {
+  document.getElementById('authLogged').style.display = 'none';
+  document.getElementById('authForms').style.display = 'none';
+  document.getElementById('termsModal').style.display = 'flex';
+}
+async function agreeTermsSubmit() {
+  const terms = document.getElementById('tmTerms').checked;
+  const privacy = document.getElementById('tmPrivacy').checked;
+  const marketing = document.getElementById('tmMarketing').checked;
+  if (!terms || !privacy) {
+    document.getElementById('tmError').style.display = 'block';
+    return;
+  }
+  const { data: { session } } = await sb.auth.getSession();
+  if (!session) { window.location.reload(); return; }
+  const now = new Date().toISOString();
+  const { error } = await sb.from('user_profiles').upsert({
+    id: session.user.id,
+    email: session.user.email || null,
+    agreed_terms: true,
+    agreed_privacy: true,
+    agreed_terms_at: now,
+    agreed_privacy_at: now,
+    agreed_marketing: marketing,
+    agreed_marketing_at: marketing ? now : null,
+    updated_at: now
+  }, { onConflict: 'id' });
+  if (error) {
+    document.getElementById('tmError').textContent = '저장에 실패했어요. 다시 시도해주세요.';
+    document.getElementById('tmError').style.display = 'block';
+    return;
+  }
+  document.getElementById('termsModal').style.display = 'none';
+  // 동의 완료 → 정상 진행
+  checkAuth();
+}
+async function declineTerms() {
+  // 필수 약관 거부 → 로그아웃
+  await sb.auth.signOut();
+  document.getElementById('termsModal').style.display = 'none';
+  window.location.reload();
+}
+
 // ── 로그인 후 돌아갈 주소 (같은 사이트 내부 경로만 허용) ──
 function getRedirect() {
   const r = new URLSearchParams(window.location.search).get('redirect');
@@ -442,6 +520,13 @@ function getRedirect() {
 async function checkAuth() {
   const { data: { session } } = await sb.auth.getSession();
   if (session) {
+    // 소셜/이메일 로그인 후 필수 약관 동의 여부 확인
+    const { data: prof } = await sb.from('user_profiles').select('agreed_terms,agreed_privacy').eq('id', session.user.id).maybeSingle();
+    if (!prof || prof.agreed_terms !== true || prof.agreed_privacy !== true) {
+      // 약관 미동의 → 모달 표시, 이후 진행 보류
+      showTermsModal();
+      return;
+    }
     // 로그인 상태 + 돌아갈 주소가 있으면 원래 자리로 복귀
     const dest = getRedirect();
     if (dest) { window.location.replace(dest); return; }
