@@ -1637,9 +1637,14 @@ function collectCartLines(){
 }
 
 // 장바구니 한 줄 추가/병합 (같은 상품+옵션이면 수량만 증가)
+function stableStringify(o){
+  if(o===null||typeof o!=='object') return JSON.stringify(o);
+  if(Array.isArray(o)) return '['+o.map(stableStringify).join(',')+']';
+  return '{'+Object.keys(o).sort().map(k=>JSON.stringify(k)+':'+stableStringify(o[k])).join(',')+'}';
+}
 async function addCartLine(cartId, productId, quantity, opts){
   const{data:existing}=await sb.from('cart_items').select('*').eq('cart_id',cartId).eq('product_id',productId);
-  const match=existing?.find(e=>JSON.stringify(e.selected_options)===JSON.stringify(opts));
+  const match=existing?.find(e=>stableStringify(e.selected_options)===stableStringify(opts));
   if(match){
     await sb.from('cart_items').update({quantity:match.quantity+quantity}).eq('id',match.id);
   }else{
