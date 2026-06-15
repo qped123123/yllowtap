@@ -509,7 +509,32 @@ async function saveProfile(){
 async function withdrawAccount(){
   if(!confirm('정말 탈퇴하시겠습니까?\n\n탈퇴 시 모든 정보가 삭제되며 복구할 수 없습니다.'))return;
   if(!confirm('마지막 확인입니다. 회원 탈퇴를 진행하시겠습니까?'))return;
-  try{const uid=currentUser.id;await sb.from('cart_items').delete().eq('user_id',uid);await sb.from('wishlists').delete().eq('user_id',uid);await sb.from('recent_views').delete().eq('user_id',uid);await sb.from('addresses').delete().eq('user_id',uid);await sb.from('inquiries').delete().eq('user_id',uid);await sb.from('user_profiles').delete().eq('id',uid);await sb.auth.signOut();alert('회원 탈퇴가 완료되었습니다.');window.location.href='/';}catch(e){alert('탈퇴 처리 중 오류가 발생했습니다. 고객센터로 문의해주세요.');}
+  try{
+    const uid=currentUser.id;
+    // 장바구니: cart_items엔 user_id가 없으므로 carts→cart_id 기준으로 삭제
+    const{data:myCarts}=await sb.from('carts').select('id').eq('user_id',uid);
+    const cartIds=(myCarts||[]).map(c=>c.id);
+    if(cartIds.length){
+      await sb.from('cart_items').delete().in('cart_id',cartIds);
+      await sb.from('carts').delete().eq('user_id',uid);
+    }
+    // 개인 활동 데이터 삭제
+    await sb.from('wishlists').delete().eq('user_id',uid);
+    await sb.from('recent_views').delete().eq('user_id',uid);
+    await sb.from('saved_comparisons').delete().eq('user_id',uid);
+    await sb.from('addresses').delete().eq('user_id',uid);
+    // 미사용 쿠폰만 삭제 (사용한 쿠폰 = 주문/결제 기록과 연결되어 보존)
+    await sb.from('user_coupons').delete().eq('user_id',uid).eq('is_used',false);
+    // 미답변 문의만 삭제 (답변완료/분쟁 문의는 보존)
+    await sb.from('inquiries').delete().eq('user_id',uid).eq('status','pending');
+    // 프로필 삭제
+    await sb.from('user_profiles').delete().eq('id',uid);
+    // ※ orders/order_items/결제·배송·환불 기록은 전자상거래법상 보존 대상이라 삭제하지 않음
+    // ※ Auth 계정 완전 삭제는 service role 필요 (Edge Function). 여기서는 로그아웃 처리
+    await sb.auth.signOut();
+    alert('회원 탈퇴가 완료되었습니다.');
+    window.location.href='/';
+  }catch(e){alert('탈퇴 처리 중 오류가 발생했습니다. 고객센터로 문의해주세요.');}
 }
 
 /* ── ACCORDION ── */
