@@ -245,7 +245,7 @@
 .popup-coupon-btn{width:100%;padding:14px;font-size:14px;font-weight:600;letter-spacing:1px;background:#111;color:#fff;border:none;border-radius:3px;cursor:pointer;transition:opacity 0.2s;font-family:inherit;}
 .popup-coupon-btn:hover{opacity:0.85;}
 .popup-coupon-btn:disabled{cursor:default;}
-.popup-coupon-btn.got{background:#fff;color:#999;border:1px solid #E5E1DC;cursor:default;}
+.popup-coupon-btn.got{background:#fff;color:#555;border:1px solid #111;cursor:pointer;}
 </style>
 </head>
 <body>
@@ -521,6 +521,16 @@ async function loadPopup() {
   const valid = data.filter(p => (p.image_url && p.image_url.trim()) || (p.text_content && p.text_content.trim()));
   if (!valid.length) return;
 
+  // 로그인 회원이 이미 받은 쿠폰 조회 (쿠폰 버튼 표시용)
+  let ownedCoupons = new Set();
+  try {
+    const { data: { session } } = await sb.auth.getSession();
+    if (session) {
+      const { data: ucs } = await sb.from('user_coupons').select('coupon_id').eq('user_id', session.user.id);
+      (ucs || []).forEach(u => ownedCoupons.add(u.coupon_id));
+    }
+  } catch(e){}
+
   popupTotal = valid.length;
   popupCurrent = 0;
 
@@ -535,11 +545,15 @@ async function loadPopup() {
       const wrapLink = (btnType === 'link' && p.link_url);
       const linkOpen = wrapLink ? `<a href="${p.link_url}" style="text-decoration:none;color:inherit;display:block;">` : '';
       const linkClose = wrapLink ? '</a>' : '';
-      // coupon 타입: 쿠폰 받기 버튼
+      // coupon 타입: 쿠폰 받기 / 받은 쿠폰 보러가기 버튼
       let actionBtn = '';
       if (btnType === 'coupon' && p.coupon_id) {
-        const txt = (p.button_text && p.button_text.trim()) || '쿠폰 받기';
-        actionBtn = `<div style="padding:14px 16px 16px;"><button class="popup-coupon-btn" data-coupon="${p.coupon_id}" data-idx="${i}" onclick="claimPopupCoupon('${p.coupon_id}', this)">${txt}</button></div>`;
+        if (ownedCoupons.has(p.coupon_id)) {
+          actionBtn = `<div style="padding:14px 16px 16px;"><button class="popup-coupon-btn got" onclick="location.href='/mypage.html?tab=coupon'">받은 쿠폰 보러가기 →</button></div>`;
+        } else {
+          const txt = (p.button_text && p.button_text.trim()) || '쿠폰 받기';
+          actionBtn = `<div style="padding:14px 16px 16px;"><button class="popup-coupon-btn" data-coupon="${p.coupon_id}" data-idx="${i}" onclick="claimPopupCoupon('${p.coupon_id}', this)">${txt}</button></div>`;
+        }
       }
       return `<div class="popup-slide${i === 0 ? ' active' : ''}">
         ${linkOpen}
@@ -600,7 +614,7 @@ async function claimPopupCoupon(couponId, btn){
     // 중복 발급 체크
     const { data: existing } = await sb.from('user_coupons').select('id').eq('user_id', uid).eq('coupon_id', couponId).maybeSingle();
     if (existing) {
-      if (btn) { btn.classList.add('got'); btn.textContent = '받음'; }
+      turnBtnToView(btn);
       alert('이미 받은 쿠폰이에요. 결제 시 사용할 수 있어요.');
       return;
     }
@@ -608,12 +622,21 @@ async function claimPopupCoupon(couponId, btn){
     const { error } = await sb.from('user_coupons').insert({ user_id: uid, coupon_id: couponId });
     if (error) { alert('쿠폰 받기에 실패했어요: ' + error.message); if(btn) btn.disabled=false; return; }
 
-    if (btn) { btn.classList.add('got'); btn.textContent = '받음'; }
+    turnBtnToView(btn);
     alert('쿠폰을 받았어요! 결제할 때 선택해서 사용하세요.');
   } catch(e) {
     alert('쿠폰 받기 중 오류가 났어요. 잠시 후 다시 시도해주세요.');
     if (btn) btn.disabled = false;
   }
+}
+
+// 쿠폰 받기 버튼 → '받은 쿠폰 보러가기'(마이페이지 이동)로 전환
+function turnBtnToView(btn){
+  if (!btn) return;
+  btn.classList.add('got');
+  btn.disabled = false;
+  btn.textContent = '받은 쿠폰 보러가기 →';
+  btn.onclick = function(){ location.href = '/mypage.html?tab=coupon'; };
 }
 
 // ══════════════════════════════════════════
