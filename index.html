@@ -587,7 +587,7 @@ async function claimPopupCoupon(couponId, btn){
   // 로그인 체크
   const { data: { session } } = await sb.auth.getSession();
   if (!session) {
-    if (confirm('쿠폰을 받으려면 로그인이 필요해요. 로그인 페이지로 이동할까요?')) {
+    if (await yConfirm('쿠폰을 받으려면 로그인이 필요해요. 로그인 페이지로 이동할까요?', {okText:'로그인'})) {
       location.href = '/login.html?redirect=' + encodeURIComponent('/');
     } else {
       if (btn) btn.disabled = false;
@@ -599,25 +599,25 @@ async function claimPopupCoupon(couponId, btn){
   try {
     // 만료/소진 재확인
     const { data: c } = await sb.from('coupons').select('*').eq('id', couponId).single();
-    if (!c || !c.is_active) { alert('지금은 받을 수 없는 쿠폰이에요.'); if(btn) btn.disabled=false; return; }
-    if (c.valid_until && new Date(c.valid_until) < new Date()) { alert('만료된 쿠폰이에요.'); if(btn) btn.disabled=false; return; }
-    if (c.usage_limit && c.used_count >= c.usage_limit) { alert('쿠폰이 모두 소진되었어요.'); if(btn) btn.disabled=false; return; }
+    if (!c || !c.is_active) { yToast('지금은 받을 수 없는 쿠폰이에요.','error'); if(btn) btn.disabled=false; return; }
+    if (c.valid_until && new Date(c.valid_until) < new Date()) { yToast('만료된 쿠폰이에요.','error'); if(btn) btn.disabled=false; return; }
+    if (c.usage_limit && c.used_count >= c.usage_limit) { yToast('쿠폰이 모두 소진되었어요.','error'); if(btn) btn.disabled=false; return; }
 
     // 중복 발급 체크
     const { data: existing } = await sb.from('user_coupons').select('id').eq('user_id', uid).eq('coupon_id', couponId).maybeSingle();
     if (existing) {
       turnBtnToView(btn);
-      alert('이미 받은 쿠폰이에요. 결제 시 사용할 수 있어요.');
+      yToast('이미 받은 쿠폰이에요. 결제 시 사용할 수 있어요.');
       return;
     }
 
     const { error } = await sb.from('user_coupons').insert({ user_id: uid, coupon_id: couponId });
-    if (error) { alert('쿠폰 받기에 실패했어요: ' + error.message); if(btn) btn.disabled=false; return; }
+    if (error) { yToast('쿠폰 받기에 실패했어요: ' + error.message,'error'); if(btn) btn.disabled=false; return; }
 
     turnBtnToView(btn);
-    alert('쿠폰을 받았어요! 결제할 때 선택해서 사용하세요.');
+    yToast('쿠폰을 받았어요! 결제할 때 선택해서 사용하세요.','success');
   } catch(e) {
-    alert('쿠폰 받기 중 오류가 났어요. 잠시 후 다시 시도해주세요.');
+    yToast('쿠폰 받기 중 오류가 났어요. 잠시 후 다시 시도해주세요.','error');
     if (btn) btn.disabled = false;
   }
 }
@@ -816,7 +816,7 @@ async function toggleCardWish(e, pid, btn) {
   e.stopPropagation();
   const { data: { session } } = await sb.auth.getSession();
   if (!session) {
-    if (confirm('로그인 후 이용할 수 있어요.\n로그인 페이지로 이동할까요?')) window.location.href = '/login.html';
+    if (await yConfirm('로그인 후 이용할 수 있어요.\n로그인 페이지로 이동할까요?', {okText:'로그인'})) window.location.href = '/login.html';
     return;
   }
   const { data: existing } = await sb.from('wishlists').select('id').eq('user_id', session.user.id).eq('product_id', pid).single();
