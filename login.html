@@ -491,7 +491,7 @@ async function agreeTermsSubmit() {
   const { data: { session } } = await sb.auth.getSession();
   if (!session) { window.location.reload(); return; }
   const now = new Date().toISOString();
-  const { error } = await sb.from('user_profiles').update({
+  const { data: saved, error } = await sb.from('user_profiles').update({
     agreed_terms: true,
     agreed_privacy: true,
     agreed_terms_at: now,
@@ -499,9 +499,23 @@ async function agreeTermsSubmit() {
     agreed_marketing: marketing,
     agreed_marketing_at: marketing ? now : null,
     updated_at: now
-  }).eq('id', session.user.id);
+  }).eq('id', session.user.id)
+    .select('id, agreed_terms, agreed_privacy, agreed_terms_at, agreed_privacy_at')
+    .maybeSingle();
   if (error) {
-    console.error('[terms agree] 저장 실패:', error);
+    console.error('[terms agree] 저장 실패:', error.message, error.code, error.hint);
+    document.getElementById('tmError').textContent = '저장에 실패했어요. 다시 시도해주세요.';
+    document.getElementById('tmError').style.display = 'block';
+    return;
+  }
+  if (!saved) {
+    console.error('[terms agree] 프로필 행을 찾지 못했습니다. id=', session.user.id);
+    document.getElementById('tmError').textContent = '프로필을 찾을 수 없어요. 다시 로그인해주세요.';
+    document.getElementById('tmError').style.display = 'block';
+    return;
+  }
+  if (saved.agreed_terms !== true || saved.agreed_privacy !== true) {
+    console.error('[terms agree] 저장 후에도 동의값이 false:', saved);
     document.getElementById('tmError').textContent = '저장에 실패했어요. 다시 시도해주세요.';
     document.getElementById('tmError').style.display = 'block';
     return;
@@ -529,7 +543,8 @@ async function checkAuth() {
   const { data: { session } } = await sb.auth.getSession();
   if (session) {
     // 소셜/이메일 로그인 후 필수 약관 동의 여부 확인
-    const { data: prof } = await sb.from('user_profiles').select('agreed_terms,agreed_privacy').eq('id', session.user.id).maybeSingle();
+    const { data: prof, error: profErr } = await sb.from('user_profiles').select('agreed_terms,agreed_privacy').eq('id', session.user.id).maybeSingle();
+    if (profErr) console.error('[checkAuth] profile 조회 실패:', profErr);
     if (!prof || prof.agreed_terms !== true || prof.agreed_privacy !== true) {
       // 약관 미동의 → 모달 표시, 이후 진행 보류
       showTermsModal();
