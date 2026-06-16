@@ -555,7 +555,7 @@
     s.id = 'yToastStyle';
     s.textContent =
       '.y-toast-wrap{position:fixed;left:50%;bottom:32px;transform:translateX(-50%);z-index:99999;display:flex;flex-direction:column;gap:8px;align-items:center;pointer-events:none}'+
-      '.y-toast{min-width:200px;max-width:90vw;background:#fff;border:1px solid #111;color:#111;padding:13px 20px;font-size:13px;line-height:1.5;font-family:inherit;box-shadow:0 4px 16px rgba(0,0,0,.1);opacity:0;transform:translateY(8px);transition:opacity .25s,transform .25s;text-align:center}'+
+      '.y-toast{min-width:200px;max-width:90vw;background:#fff;border:1px solid #111;color:#111;padding:13px 20px;font-size:13px;line-height:1.5;font-family:inherit;box-shadow:0 8px 24px rgba(0,0,0,.12);opacity:0;transform:translateY(8px);transition:opacity .25s,transform .25s;text-align:center}'+
       '.y-toast.show{opacity:1;transform:translateY(0)}'+
       '.y-toast.error{border-color:#C4453C;color:#C4453C}'+
       '.y-toast.success{border-color:#2E7D32}';
@@ -590,5 +590,77 @@
       // 안전장치: 토스트 실패 시 기본 alert로 폴백
       try{ window.alert(message); }catch(_){}
     }
+  };
+})();
+
+/* ══════════════════════════════════════════
+   yConfirm — Yllowtap 스타일 확인 모달 (Promise)
+   사용: if(!(await yConfirm('삭제할까요?'))) return;
+   옵션: yConfirm(message, {okText:'확인', cancelText:'취소', danger:false})
+   ※ window.confirm을 덮어쓰지 않음. 호출부를 await로 교체해 사용.
+   ══════════════════════════════════════════ */
+(function(){
+  if (window.yConfirm) return;
+  function ensureStyle(){
+    if (document.getElementById('yConfirmStyle')) return;
+    var s = document.createElement('style');
+    s.id = 'yConfirmStyle';
+    s.textContent =
+      '.y-confirm-overlay{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:100000;display:flex;align-items:center;justify-content:center;padding:20px;opacity:0;transition:opacity .2s}'+
+      '.y-confirm-overlay.show{opacity:1}'+
+      '.y-confirm-box{background:#fff;border:1px solid #111;max-width:380px;width:100%;padding:28px 24px 20px;transform:translateY(8px);transition:transform .2s;font-family:inherit}'+
+      '.y-confirm-overlay.show .y-confirm-box{transform:translateY(0)}'+
+      '.y-confirm-msg{font-size:14px;line-height:1.6;color:#111;white-space:pre-line;margin-bottom:22px}'+
+      '.y-confirm-btns{display:flex;gap:8px}'+
+      '.y-confirm-btn{flex:1;padding:12px;font-size:13px;font-family:inherit;cursor:pointer;border:1px solid #E5E1DC;background:#fff;color:#888;transition:all .15s}'+
+      '.y-confirm-btn:hover{border-color:#888}'+
+      '.y-confirm-btn.ok{flex:1.4;border-color:#111;background:#111;color:#fff}'+
+      '.y-confirm-btn.ok:hover{background:#333}'+
+      '.y-confirm-btn.ok.danger{background:#C4453C;border-color:#C4453C}'+
+      '.y-confirm-btn.ok.danger:hover{background:#a93a32}';
+    document.head.appendChild(s);
+  }
+  window.yConfirm = function(message, opts){
+    opts = opts || {};
+    var okText = opts.okText || '확인';
+    var cancelText = opts.cancelText || '취소';
+    var danger = !!opts.danger;
+    return new Promise(function(resolve){
+      try{
+        ensureStyle();
+        var ov = document.createElement('div');
+        ov.className = 'y-confirm-overlay';
+        var box = document.createElement('div');
+        box.className = 'y-confirm-box';
+        var msg = document.createElement('div');
+        msg.className = 'y-confirm-msg';
+        msg.textContent = message == null ? '' : String(message);
+        var btns = document.createElement('div');
+        btns.className = 'y-confirm-btns';
+        var cancel = document.createElement('button');
+        cancel.className = 'y-confirm-btn';
+        cancel.textContent = cancelText;
+        var ok = document.createElement('button');
+        ok.className = 'y-confirm-btn ok' + (danger ? ' danger' : '');
+        ok.textContent = okText;
+        btns.appendChild(cancel); btns.appendChild(ok);
+        box.appendChild(msg); box.appendChild(btns);
+        ov.appendChild(box);
+        document.body.appendChild(ov);
+        requestAnimationFrame(function(){ ov.classList.add('show'); });
+        function close(val){
+          ov.classList.remove('show');
+          setTimeout(function(){ if (ov.parentNode) ov.parentNode.removeChild(ov); }, 200);
+          resolve(val);
+        }
+        cancel.onclick = function(){ close(false); };
+        ok.onclick = function(){ close(true); };
+        ov.onclick = function(e){ if (e.target === ov) close(false); };
+        ok.focus();
+      }catch(e){
+        // 폴백: 기본 confirm
+        try{ resolve(window.confirm(message)); }catch(_){ resolve(false); }
+      }
+    });
   };
 })();

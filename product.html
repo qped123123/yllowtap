@@ -1500,7 +1500,7 @@ function renderQnaList(){
   }).join('');
 }
 async function deleteMyQna(id){
-  if(!confirm('이 문의를 삭제할까요?'))return;
+  if(!(await yConfirm('이 문의를 삭제할까요?',{okText:'삭제',danger:true})))return;
   const{error}=await sb.from('product_inquiries').delete().eq('id',id);
   if(error){yToast('삭제에 실패했어요. 다시 시도해주세요.','error');return}
   await loadQnas();
@@ -1518,7 +1518,7 @@ async function toggleQnaForm(){
   if(!f.classList.contains('show')){
     const{data:{session}}=await sb.auth.getSession();
     if(!session){
-      if(confirm('상품 문의는 로그인 후 작성할 수 있어요.\n로그인 페이지로 이동할까요?')) location.href='/login.html';
+      if(await yConfirm('상품 문의는 로그인 후 작성할 수 있어요.\n로그인 페이지로 이동할까요?',{okText:'로그인'})) location.href='/login.html';
       return;
     }
     // 작성자명 기본값 = 회원 이름 (비어있을 때만 채움)
@@ -1739,7 +1739,7 @@ async function addToCart(){
   await addCartLine(cartId, product.id, qty, lines.mainOpts);
   for(const a of lines.addonLines){ await addCartLine(cartId, a.product_id, qty, {_line_price:a.price, _addon:true, po_id:a.po_id, item_index:a.item_index}); }
 
-  if(confirm('장바구니에 담았습니다!\n장바구니로 이동하시겠습니까?')){
+  if(await yConfirm('장바구니에 담았습니다!\n장바구니로 이동하시겠습니까?',{okText:'장바구니로'})){
     window.location.href='/cart.html';
   } else {
     updateBagCount();
@@ -1756,7 +1756,7 @@ async function updateBagCount(){
 async function toggleWishlist(){
   const{data:{session}}=await sb.auth.getSession();
   if(!session){
-    if(confirm('로그인 후 이용할 수 있습니다.\n로그인 페이지로 이동하시겠습니까?')){
+    if(await yConfirm('로그인 후 이용할 수 있습니다.\n로그인 페이지로 이동하시겠습니까?',{okText:'로그인'})){
       window.location.href='/login.html';
     }
     return;

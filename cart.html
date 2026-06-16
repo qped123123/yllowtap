@@ -616,7 +616,7 @@ function syncSelectAll(){
 async function deleteSelected(){
   const toDelete=cartItems.filter(item=>item.checked);
   if(!toDelete.length)return;
-  if(!confirm(`${toDelete.length}개 상품을 삭제하시겠습니까?`))return;
+  if(!(await yConfirm(`${toDelete.length}개 상품을 삭제하시겠습니까?`,{okText:'삭제',danger:true})))return;
   for(const item of toDelete){await sb.from('cart_items').delete().eq('id',item.id);}
   cartItems=cartItems.filter(item=>!item.checked);renderCart();updateBagCount();
 }
