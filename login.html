@@ -282,7 +282,7 @@
             <input type="checkbox" id="agreeMarketing" onchange="checkAgreeAll()">
             <label for="agreeMarketing">마케팅 정보 수신 동의 <span>(선택)</span></label>
           </div>
-          <div class="auth-agree-item">
+          <div class="auth-agree-item" id="emailNotiWrap" style="display:none;">
             <input type="checkbox" id="agreeNotiEmail" checked onchange="checkAgreeAll()">
             <label for="agreeNotiEmail">이메일 알림 수신 <span>(선택 · 주문/배송 안내)</span></label>
           </div>
@@ -345,13 +345,13 @@ function switchTab(tab) {
 
 // ── 전체 동의 / 개별 체크 ──
 function toggleAllAgree(checked) {
-  // 준비 중인 agreeNotiKakao(display:none)는 전체동의 계산에서 제외
-  ['agreeTerms','agreePrivacy','agreeMarketing','agreeNotiEmail'].forEach(id => {
+  // 약관 3개만 (알림 항목은 숨김 처리되어 제외)
+  ['agreeTerms','agreePrivacy','agreeMarketing'].forEach(id => {
     document.getElementById(id).checked = checked;
   });
 }
 function checkAgreeAll() {
-  const all = ['agreeTerms','agreePrivacy','agreeMarketing','agreeNotiEmail']
+  const all = ['agreeTerms','agreePrivacy','agreeMarketing']
     .every(id => document.getElementById(id).checked);
   document.getElementById('agreeAll').checked = all;
 }
@@ -398,7 +398,12 @@ async function emailLogin() {
 
   const { error } = await sb.auth.signInWithPassword({ email, password: pw });
   if (error) {
-    showError('loginError', '이메일 또는 비밀번호가 올바르지 않습니다.');
+    const msg = error.message || '';
+    if (/email not confirmed|not confirmed|confirm your email/i.test(msg)) {
+      showError('loginError', '이메일 인증이 필요해요. 가입 시 받은 확인 메일의 링크를 눌러주세요.');
+    } else {
+      showError('loginError', '이메일 또는 비밀번호가 올바르지 않습니다.');
+    }
   } else {
     checkAuth();
   }
@@ -413,8 +418,6 @@ async function emailSignup() {
   const agreeTerms = document.getElementById('agreeTerms').checked;
   const agreePrivacy = document.getElementById('agreePrivacy').checked;
   const agreeMarketing = document.getElementById('agreeMarketing').checked;
-  const notiEmail = document.getElementById('agreeNotiEmail').checked;
-  const notiKakao = document.getElementById('agreeNotiKakao').checked;
 
   if (!name) { showError('signupError', '이름을 입력해주세요.'); return; }
   if (!email) { showError('signupError', '이메일을 입력해주세요.'); return; }
@@ -463,7 +466,12 @@ async function emailSignup() {
     if (profErr) console.warn('[signup] user_profiles 저장 실패:', profErr.message);
   }
 
-  document.getElementById('signupSuccess').textContent = '가입 완료! 로그인해주세요.';
+  // 이메일 인증(Confirm email)이 켜져 있으면 session이 null → 메일 확인 안내
+  if (data.session) {
+    document.getElementById('signupSuccess').textContent = '가입 완료! 로그인해주세요.';
+  } else {
+    document.getElementById('signupSuccess').textContent = '가입 확인 메일을 보냈어요. 이메일을 확인한 뒤 로그인해주세요.';
+  }
   document.getElementById('signupSuccess').classList.add('show');
   document.getElementById('signupError').classList.remove('show');
 }
