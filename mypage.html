@@ -17,6 +17,10 @@
 .my-user-name{font-size:18px;font-weight:600;margin-bottom:4px}
 .my-user-email{font-size:13px;color:#888}
 .my-user-grade{display:inline-block;margin-top:6px;padding:3px 10px;font-size:10px;font-weight:600;letter-spacing:1px;text-transform:uppercase;background:#F4D84E;color:#111;border-radius:2px;cursor:pointer;transition:opacity .2s}
+.my-membership-toggle{display:inline-block;margin-top:6px;margin-left:8px;font-size:12px;color:#888;cursor:pointer;transition:color .2s;user-select:none}
+.my-membership-toggle:hover{color:#111}
+.my-membership-toggle .mb-toggle-arrow{display:inline-block;transition:transform .3s;font-size:10px}
+.my-membership-toggle.open .mb-toggle-arrow{transform:rotate(180deg)}
 .my-user-grade:hover{opacity:.8}
 .my-user-stats{margin-left:auto;display:flex;gap:32px;text-align:center}
 .my-stat-num{font-size:22px;font-weight:700;color:#111}
@@ -320,6 +324,7 @@
       <div class="my-user-name" id="userName">회원</div>
       <div class="my-user-email" id="userEmail"></div>
       <span class="my-user-grade" id="userGrade" onclick="toggleMembership()" title="등급 혜택 보기">BASIC</span>
+      <span class="my-membership-toggle" id="membershipToggle" onclick="toggleMembership()">내 멤버십 상세보기 <span class="mb-toggle-arrow">▾</span></span>
     </div>
     <div class="my-user-stats">
       <div><div class="my-stat-num" id="statOrders">0</div><div class="my-stat-label">주문</div></div>
@@ -530,7 +535,10 @@ function renderMembership(){
 function toggleMembership(){
   const el=document.getElementById('membershipDetail');
   el.classList.toggle('open');
-  document.getElementById('mbSpacer').style.display=el.classList.contains('open')?'none':'block';
+  const open=el.classList.contains('open');
+  document.getElementById('mbSpacer').style.display=open?'none':'block';
+  const tgl=document.getElementById('membershipToggle');
+  if(tgl)tgl.classList.toggle('open',open);
 }
 async function saveProfile(){
   const d={display_name:document.getElementById('pfName').value.trim(),phone:document.getElementById('pfPhone').value.trim(),birthday:document.getElementById('pfBirthday').value||null,updated_at:new Date().toISOString()};
