@@ -52,6 +52,12 @@ body { font-family:var(--font); background:var(--bg); color:var(--text); font-si
 /* MAIN */
 .main { margin-left:220px; flex:1; padding:24px 32px; }
 
+/* MOBILE ADMIN NAV (드로어) */
+.admin-mobilebar { display:none; align-items:center; gap:12px; position:fixed; top:0; left:0; right:0; height:52px; background:var(--bg-card); border-bottom:1px solid var(--border); z-index:250; padding:0 16px; }
+.admin-mobilebar-title { font-size:13px; font-weight:700; letter-spacing:1px; color:var(--accent); }
+.admin-hamburger { display:none; background:none; border:none; color:var(--text); font-size:22px; line-height:1; cursor:pointer; padding:4px 6px; }
+.admin-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.5); z-index:280; }
+
 /* BUTTONS */
 .btn {
   padding:9px 20px; font-size:12px; font-weight:500; letter-spacing:0.5px;
@@ -251,8 +257,12 @@ body { font-family:var(--font); background:var(--bg); color:var(--text); font-si
 
 /* RESPONSIVE */
 @media (max-width:768px) {
-  .sidebar { display:none; }
-  .main { margin-left:0; padding:16px; }
+  .admin-mobilebar { display:flex; }
+  .admin-hamburger { display:block; }
+  .sidebar { display:block; transform:translateX(-100%); transition:transform 0.25s; z-index:300; box-shadow:2px 0 18px rgba(0,0,0,0.35); }
+  .sidebar.open { transform:translateX(0); }
+  .admin-overlay.show { display:block; }
+  .main { margin-left:0; padding:16px; padding-top:68px; }
   .product-list-header, .product-row { grid-template-columns:40px 1fr 80px 60px; }
   .product-list-header > *:nth-child(4), .product-list-header > *:nth-child(5),
   .product-row > *:nth-child(4), .product-row > *:nth-child(5) { display:none; }
@@ -321,6 +331,12 @@ body { font-family:var(--font); background:var(--bg); color:var(--text); font-si
 
 <!-- ADMIN (로그인 전 숨김) -->
 <div class="admin-layout" id="adminLayout" style="display:none;">
+  <!-- MOBILE TOP BAR (모바일에서만 보임) -->
+  <div class="admin-mobilebar">
+    <button class="admin-hamburger" onclick="toggleAdminNav()" aria-label="메뉴">&#9776;</button>
+    <span class="admin-mobilebar-title">YLLOWTAP ADMIN</span>
+  </div>
+  <div class="admin-overlay" onclick="toggleAdminNav()"></div>
   <!-- SIDEBAR -->
   <aside class="sidebar">
     <div class="sidebar-logo">YLLOWTAP<small>ADMIN</small></div>
@@ -1251,12 +1267,54 @@ let formImages = [], formPresetTags = [], formCustomTags = [], formOptions = [],
 let formColorImages = [];
 let editingHeroId = null;
 
+// ── admin 자체 모달/토스트 (common-header.js 미사용이라 여기서 정의) ──
+window.yConfirm = function(message, opts){
+  opts = opts || {};
+  return new Promise(function(resolve){
+    var ov=document.createElement('div');
+    ov.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,0.6);display:flex;align-items:center;justify-content:center;z-index:9999;padding:20px;';
+    var box=document.createElement('div');
+    box.style.cssText='background:var(--bg-card,#1a1a1a);border:1px solid var(--border,#333);border-radius:12px;max-width:360px;width:100%;padding:24px;box-shadow:0 12px 40px rgba(0,0,0,0.5);';
+    var msg=document.createElement('div');
+    msg.style.cssText='font-size:14px;line-height:1.6;color:var(--text,#eee);white-space:pre-wrap;word-break:keep-all;margin-bottom:20px;';
+    msg.textContent=message;
+    var btns=document.createElement('div');
+    btns.style.cssText='display:flex;gap:8px;justify-content:flex-end;';
+    var cancel=document.createElement('button');
+    cancel.textContent=opts.cancelText||'취소';
+    cancel.style.cssText='padding:9px 18px;font-size:13px;font-family:inherit;border:1px solid var(--border,#444);background:transparent;color:var(--text,#ccc);border-radius:8px;cursor:pointer;';
+    var ok=document.createElement('button');
+    ok.textContent=opts.okText||'확인';
+    ok.style.cssText='padding:9px 18px;font-size:13px;font-weight:600;font-family:inherit;border:none;border-radius:8px;cursor:pointer;'+(opts.danger?'background:#C4453C;color:#fff;':'background:var(--accent,#F4D84E);color:#111;');
+    function close(v){ if(ov.parentNode)document.body.removeChild(ov); resolve(v); }
+    cancel.onclick=function(){close(false);};
+    ok.onclick=function(){close(true);};
+    ov.onclick=function(e){ if(e.target===ov) close(false); };
+    btns.appendChild(cancel); btns.appendChild(ok);
+    box.appendChild(msg); box.appendChild(btns);
+    ov.appendChild(box); document.body.appendChild(ov);
+  });
+};
+window.yToast = function(message, type){
+  var el=document.createElement('div');
+  el.textContent=message;
+  el.style.cssText='position:fixed;left:50%;bottom:32px;transform:translateX(-50%);background:'+(type==='error'?'#C4453C':type==='success'?'#2E7D32':'#222')+';color:#fff;padding:12px 20px;border-radius:10px;font-size:13px;z-index:10000;box-shadow:0 6px 20px rgba(0,0,0,0.4);max-width:90vw;word-break:keep-all;';
+  document.body.appendChild(el);
+  setTimeout(function(){ el.style.transition='opacity 0.3s'; el.style.opacity='0'; setTimeout(function(){ if(el.parentNode)el.parentNode.removeChild(el); },300); }, 2400);
+};
+function toggleAdminNav(){
+  const _sb=document.querySelector('.sidebar'); if(!_sb)return;
+  const open=_sb.classList.toggle('open');
+  const _ov=document.querySelector('.admin-overlay'); if(_ov)_ov.classList.toggle('show', open);
+}
 function switchPage(page) {
   document.querySelectorAll('.page-section').forEach(el => el.classList.remove('active'));
   document.querySelectorAll('.sidebar-nav a').forEach(el => el.classList.remove('active'));
   document.getElementById('page-' + page).classList.add('active');
   const nav = document.getElementById('nav-' + page);
   if (nav) nav.classList.add('active');
+  const _sb=document.querySelector('.sidebar'); if(_sb)_sb.classList.remove('open');
+  const _ov=document.querySelector('.admin-overlay'); if(_ov)_ov.classList.remove('show');
 }
 
 // ════ Style Notes 관리 ════
@@ -1285,7 +1343,7 @@ function snRemoveRelated(id){ snRelated=snRelated.filter(function(x){ return x!=
 function snRenderRelated(){ var el=document.getElementById('snRelatedList'); if(!el)return; el.innerHTML=snRelated.map(function(id){ var p=allProducts.find(function(x){ return String(x.id)===String(id); }); return '<div style="display:flex;justify-content:space-between;align-items:center;padding:6px 10px;background:var(--bg-input);border-radius:6px;margin-bottom:6px;font-size:12px;"><span>'+(p?p.name:id)+'</span><button class="btn btn-secondary btn-small" onclick="snRemoveRelated(\''+id+'\')">×</button></div>'; }).join(''); }
 function editStyleNote(id){ var n=allStyleNotes.find(function(x){ return String(x.id)===String(id); }); if(!n)return; editingStyleNoteId=id; document.getElementById('styleNoteFormTitle').textContent='Style Note 편집'; document.getElementById('snDeleteBtn').style.display=''; document.getElementById('snTitle').value=n.title||''; document.getElementById('snSlug').value=n.slug||''; document.getElementById('snSubtitle').value=n.subtitle||''; document.getElementById('snCover').value=n.cover_image||''; var _cp=document.getElementById('snCoverPreview'); if(_cp)_cp.innerHTML=n.cover_image?(/\.(mp4|webm|mov|m4v)$/i.test(n.cover_image)?'<video src="'+n.cover_image+'" controls playsinline style="width:180px;border-radius:6px;border:1px solid var(--border);"></video>':'<img src="'+n.cover_image+'" style="width:120px;height:120px;object-fit:cover;border-radius:6px;border:1px solid var(--border);">'):''; loadSnBlocks(n.id); document.getElementById('snActive').value=String(n.is_active); document.getElementById('snOrder').value=n.display_order||0; snRelated=(n.related_product_ids||[]).map(String); snUpdateSelect(); snRenderRelated(); document.getElementById('styleNoteModal').classList.add('show'); }
 async function saveStyleNote(){ var title=document.getElementById('snTitle').value.trim(), slug=document.getElementById('snSlug').value.trim(); if(!title||!slug){ showToast('제목과 슬러그는 필수예요',true); return; } var payload={ title:title, slug:slug, subtitle:document.getElementById('snSubtitle').value.trim()||null, cover_image:document.getElementById('snCover').value.trim()||null, related_product_ids:snRelated, is_active:document.getElementById('snActive').value==='true', display_order:parseInt(document.getElementById('snOrder').value)||0, updated_at:new Date().toISOString() }; try{ var error; if(editingStyleNoteId){ var r1=await sb.from('style_notes').update(payload).eq('id',editingStyleNoteId); error=r1.error; } else { var r2=await sb.from('style_notes').insert(payload).select().single(); error=r2.error; if(r2.data)editingStyleNoteId=r2.data.id; } if(error)throw error; await saveSnBlocks(editingStyleNoteId); showToast('저장 완료'); closeStyleNoteForm(); await loadStyleNotes(); }catch(err){ showToast('저장 실패: '+err.message,true); } }
-async function deleteStyleNote(){ if(!editingStyleNoteId||!confirm('이 Style Note를 삭제하시겠습니까?'))return; try{ var r=await sb.from('style_notes').delete().eq('id',editingStyleNoteId); if(r.error)throw r.error; showToast('삭제 완료'); closeStyleNoteForm(); await loadStyleNotes(); }catch(err){ showToast('삭제 실패: '+err.message,true); } }
+async function deleteStyleNote(){ if(!editingStyleNoteId||!(await yConfirm('이 Style Note를 삭제하시겠습니까?', {danger:true})))return; try{ var r=await sb.from('style_notes').delete().eq('id',editingStyleNoteId); if(r.error)throw r.error; showToast('삭제 완료'); closeStyleNoteForm(); await loadStyleNotes(); }catch(err){ showToast('삭제 실패: '+err.message,true); } }
 async function snUploadImage(file){ var ext=(file.name.split('.').pop()||'jpg'); var fn='stylenotes/'+Date.now()+'_'+Math.random().toString(36).slice(2,8)+'.'+ext; var up=await sb.storage.from('media').upload(fn,file,{upsert:true,contentType:file.type}); if(up.error)throw up.error; var pu=sb.storage.from('media').getPublicUrl(fn); return pu.data.publicUrl; }
 let formSnBlocks=[];
 function snMoveBtns(i){ return (i>0?'<button onclick="snMoveBlock('+i+',-1)" style="width:22px;height:22px;border:none;border-radius:4px;background:var(--bg-hover);color:var(--text-dim);font-size:11px;cursor:pointer;">\u2191</button>':'')+(i<formSnBlocks.length-1?'<button onclick="snMoveBlock('+i+',1)" style="width:22px;height:22px;border:none;border-radius:4px;background:var(--bg-hover);color:var(--text-dim);font-size:11px;cursor:pointer;">\u2193</button>':''); }
@@ -1395,7 +1453,7 @@ async function addSubCategory(parentId) {
 }
 async function deleteCategoryAdmin(id, name, hasChildren) {
   const msg = hasChildren ? `"${name}" 상위 카테고리를 삭제할까요?\n하위 카테고리도 함께 삭제됩니다.` : `"${name}" 카테고리를 삭제할까요?`;
-  if(!confirm(msg)) return;
+  if(!(await yConfirm(msg))) return;
   if(hasChildren) await sb.from('categories').delete().eq('parent_id', id);
   const { error } = await sb.from('categories').delete().eq('id', id);
   if(error){ showToast('삭제 실패: '+error.message, true); return; }
@@ -1600,7 +1658,7 @@ async function saveProduct() {
     await loadProducts();
   } catch(err) { if(err.message?.includes('duplicate')&&err.message?.includes('slug'))showToast('중복된 슬러그',true);else showToast('저장 실패: '+err.message,true); }
 }
-async function deleteProduct() { if(!editingProductId||!confirm('이 상품을 삭제하시겠습니까?'))return;try{const{error}=await sb.from('products').delete().eq('id',editingProductId);if(error)throw error;showToast('삭제 완료');closeProductForm();await loadProducts();}catch(err){showToast('삭제 실패: '+err.message,true);} }
+async function deleteProduct() { if(!editingProductId||!(await yConfirm('이 상품을 삭제하시겠습니까?', {danger:true})))return;try{const{error}=await sb.from('products').delete().eq('id',editingProductId);if(error)throw error;showToast('삭제 완료');closeProductForm();await loadProducts();}catch(err){showToast('삭제 실패: '+err.message,true);} }
 
 // ══════════════════════════════════════════
 // 히어로 슬라이드
@@ -1638,7 +1696,7 @@ function resetMuseForm(){ ['muOver','muName','muTitle','muCaption','muCover'].fo
 function editMuse(id){ var m=allMuseModels.find(function(x){ return String(x.id)===String(id); }); if(!m)return; editingMuseId=id; document.getElementById('museFormTitle').textContent='\ubaa8\ub378 \ud3b8\uc9d1'; document.getElementById('muDeleteBtn').style.display=''; document.getElementById('muOver').value=m.overline||''; document.getElementById('muName').value=m.model_name||''; document.getElementById('muTitle').value=m.title||''; document.getElementById('muCaption').value=m.caption||''; document.getElementById('muCover').value=m.media_url||''; document.getElementById('muCoverType').value=m.media_type||'image'; document.getElementById('muCoverPreview').innerHTML=m.media_url?(/\.(mp4|webm|mov|m4v)$/i.test(m.media_url)?'<video src="'+m.media_url+'" controls playsinline style="width:180px;border-radius:6px;border:1px solid var(--border);"></video>':'<img src="'+m.media_url+'" style="width:120px;height:120px;object-fit:cover;border-radius:6px;border:1px solid var(--border);">'):''; document.getElementById('muActive').value=String(m.is_active); document.getElementById('muOrder').value=m.display_order||0; loadMuBlocks(m.id); document.getElementById('museModal').classList.add('show'); }
 async function muUploadCover(input){ var file=input.files[0]; if(!file)return; document.getElementById('muCoverStatus').textContent='\uc5c5\ub85c\ub4dc \uc911...'; try{ var url=await muUploadImage(file); document.getElementById('muCover').value=url; var isVid=file.type.startsWith('video/'); document.getElementById('muCoverType').value=isVid?'video':'image'; document.getElementById('muCoverPreview').innerHTML=isVid?'<video src="'+url+'" controls playsinline style="width:180px;border-radius:6px;border:1px solid var(--border);"></video>':'<img src="'+url+'" style="width:120px;height:120px;object-fit:cover;border-radius:6px;border:1px solid var(--border);">'; document.getElementById('muCoverStatus').textContent='\uc5c5\ub85c\ub4dc \uc644\ub8cc'; }catch(e){ document.getElementById('muCoverStatus').textContent='\uc5c5\ub85c\ub4dc \uc2e4\ud328'; showToast('\uc5c5\ub85c\ub4dc \uc2e4\ud328: '+e.message,true); } input.value=''; }
 async function saveMuse(){ var payload={ overline:document.getElementById('muOver').value.trim()||null, model_name:document.getElementById('muName').value.trim()||null, title:document.getElementById('muTitle').value.trim()||null, caption:document.getElementById('muCaption').value.trim()||null, media_url:document.getElementById('muCover').value.trim()||null, media_type:document.getElementById('muCoverType').value||'image', is_active:document.getElementById('muActive').value==='true', display_order:parseInt(document.getElementById('muOrder').value)||0, updated_at:new Date().toISOString() }; try{ var error; if(editingMuseId){ var r1=await sb.from('brand_muse').update(payload).eq('id',editingMuseId); error=r1.error; } else { var r2=await sb.from('brand_muse').insert(payload).select().single(); error=r2.error; if(r2.data)editingMuseId=r2.data.id; } if(error)throw error; await saveMuBlocks(editingMuseId); showToast('\uc800\uc7a5 \uc644\ub8cc'); closeMuseForm(); await loadMuseList(); }catch(err){ showToast('\uc800\uc7a5 \uc2e4\ud328: '+err.message,true); } }
-async function deleteMuse(){ if(!editingMuseId||!confirm('\uc774 \ubaa8\ub378\uc744 \uc0ad\uc81c\ud558\uc2dc\uaca0\uc2b5\ub2c8\uae4c?'))return; try{ var r=await sb.from('brand_muse').delete().eq('id',editingMuseId); if(r.error)throw r.error; showToast('\uc0ad\uc81c \uc644\ub8cc'); closeMuseForm(); await loadMuseList(); }catch(err){ showToast('\uc0ad\uc81c \uc2e4\ud328: '+err.message,true); } }
+async function deleteMuse(){ if(!editingMuseId||!(await yConfirm('\uc774 \ubaa8\ub378\uc744 \uc0ad\uc81c\ud558\uc2dc\uaca0\uc2b5\ub2c8\uae4c?', {danger:true})))return; try{ var r=await sb.from('brand_muse').delete().eq('id',editingMuseId); if(r.error)throw r.error; showToast('\uc0ad\uc81c \uc644\ub8cc'); closeMuseForm(); await loadMuseList(); }catch(err){ showToast('\uc0ad\uc81c \uc2e4\ud328: '+err.message,true); } }
 
 let aboutRecId=null;
 var ABF={hero_image:'abf_hero_image',hero_title:'abf_hero_title',hero_sub:'abf_hero_sub',intro_label:'abf_intro_label',intro_title:'abf_intro_title',intro_text:'abf_intro_text',philo1_image:'abf_philo1_image',philo1_label:'abf_philo1_label',philo1_title:'abf_philo1_title',philo1_text:'abf_philo1_text',full_image:'abf_full_image',philo2_image:'abf_philo2_image',philo2_label:'abf_philo2_label',philo2_title:'abf_philo2_title',philo2_text:'abf_philo2_text',values_label:'abf_values_label',values_title:'abf_values_title',value1_title:'abf_v1_title',value1_text:'abf_v1_text',value2_title:'abf_v2_title',value2_text:'abf_v2_text',value3_title:'abf_v3_title',value3_text:'abf_v3_text',quote_en:'abf_quote_en',quote_kr:'abf_quote_kr',quote_author:'abf_quote_author',cta_title:'abf_cta_title',value1_icon:'abf_v1_icon',value2_icon:'abf_v2_icon',value3_icon:'abf_v3_icon'};
@@ -1663,7 +1721,7 @@ function bindHeroMediaUpload() { document.getElementById('hMediaFile').addEventL
   if(bgmFile) bgmFile.addEventListener('change',async function(e){const file=e.target.files[0];if(!file)return;const ext=file.name.split('.').pop();const fn=`hero-bgm/${Date.now()}_${Math.random().toString(36).slice(2,8)}.${ext}`;const{error}=await sb.storage.from('media').upload(fn,file,{upsert:true,contentType:file.type});if(error){showToast('음원 업로드 실패',true);return;}const{data:u}=sb.storage.from('media').getPublicUrl(fn);document.getElementById('hBgmUrl').value=u.publicUrl;showToast('음원 업로드 완료');e.target.value='';});
 }
 async function saveHero() { const d={media_url:document.getElementById('hMediaUrl').value.trim(),bgm_url:document.getElementById('hBgmUrl')?document.getElementById('hBgmUrl').value.trim()||null:null,media_type:document.getElementById('hMediaType').value,slide_order:parseInt(document.getElementById('hOrder').value)||1,subtitle:document.getElementById('hSubtitle').value.trim()||null,title:document.getElementById('hTitle').value.trim()||null,description:document.getElementById('hDesc').value.trim()||null,cta_text:document.getElementById('hCtaText').value.trim()||'Shop Collection',cta_link:document.getElementById('hCtaLink').value.trim()||'#',is_active:document.getElementById('hActive').value==='true'};try{if(editingHeroId){const{error}=await sb.from('hero_slides').update(d).eq('id',editingHeroId);if(error)throw error;}else{const{error}=await sb.from('hero_slides').insert(d);if(error)throw error;}showToast(editingHeroId?'수정 완료':'추가 완료');closeHeroForm();await loadHeroSlides();}catch(err){showToast('저장 실패: '+err.message,true);} }
-async function deleteHero() { if(!editingHeroId||!confirm('이 슬라이드를 삭제하시겠습니까?'))return;try{const{error}=await sb.from('hero_slides').delete().eq('id',editingHeroId);if(error)throw error;showToast('삭제 완료');closeHeroForm();await loadHeroSlides();}catch(err){showToast('삭제 실패: '+err.message,true);} }
+async function deleteHero() { if(!editingHeroId||!(await yConfirm('이 슬라이드를 삭제하시겠습니까?', {danger:true})))return;try{const{error}=await sb.from('hero_slides').delete().eq('id',editingHeroId);if(error)throw error;showToast('삭제 완료');closeHeroForm();await loadHeroSlides();}catch(err){showToast('삭제 실패: '+err.message,true);} }
 
 // ══════════════════════════════════════════
 // 사이트 설정 (★ 팝업 포함)
@@ -1750,7 +1808,7 @@ async function addPopupNotice(){
   const last=popupNotices[popupNotices.length-1];if(last)editPopupNotice(last.id);
 }
 async function deletePopupNotice(id){
-  if(!confirm('이 팝업을 삭제하시겠습니까?'))return;
+  if(!(await yConfirm('이 팝업을 삭제하시겠습니까?', {danger:true})))return;
   const{error}=await sb.from('popup_notices').delete().eq('id',id);
   if(error){showToast('삭제 실패',true);return;}
   showToast('팝업 삭제됨');await loadPopupNotices();
@@ -2122,13 +2180,13 @@ async function saveProductInquiryAnswer(){
 }
 async function deleteProductInquiry(){
   if(!editingPqId)return;
-  if(!confirm('이 상품문의를 삭제할까요? 되돌릴 수 없어요.'))return;
+  if(!(await yConfirm('이 상품문의를 삭제할까요? 되돌릴 수 없어요.', {danger:true})))return;
   const{error}=await sb.from('product_inquiries').delete().eq('id',editingPqId);
   if(error){showToast('삭제 실패: '+error.message,true);return;}
   showToast('삭제 완료');closeProductInquiryModal();await loadProductInquiries();
 }
 async function deleteProductInquiryDirect(id){
-  if(!confirm('이 상품문의를 삭제할까요? 되돌릴 수 없어요.'))return;
+  if(!(await yConfirm('이 상품문의를 삭제할까요? 되돌릴 수 없어요.', {danger:true})))return;
   const{error}=await sb.from('product_inquiries').delete().eq('id',id);
   if(error){showToast('삭제 실패: '+error.message,true);return;}
   showToast('삭제 완료');await loadProductInquiries();
@@ -2144,7 +2202,7 @@ function renderFaqList() { const el=document.getElementById('faqAdminList');if(!
 function openFaqModal(id) { if(id){const f=allFaqs.find(x=>x.id===id);if(!f)return;editingFaqId=id;document.getElementById('faqFormTitle').textContent='FAQ 편집';document.getElementById('faqCategory').value=f.category||'general';document.getElementById('faqQuestion').value=f.question||'';document.getElementById('faqAnswer').value=f.answer||'';document.getElementById('faqOrder').value=f.display_order||0;document.getElementById('faqActive').checked=f.is_active!==false;document.getElementById('faqDeleteBtn').style.display='inline-flex';}else{editingFaqId=null;document.getElementById('faqFormTitle').textContent='FAQ 등록';document.getElementById('faqCategory').value='general';document.getElementById('faqQuestion').value='';document.getElementById('faqAnswer').value='';document.getElementById('faqOrder').value=0;document.getElementById('faqActive').checked=true;document.getElementById('faqDeleteBtn').style.display='none';}document.getElementById('faqModal').classList.add('show'); }
 function closeFaqModal() { document.getElementById('faqModal').classList.remove('show'); }
 async function saveFaq() { const d={category:document.getElementById('faqCategory').value,question:document.getElementById('faqQuestion').value.trim(),answer:document.getElementById('faqAnswer').value.trim(),display_order:parseInt(document.getElementById('faqOrder').value)||0,is_active:document.getElementById('faqActive').checked};if(!d.question||!d.answer){showToast('질문과 답변을 입력해주세요',true);return;}let error;if(editingFaqId){({error}=await sb.from('faqs').update(d).eq('id',editingFaqId));}else{({error}=await sb.from('faqs').insert(d));}if(error){showToast('저장 실패: '+error.message,true);return;}showToast(editingFaqId?'FAQ 수정 완료':'FAQ 등록 완료');closeFaqModal();await loadFaqs(); }
-async function deleteFaq() { if(!editingFaqId||!confirm('이 FAQ를 삭제하시겠습니까?'))return;const{error}=await sb.from('faqs').delete().eq('id',editingFaqId);if(error){showToast('삭제 실패',true);return;}showToast('FAQ 삭제 완료');closeFaqModal();await loadFaqs(); }
+async function deleteFaq() { if(!editingFaqId||!(await yConfirm('이 FAQ를 삭제하시겠습니까?', {danger:true})))return;const{error}=await sb.from('faqs').delete().eq('id',editingFaqId);if(error){showToast('삭제 실패',true);return;}showToast('FAQ 삭제 완료');closeFaqModal();await loadFaqs(); }
 // ══════════════════════════════════════════
 // 상품 비교용 점수 (품질 + 스타일)
 // ══════════════════════════════════════════
@@ -2295,7 +2353,7 @@ function renderHomeCatAdmin() {
   }).join('');
 }
 function addHomeCat() { homeCats.push({name:'새 카테고리',link:'',image:'',font:'logo',color:'#111111',size:24,weight:400}); renderHomeCatAdmin(); }
-function removeHomeCat(i) { if(!confirm('이 카테고리를 삭제하시겠습니까?'))return; homeCats.splice(i,1); renderHomeCatAdmin(); }
+async function removeHomeCat(i) { if(!(await yConfirm('이 카테고리를 삭제하시겠습니까?', {danger:true})))return; homeCats.splice(i,1); renderHomeCatAdmin(); }
 async function uploadHomeCatImg(input,i) {
   const file = input.files[0]; if (!file) return;
   const fn = 'main/' + Date.now() + '_' + Math.random().toString(36).slice(2,8) + '.' + file.name.split('.').pop();
@@ -2488,7 +2546,7 @@ async function toggleReviewVisible(id,vis){
   showToast(vis?'표시로 변경':'숨김으로 변경'); loadReviewsAdmin();
 }
 async function deleteReviewAdmin(id){
-  if(!confirm('이 리뷰를 삭제하시겠습니까?\n삭제하면 되돌릴 수 없습니다.'))return;
+  if(!(await yConfirm('이 리뷰를 삭제하시겠습니까?\n삭제하면 되돌릴 수 없습니다.', {danger:true})))return;
   const{error}=await sb.from('reviews').delete().eq('id',id);
   if(error){showToast('삭제 실패: '+error.message,true);return;}
   showToast('리뷰 삭제 완료'); loadReviewsAdmin();
@@ -2583,11 +2641,11 @@ async function saveCouponAdmin(){
 async function deleteCouponAdmin(){
   const id=document.getElementById('cpEditId').value;
   if(!id)return;
-  if(!confirm('이 쿠폰을 삭제하시겠어요?'))return;
+  if(!(await yConfirm('이 쿠폰을 삭제하시겠어요?', {danger:true})))return;
   const{error}=await sb.from('coupons').delete().eq('id',id);
   if(!error){showToast('쿠폰이 삭제되었어요');closeCouponForm();loadCouponsAdmin();return;}
   if(error.code==='23503'||/foreign key|violates/i.test(error.message||'')){
-    if(confirm('이 쿠폰은 이미 받은 회원이 있어 삭제할 수 없어요.\n대신 비활성화(OFF)해서 더 이상 발급·사용되지 않게 할까요?')){
+    if((await yConfirm('이 쿠폰은 이미 받은 회원이 있어 삭제할 수 없어요.\n대신 비활성화(OFF)해서 더 이상 발급·사용되지 않게 할까요?', {okText:'비활성화'}))){
       const{error:e2}=await sb.from('coupons').update({is_active:false}).eq('id',id);
       if(e2){showToast('비활성화 실패: '+e2.message,true);return;}
       showToast('쿠폰을 비활성화했어요');closeCouponForm();loadCouponsAdmin();
