@@ -11,13 +11,16 @@
 .my-header h1{font-family:'Bodoni Moda',serif;font-size:32px;font-weight:400;letter-spacing:2px}
 .my-logout{font-size:12px;color:#888;cursor:pointer;background:none;border:none;text-decoration:underline;font-family:inherit}
 .my-logout:hover{color:#111}
-.my-user-card{display:flex;align-items:center;gap:24px;padding:32px;background:#fff;border:1px solid #E5E1DC;margin-bottom:0}
+.my-user-card{display:flex;flex-direction:column;gap:20px;padding:32px;background:#fff;border:1px solid #E5E1DC;margin-bottom:0}
+.my-card-top{display:flex;align-items:center;gap:24px}
+.my-card-name{flex:0 0 auto}
 .my-avatar{width:64px;height:64px;border-radius:50%;background:#EAE7E2;display:flex;align-items:center;justify-content:center;font-size:24px;color:#888;overflow:hidden}
 .my-avatar img{width:100%;height:100%;object-fit:cover}
 .my-user-name{font-size:18px;font-weight:600;margin-bottom:4px}
 .my-user-email{font-size:13px;color:#888}
-.my-user-grade{display:inline-block;margin-top:6px;padding:3px 10px;font-size:10px;font-weight:600;letter-spacing:1px;text-transform:uppercase;background:#F4D84E;color:#111;border-radius:2px;cursor:pointer;transition:opacity .2s}
-.my-membership-toggle{display:inline-block;margin-top:6px;margin-left:8px;font-size:12px;color:#888;cursor:pointer;transition:color .2s;user-select:none}
+.my-card-grade-row{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.my-user-grade{display:inline-block;padding:3px 10px;font-size:10px;font-weight:600;letter-spacing:1px;text-transform:uppercase;background:#F4D84E;color:#111;border-radius:2px;cursor:pointer;transition:opacity .2s}
+.my-membership-toggle{display:inline-block;font-size:12px;color:#888;cursor:pointer;transition:color .2s;user-select:none}
 .my-membership-toggle:hover{color:#111}
 .my-membership-toggle .mb-toggle-arrow{display:inline-block;transition:transform .3s;font-size:10px}
 .my-membership-toggle.open .mb-toggle-arrow{transform:rotate(180deg)}
@@ -27,7 +30,7 @@
 .my-stat-label{font-size:11px;color:#888;letter-spacing:0.5px;margin-top:2px}
 
 /* MEMBERSHIP DETAIL */
-.my-membership{background:#fff;border:1px solid #E5E1DC;border-top:none;padding:24px 32px;margin-bottom:40px;display:none}
+.my-membership{background:transparent;border:none;border-top:1px solid #E5E1DC;padding:20px 0 0;margin-bottom:0;display:none}
 .my-membership.open{display:block}
 .membership-bar-wrap{margin-bottom:16px}
 .membership-bar-label{display:flex;justify-content:space-between;font-size:11px;color:#888;margin-bottom:6px}
@@ -254,8 +257,10 @@
 @media(max-width:768px){
   .my-page{padding:calc(var(--header-height,60px) + 20px) 16px 60px}
   .my-header h1{font-size:24px}
-  .my-user-card{flex-direction:column;text-align:center;gap:16px}
-  .my-user-stats{margin-left:0}
+  .my-user-card{text-align:center;gap:16px}
+  .my-card-top{flex-direction:column;gap:14px}
+  .my-user-stats{margin-left:0;justify-content:center;width:100%;gap:24px}
+  .my-card-grade-row{justify-content:center}
   .my-tabs{overflow-x:auto;scrollbar-width:none}
   .my-tab{padding:12px 14px;font-size:11px}
   .order-actions{flex-direction:column}
@@ -319,29 +324,32 @@
   <div class="my-header"><h1>My Page</h1><button class="my-logout" onclick="doLogout()">로그아웃</button></div>
 
   <div class="my-user-card" id="userCard">
-    <div class="my-avatar" id="userAvatar"></div>
-    <div>
-      <div class="my-user-name" id="userName">회원</div>
-      <div class="my-user-email" id="userEmail"></div>
+    <div class="my-card-top">
+      <div class="my-avatar" id="userAvatar"></div>
+      <div class="my-card-name">
+        <div class="my-user-name" id="userName">회원</div>
+        <div class="my-user-email" id="userEmail"></div>
+      </div>
+      <div class="my-user-stats">
+        <div><div class="my-stat-num" id="statOrders">0</div><div class="my-stat-label">주문</div></div>
+        <div><div class="my-stat-num" id="statPoint">0</div><div class="my-stat-label">포인트</div></div>
+        <div><div class="my-stat-num" id="statCoupon">0</div><div class="my-stat-label">쿠폰</div></div>
+        <div><div class="my-stat-num" id="statWish">0</div><div class="my-stat-label">위시리스트</div></div>
+      </div>
+    </div>
+    <div class="my-card-grade-row">
       <span class="my-user-grade" id="userGrade" onclick="toggleMembership()" title="등급 혜택 보기">BASIC</span>
       <span class="my-membership-toggle" id="membershipToggle" onclick="toggleMembership()">내 멤버십 상세보기 <span class="mb-toggle-arrow">▾</span></span>
     </div>
-    <div class="my-user-stats">
-      <div><div class="my-stat-num" id="statOrders">0</div><div class="my-stat-label">주문</div></div>
-      <div><div class="my-stat-num" id="statPoint">0</div><div class="my-stat-label">포인트</div></div>
-      <div><div class="my-stat-num" id="statCoupon">0</div><div class="my-stat-label">쿠폰</div></div>
-      <div><div class="my-stat-num" id="statWish">0</div><div class="my-stat-label">위시리스트</div></div>
-    </div>
-  </div>
-
-  <!-- 멤버십 상세 (등급 배지 클릭 시 펼침) -->
-  <div class="my-membership" id="membershipDetail">
-    <div class="membership-bar-wrap">
-      <div class="membership-bar-label"><span id="mbCurrent">BASIC</span><span id="mbNext"></span></div>
+    <!-- 멤버십 상세 (상세보기 버튼 바로 밑) -->
+    <div class="my-membership" id="membershipDetail">
+      <div class="membership-bar-wrap">
+        <div class="membership-bar-label"><span id="mbCurrent">BASIC</span><span id="mbNext"></span></div>
       <div class="membership-bar"><div class="membership-bar-fill" id="mbBarFill" style="width:0%"></div></div>
     </div>
     <div class="membership-tiers" id="mbTiers"></div>
-  </div>
+    </div>
+  </div><!-- /my-user-card -->
   <div class="no-membership-border" id="mbSpacer"></div>
 
   <div class="my-accordion">
