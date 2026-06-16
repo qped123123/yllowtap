@@ -682,7 +682,7 @@
 
 <script src="./js/main.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
-<script src="./js/common-header.js?v=15"></script>
+<script src="./js/common-header.js?v=16"></script>
 <script>
 const SUPABASE_URL='https://ppihvvpplqikclftrwdb.supabase.co';
 const SUPABASE_ANON='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBwaWh2dnBwbHFpa2NsZnRyd2RiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk3MzE0NTEsImV4cCI6MjA5NTMwNzQ1MX0.shGVcFTQiuYc4u6tdU50x18YMgJdgFUljf8c7QlQU-U';
@@ -1698,7 +1698,11 @@ async function buyNow(){
   if(lines===null) return;
 
   const{data:{session}}=await sb.auth.getSession();
-  if(!session){yToast('로그인이 필요합니다.','error');setTimeout(function(){window.location.href='/login.html';},900);return;}
+  if(!session){
+    if(typeof yToast==='function'){ yToast('로그인이 필요합니다.','error'); } else { alert('로그인이 필요합니다.'); }
+    setTimeout(function(){window.location.href='/login.html';},900);
+    return;
+  }
 
   let cartId;
   const{data}=await sb.from('carts').select('id').eq('user_id',session.user.id).single();
