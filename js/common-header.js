@@ -555,7 +555,7 @@
     s.id = 'yToastStyle';
     s.textContent =
       '.y-toast-wrap{position:fixed;left:50%;bottom:32px;transform:translateX(-50%);z-index:99999;display:flex;flex-direction:column;gap:8px;align-items:center;pointer-events:none}'+
-      '.y-toast{min-width:200px;max-width:90vw;background:#fff;border:1px solid #111;color:#111;padding:13px 20px;font-size:13px;line-height:1.5;font-family:inherit;box-shadow:0 8px 24px rgba(0,0,0,.12);opacity:0;transform:translateY(8px);transition:opacity .25s,transform .25s;text-align:center}'+
+      '.y-toast{min-width:200px;max-width:90vw;background:#fff;border:1px solid #111;color:#111;padding:13px 20px;font-size:13px;line-height:1.5;font-family:inherit;box-shadow:0 8px 24px rgba(0,0,0,.12);opacity:0;transform:translateY(8px);transition:opacity .25s,transform .25s;text-align:center;word-break:keep-all}'+
       '.y-toast.show{opacity:1;transform:translateY(0)}'+
       '.y-toast.error{border-color:#C4453C;color:#C4453C}'+
       '.y-toast.success{border-color:#2E7D32}';
