@@ -682,6 +682,7 @@
 
 <script src="./js/main.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<script src="./js/common-header.js?v=15"></script>
 <script>
 const SUPABASE_URL='https://ppihvvpplqikclftrwdb.supabase.co';
 const SUPABASE_ANON='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBwaWh2dnBwbHFpa2NsZnRyd2RiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk3MzE0NTEsImV4cCI6MjA5NTMwNzQ1MX0.shGVcFTQiuYc4u6tdU50x18YMgJdgFUljf8c7QlQU-U';
@@ -1829,7 +1830,6 @@ function pdMobileOrder(){var g=document.getElementById("gallery"),info=document.
 window.addEventListener("resize",pdMobileOrder);
 loadProduct().then(()=>{recordView();loadWishCount();pdMobileOrder();});
 </script>
-<script src="./js/common-header.js?v=15"></script>
 <div id="reviewMediaModal" onclick="closeReviewMedia()" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.88);z-index:99999;align-items:center;justify-content:center;">
   <div id="reviewMediaContent" onclick="event.stopPropagation()"></div>
   <span onclick="closeReviewMedia()" style="position:absolute;top:18px;right:24px;color:#fff;font-size:30px;line-height:1;cursor:pointer;">&times;</span>
