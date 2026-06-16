@@ -447,12 +447,10 @@ async function emailSignup() {
     return;
   }
 
-  // user_profiles에 이름 + 약관 동의 + 알림 설정 저장
+  // user_profiles에 이름 + 약관 동의 저장 (notification은 별도 STEP에서)
   if (data.user) {
     const now = new Date().toISOString();
-    const { error: profErr } = await sb.from('user_profiles').upsert({
-      id: data.user.id,
-      email: data.user.email || null,
+    const { error: profErr } = await sb.from('user_profiles').update({
       display_name: name,
       agreed_terms: agreeTerms,
       agreed_privacy: agreePrivacy,
@@ -460,10 +458,8 @@ async function emailSignup() {
       agreed_terms_at: agreeTerms ? now : null,
       agreed_privacy_at: agreePrivacy ? now : null,
       agreed_marketing_at: agreeMarketing ? now : null,
-      notification_email: notiEmail,
-      notification_kakao: notiKakao,
       updated_at: now
-    }, { onConflict: 'id' });
+    }).eq('id', data.user.id);
     if (profErr) console.warn('[signup] user_profiles 저장 실패:', profErr.message);
   }
 
@@ -495,9 +491,7 @@ async function agreeTermsSubmit() {
   const { data: { session } } = await sb.auth.getSession();
   if (!session) { window.location.reload(); return; }
   const now = new Date().toISOString();
-  const { error } = await sb.from('user_profiles').upsert({
-    id: session.user.id,
-    email: session.user.email || null,
+  const { error } = await sb.from('user_profiles').update({
     agreed_terms: true,
     agreed_privacy: true,
     agreed_terms_at: now,
@@ -505,10 +499,10 @@ async function agreeTermsSubmit() {
     agreed_marketing: marketing,
     agreed_marketing_at: marketing ? now : null,
     updated_at: now
-  }, { onConflict: 'id' });
+  }).eq('id', session.user.id);
   if (error) {
-    console.error('[terms agree] upsert 실패:', error);
-    document.getElementById('tmError').textContent = '저장 실패: ' + (error.message || JSON.stringify(error));
+    console.error('[terms agree] 저장 실패:', error);
+    document.getElementById('tmError').textContent = '저장에 실패했어요. 다시 시도해주세요.';
     document.getElementById('tmError').style.display = 'block';
     return;
   }
