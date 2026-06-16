@@ -430,7 +430,20 @@ async function emailSignup() {
   });
 
   if (error) {
-    showError('signupError', error.message);
+    const msg = error.message || '';
+    let friendly;
+    if (/already\s*registered|already.*exists|User already/i.test(msg)) {
+      friendly = '이미 가입된 이메일이에요. 로그인해주세요.';
+    } else if (/invalid.*email|email.*invalid/i.test(msg)) {
+      friendly = '올바른 이메일 형식이 아니에요.';
+    } else if (/password.*(weak|short|least)|least.*characters/i.test(msg)) {
+      friendly = '비밀번호가 너무 짧거나 약해요. 8자 이상으로 설정해주세요.';
+    } else if (/rate.*limit|too many/i.test(msg)) {
+      friendly = '요청이 많아요. 잠시 후 다시 시도해주세요.';
+    } else {
+      friendly = '회원가입에 실패했어요. 잠시 후 다시 시도해주세요.';
+    }
+    showError('signupError', friendly);
     return;
   }
 
@@ -494,7 +507,8 @@ async function agreeTermsSubmit() {
     updated_at: now
   }, { onConflict: 'id' });
   if (error) {
-    document.getElementById('tmError').textContent = '저장에 실패했어요. 다시 시도해주세요.';
+    console.error('[terms agree] upsert 실패:', error);
+    document.getElementById('tmError').textContent = '저장 실패: ' + (error.message || JSON.stringify(error));
     document.getElementById('tmError').style.display = 'block';
     return;
   }
