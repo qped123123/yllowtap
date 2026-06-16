@@ -622,9 +622,9 @@ async function deleteSelected(){
 }
 
 function goCheckout(){
-  if(!cartItems.length){alert('장바구니가 비어있습니다.');return;}
+  if(!cartItems.length){yToast('장바구니가 비어있습니다.');return;}
   const sel=cartItems.filter(i=>i.checked);
-  if(!sel.length){alert('주문할 상품을 선택해주세요.');return;}
+  if(!sel.length){yToast('주문할 상품을 선택해주세요.');return;}
   const ids=[...new Set(sel.map(i=>i.products?.id).filter(Boolean))];
   window.location.href='/checkout.html?selected='+ids.join(',');
 }

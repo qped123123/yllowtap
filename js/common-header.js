@@ -541,3 +541,54 @@
     initNav();
   }
 })();
+/* ══════════════════════════════════════════
+   yToast — Yllowtap 스타일 토스트 알림
+   사용: yToast('저장되었습니다') 또는 yToast('실패했어요','error')
+   ※ window.alert을 덮어쓰지 않음. 저위험 안내만 수동 교체.
+   ══════════════════════════════════════════ */
+(function(){
+  if (window.yToast) return; // 중복 정의 방지
+  // 스타일 1회 주입
+  function ensureStyle(){
+    if (document.getElementById('yToastStyle')) return;
+    var s = document.createElement('style');
+    s.id = 'yToastStyle';
+    s.textContent =
+      '.y-toast-wrap{position:fixed;left:50%;bottom:32px;transform:translateX(-50%);z-index:99999;display:flex;flex-direction:column;gap:8px;align-items:center;pointer-events:none}'+
+      '.y-toast{min-width:200px;max-width:90vw;background:#fff;border:1px solid #111;color:#111;padding:13px 20px;font-size:13px;line-height:1.5;font-family:inherit;box-shadow:0 4px 16px rgba(0,0,0,.1);opacity:0;transform:translateY(8px);transition:opacity .25s,transform .25s;text-align:center}'+
+      '.y-toast.show{opacity:1;transform:translateY(0)}'+
+      '.y-toast.error{border-color:#C4453C;color:#C4453C}'+
+      '.y-toast.success{border-color:#2E7D32}';
+    document.head.appendChild(s);
+  }
+  function getWrap(){
+    var w = document.getElementById('yToastWrap');
+    if (!w){
+      w = document.createElement('div');
+      w.id = 'yToastWrap';
+      w.className = 'y-toast-wrap';
+      document.body.appendChild(w);
+    }
+    return w;
+  }
+  window.yToast = function(message, type){
+    try{
+      ensureStyle();
+      var wrap = getWrap();
+      var t = document.createElement('div');
+      t.className = 'y-toast' + (type ? ' ' + type : '');
+      t.textContent = message == null ? '' : String(message);
+      wrap.appendChild(t);
+      // 등장
+      requestAnimationFrame(function(){ t.classList.add('show'); });
+      // 2.6초 후 사라짐
+      setTimeout(function(){
+        t.classList.remove('show');
+        setTimeout(function(){ if (t.parentNode) t.parentNode.removeChild(t); }, 300);
+      }, 2600);
+    }catch(e){
+      // 안전장치: 토스트 실패 시 기본 alert로 폴백
+      try{ window.alert(message); }catch(_){}
+    }
+  };
+})();
