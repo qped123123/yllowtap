@@ -1964,13 +1964,34 @@ async function doLogout() { await sb.auth.signOut();document.getElementById('log
 async function showAdmin() {
   // [STEP4] 관리자 권한을 Supabase DB(is_admin) 기준으로 확인. 통과해야만 adminLayout 표시 + init().
   const { data: isAdmin, error } = await sb.rpc('is_admin');
+
   if (error || !isAdmin) {
+    // 권한 없음/확인 실패: 메인으로 튕기지 말고, 세션 로그아웃 후 관리자 로그인 화면 표시
     document.getElementById('adminLayout').style.display = 'none';
-    alert('관리자 권한이 없습니다.');
-    location.replace('/index.html');
+
+    try {
+      await sb.auth.signOut();
+    } catch (e) {}
+
+    const errEl = document.getElementById('loginError');
+    if (errEl) {
+      errEl.textContent = error
+        ? '관리자 권한 확인에 실패했습니다. 다시 로그인해주세요.'
+        : '관리자 계정으로 로그인해주세요.';
+      errEl.style.display = 'block';
+    }
+
+    document.getElementById('loginScreen').style.display = 'flex';
     return;
   }
-  document.getElementById('loginScreen').style.display='none';document.getElementById('adminLayout').style.display='flex';init();
+
+  const errEl = document.getElementById('loginError');
+  if (errEl) errEl.style.display = 'none';
+
+  document.getElementById('loginScreen').style.display = 'none';
+  document.getElementById('adminLayout').style.display = 'flex';
+
+  init();
 }
 
 // ══════════════════════════════════════════
