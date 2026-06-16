@@ -179,6 +179,7 @@
 <script src="https://t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <script src="https://js.tosspayments.com/v2/standard"></script>
+<script src="./js/common-header.js?v=15"></script>
 <script>
 const SUPABASE_URL='https://ppihvvpplqikclftrwdb.supabase.co';
 const SUPABASE_ANON='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBwaWh2dnBwbHFpa2NsZnRyd2RiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk3MzE0NTEsImV4cCI6MjA5NTMwNzQ1MX0.shGVcFTQiuYc4u6tdU50x18YMgJdgFUljf8c7QlQU-U';
@@ -195,7 +196,7 @@ function searchAddress(){new daum.Postcode({oncomplete:function(d){document.getE
 
 async function init(){
   const{data:{session}}=await sb.auth.getSession();
-  if(!session){alert('로그인이 필요합니다.');window.location.href='/login.html';return;}
+  if(!session){yToast('로그인이 필요합니다.','error');setTimeout(function(){window.location.href='/login.html';},900);return;}
   currentUser=session.user;
   await loadShippingSettings();
   await loadMyPoints();
@@ -519,7 +520,6 @@ function hideError(){document.getElementById('coError').classList.remove('show')
 function getMainImg(p){if(p.product_media?.length){const m=p.product_media.filter(x=>x.role==='main').sort((a,b)=>a.display_order-b.display_order);return m.length?m[0].media_url:p.product_media[0].media_url;}return p.image_url;}
 init();
 </script>
-<script src="./js/common-header.js?v=15"></script>
 <style>
 .co-opt-overlay{position:fixed;inset:0;background:rgba(0,0,0,.4);display:none;align-items:flex-end;justify-content:center;z-index:1000}
 .co-opt-overlay.show{display:flex}

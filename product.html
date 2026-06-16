@@ -1377,7 +1377,7 @@ async function openPdReviewForm(){
   const wrap=document.getElementById('pdReviewFormWrap');
   if(wrap.style.display==='block'){closePdReviewForm();return;}
   const{data:{session}}=await sb.auth.getSession();
-  if(!session){alert('로그인 후 리뷰를 작성할 수 있어요.');location.href='/login.html';return;}
+  if(!session){yToast('로그인 후 리뷰를 작성할 수 있어요.','error');setTimeout(function(){location.href='/login.html';},900);return;}
   const uid=session.user.id;
   // 이 상품을 산 주문 → 내 주문 중 배송완료/구매확정 → 아직 리뷰 안 쓴 주문 찾기
   const{data:items,error:itemErr}=await sb.from('order_items').select('order_id').eq('product_id',product.id);
@@ -1531,7 +1531,7 @@ async function toggleQnaForm(){
 }
 async function submitQna(){
   const{data:{session}}=await sb.auth.getSession();
-  if(!session){ alert('로그인 후 작성할 수 있어요.'); location.href='/login.html'; return; }
+  if(!session){ yToast('로그인 후 작성할 수 있어요.','error'); setTimeout(function(){location.href='/login.html';},900); return; }
   const name=document.getElementById('qfName').value.trim();
   const content=document.getElementById('qfContent').value.trim();
   if(!content){yToast('문의 내용을 입력해주세요.');return}
@@ -1697,7 +1697,7 @@ async function buyNow(){
   if(lines===null) return;
 
   const{data:{session}}=await sb.auth.getSession();
-  if(!session){alert('로그인이 필요합니다.');window.location.href='/login.html';return;}
+  if(!session){yToast('로그인이 필요합니다.','error');setTimeout(function(){window.location.href='/login.html';},900);return;}
 
   let cartId;
   const{data}=await sb.from('carts').select('id').eq('user_id',session.user.id).single();

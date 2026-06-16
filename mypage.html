@@ -556,7 +556,7 @@ async function saveProfile(){
   const msg=document.getElementById('pfMsg');msg.style.display='block';setTimeout(()=>msg.style.display='none',3000);
 }
 async function uploadAvatar(input){
-  if(!currentUser||!currentUser.id){alert('로그인이 필요해요.');return;}
+  if(!currentUser||!currentUser.id){yToast('로그인이 필요해요.','error');return;}
   const file=input.files&&input.files[0];
   if(!file)return;
   // 검증: 형식 + 용량(5MB)
