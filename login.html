@@ -429,7 +429,12 @@ async function emailSignup() {
   const { data, error } = await sb.auth.signUp({
     email,
     password: pw,
-    options: { data: { display_name: name } }
+    options: { data: {
+      display_name: name,
+      agreed_terms: agreeTerms,
+      agreed_privacy: agreePrivacy,
+      agreed_marketing: agreeMarketing
+    } }
   });
 
   if (error) {
@@ -450,8 +455,9 @@ async function emailSignup() {
     return;
   }
 
-  // user_profiles에 이름 + 약관 동의 저장 (notification은 별도 STEP에서)
-  if (data.user) {
+  // user_profiles 약관 저장: 세션이 있을 때(인증 OFF)만 시도.
+  // 인증 ON이면 session이 null이므로 handle_new_user 트리거가 metadata로 저장.
+  if (data.user && data.session) {
     const now = new Date().toISOString();
     const { error: profErr } = await sb.from('user_profiles').update({
       display_name: name,
