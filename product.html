@@ -700,10 +700,10 @@ function isEdit(){return buyOptions && buyOptions.length>0}
 // ══════════════════════════════════════════
 async function loadProduct(){
   const slug=getSlug();
-  if(!slug){alert('상품을 찾을 수 없습니다.');return}
+  if(!slug){yToast('상품을 찾을 수 없습니다.','error');return}
   let{data,error}=await sb.from('products').select('*,product_media(id,media_url,media_type,role,alt_text,display_order)').eq('slug',slug).single();
   if(error||!data){const r=await sb.from('products').select('*,product_media(id,media_url,media_type,role,alt_text,display_order)').eq('id',slug).single();data=r.data;error=r.error}
-  if(error||!data){alert('상품을 찾을 수 없습니다.');return}
+  if(error||!data){yToast('상품을 찾을 수 없습니다.','error');return}
   product=data;
   await loadPurchaseOptions();
   await render();

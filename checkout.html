@@ -255,7 +255,7 @@ async function changeCoOption(idx){
   const{data,error}=await sb.from('product_purchase_options').select('*').eq('product_id',p.id).order('display_order');
   // 구매옵션이 없는 상품 → 상세페이지에서 변경
   if(error||!data||!data.length){
-    if(confirm('이 상품은 상세페이지에서 옵션을 변경할 수 있어요. 이동할까요?\n(지금 담긴 옵션은 빠지고, 상세페이지에서 새로 담으면 돼요)')){
+    if((await yConfirm('이 상품은 상세페이지에서 옵션을 변경할 수 있어요. 이동할까요?\n(지금 담긴 옵션은 빠지고, 상세페이지에서 새로 담으면 돼요)', {okText:'이동'}))){
       try{ if(item.id) await sb.from('cart_items').delete().eq('id',item.id); }catch(e){}
       location.href='/product.html?slug='+encodeURIComponent(p.slug||p.id);
     }
@@ -268,7 +268,7 @@ async function changeCoOption(idx){
   }).filter(o=>o.items.length>0);
   // 인라인으로 바꿀 수 있는 옵션이 하나도 없으면(전부 연결상품뿐) → 상세페이지
   if(!editable.length){
-    if(confirm('이 상품은 연결 옵션이라 상세페이지에서 변경해야 해요. 이동할까요?\n(지금 담긴 옵션은 빠지고, 상세페이지에서 새로 담으면 돼요)')){
+    if((await yConfirm('이 상품은 연결 옵션이라 상세페이지에서 변경해야 해요. 이동할까요?\n(지금 담긴 옵션은 빠지고, 상세페이지에서 새로 담으면 돼요)', {okText:'이동'}))){
       try{ if(item.id) await sb.from('cart_items').delete().eq('id',item.id); }catch(e){}
       location.href='/product.html?slug='+encodeURIComponent(p.slug||p.id);
     }
@@ -320,7 +320,7 @@ async function applyCoOption(){
   const {idx,options,sel,allData}=coOptState; const item=cartItems[idx]; if(!item)return;
   let any=false; const parts=[]; const selArr=[];
   options.forEach((o,oi)=>{ const s=sel[oi]; if(!s||!s.size)return; (o.items||[]).forEach((it,j)=>{ if(s.has(j)){ any=true; const nm=it.color_name||it.name||''; const pr=Number(it.price)||0; parts.push(pr>0?`${nm} (+${pr.toLocaleString()}원)`:nm); selArr.push({po_id:o.id, item_index:j});} }); });
-  if(!any){ alert('항목을 하나 이상 선택해주세요.'); return; }
+  if(!any){ yToast('항목을 하나 이상 선택해주세요.','error'); return; }
   // 연결상품(_addon 별도 줄) 항목은 이 모달에서 제외돼 있으므로, 기존 _sel 의 연결 항목을 보존해 부모-자식 정합성을 유지
   const prevSel=Array.isArray(item.selected_options&&item.selected_options._sel)?item.selected_options._sel:[];
   const pid=item.products&&item.products.id;
@@ -331,7 +331,7 @@ async function applyCoOption(){
   newOpts['_sel']=[...linkedKept, ...selArr];   // 서버 재계산용 (표시용 _line_price 와 별개)
   newOpts['_line_price']=coOptTotal();          // 표시용
   try{ if(item.id) await sb.from('cart_items').update({selected_options:newOpts}).eq('id',item.id); }
-  catch(e){ console.error('[checkout] 옵션 저장 오류:',e); alert('저장 중 오류가 났어요.'); return; }
+  catch(e){ console.error('[checkout] 옵션 저장 오류:',e); yToast('저장 중 오류가 났어요.','error'); return; }
   item.selected_options=newOpts;
   closeCoOptModal();
   renderItems(); updateSummary();
@@ -356,7 +356,7 @@ function onCouponSelect(){
   if(idx===''){removeCoupon();return;}
   const uc=myCoupons[parseInt(idx)];const c=uc.coupons;
   const subtotal=getProductSubtotal();
-  if(c.min_order_amount&&subtotal<c.min_order_amount){alert(c.min_order_amount.toLocaleString()+'원 이상 주문 시 사용 가능한 쿠폰입니다.');document.getElementById('coCouponSelect').value='';return;}
+  if(c.min_order_amount&&subtotal<c.min_order_amount){yToast(c.min_order_amount.toLocaleString()+'원 이상 주문 시 사용 가능한 쿠폰입니다.','error');document.getElementById('coCouponSelect').value='';return;}
   let disc=0,capped=false;
   if(c.discount_type==='percent'){disc=Math.floor(subtotal*c.discount_value/100);if(c.max_discount&&disc>c.max_discount){disc=c.max_discount;capped=true;}}else{disc=c.discount_value;}
   selectedCoupon=uc;couponDiscount=disc;
