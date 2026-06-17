@@ -182,7 +182,11 @@
 
   /* 08 SUMMER SALE (버터 옐로우 · 좌우 정렬 띠배너) */
   .home-sale { max-width: 1320px; margin: 32px auto 72px; padding: 0 56px; }
-  .home-sale__inner { height: 118px; background: linear-gradient(90deg, #f6e7a6 0%, #f1d95c 100%); display: flex; align-items: center; justify-content: space-between; padding: 0 48px; }
+  .home-sale__inner { height: 118px; background: linear-gradient(90deg, #f6e7a6 0%, #f1d95c 100%); display: flex; align-items: center; justify-content: space-between; padding: 0 48px; position:relative; overflow:hidden; }
+  .home-sale__img { position:absolute; inset:0; width:100%; height:100%; object-fit:cover; z-index:0; opacity:0; transition:opacity 0.4s ease; }
+  .home-sale__img.is-ready { opacity:1; }
+  .home-sale__inner.has-img::before { content:''; position:absolute; inset:0; background:rgba(255,255,255,0.5); z-index:0; }
+  .home-sale__txt, .home-sale__btn { position:relative; z-index:1; }
   .home-sale__txt { display: flex; flex-direction: column; align-items: flex-start; }
   .home-sale__up { font-size: 11px; letter-spacing: 0.12em; font-weight: 600; color: rgba(0,0,0,0.55); margin-bottom: 8px; }
   .home-sale__en { font-family: var(--font-logo); font-size: 34px; line-height: 1; font-weight: 400; letter-spacing: -0.04em; color: #111; }
@@ -425,6 +429,7 @@
 <!-- ═══ 08 SUMMER SALE ═══ -->
 <section class="home-sale">
   <div class="home-sale__inner">
+    <img class="home-sale__img is-loading" id="summerSaleImg" alt="Summer Sale">
     <div class="home-sale__txt">
       <div class="home-sale__up" id="saleUp">UP TO 30% OFF</div>
       <div class="home-sale__en" id="saleEn">SUMMER SALE</div>
@@ -869,6 +874,8 @@ async function loadSettings() {
   swap('catSeasonalImg', 'cat_seasonal_img');
   swap('diyVisualImg', 'diy_visual_img');
   swap('perfectGiftImg', 'perfect_gift_img');
+  swap('summerSaleImg', 'summer_sale_img');
+  if (s.summer_sale_img) { const _si=document.querySelector('.home-sale__inner'); if(_si) _si.classList.add('has-img'); }
 
   // 홈 배너 문구/링크 (어드민에서 수정 가능 · 비어있으면 기본값 유지)
   const setTxt=(id,key)=>{ const el=document.getElementById(id); if(el&&s[key]!=null&&s[key]!=='') el.textContent=s[key]; };

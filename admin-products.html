@@ -485,42 +485,34 @@ body { font-family:var(--font); background:var(--bg); color:var(--text); font-si
           <button class="btn btn-secondary btn-small" onclick="addHomeCat()">+ 카테고리 추가</button>
         </div>
         <div id="homeCatAdminList"></div>
-        <div class="setting-row">
-          <div class="setting-label">선물 배너 (Perfect Gift)</div>
-          <div style="display:flex;gap:8px;align-items:center;">
-            <img id="miPerfectGiftPreview" src="" style="width:54px;height:54px;object-fit:cover;border-radius:4px;background:var(--bg-hover);" onerror="this.style.visibility='hidden'" onload="this.style.visibility='visible'">
-            <input class="form-input" id="miPerfectGift" placeholder="이미지 URL" style="flex:1;">
-            <label class="btn btn-secondary btn-small" style="cursor:pointer;white-space:nowrap;">📎 업로드<input type="file" id="miPerfectGiftFile" accept="image/*" style="display:none;"></label>
-          </div>
+        <div style="border-top:1px solid var(--border);margin:18px 0 12px;"></div>
+        <div style="font-size:12px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:var(--accent);margin-bottom:4px;">홈 배너 관리 (이미지·문구·링크)</div>
+        <p style="font-size:11px;color:var(--text-muted);margin-bottom:14px;">배너별로 이미지·문구·버튼 링크를 한 곳에서 수정해요. 비워두면 기본값이 나와요. 저장은 위 "이미지 저장" 버튼.</p>
+        <div style="border:1px solid var(--border);border-radius:8px;padding:14px 16px;margin-bottom:14px;background:var(--bg-input);">
+          <div style="font-size:12px;font-weight:700;color:var(--accent);margin-bottom:8px;">키링 스튜디오 배너</div>
+          <div class="setting-row"><div class="setting-label">이미지</div><div style="display:flex;gap:8px;align-items:center;"><img id="miDiyVisualPreview" src="" style="width:54px;height:54px;object-fit:cover;border-radius:4px;background:var(--bg-hover);" onerror="this.style.visibility='hidden'" onload="this.style.visibility='visible'"><input class="form-input" id="miDiyVisual" placeholder="이미지 URL" style="flex:1;"><label class="btn btn-secondary btn-small" style="cursor:pointer;white-space:nowrap;">📎 업로드<input type="file" id="miDiyVisualFile" accept="image/*" style="display:none;"></label></div></div>
+          <div class="setting-row"><div class="setting-label">상단 라벨</div><input class="form-input" id="diyLabel" placeholder="KEYRING STUDIO" style="width:100%;"></div>
+          <div class="setting-row"><div class="setting-label">제목</div><input class="form-input" id="diyTitle" placeholder="나만의 키링 만들기" style="width:100%;"></div>
+          <div class="setting-row"><div class="setting-label">설명</div><input class="form-input" id="diyDesc" placeholder="취향에 맞게 조합하는 YLLOWTAP 키링 스튜디오" style="width:100%;"></div>
+          <div class="setting-row"><div class="setting-label">버튼 문구</div><input class="form-input" id="diyBtnText" placeholder="키링 커스텀 시작하기" style="width:100%;"></div>
+          <div class="setting-row"><div class="setting-label">버튼 링크</div><div style="display:flex;gap:8px;align-items:center;width:100%;"><select class="form-select" id="diyLinkSel" onchange="onBannerLinkSelect('diyLink',this.value)" style="width:190px;flex-shrink:0;"></select><input class="form-input" id="diyLink" placeholder="/category.html?cat=keyring" style="flex:1;"></div></div>
         </div>
-        <div class="setting-row">
-          <div class="setting-label">키링 스튜디오 (DIY)</div>
-          <div style="display:flex;gap:8px;align-items:center;">
-            <img id="miDiyVisualPreview" src="" style="width:54px;height:54px;object-fit:cover;border-radius:4px;background:var(--bg-hover);" onerror="this.style.visibility='hidden'" onload="this.style.visibility='visible'">
-            <input class="form-input" id="miDiyVisual" placeholder="이미지 URL" style="flex:1;">
-            <label class="btn btn-secondary btn-small" style="cursor:pointer;white-space:nowrap;">📎 업로드<input type="file" id="miDiyVisualFile" accept="image/*" style="display:none;"></label>
-          </div>
+        <div style="border:1px solid var(--border);border-radius:8px;padding:14px 16px;margin-bottom:14px;background:var(--bg-input);">
+          <div style="font-size:12px;font-weight:700;color:var(--accent);margin-bottom:8px;">Perfect Gift 배너</div>
+          <div class="setting-row"><div class="setting-label">이미지</div><div style="display:flex;gap:8px;align-items:center;"><img id="miPerfectGiftPreview" src="" style="width:54px;height:54px;object-fit:cover;border-radius:4px;background:var(--bg-hover);" onerror="this.style.visibility='hidden'" onload="this.style.visibility='visible'"><input class="form-input" id="miPerfectGift" placeholder="이미지 URL" style="flex:1;"><label class="btn btn-secondary btn-small" style="cursor:pointer;white-space:nowrap;">📎 업로드<input type="file" id="miPerfectGiftFile" accept="image/*" style="display:none;"></label></div></div>
+          <div class="setting-row"><div class="setting-label">영문 문구</div><input class="form-input" id="giftEn" placeholder="PERFECT GIFT" style="width:100%;"></div>
+          <div class="setting-row"><div class="setting-label">버튼 문구</div><input class="form-input" id="giftBtnText" placeholder="Gift Collection" style="width:100%;"></div>
+          <div class="setting-row"><div class="setting-label">버튼 링크</div><div style="display:flex;gap:8px;align-items:center;width:100%;"><select class="form-select" id="giftLinkSel" onchange="onBannerLinkSelect('giftLink',this.value)" style="width:190px;flex-shrink:0;"></select><input class="form-input" id="giftLink" placeholder="/category.html" style="flex:1;"></div></div>
         </div>
-
-        <div style="border-top:1px solid var(--border);margin:18px 0 10px;"></div>
-        <div style="font-size:12px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:var(--accent);margin-bottom:6px;">홈 배너 문구·링크</div>
-        <p style="font-size:11px;color:var(--text-muted);margin-bottom:12px;">비워두면 기본 문구가 나와요. 저장은 위 "이미지 저장" 버튼을 누르면 같이 저장됩니다.</p>
-        <div style="font-size:11px;font-weight:600;color:var(--text-dim);margin:8px 0 2px;">키링 스튜디오 배너</div>
-        <div class="setting-row"><div class="setting-label">상단 라벨</div><input class="form-input" id="diyLabel" placeholder="KEYRING STUDIO" style="width:100%;"></div>
-        <div class="setting-row"><div class="setting-label">제목</div><input class="form-input" id="diyTitle" placeholder="나만의 키링 만들기" style="width:100%;"></div>
-        <div class="setting-row"><div class="setting-label">설명</div><input class="form-input" id="diyDesc" placeholder="취향에 맞게 조합하는 YLLOWTAP 키링 스튜디오" style="width:100%;"></div>
-        <div class="setting-row"><div class="setting-label">버튼 문구</div><input class="form-input" id="diyBtnText" placeholder="키링 커스텀 시작하기" style="width:100%;"></div>
-        <div class="setting-row"><div class="setting-label">버튼 링크</div><input class="form-input" id="diyLink" placeholder="/category.html?cat=keyring" style="width:100%;"></div>
-        <div style="font-size:11px;font-weight:600;color:var(--text-dim);margin:12px 0 2px;">Perfect Gift 배너</div>
-        <div class="setting-row"><div class="setting-label">영문 문구</div><input class="form-input" id="giftEn" placeholder="PERFECT GIFT" style="width:100%;"></div>
-        <div class="setting-row"><div class="setting-label">버튼 문구</div><input class="form-input" id="giftBtnText" placeholder="Gift Collection" style="width:100%;"></div>
-        <div class="setting-row"><div class="setting-label">버튼 링크</div><input class="form-input" id="giftLink" placeholder="/category.html" style="width:100%;"></div>
-        <div style="font-size:11px;font-weight:600;color:var(--text-dim);margin:12px 0 2px;">Summer Sale 배너</div>
-        <div class="setting-row"><div class="setting-label">상단 문구</div><input class="form-input" id="saleUp" placeholder="UP TO 30% OFF" style="width:100%;"></div>
-        <div class="setting-row"><div class="setting-label">영문 문구</div><input class="form-input" id="saleEn" placeholder="SUMMER SALE" style="width:100%;"></div>
-        <div class="setting-row"><div class="setting-label">한글 문구</div><input class="form-input" id="saleKo" placeholder="시즌 오프 최대 30% 할인" style="width:100%;"></div>
-        <div class="setting-row"><div class="setting-label">버튼 문구</div><input class="form-input" id="saleBtnText" placeholder="세일 상품 보러가기" style="width:100%;"></div>
-        <div class="setting-row"><div class="setting-label">버튼 링크</div><input class="form-input" id="saleLink" placeholder="/category.html?cat=sale" style="width:100%;"></div>
+        <div style="border:1px solid var(--border);border-radius:8px;padding:14px 16px;margin-bottom:14px;background:var(--bg-input);">
+          <div style="font-size:12px;font-weight:700;color:var(--accent);margin-bottom:8px;">Summer Sale 배너</div>
+          <div class="setting-row"><div class="setting-label">이미지</div><div style="display:flex;gap:8px;align-items:center;"><img id="miSummerSalePreview" src="" style="width:54px;height:54px;object-fit:cover;border-radius:4px;background:var(--bg-hover);" onerror="this.style.visibility='hidden'" onload="this.style.visibility='visible'"><input class="form-input" id="miSummerSale" placeholder="이미지 URL" style="flex:1;"><label class="btn btn-secondary btn-small" style="cursor:pointer;white-space:nowrap;">📎 업로드<input type="file" id="miSummerSaleFile" accept="image/*" style="display:none;"></label></div></div>
+          <div class="setting-row"><div class="setting-label">상단 문구</div><input class="form-input" id="saleUp" placeholder="UP TO 30% OFF" style="width:100%;"></div>
+          <div class="setting-row"><div class="setting-label">영문 문구</div><input class="form-input" id="saleEn" placeholder="SUMMER SALE" style="width:100%;"></div>
+          <div class="setting-row"><div class="setting-label">한글 문구</div><input class="form-input" id="saleKo" placeholder="시즌 오프 최대 30% 할인" style="width:100%;"></div>
+          <div class="setting-row"><div class="setting-label">버튼 문구</div><input class="form-input" id="saleBtnText" placeholder="세일 상품 보러가기" style="width:100%;"></div>
+          <div class="setting-row"><div class="setting-label">버튼 링크</div><div style="display:flex;gap:8px;align-items:center;width:100%;"><select class="form-select" id="saleLinkSel" onchange="onBannerLinkSelect('saleLink',this.value)" style="width:190px;flex-shrink:0;"></select><input class="form-input" id="saleLink" placeholder="/category.html?cat=sale" style="flex:1;"></div></div>
+        </div>
 
         <!-- ★ 팝업 공지 관리 -->
         <div style="border-top:1px solid var(--border);margin:20px 0;"></div>
@@ -2317,7 +2309,8 @@ async function saveProductScores(productId) {
 // ══════════════════════════════════════════
 const MAIN_IMAGE_KEYS = {
   miPerfectGift: 'perfect_gift_img',
-  miDiyVisual: 'diy_visual_img'
+  miDiyVisual: 'diy_visual_img',
+  miSummerSale: 'summer_sale_img'
 };
 const MAIN_TEXT_KEYS = {
   diyLabel:'diy_label', diyTitle:'diy_title', diyDesc:'diy_desc', diyBtnText:'diy_btn_text', diyLink:'diy_link',
@@ -2389,6 +2382,27 @@ async function uploadHomeCatImg(input,i) {
   showToast('업로드 완료 — "이미지 저장"을 눌러주세요');
 }
 
+function bannerLinkOptions(){
+  const cats=(typeof categories!=='undefined'?categories:[]).filter(c=>!['all'].includes(c.slug));
+  let o='<option value="/category.html">전체 상품</option>';
+  o+=cats.map(c=>`<option value="/category.html?cat=${c.slug}">${(c.name||c.slug)}</option>`).join('');
+  o+='<option value="__custom__">직접 입력</option>';
+  return o;
+}
+function populateBannerLinkSelects(){
+  [['diyLinkSel','diyLink'],['giftLinkSel','giftLink'],['saleLinkSel','saleLink']].forEach(function(pair){
+    const sel=document.getElementById(pair[0]), inp=document.getElementById(pair[1]);
+    if(!sel||!inp)return;
+    sel.innerHTML=bannerLinkOptions();
+    const val=(inp.value||'').trim();
+    const has=Array.prototype.some.call(sel.options,function(o){return o.value===val;});
+    sel.value=(val&&has)?val:'__custom__';
+  });
+}
+function onBannerLinkSelect(inputId,val){
+  if(val==='__custom__')return;
+  const inp=document.getElementById(inputId); if(inp)inp.value=val;
+}
 function loadMainImages() {
   for (const [inputId, key] of Object.entries(MAIN_IMAGE_KEYS)) {
     const inp = document.getElementById(inputId);
@@ -2401,6 +2415,7 @@ function loadMainImages() {
     if (inp) inp.value = siteSettings[key] || '';
   }
   loadHomeCats();
+  populateBannerLinkSelects();
 }
  
 function bindMainImagesUpload() {
