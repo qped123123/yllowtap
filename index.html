@@ -120,7 +120,7 @@
   .home-more:hover { opacity: 0.6; }
 
   /* 03 CATEGORY SHORTCUT */
-  .home-cats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 24px; }
+  .home-cats { display: grid; grid-template-columns: repeat(var(--cat-cols, 4), 1fr); gap: 24px; }
   .home-cat { position: relative; display: block; background: #f5f1ea; overflow: hidden; height: 300px; }
   .home-cat__img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: center; display: block; z-index: 1; transition: transform 0.6s var(--ease); }
   .home-cat:hover .home-cat__img { transform: scale(1.04); }
@@ -343,15 +343,15 @@
 <div class="service-bar">
   <div class="service-bar__item">
     <svg class="service-bar__icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2"><rect x="1" y="6" width="15" height="13" rx="1"/><path d="M16 10h4l3 4v5h-7V10z"/><circle cx="5.5" cy="19.5" r="2.5"/><circle cx="18.5" cy="19.5" r="2.5"/></svg>
-    <div><div class="service-bar__title">1-2일 빠른 배송</div><div class="service-bar__desc">전 상품 무료배송</div></div>
+    <div><div class="service-bar__title" id="perk1Title">1-2일 빠른 배송</div><div class="service-bar__desc" id="perk1Desc">전 상품 무료배송</div></div>
   </div>
   <div class="service-bar__item">
     <svg class="service-bar__icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
-    <div><div class="service-bar__title">멤버십 혜택</div><div class="service-bar__desc">등급별 쿠폰 · 적립</div></div>
+    <div><div class="service-bar__title" id="perk2Title">멤버십 혜택</div><div class="service-bar__desc" id="perk2Desc">등급별 쿠폰 · 적립</div></div>
   </div>
   <div class="service-bar__item">
     <svg class="service-bar__icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-    <div><div class="service-bar__title">프리미엄 고객센터</div><div class="service-bar__desc">1:1 맞춤 상담</div></div>
+    <div><div class="service-bar__title" id="perk3Title">프리미엄 고객센터</div><div class="service-bar__desc" id="perk3Desc">1:1 맞춤 상담</div></div>
   </div>
 </div>
 
@@ -883,6 +883,29 @@ async function loadSettings() {
   setTxt('diyLabel','diy_label'); setTxt('diyTitle','diy_title'); setTxt('diyDesc','diy_desc'); setTxt('diyBtn','diy_btn_text'); setHref('diyBtn','diy_link');
   setTxt('giftEn','gift_en'); setTxt('giftBtn','gift_btn_text'); setHref('giftBtn','gift_link');
   setTxt('saleUp','sale_up'); setTxt('saleEn','sale_en'); setTxt('saleKo','sale_ko'); setTxt('saleBtn','sale_btn_text'); setHref('saleBtn','sale_link');
+
+  // 혜택 바 문구/링크
+  const setPerk=(n)=>{
+    const ti=document.getElementById('perk'+n+'Title'), de=document.getElementById('perk'+n+'Desc');
+    if(ti&&s['perk'+n+'_title']) ti.textContent=s['perk'+n+'_title'];
+    if(de&&s['perk'+n+'_desc']!=null&&s['perk'+n+'_desc']!=='') de.textContent=s['perk'+n+'_desc'];
+    const lk=s['perk'+n+'_link'];
+    if(ti&&lk){ const it=ti.closest('.service-bar__item'); if(it){ it.style.cursor='pointer'; it.onclick=function(){ location.href=lk; }; } }
+  };
+  setPerk(1); setPerk(2); setPerk(3);
+
+  // 크기 조절 (비어있으면 기본 크기 유지)
+  const setH=(sel,key,unit)=>{ const v=s[key]; if(v){ document.querySelectorAll(sel).forEach(el=>{ el.style.height=v+unit; }); } };
+  setH('.hero','hero_height','vh');
+  setH('.home-diy__inner','diy_height','px');
+  setH('.home-gift__inner','gift_height','px');
+  setH('.home-sale__inner','sale_height','px');
+  setH('.home-cat','cat_height','px');
+  const setW=(sel,key,unit)=>{ const v=s[key]; if(v){ document.querySelectorAll(sel).forEach(el=>{ el.style.maxWidth=v+unit; el.style.marginLeft='auto'; el.style.marginRight='auto'; }); } };
+  setW('.home-diy__inner','diy_width','px');
+  setW('.home-gift__inner','gift_width','px');
+  setW('.home-sale__inner','sale_width','px');
+  if (s.cat_cols) { const _hc=document.getElementById('homeCatsContainer'); if(_hc) _hc.style.setProperty('--cat-cols', s.cat_cols); }
 
   // 히어로 BGM (기존 기능 유지)
   if (s.bgm_enabled === 'true' && s.bgm_url) {

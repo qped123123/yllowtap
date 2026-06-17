@@ -514,6 +514,40 @@ body { font-family:var(--font); background:var(--bg); color:var(--text); font-si
           <div class="setting-row"><div class="setting-label">버튼 링크</div><div style="display:flex;gap:8px;align-items:center;width:100%;"><select class="form-select" id="saleLinkSel" onchange="onBannerLinkSelect('saleLink',this.value)" style="width:190px;flex-shrink:0;"></select><input class="form-input" id="saleLink" placeholder="/category.html?cat=sale" style="flex:1;"></div></div>
         </div>
 
+        <div style="border-top:1px solid var(--border);margin:18px 0 10px;"></div>
+        <div style="font-size:12px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:var(--accent);margin-bottom:4px;">혜택 바 (배송·멤버십·고객센터)</div>
+        <p style="font-size:11px;color:var(--text-muted);margin-bottom:12px;">홈 상단 신뢰 바 3개. 비워두면 기본 문구. 링크 넣으면 클릭 시 이동(예: /faq.html, /mypage.html).</p>
+        <div style="border:1px solid var(--border);border-radius:8px;padding:12px 14px;margin-bottom:10px;background:var(--bg-input);">
+          <div style="font-size:11px;font-weight:700;color:var(--accent);margin-bottom:6px;">혜택 1</div>
+          <div class="setting-row"><div class="setting-label">제목</div><input class="form-input" id="perk1Title" placeholder="1-2일 빠른 배송" style="width:100%;"></div>
+          <div class="setting-row"><div class="setting-label">설명</div><input class="form-input" id="perk1Desc" placeholder="전 상품 무료배송" style="width:100%;"></div>
+          <div class="setting-row"><div class="setting-label">링크(선택)</div><input class="form-input" id="perk1Link" placeholder="예: /faq.html (비우면 클릭 안 됨)" style="width:100%;"></div>
+        </div>
+        <div style="border:1px solid var(--border);border-radius:8px;padding:12px 14px;margin-bottom:10px;background:var(--bg-input);">
+          <div style="font-size:11px;font-weight:700;color:var(--accent);margin-bottom:6px;">혜택 2</div>
+          <div class="setting-row"><div class="setting-label">제목</div><input class="form-input" id="perk2Title" placeholder="멤버십 혜택" style="width:100%;"></div>
+          <div class="setting-row"><div class="setting-label">설명</div><input class="form-input" id="perk2Desc" placeholder="등급별 쿠폰 · 적립" style="width:100%;"></div>
+          <div class="setting-row"><div class="setting-label">링크(선택)</div><input class="form-input" id="perk2Link" placeholder="예: /faq.html (비우면 클릭 안 됨)" style="width:100%;"></div>
+        </div>
+        <div style="border:1px solid var(--border);border-radius:8px;padding:12px 14px;margin-bottom:10px;background:var(--bg-input);">
+          <div style="font-size:11px;font-weight:700;color:var(--accent);margin-bottom:6px;">혜택 3</div>
+          <div class="setting-row"><div class="setting-label">제목</div><input class="form-input" id="perk3Title" placeholder="프리미엄 고객센터" style="width:100%;"></div>
+          <div class="setting-row"><div class="setting-label">설명</div><input class="form-input" id="perk3Desc" placeholder="1:1 맞춤 상담" style="width:100%;"></div>
+          <div class="setting-row"><div class="setting-label">링크(선택)</div><input class="form-input" id="perk3Link" placeholder="예: /faq.html (비우면 클릭 안 됨)" style="width:100%;"></div>
+        </div>
+        <div style="border-top:1px solid var(--border);margin:18px 0 10px;"></div>
+        <div style="font-size:12px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:var(--accent);margin-bottom:4px;">크기 조절 (높이)</div>
+        <p style="font-size:11px;color:var(--text-muted);margin-bottom:12px;">숫자만 입력. 비워두면 기본 크기. 배너는 가로·세로 둘 다, 히어로·카테고리는 세로만 조절돼요.</p>
+        <div class="setting-row"><div class="setting-label">히어로 높이 (vh)</div><input class="form-input" type="number" id="heroHeight" placeholder="70" style="width:120px;"></div>
+        <div class="setting-row"><div class="setting-label">키링 배너 높이 (px)</div><input class="form-input" type="number" id="diyHeight" placeholder="280" style="width:120px;"></div>
+         <div class="setting-row"><div class="setting-label">키링 배너 가로 (px)</div><input class="form-input" type="number" id="diyWidth" placeholder="전체폭" style="width:120px;"></div>
+        <div class="setting-row"><div class="setting-label">Perfect Gift 배너 높이 (px)</div><input class="form-input" type="number" id="giftHeight" placeholder="260" style="width:120px;"></div>
+         <div class="setting-row"><div class="setting-label">Perfect Gift 배너 가로 (px)</div><input class="form-input" type="number" id="giftWidth" placeholder="전체폭" style="width:120px;"></div>
+        <div class="setting-row"><div class="setting-label">Summer Sale 배너 높이 (px)</div><input class="form-input" type="number" id="saleHeight" placeholder="118" style="width:120px;"></div>
+         <div class="setting-row"><div class="setting-label">Summer Sale 배너 가로 (px)</div><input class="form-input" type="number" id="saleWidth" placeholder="전체폭" style="width:120px;"></div>
+        <div class="setting-row"><div class="setting-label">카테고리 카드 높이 (px)</div><input class="form-input" type="number" id="catHeight" placeholder="300" style="width:120px;"></div>
+         <div class="setting-row"><div class="setting-label">카테고리 열 개수</div><input class="form-input" type="number" id="catCols" placeholder="4 (기본)" min="1" max="6" style="width:120px;"></div>
+
         <!-- ★ 팝업 공지 관리 -->
         <div style="border-top:1px solid var(--border);margin:20px 0;"></div>
         <div style="font-size:12px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:var(--accent);margin-bottom:16px;">팝업 공지 관리</div>
@@ -2315,7 +2349,13 @@ const MAIN_IMAGE_KEYS = {
 const MAIN_TEXT_KEYS = {
   diyLabel:'diy_label', diyTitle:'diy_title', diyDesc:'diy_desc', diyBtnText:'diy_btn_text', diyLink:'diy_link',
   giftEn:'gift_en', giftBtnText:'gift_btn_text', giftLink:'gift_link',
-  saleUp:'sale_up', saleEn:'sale_en', saleKo:'sale_ko', saleBtnText:'sale_btn_text', saleLink:'sale_link'
+  saleUp:'sale_up', saleEn:'sale_en', saleKo:'sale_ko', saleBtnText:'sale_btn_text', saleLink:'sale_link',
+  perk1Title:'perk1_title', perk1Desc:'perk1_desc', perk1Link:'perk1_link',
+  perk2Title:'perk2_title', perk2Desc:'perk2_desc', perk2Link:'perk2_link',
+  perk3Title:'perk3_title', perk3Desc:'perk3_desc', perk3Link:'perk3_link',
+  heroHeight:'hero_height', diyHeight:'diy_height', giftHeight:'gift_height', saleHeight:'sale_height', catHeight:'cat_height',
+  diyWidth:'diy_width', giftWidth:'gift_width', saleWidth:'sale_width',
+  catCols:'cat_cols'
 };
 
 // ── 홈 카테고리 동적 관리 ──
