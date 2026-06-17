@@ -270,7 +270,7 @@
   <nav class="header__nav">
     <a href="/category.html?cat=best">Best</a><a href="/category.html?cat=new">New In</a>
     <a href="/category.html?cat=bags">Bags</a><a href="/category.html?cat=jewelry">Jewelry</a>
-    <a href="/category.html?cat=accessories">Accessories</a><a href="/category.html?cat=keyring">Keyring</a>
+    <a href="/category.html?cat=keyring">Keyring</a>
     <a href="/category.html?cat=seasonal">Seasonal</a><a href="/category.html?cat=sale">Sale</a>
   </nav>
   <div class="header__actions"><a href="/login.html">Login</a><a href="/mypage.html?tab=wishlist">Wishlist</a><a href="/cart.html">Bag (0)</a>
@@ -280,7 +280,7 @@
   <button class="mobile-menu__close" aria-label="메뉴 닫기">✕</button>
   <a href="/category.html?cat=best">Best</a><a href="/category.html?cat=new">New In</a>
   <a href="/category.html?cat=bags">Bags</a><a href="/category.html?cat=jewelry">Jewelry</a>
-  <a href="/category.html?cat=accessories">Accessories</a><a href="/category.html?cat=keyring">Keyring</a>
+  <a href="/category.html?cat=keyring">Keyring</a>
   <a href="/category.html?cat=seasonal">Seasonal</a><a href="/category.html?cat=sale">Sale</a>
   <a href="/login.html">Login</a><a href="/mypage.html?tab=wishlist">Wishlist</a>
 </div>
@@ -588,9 +588,14 @@ async function changeCartOption(idx){
     }
     return;
   }
-  const cur=item.selected_options?.['구성']||'';
   const sel={};
-  editable.forEach((o,oi)=>{ o.items.forEach((it,j)=>{ const nm=it.color_name||it.name||''; if(nm&&cur.includes(nm)){ if(!sel[oi])sel[oi]=new Set(); sel[oi].add(j); } }); });
+  const prevSel=Array.isArray(item.selected_options?._sel)?item.selected_options._sel:null;
+  if(prevSel&&prevSel.length){
+    prevSel.forEach(s=>{ const oi=editable.findIndex(o=>o.id===s.po_id); if(oi<0)return; const full=data.find(d=>d.id===s.po_id); const itObj=full&&Array.isArray(full.items)?full.items[s.item_index]:null; if(!itObj)return; const j=editable[oi].items.indexOf(itObj); if(j<0)return; if(!sel[oi])sel[oi]=new Set(); sel[oi].add(j); });
+  }else{
+    const cur=item.selected_options?.['구성']||'';
+    editable.forEach((o,oi)=>{ o.items.forEach((it,j)=>{ const nm=it.color_name||it.name||''; if(nm&&cur.includes(nm)){ if(!sel[oi])sel[oi]=new Set(); sel[oi].add(j); } }); });
+  }
   cartOptState={ idx, options:editable, sel, allData:data };
   renderCartOptModal();
   document.getElementById('cartOptModal').classList.add('show');
@@ -627,7 +632,7 @@ function toggleCartOptItem(oi,j){
 async function applyCartOption(){
   const {idx,options,sel,allData}=cartOptState; const item=cartItems[idx]; if(!item)return;
   let any=false; const parts=[]; const selArr=[];
-  options.forEach((o,oi)=>{ const s=sel[oi]; if(!s||!s.size)return; (o.items||[]).forEach((it,j)=>{ if(s.has(j)){ any=true; const nm=it.color_name||it.name||''; const pr=Number(it.price)||0; parts.push(pr>0?`${nm} (+${pr.toLocaleString()}원)`:nm); selArr.push({po_id:o.id, item_index:j});} }); });
+  options.forEach((o,oi)=>{ const s=sel[oi]; if(!s||!s.size)return; const full=(allData||[]).find(d=>d.id===o.id); (o.items||[]).forEach((it,j)=>{ if(s.has(j)){ any=true; const nm=it.color_name||it.name||''; const pr=Number(it.price)||0; parts.push(pr>0?`${nm} (+${pr.toLocaleString()}원)`:nm); const fj=full&&Array.isArray(full.items)?full.items.indexOf(it):j; selArr.push({po_id:o.id, item_index:fj>=0?fj:j});} }); });
   if(!any){ yToast('항목을 하나 이상 선택해주세요.','error'); return; }
   const prevSel=Array.isArray(item.selected_options&&item.selected_options._sel)?item.selected_options._sel:[];
   const pid=item.products&&item.products.id;
