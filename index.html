@@ -390,10 +390,10 @@
   <div class="home-diy__inner">
     <img class="home-diy__img is-loading" id="diyVisualImg" alt="DIY Keyring">
     <div class="home-diy__text">
-      <div class="home-diy__label">KEYRING STUDIO</div>
-      <h2 class="home-diy__title">나만의 키링 만들기</h2>
-      <p class="home-diy__desc">취향에 맞게 조합하는 YLLOWTAP 키링 스튜디오</p>
-      <a class="home-diy__btn" href="/category.html?cat=keyring">키링 커스텀 시작하기</a>
+      <div class="home-diy__label" id="diyLabel">KEYRING STUDIO</div>
+      <h2 class="home-diy__title" id="diyTitle">나만의 키링 만들기</h2>
+      <p class="home-diy__desc" id="diyDesc">취향에 맞게 조합하는 YLLOWTAP 키링 스튜디오</p>
+      <a class="home-diy__btn" id="diyBtn" href="/category.html?cat=keyring">키링 커스텀 시작하기</a>
     </div>
   </div>
 </section>
@@ -416,9 +416,9 @@
     <img class="home-gift__img is-loading" id="perfectGiftImg" alt="Perfect Gift">
     <div class="home-gift__overlay"></div>
     <div class="home-gift__txt">
-      <div class="home-gift__en">PERFECT GIFT</div>
+      <div class="home-gift__en" id="giftEn">PERFECT GIFT</div>
     </div>
-    <a class="home-gift__btn" href="/category.html">Gift Collection</a>
+    <a class="home-gift__btn" id="giftBtn" href="/category.html">Gift Collection</a>
   </div>
 </section>
 
@@ -426,11 +426,11 @@
 <section class="home-sale">
   <div class="home-sale__inner">
     <div class="home-sale__txt">
-      <div class="home-sale__up">UP TO 30% OFF</div>
-      <div class="home-sale__en">SUMMER SALE</div>
-      <div class="home-sale__ko">시즌 오프 최대 30% 할인</div>
+      <div class="home-sale__up" id="saleUp">UP TO 30% OFF</div>
+      <div class="home-sale__en" id="saleEn">SUMMER SALE</div>
+      <div class="home-sale__ko" id="saleKo">시즌 오프 최대 30% 할인</div>
     </div>
-    <a class="home-sale__btn" href="/category.html?cat=sale">세일 상품 보러가기</a>
+    <a class="home-sale__btn" id="saleBtn" href="/category.html?cat=sale">세일 상품 보러가기</a>
   </div>
 </section>
 
@@ -870,6 +870,13 @@ async function loadSettings() {
   swap('diyVisualImg', 'diy_visual_img');
   swap('perfectGiftImg', 'perfect_gift_img');
 
+  // 홈 배너 문구/링크 (어드민에서 수정 가능 · 비어있으면 기본값 유지)
+  const setTxt=(id,key)=>{ const el=document.getElementById(id); if(el&&s[key]!=null&&s[key]!=='') el.textContent=s[key]; };
+  const setHref=(id,key)=>{ const el=document.getElementById(id); if(el&&s[key]!=null&&s[key]!=='') el.setAttribute('href',s[key]); };
+  setTxt('diyLabel','diy_label'); setTxt('diyTitle','diy_title'); setTxt('diyDesc','diy_desc'); setTxt('diyBtn','diy_btn_text'); setHref('diyBtn','diy_link');
+  setTxt('giftEn','gift_en'); setTxt('giftBtn','gift_btn_text'); setHref('giftBtn','gift_link');
+  setTxt('saleUp','sale_up'); setTxt('saleEn','sale_en'); setTxt('saleKo','sale_ko'); setTxt('saleBtn','sale_btn_text'); setHref('saleBtn','sale_link');
+
   // 히어로 BGM (기존 기능 유지)
   if (s.bgm_enabled === 'true' && s.bgm_url) {
     const audio = document.getElementById('heroBgm');
@@ -929,7 +936,7 @@ async function init() {
 }
 init();
 </script>
-<script src="./js/common-header.js?v=17"></script>
+<script src="./js/common-header.js?v=18"></script>
 
 </body>
 </html>

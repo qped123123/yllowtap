@@ -502,6 +502,26 @@ body { font-family:var(--font); background:var(--bg); color:var(--text); font-si
           </div>
         </div>
 
+        <div style="border-top:1px solid var(--border);margin:18px 0 10px;"></div>
+        <div style="font-size:12px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:var(--accent);margin-bottom:6px;">홈 배너 문구·링크</div>
+        <p style="font-size:11px;color:var(--text-muted);margin-bottom:12px;">비워두면 기본 문구가 나와요. 저장은 위 "이미지 저장" 버튼을 누르면 같이 저장됩니다.</p>
+        <div style="font-size:11px;font-weight:600;color:var(--text-dim);margin:8px 0 2px;">키링 스튜디오 배너</div>
+        <div class="setting-row"><div class="setting-label">상단 라벨</div><input class="form-input" id="diyLabel" placeholder="KEYRING STUDIO" style="width:100%;"></div>
+        <div class="setting-row"><div class="setting-label">제목</div><input class="form-input" id="diyTitle" placeholder="나만의 키링 만들기" style="width:100%;"></div>
+        <div class="setting-row"><div class="setting-label">설명</div><input class="form-input" id="diyDesc" placeholder="취향에 맞게 조합하는 YLLOWTAP 키링 스튜디오" style="width:100%;"></div>
+        <div class="setting-row"><div class="setting-label">버튼 문구</div><input class="form-input" id="diyBtnText" placeholder="키링 커스텀 시작하기" style="width:100%;"></div>
+        <div class="setting-row"><div class="setting-label">버튼 링크</div><input class="form-input" id="diyLink" placeholder="/category.html?cat=keyring" style="width:100%;"></div>
+        <div style="font-size:11px;font-weight:600;color:var(--text-dim);margin:12px 0 2px;">Perfect Gift 배너</div>
+        <div class="setting-row"><div class="setting-label">영문 문구</div><input class="form-input" id="giftEn" placeholder="PERFECT GIFT" style="width:100%;"></div>
+        <div class="setting-row"><div class="setting-label">버튼 문구</div><input class="form-input" id="giftBtnText" placeholder="Gift Collection" style="width:100%;"></div>
+        <div class="setting-row"><div class="setting-label">버튼 링크</div><input class="form-input" id="giftLink" placeholder="/category.html" style="width:100%;"></div>
+        <div style="font-size:11px;font-weight:600;color:var(--text-dim);margin:12px 0 2px;">Summer Sale 배너</div>
+        <div class="setting-row"><div class="setting-label">상단 문구</div><input class="form-input" id="saleUp" placeholder="UP TO 30% OFF" style="width:100%;"></div>
+        <div class="setting-row"><div class="setting-label">영문 문구</div><input class="form-input" id="saleEn" placeholder="SUMMER SALE" style="width:100%;"></div>
+        <div class="setting-row"><div class="setting-label">한글 문구</div><input class="form-input" id="saleKo" placeholder="시즌 오프 최대 30% 할인" style="width:100%;"></div>
+        <div class="setting-row"><div class="setting-label">버튼 문구</div><input class="form-input" id="saleBtnText" placeholder="세일 상품 보러가기" style="width:100%;"></div>
+        <div class="setting-row"><div class="setting-label">버튼 링크</div><input class="form-input" id="saleLink" placeholder="/category.html?cat=sale" style="width:100%;"></div>
+
         <!-- ★ 팝업 공지 관리 -->
         <div style="border-top:1px solid var(--border);margin:20px 0;"></div>
         <div style="font-size:12px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:var(--accent);margin-bottom:16px;">팝업 공지 관리</div>
@@ -2299,6 +2319,11 @@ const MAIN_IMAGE_KEYS = {
   miPerfectGift: 'perfect_gift_img',
   miDiyVisual: 'diy_visual_img'
 };
+const MAIN_TEXT_KEYS = {
+  diyLabel:'diy_label', diyTitle:'diy_title', diyDesc:'diy_desc', diyBtnText:'diy_btn_text', diyLink:'diy_link',
+  giftEn:'gift_en', giftBtnText:'gift_btn_text', giftLink:'gift_link',
+  saleUp:'sale_up', saleEn:'sale_en', saleKo:'sale_ko', saleBtnText:'sale_btn_text', saleLink:'sale_link'
+};
 
 // ── 홈 카테고리 동적 관리 ──
 let homeCats = [];
@@ -2371,6 +2396,10 @@ function loadMainImages() {
     const prev = document.getElementById(inputId + 'Preview');
     if (prev && siteSettings[key]) { prev.src = siteSettings[key]; prev.style.visibility = 'visible'; }
   }
+  for (const [inputId, key] of Object.entries(MAIN_TEXT_KEYS)) {
+    const inp = document.getElementById(inputId);
+    if (inp) inp.value = siteSettings[key] || '';
+  }
   loadHomeCats();
 }
  
@@ -2397,6 +2426,12 @@ async function saveMainImages() {
   try {
     for (const [inputId, key] of Object.entries(MAIN_IMAGE_KEYS)) {
       const val = document.getElementById(inputId).value.trim();
+      await sb.from('site_settings').upsert({ key, value: val, updated_at: new Date().toISOString() }, { onConflict: 'key' });
+      siteSettings[key] = val;
+    }
+    for (const [inputId, key] of Object.entries(MAIN_TEXT_KEYS)) {
+      const el = document.getElementById(inputId);
+      const val = el ? el.value.trim() : '';
       await sb.from('site_settings').upsert({ key, value: val, updated_at: new Date().toISOString() }, { onConflict: 'key' });
       siteSettings[key] = val;
     }

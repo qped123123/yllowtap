@@ -610,7 +610,7 @@
       '.y-confirm-overlay.show{opacity:1}'+
       '.y-confirm-box{background:#fff;border:1px solid #111;max-width:380px;width:100%;padding:28px 24px 20px;transform:translateY(8px);transition:transform .2s;font-family:inherit}'+
       '.y-confirm-overlay.show .y-confirm-box{transform:translateY(0)}'+
-      '.y-confirm-msg{font-size:14px;line-height:1.6;color:#111;white-space:pre-line;margin-bottom:22px}'+
+      '.y-confirm-msg{font-size:14px;line-height:1.6;color:#111;white-space:pre-line;word-break:keep-all;margin-bottom:22px}'+
       '.y-confirm-btns{display:flex;gap:8px}'+
       '.y-confirm-btn{flex:1;padding:12px;font-size:13px;font-family:inherit;cursor:pointer;border:1px solid #E5E1DC;background:#fff;color:#888;transition:all .15s}'+
       '.y-confirm-btn:hover{border-color:#888}'+
