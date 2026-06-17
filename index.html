@@ -104,7 +104,7 @@
   }
 
   /* 히어로 높이 (서비스바까지 보이게) */
-  .hero { height: 70vh; }
+  .hero { height: var(--hero-h, 70vh); }
   /* ★ A-2: 서비스바 글씨 어절 단위 줄바꿈 (혜/택 깨짐 방지) */
   .service-bar__title, .service-bar__desc { word-break: keep-all; }
 
@@ -121,7 +121,7 @@
 
   /* 03 CATEGORY SHORTCUT */
   .home-cats { display: grid; grid-template-columns: repeat(var(--cat-cols, 4), 1fr); gap: 24px; }
-  .home-cat { position: relative; display: block; background: #f5f1ea; overflow: hidden; height: 300px; }
+  .home-cat { position: relative; display: block; background: #f5f1ea; overflow: hidden; height: var(--cat-h, 300px); }
   .home-cat__img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: center; display: block; z-index: 1; transition: transform 0.6s var(--ease); }
   .home-cat:hover .home-cat__img { transform: scale(1.04); }
   /* 글씨 가독성용 밝은 막 (하단) */
@@ -160,7 +160,7 @@
 
   /* 05 DIY KEYRING STUDIO (전체폭 가로 배너) */
   .home-diy { max-width: 1320px; margin: 64px auto 0; padding: 0 56px; }
-  .home-diy__inner { position: relative; width: 100%; height: 280px; overflow: hidden; background: #f3f0eb; }
+  .home-diy__inner { position: relative; width: 100%; height: var(--diy-h, 280px); overflow: hidden; background: #f3f0eb; }
   .home-diy__img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: center; display: block; z-index: 1; }
   .home-diy__text { position: absolute; left: 0; top: 0; bottom: 0; z-index: 2; width: 64%; padding: 0 48px; display: flex; flex-direction: column; justify-content: center; align-items: flex-start; background: linear-gradient(to right, rgba(243,240,235,0.95) 65%, rgba(243,240,235,0) 100%); }
   .home-diy__label { font-size: 11px; font-weight: 700; letter-spacing: 0.12em; margin-bottom: 18px; color: #111; }
@@ -171,7 +171,7 @@
 
   /* 07 PERFECT GIFT (단일 배너) */
   .home-gift { max-width: 1320px; margin: 64px auto 0; padding: 0 56px; }
-  .home-gift__inner { position: relative; width: 100%; height: 260px; overflow: hidden; background: #e9dfcf; }
+  .home-gift__inner { position: relative; width: 100%; height: var(--gift-h, 260px); overflow: hidden; background: #e9dfcf; }
   .home-gift__img { width: 100%; height: 100%; object-fit: cover; object-position: center; }
   .home-gift__overlay { position: absolute; inset: 0; background: linear-gradient(to right, rgba(0,0,0,0.38), rgba(0,0,0,0.05)); }
   .home-gift__txt { position: absolute; left: 48px; top: 38px; color: #fff; z-index: 2; }
@@ -182,7 +182,7 @@
 
   /* 08 SUMMER SALE (버터 옐로우 · 좌우 정렬 띠배너) */
   .home-sale { max-width: 1320px; margin: 32px auto 72px; padding: 0 56px; }
-  .home-sale__inner { height: 118px; background: linear-gradient(90deg, #f6e7a6 0%, #f1d95c 100%); display: flex; align-items: center; justify-content: space-between; padding: 0 48px; position:relative; overflow:hidden; }
+  .home-sale__inner { height: var(--sale-h, 118px); background: linear-gradient(90deg, #f6e7a6 0%, #f1d95c 100%); display: flex; align-items: center; justify-content: space-between; padding: 0 48px; position:relative; overflow:hidden; }
   .home-sale__img { position:absolute; inset:0; width:100%; height:100%; object-fit:cover; z-index:0; opacity:0; transition:opacity 0.4s ease; }
   .home-sale__img.is-ready { opacity:1; }
   .home-sale__inner.has-img::before { content:''; position:absolute; inset:0; background:rgba(255,255,255,0.5); z-index:0; }
@@ -895,12 +895,12 @@ async function loadSettings() {
   setPerk(1); setPerk(2); setPerk(3);
 
   // 크기 조절 (비어있으면 기본 크기 유지)
-  const setH=(sel,key,unit)=>{ const v=s[key]; if(v){ document.querySelectorAll(sel).forEach(el=>{ el.style.height=v+unit; }); } };
-  setH('.hero','hero_height','vh');
-  setH('.home-diy__inner','diy_height','px');
-  setH('.home-gift__inner','gift_height','px');
-  setH('.home-sale__inner','sale_height','px');
-  setH('.home-cat','cat_height','px');
+  const setH=(sel,key,varName,unit)=>{ const v=s[key]; if(v){ document.querySelectorAll(sel).forEach(el=>{ el.style.setProperty(varName, v+unit); }); } };
+  setH('.hero','hero_height','--hero-h','vh');
+  setH('.home-diy__inner','diy_height','--diy-h','px');
+  setH('.home-gift__inner','gift_height','--gift-h','px');
+  setH('.home-sale__inner','sale_height','--sale-h','px');
+  setH('.home-cat','cat_height','--cat-h','px');
   const setW=(sel,key,unit)=>{ const v=s[key]; if(v){ document.querySelectorAll(sel).forEach(el=>{ el.style.maxWidth=v+unit; el.style.marginLeft='auto'; el.style.marginRight='auto'; }); } };
   setW('.home-diy__inner','diy_width','px');
   setW('.home-gift__inner','gift_width','px');
