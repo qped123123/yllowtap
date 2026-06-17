@@ -438,7 +438,7 @@ async function markWishlisted(){
   }catch(e){}
 }
 async function toggleWish(btn){
-  const user=await currentUser(); if(!user){ alert('찜은 로그인 후 이용할 수 있어요.'); return; }
+  const user=await currentUser(); if(!user){ (typeof yToast==='function'?yToast('찜은 로그인 후 이용할 수 있어요.','error'):alert('찜은 로그인 후 이용할 수 있어요.')); return; }
   const pid=btn.getAttribute('data-wish'), on=btn.classList.contains('on');
   try{ if(on){ await sb.from('wishlists').delete().eq('user_id',user.id).eq('product_id',pid); btn.classList.remove('on'); }
     else{ await sb.from('wishlists').insert({user_id:user.id,product_id:pid}); btn.classList.add('on'); } }
