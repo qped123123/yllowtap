@@ -526,6 +526,7 @@ function cartItemHTML(item,i){
         <div class="cart-item-brand">${p.brand||'YLLOWTAP'}</div>
         <div class="cart-item-name"><a href="/product.html?slug=${p.slug||p.id}">${p.name}</a></div>
         ${optStr?`<div class="cart-item-option">${optStr}</div>`:''}
+        <div style="margin-top:4px;"><button type="button" onclick="changeCartOption(${i})" style="font-size:11px;color:#888;background:none;border:none;padding:0;cursor:pointer;text-decoration:underline;font-family:inherit;">옵션 변경</button></div>
         <div style="margin-top:8px;">
           <div class="cart-qty">
             <button class="cart-qty-btn" onclick="changeQty(${i},-1)">−</button>
@@ -535,7 +536,7 @@ function cartItemHTML(item,i){
         </div>
       </div>
       <div>
-        ${isSale?`<div class="cart-item-original">${p.original_price.toLocaleString()}원</div><div class="cart-item-saleline"><span class="cart-item-price">${((opts._line_price||p.price)*item.quantity).toLocaleString()}원</span><span class="cart-item-disc">${Math.round((1-p.price/p.original_price)*100)}%</span></div>`:`<div class="cart-item-price">${((opts._line_price||p.price)*item.quantity).toLocaleString()}원</div>`}
+        ${isSale?`<div class="cart-item-original">${(p.original_price*item.quantity).toLocaleString()}원</div><div class="cart-item-saleline"><span class="cart-item-price">${((opts._line_price||p.price)*item.quantity).toLocaleString()}원</span><span class="cart-item-disc">${Math.round((1-p.price/p.original_price)*100)}%</span></div>`:`<div class="cart-item-price">${((opts._line_price||p.price)*item.quantity).toLocaleString()}원</div>`}
       </div>
       <div class="cart-compare-cell" style="text-align:center;">${(scoredProductIds.has(p.id)&&comparableCats.has(topCatOf(p.category)))?`<label style="font-size:10px;color:#999;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:2px;"><input type="checkbox" class="compare-check" data-idx="${i}" data-cat="${topCatOf(p.category)}" data-pid="${p.id}" data-noscore="0" onchange="updateCompareCheck()"><span>비교</span></label>`:''}</div>
       <div class="cart-remove-cell"><button class="cart-remove" onclick="removeItem(${i})">×</button></div>
@@ -563,6 +564,86 @@ function componentRowsHTML(item,i){
   }).join('');
   return `<div class="cart-comp-list"><div class="cart-comp-head">⟡ 구성품도 따로 비교할 수 있어요</div>${rows}</div>`;
 }
+
+/* ── 옵션 변경 (장바구니에서 직접) ── */
+let cartOptState=null;
+async function changeCartOption(idx){
+  const item=cartItems[idx];if(!item)return;const p=item.products;if(!p)return;
+  const{data,error}=await sb.from('product_purchase_options').select('*').eq('product_id',p.id).order('display_order');
+  if(error||!data||!data.length){
+    if((await yConfirm('이 상품은 상세페이지에서 옵션을 변경할 수 있어요. 이동할까요?\n(지금 담긴 옵션은 빠지고, 상세페이지에서 새로 담으면 돼요)', {okText:'이동'}))){
+      try{ if(item.id) await sb.from('cart_items').delete().eq('id',item.id); }catch(e){}
+      location.href='/product.html?slug='+encodeURIComponent(p.slug||p.id);
+    }
+    return;
+  }
+  const editable=data.map(o=>{
+    const items=(Array.isArray(o.items)?o.items:[]).filter(it=>!(it.link_product_id&&it.link_product_id!==p.id));
+    return {...o, items};
+  }).filter(o=>o.items.length>0);
+  if(!editable.length){
+    if((await yConfirm('이 상품은 연결 옵션이라 상세페이지에서 변경해야 해요. 이동할까요?\n(지금 담긴 옵션은 빠지고, 상세페이지에서 새로 담으면 돼요)', {okText:'이동'}))){
+      try{ if(item.id) await sb.from('cart_items').delete().eq('id',item.id); }catch(e){}
+      location.href='/product.html?slug='+encodeURIComponent(p.slug||p.id);
+    }
+    return;
+  }
+  const cur=item.selected_options?.['구성']||'';
+  const sel={};
+  editable.forEach((o,oi)=>{ o.items.forEach((it,j)=>{ const nm=it.color_name||it.name||''; if(nm&&cur.includes(nm)){ if(!sel[oi])sel[oi]=new Set(); sel[oi].add(j); } }); });
+  cartOptState={ idx, options:editable, sel, allData:data };
+  renderCartOptModal();
+  document.getElementById('cartOptModal').classList.add('show');
+  document.body.style.overflow='hidden';
+}
+function cartOptTotal(){
+  let t=0; const {options,sel}=cartOptState;
+  options.forEach((o,oi)=>{ const s=sel[oi]; if(!s||!s.size)return; t+=Number(o.price)||0; (o.items||[]).forEach((it,j)=>{ if(s.has(j)&&Number(it.price)>0)t+=Number(it.price); }); });
+  return t;
+}
+function renderCartOptModal(){
+  const {options,sel,idx}=cartOptState;
+  const cur=cartItems[idx]?.selected_options?.['구성'];
+  const body=document.getElementById('cartOptBody');
+  body.innerHTML=(cur?`<div style="font-size:11px;color:#999;margin-bottom:14px;">현재: ${cur}</div>`:'')+options.map((o,oi)=>{
+    const items=Array.isArray(o.items)?o.items:[];
+    const cells=items.map((it,j)=>{
+      const on=sel[oi]&&sel[oi].has(j);
+      const nm=it.color_name||it.name||'';
+      const pr=Number(it.price)>0?`<span style="color:#888;"> +${Number(it.price).toLocaleString()}원</span>`:'';
+      const img=it.image_url?`<img src="${it.image_url}" style="width:40px;height:40px;object-fit:cover;border-radius:6px;margin-right:10px;">`:'';
+      return `<div onclick="toggleCartOptItem(${oi},${j})" style="display:flex;align-items:center;padding:10px 12px;border:1px solid ${on?'#1a1a1a':'#E5E1DC'};border-radius:8px;margin-bottom:8px;cursor:pointer;background:${on?'#FAFAF8':'#fff'};">${img}<span style="flex:1;font-size:13px;">${nm}${pr}</span><span style="font-size:14px;">${on?'●':'○'}</span></div>`;
+    }).join('');
+    return `<div style="margin-bottom:18px;"><div style="font-size:13px;font-weight:600;margin-bottom:10px;">${o.option_title||'옵션'}${Number(o.price)>0?` <span style="font-size:11px;color:#888;font-weight:400;">기본 +${Number(o.price).toLocaleString()}원</span>`:''}</div>${cells||'<div style="font-size:12px;color:#999;">항목 없음</div>'}</div>`;
+  }).join('');
+  document.getElementById('cartOptTotal').textContent=cartOptTotal().toLocaleString()+'원';
+}
+function toggleCartOptItem(oi,j){
+  if(!cartOptState.sel[oi])cartOptState.sel[oi]=new Set();
+  const s=cartOptState.sel[oi];
+  if(s.has(j))s.delete(j); else s.add(j);
+  renderCartOptModal();
+}
+async function applyCartOption(){
+  const {idx,options,sel,allData}=cartOptState; const item=cartItems[idx]; if(!item)return;
+  let any=false; const parts=[]; const selArr=[];
+  options.forEach((o,oi)=>{ const s=sel[oi]; if(!s||!s.size)return; (o.items||[]).forEach((it,j)=>{ if(s.has(j)){ any=true; const nm=it.color_name||it.name||''; const pr=Number(it.price)||0; parts.push(pr>0?`${nm} (+${pr.toLocaleString()}원)`:nm); selArr.push({po_id:o.id, item_index:j});} }); });
+  if(!any){ yToast('항목을 하나 이상 선택해주세요.','error'); return; }
+  const prevSel=Array.isArray(item.selected_options&&item.selected_options._sel)?item.selected_options._sel:[];
+  const pid=item.products&&item.products.id;
+  const linkedKept=prevSel.filter(s=>{ const po=(allData||[]).find(d=>d.id===s.po_id); const it=po&&Array.isArray(po.items)?po.items[s.item_index]:null; return it&&it.link_product_id&&it.link_product_id!==pid; });
+  const newOpts={...(item.selected_options||{})};
+  delete newOpts._components;
+  newOpts['구성']=parts.join(', ');
+  newOpts['_sel']=[...linkedKept, ...selArr];
+  newOpts['_line_price']=cartOptTotal();
+  try{ if(item.id) await sb.from('cart_items').update({selected_options:newOpts}).eq('id',item.id); }
+  catch(e){ console.error('[cart] 옵션 저장 오류:',e); yToast('저장 중 오류가 났어요.','error'); return; }
+  item.selected_options=newOpts;
+  closeCartOptModal();
+  renderCart();
+}
+function closeCartOptModal(){ document.getElementById('cartOptModal').classList.remove('show'); document.body.style.overflow=''; cartOptState=null; }
 
 function updateSummary(){
   let subtotal=0, discount=0;
@@ -625,7 +706,7 @@ function goCheckout(){
   if(!cartItems.length){yToast('장바구니가 비어있습니다.');return;}
   const sel=cartItems.filter(i=>i.checked);
   if(!sel.length){yToast('주문할 상품을 선택해주세요.');return;}
-  const ids=[...new Set(sel.map(i=>i.products?.id).filter(Boolean))];
+  const ids=[...new Set(sel.map(i=>i.id).filter(Boolean))];
   window.location.href='/checkout.html?selected='+ids.join(',');
 }
 
@@ -918,7 +999,7 @@ async function selectPreferred(chosenId, rejectedIds) {
   showCompareToast(_isLine ? '선택 완료! 주문 페이지로 이동합니다' : '선택 완료! 상품 페이지로 이동합니다');
   setTimeout(() => {
     window.location.href = _isLine
-      ? ('/checkout.html?selected=' + chosenId)
+      ? ('/checkout.html?selected=' + cartItems.filter(it=>it.products?.id===chosenId).map(it=>it.id).join(','))
       : ('/product.html?slug=' + (_prod.slug || chosenId));
   }, 1000);
 }
@@ -996,5 +1077,26 @@ async function init(){
 init();
 </script>
 <script src="./js/common-header.js?v=17"></script>
+<style>
+.cart-opt-overlay{position:fixed;inset:0;background:rgba(0,0,0,.4);display:none;align-items:flex-end;justify-content:center;z-index:1000}
+.cart-opt-overlay.show{display:flex}
+@media(min-width:600px){.cart-opt-overlay{align-items:center}}
+.cart-opt-sheet{background:#fff;width:100%;max-width:480px;max-height:85vh;display:flex;flex-direction:column;border-radius:14px 14px 0 0}
+@media(min-width:600px){.cart-opt-sheet{border-radius:14px}}
+.cart-opt-head{padding:18px 20px;border-bottom:1px solid #F0EDE8;display:flex;justify-content:space-between;align-items:center}
+.cart-opt-head h3{font-size:15px;font-weight:600;margin:0}
+.cart-opt-x{background:none;border:none;font-size:20px;color:#999;cursor:pointer;line-height:1}
+#cartOptBody{padding:18px 20px;overflow-y:auto;flex:1}
+.cart-opt-foot{padding:16px 20px;border-top:1px solid #F0EDE8;display:flex;align-items:center;gap:12px}
+.cart-opt-foot .t{flex:1;font-size:14px;font-weight:700}
+.cart-opt-apply{padding:13px 24px;background:#1a1a1a;color:#fff;border:none;border-radius:10px;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit}
+</style>
+<div class="cart-opt-overlay" id="cartOptModal" onclick="if(event.target===this)closeCartOptModal()">
+  <div class="cart-opt-sheet">
+    <div class="cart-opt-head"><h3>옵션 변경</h3><button class="cart-opt-x" onclick="closeCartOptModal()">&times;</button></div>
+    <div id="cartOptBody"></div>
+    <div class="cart-opt-foot"><div class="t">합계 <span id="cartOptTotal">0원</span></div><button class="cart-opt-apply" onclick="applyCartOption()">적용</button></div>
+  </div>
+</div>
 </body>
 </html>

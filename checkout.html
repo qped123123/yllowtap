@@ -218,7 +218,7 @@ async function loadCartItems(){
   if(!cartItems.length){window.location.href='/cart.html';return;}
   const params=new URLSearchParams(window.location.search);
   const selectedId=params.get('selected');
-  if(selectedId){const ids=selectedId.split(',').map(x=>x.trim()).filter(Boolean);cartItems=cartItems.filter(item=>ids.includes(item.products?.id));}
+  if(selectedId){const ids=selectedId.split(',').map(x=>x.trim()).filter(Boolean);cartItems=cartItems.filter(item=>ids.includes(item.id));}
   renderItems();updateSummary();
 }
 
@@ -228,7 +228,10 @@ function renderItems(){
     const img=getMainImg(p);const opts=item.selected_options||{};
     const HIDE_OPT_KEYS=['po_id','item_index','product_id','option_id','po','idx'];
     const optStr=Object.entries(opts).filter(([k])=>!k.startsWith('_')&&!HIDE_OPT_KEYS.includes(k)).map(([k,v])=>k+': '+v).join(' / ');
-    return`<div class="co-item${item.checked?'':' unchecked'}" id="co-item-${i}"><input type="checkbox" class="co-item-check" ${item.checked?'checked':''} onchange="toggleCoItem(${i})">${img?`<img class="co-item-img" src="${img}">`:'<div class="co-item-img"></div>'}<div><div class="co-item-name">${p.name}</div>${optStr?`<div class="co-item-opt">${optStr}</div>`:''}<button type="button" onclick="changeCoOption(${i})" style="margin-top:4px;font-size:11px;color:#888;background:none;border:none;padding:0;cursor:pointer;text-decoration:underline;font-family:inherit;">옵션 변경</button><div class="co-item-qty" style="display:flex;align-items:center;gap:8px;margin-top:6px;"><span style="color:#888;">수량</span><div style="display:inline-flex;align-items:center;border:1px solid #E5E1DC;border-radius:8px;overflow:hidden;"><button type="button" onclick="changeCoQty(${i},-1)" style="width:28px;height:28px;border:none;background:#fff;cursor:pointer;font-size:16px;line-height:1;color:#333;">&minus;</button><span style="min-width:30px;text-align:center;font-size:13px;color:#333;">${item.quantity}</span><button type="button" onclick="changeCoQty(${i},1)" style="width:28px;height:28px;border:none;background:#fff;cursor:pointer;font-size:16px;line-height:1;color:#333;">+</button></div></div></div><div class="co-item-price">${(coUnitPrice(item)*item.quantity).toLocaleString()}원</div></div>`;
+    const _isSale=p.original_price&&p.original_price>p.price;
+    const _lp=coUnitPrice(item)*item.quantity;
+    const _priceHtml=_isSale?`<div style="font-size:11px;color:#999;text-decoration:line-through;font-weight:400;">${(p.original_price*item.quantity).toLocaleString()}원</div><div style="white-space:nowrap;"><span style="color:#C4453C;font-weight:700;font-size:12px;">${Math.round((1-p.price/p.original_price)*100)}%</span> ${_lp.toLocaleString()}원</div>`:`${_lp.toLocaleString()}원`;
+    return`<div class="co-item${item.checked?'':' unchecked'}" id="co-item-${i}"><input type="checkbox" class="co-item-check" ${item.checked?'checked':''} onchange="toggleCoItem(${i})">${img?`<img class="co-item-img" src="${img}">`:'<div class="co-item-img"></div>'}<div><div class="co-item-name">${p.name}</div>${optStr?`<div class="co-item-opt">${optStr}</div>`:''}<button type="button" onclick="changeCoOption(${i})" style="margin-top:4px;font-size:11px;color:#888;background:none;border:none;padding:0;cursor:pointer;text-decoration:underline;font-family:inherit;">옵션 변경</button><div class="co-item-qty" style="display:flex;align-items:center;gap:8px;margin-top:6px;"><span style="color:#888;">수량</span><div style="display:inline-flex;align-items:center;border:1px solid #E5E1DC;border-radius:8px;overflow:hidden;"><button type="button" onclick="changeCoQty(${i},-1)" style="width:28px;height:28px;border:none;background:#fff;cursor:pointer;font-size:16px;line-height:1;color:#333;">&minus;</button><span style="min-width:30px;text-align:center;font-size:13px;color:#333;">${item.quantity}</span><button type="button" onclick="changeCoQty(${i},1)" style="width:28px;height:28px;border:none;background:#fff;cursor:pointer;font-size:16px;line-height:1;color:#333;">+</button></div></div></div><div class="co-item-price">${_priceHtml}</div></div>`;
   }).join('');
 }
 
