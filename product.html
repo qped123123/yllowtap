@@ -1646,6 +1646,17 @@ function collectCartLines(){
   const addonLines=[];
   if(isEdit()&&buyOptions.length){
     const parts=[]; let any=false; const sel=[];
+    // [버그수정] BAG ONLY 색상 그룹은 반드시 선택해야 담김
+    for(let ci=0; ci<buyOptions.length; ci++){
+      const grp=buyOptions[ci];
+      if(!Array.isArray(grp.items)) continue;
+      const isColorGroup =
+        String(grp.option_title || '').toUpperCase().includes('BAG ONLY') &&
+        grp.items.some(it=>it && it.color_name && String(it.color_name).trim()!=='');
+      if(!isColorGroup) continue;
+      const picked=(window.__selItems&&window.__selItems[ci])?[...window.__selItems[ci]]:[];
+      if(!picked.length){yToast('색상을 선택해주세요.');return null;}
+    }
     buyOptions.forEach((o,oi)=>{
       if(!Array.isArray(o.items)) return;
       const sset=(window.__selItems&&window.__selItems[oi])?[...window.__selItems[oi]]:[];
@@ -1656,10 +1667,8 @@ function collectCartLines(){
         const pr=Number(it.price)||0;
         sel.push({po_id:o.id, item_index:j});
         if(it.link_product_id && it.link_product_id!==product.id){
-          // 다른 상품과 연결됨 → 별도 장바구니 줄로 (가격 = 옵션에 들어간 값 그대로)
           addonLines.push({product_id:it.link_product_id, price:pr, po_id:o.id, item_index:j});
         }else{
-          // 연결 없는 옵션(색상 등) → 메인 상품 줄에 유지
           parts.push(pr>0?`${nm} (+${pr.toLocaleString()}원)`:nm);
         }
       });
@@ -1668,7 +1677,7 @@ function collectCartLines(){
     if(parts.length) mainOpts['구성']=parts.join(', ');
     mainOpts['_sel']=sel;
     const linkedSum=addonLines.reduce((s,a)=>s+a.price,0);
-    mainOpts['_line_price']=Math.max(0, allSelectedTotal()-linkedSum);  // 메인 줄 = 전체 − 연결상품
+    mainOpts['_line_price']=Math.max(0, allSelectedTotal()-linkedSum);
   }
   return { mainOpts, addonLines };
 }
