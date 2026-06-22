@@ -1665,10 +1665,10 @@ function collectCartLines(){
         any=true;
         const nm=it.color_name||it.name||'';
         const pr=Number(it.price)||0;
-        sel.push({po_id:o.id, item_index:j});
         if(it.link_product_id && it.link_product_id!==product.id){
           addonLines.push({product_id:it.link_product_id, price:pr, po_id:o.id, item_index:j});
         }else{
+          sel.push({po_id:o.id, item_index:j});
           parts.push(pr>0?`${nm} (+${pr.toLocaleString()}원)`:nm);
         }
       });
