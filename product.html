@@ -1688,13 +1688,34 @@ function stableStringify(o){
   if(Array.isArray(o)) return '['+o.map(stableStringify).join(',')+']';
   return '{'+Object.keys(o).sort().map(k=>JSON.stringify(k)+':'+stableStringify(o[k])).join(',')+'}';
 }
+// B-CART-DUP-FIX: 담기 = 원자적 합산 RPC(add_cart_line)에 위임.
+// 같은 cart_id+product_id+selected_options(전체)면 DB가 quantity를 합산(race·중복 방지).
+// (stableStringify는 더 이상 사용 안 함 — 참고용으로 위에 남겨둠)
 async function addCartLine(cartId, productId, quantity, opts){
-  const{data:existing}=await sb.from('cart_items').select('*').eq('cart_id',cartId).eq('product_id',productId);
-  const match=existing?.find(e=>stableStringify(e.selected_options)===stableStringify(opts));
-  if(match){
-    await sb.from('cart_items').update({quantity:match.quantity+quantity}).eq('id',match.id);
+  const{error}=await sb.rpc('add_cart_line',{
+    p_cart_id:cartId, p_product_id:productId,
+    p_quantity:quantity, p_opts:opts||{}
+  });
+  if(error){ console.error('[cart] addCartLine RPC 실패', error); throw error; }
+}
+
+// B-CART-DUP-FIX: 카트 1개 보장 — 동시 생성 충돌(carts UNIQUE) 시 재조회.
+async function getOrCreateCartId(){
+  const{data:{session}}=await sb.auth.getSession();
+  if(session){
+    let{data}=await sb.from('carts').select('id').eq('user_id',session.user.id).maybeSingle();
+    if(data) return data.id;
+    const ins=await sb.from('carts').insert({user_id:session.user.id}).select('id').maybeSingle();
+    if(ins.data) return ins.data.id;
+    return (await sb.from('carts').select('id').eq('user_id',session.user.id).maybeSingle()).data?.id;
   }else{
-    await sb.from('cart_items').insert({cart_id:cartId,product_id:productId,quantity:quantity,selected_options:opts});
+    let gid=localStorage.getItem('yllowtap_guest_id');
+    if(!gid){gid=crypto.randomUUID();localStorage.setItem('yllowtap_guest_id',gid);}
+    let{data}=await sb.from('carts').select('id').eq('guest_id',gid).maybeSingle();
+    if(data) return data.id;
+    const ins=await sb.from('carts').insert({guest_id:gid}).select('id').maybeSingle();
+    if(ins.data) return ins.data.id;
+    return (await sb.from('carts').select('id').eq('guest_id',gid).maybeSingle()).data?.id;
   }
 }
 
@@ -1713,10 +1734,8 @@ async function buyNow(){
     return;
   }
 
-  let cartId;
-  const{data}=await sb.from('carts').select('id').eq('user_id',session.user.id).single();
-  if(data){cartId=data.id;}
-  else{const{data:nc}=await sb.from('carts').insert({user_id:session.user.id}).select().single();cartId=nc.id;}
+  const cartId = await getOrCreateCartId();
+  if(!cartId){ if(typeof yToast==='function'){yToast('장바구니 생성에 실패했어요. 잠시 후 다시 시도해주세요.','error');} else {alert('장바구니 생성 실패');} return; }
 
   await addCartLine(cartId, product.id, qty, lines.mainOpts);
   for(const a of lines.addonLines){ await addCartLine(cartId, a.product_id, qty, {_line_price:a.price, _addon:true, po_id:a.po_id, item_index:a.item_index}); }
@@ -1734,20 +1753,8 @@ async function addToCart(){
   const lines=collectCartLines();
   if(lines===null) return;
 
-  const{data:{session}}=await sb.auth.getSession();
-  let cartId;
-
-  if(session){
-    const{data}=await sb.from('carts').select('id').eq('user_id',session.user.id).single();
-    if(data){cartId=data.id;}
-    else{const{data:nc}=await sb.from('carts').insert({user_id:session.user.id}).select().single();cartId=nc.id;}
-  }else{
-    let gid=localStorage.getItem('yllowtap_guest_id');
-    if(!gid){gid=crypto.randomUUID();localStorage.setItem('yllowtap_guest_id',gid);}
-    const{data}=await sb.from('carts').select('id').eq('guest_id',gid).single();
-    if(data){cartId=data.id;}
-    else{const{data:nc}=await sb.from('carts').insert({guest_id:gid}).select().single();cartId=nc.id;}
-  }
+  const cartId = await getOrCreateCartId();
+  if(!cartId){ if(typeof yToast==='function'){yToast('장바구니 생성에 실패했어요. 잠시 후 다시 시도해주세요.','error');} else {alert('장바구니 생성 실패');} return; }
 
   // 메인 상품 + 연결 상품(별도 줄) 각각 담기
   await addCartLine(cartId, product.id, qty, lines.mainOpts);

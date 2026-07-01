@@ -386,13 +386,19 @@ async function loadCart(){
   const{data:{session}}=await sb.auth.getSession();
   let cart;
   if(session){
-    const{data}=await sb.from('carts').select('*').eq('user_id',session.user.id).single();
-    if(data){cart=data;}else{const{data:newCart}=await sb.from('carts').insert({user_id:session.user.id}).select().single();cart=newCart;}
+    let{data}=await sb.from('carts').select('*').eq('user_id',session.user.id).maybeSingle();
+    if(data){cart=data;}else{
+      const ins=await sb.from('carts').insert({user_id:session.user.id}).select().maybeSingle();
+      cart=ins.data||(await sb.from('carts').select('*').eq('user_id',session.user.id).maybeSingle()).data;
+    }
     await mergeGuestCart(session.user.id,cart.id);
   }else{
     const gid=getGuestId();
-    const{data}=await sb.from('carts').select('*').eq('guest_id',gid).single();
-    if(data){cart=data;}else{const{data:newCart}=await sb.from('carts').insert({guest_id:gid}).select().single();cart=newCart;}
+    let{data}=await sb.from('carts').select('*').eq('guest_id',gid).maybeSingle();
+    if(data){cart=data;}else{
+      const ins=await sb.from('carts').insert({guest_id:gid}).select().maybeSingle();
+      cart=ins.data||(await sb.from('carts').select('*').eq('guest_id',gid).maybeSingle()).data;
+    }
   }
   if(!cart){console.error('[cart] 카트 조회/생성 실패 — anon 키 또는 carts 테이블 RLS 확인');cartItems=[];renderCart();return;}
   cartId=cart.id;
@@ -425,27 +431,17 @@ async function mergeGuestCart(userId,userCartId){
   if(!guestCart||guestCart.id===userCartId)return;
   const{data:guestItems}=await sb.from('cart_items').select('*').eq('cart_id',guestCart.id);
   if(guestItems&&guestItems.length){
-    // 옵션 비교용: selected_options를 키 순서 무관하게 정규화한 문자열로
-    const optKey=(o)=>{
-      if(!o||typeof o!=='object')return '';
-      const clean={};
-      Object.keys(o).filter(k=>!k.startsWith('_')).sort().forEach(k=>{clean[k]=o[k];});
-      return JSON.stringify(clean);
-    };
+    // B-CART-DUP-FIX: 병합도 add_cart_line RPC로 통일.
+    // 담기/병합/DB UNIQUE가 모두 '같은 줄 = cart_id+product_id+selected_options(전체)' 기준으로 일치.
     let allOk=true;
     for(const item of guestItems){
-      // 같은 product_id 항목들을 모두 가져와서(여러 행 가능) 옵션까지 일치하는 것만 동일 취급
-      const{data:sameProduct}=await sb.from('cart_items').select('*').eq('cart_id',userCartId).eq('product_id',item.product_id);
-      const itemKey=optKey(item.selected_options);
-      const existing=(sameProduct||[]).find(e=>optKey(e.selected_options)===itemKey);
-      if(existing){
-        const{error}=await sb.from('cart_items').update({quantity:existing.quantity+item.quantity}).eq('id',existing.id);
-        if(error){allOk=false;console.error('[merge] 수량합산 실패',error);}
-      }else{
-        const{id,cart_id,added_at,created_at,...rest}=item;   // 모든 컬럼 복사(누락 방지)
-        const{error}=await sb.from('cart_items').insert({...rest,cart_id:userCartId});
-        if(error){allOk=false;console.error('[merge] 복사 실패 → 게스트 상품 유지함',error,rest);}
-      }
+      const{error}=await sb.rpc('add_cart_line',{
+        p_cart_id:userCartId,
+        p_product_id:item.product_id,
+        p_quantity:item.quantity,
+        p_opts:item.selected_options||{}
+      });
+      if(error){allOk=false;console.error('[merge] 병합 실패 → 게스트 상품 유지함',error,item);}
     }
     if(allOk){   // 전부 성공했을 때만 게스트 카트 삭제 (실패 시 상품 안 잃어버리게 그대로 둠)
       await sb.from('cart_items').delete().eq('cart_id',guestCart.id);
@@ -453,7 +449,9 @@ async function mergeGuestCart(userId,userCartId){
       localStorage.removeItem('yllowtap_guest_id');
     }
   }else{
-    localStorage.removeItem('yllowtap_guest_id');   // 게스트 카트가 비어있을 때만 정리
+    // 게스트 카트가 비어있어도 빈 guest cart 통까지 정리
+    await sb.from('carts').delete().eq('id',guestCart.id);
+    localStorage.removeItem('yllowtap_guest_id');
   }
 }
 
